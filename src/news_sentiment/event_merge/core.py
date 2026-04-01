@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from news_sentiment.config_loader import load_source_priority_map
 from news_sentiment.models import Event, NormalizedNews
 
 
@@ -7,6 +8,7 @@ def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
     if not items:
         return []
 
+    source_priorities = load_source_priority_map()
     groups: list[list[NormalizedNews]] = []
     for item in items:
         target_group = None
@@ -23,20 +25,28 @@ def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
     for index, group in enumerate(groups, start=1):
         first = min(group, key=lambda item: item.published_at)
         last = max(group, key=lambda item: item.published_at)
+        authoritative = max(
+            group,
+            key=lambda item: (
+                source_priorities.get(item.source, 0),
+                item.published_at,
+            ),
+        )
+        authority_priority = source_priorities.get(authoritative.source, 0)
         events.append(
             Event(
                 event_id=f"event-{index:03d}",
                 first_seen_at=first.published_at,
                 last_seen_at=last.published_at,
-                canonical_title=first.title,
-                summary=first.content,
-                source=first.source,
-                published_at=first.published_at,
-                url=first.url,
+                canonical_title=authoritative.title,
+                summary=authoritative.content,
+                source=authoritative.source,
+                published_at=authoritative.published_at,
+                url=authoritative.url,
                 member_news_ids=[item.news_id for item in group],
-                event_type=first.source_type,
+                event_type=authoritative.source_type,
                 primary_entities=[],
-                source_authority_score=0.0,
+                source_authority_score=authority_priority / 100.0,
             )
         )
     return events
