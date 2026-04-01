@@ -1,5 +1,6 @@
 from news_sentiment.cli import main
-from news_sentiment.collectors.stcn import parse_stcn_news_list
+from news_sentiment.collectors.errors import CollectorEmptyResultError
+from news_sentiment.collectors.stcn import collect_stcn_news, parse_stcn_news_list
 
 
 def test_parse_stcn_news_list_extracts_flash_news_rows() -> None:
@@ -34,3 +35,18 @@ def test_collect_stcn_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     )
     assert main(["collect", "--source", "stcn"]) == 0
     assert (tmp_path / "data" / "raw" / "raw_news.jsonl").exists()
+
+
+def test_collect_stcn_news_raises_empty_result_error_on_blank_html(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "news_sentiment.collectors.stcn.fetch_stcn_news_html",
+        lambda url=None: "   ",
+    )
+
+    try:
+        collect_stcn_news()
+    except CollectorEmptyResultError as exc:
+        assert exc.source == "stcn"
+        assert exc.kind == "empty_result"
+    else:
+        raise AssertionError("Expected CollectorEmptyResultError")

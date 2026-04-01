@@ -7,6 +7,8 @@ from typing import Sequence
 
 from news_sentiment.analysis import score_event
 from news_sentiment.collectors import (
+    CollectFailure,
+    CollectorError,
     collect_cninfo_news,
     collect_fixture_news,
     collect_miit_news,
@@ -35,7 +37,7 @@ COMMANDS = (
 @dataclass(frozen=True)
 class CollectResult:
     rows: list[RawNews]
-    failed_sources: list[str]
+    failed_sources: list[CollectFailure]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -63,7 +65,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = run_collect(paths, args.source)
         if result.failed_sources:
             print(
-                f"warning: failed_sources={','.join(result.failed_sources)}",
+                f"warning: failed_sources={format_collect_failures(result.failed_sources)}",
                 file=sys.stderr,
             )
         return 0
@@ -98,15 +100,35 @@ def collect_from_source(source: str) -> CollectResult:
         return CollectResult(rows=_collect_rows(source), failed_sources=[])
 
     rows: list[RawNews] = []
-    failed_sources: list[str] = []
+    failed_sources: list[CollectFailure] = []
     for source_definition in load_source_definitions():
         if not source_definition.enabled:
             continue
         try:
             rows.extend(_collect_rows(source_definition.source_id))
-        except Exception:
-            failed_sources.append(source_definition.source_id)
+        except CollectorError as exc:
+            failed_sources.append(
+                CollectFailure(
+                    source=exc.source,
+                    kind=exc.kind,
+                    message=exc.message,
+                )
+            )
+        except Exception as exc:
+            failed_sources.append(
+                CollectFailure(
+                    source=source_definition.source_id,
+                    kind="unexpected_error",
+                    message=str(exc) or exc.__class__.__name__,
+                )
+            )
     return CollectResult(rows=rows, failed_sources=failed_sources)
+
+
+def format_collect_failures(failures: list[CollectFailure]) -> str:
+    if not failures:
+        return "none"
+    return ",".join(f"{failure.source}:{failure.kind}" for failure in failures)
 
 
 def _collect_rows(source: str) -> list[RawNews]:
@@ -170,7 +192,7 @@ def run_live_smoke(paths: ProjectPaths, source: str) -> int:
                 f"normalized_news={normalized_count}",
                 f"events={event_count}",
                 f"analyses={analysis_count}",
-                f"failed_sources={','.join(collect_result.failed_sources) or 'none'}",
+                f"failed_sources={format_collect_failures(collect_result.failed_sources)}",
                 f"report={paths.latest_report_path}",
             ]
         )

@@ -6,6 +6,11 @@ from html import unescape
 from urllib.parse import urljoin
 from urllib.request import urlopen
 
+from news_sentiment.collectors.errors import (
+    CollectorEmptyResultError,
+    CollectorFetchError,
+    CollectorParseError,
+)
 from news_sentiment.models import RawNews
 
 
@@ -50,4 +55,15 @@ def parse_stcn_news_list(html: str, date_str: str | None = None) -> list[RawNews
 
 
 def collect_stcn_news() -> list[RawNews]:
-    return parse_stcn_news_list(fetch_stcn_news_html())
+    try:
+        html = fetch_stcn_news_html()
+    except Exception as exc:
+        raise CollectorFetchError("stcn", str(exc) or exc.__class__.__name__) from exc
+
+    if not html.strip():
+        raise CollectorEmptyResultError("stcn", "empty response body")
+
+    rows = parse_stcn_news_list(html)
+    if not rows:
+        raise CollectorParseError("stcn", "no flash news rows matched response")
+    return rows

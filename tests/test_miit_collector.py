@@ -1,5 +1,6 @@
 from news_sentiment.cli import main
-from news_sentiment.collectors.miit import parse_miit_news_list
+from news_sentiment.collectors.errors import CollectorParseError
+from news_sentiment.collectors.miit import collect_miit_news, parse_miit_news_list
 
 
 def test_parse_miit_news_list_extracts_news_rows() -> None:
@@ -38,3 +39,18 @@ def test_collect_miit_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     )
     assert main(["collect", "--source", "miit"]) == 0
     assert (tmp_path / "data" / "raw" / "raw_news.jsonl").exists()
+
+
+def test_collect_miit_news_raises_parse_error_on_unmatched_html(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "news_sentiment.collectors.miit.fetch_miit_news_html",
+        lambda url=None: "<html><body>unexpected</body></html>",
+    )
+
+    try:
+        collect_miit_news()
+    except CollectorParseError as exc:
+        assert exc.source == "miit"
+        assert exc.kind == "parse_error"
+    else:
+        raise AssertionError("Expected CollectorParseError")

@@ -61,7 +61,7 @@ python3 -m venv .venv
 .venv/bin/python -m news_sentiment live-smoke --source all
 ```
 
-`live-smoke` 会直接跑完整链路，并输出 `raw_news`、`events`、`analyses`、`failed_sources` 和报告路径，适合快速检查真实源当前是否可用。
+`live-smoke` 会直接跑完整链路，并输出 `raw_news`、`events`、`analyses`、`failed_sources` 和报告路径。`failed_sources` 会附带错误类型，如 `fetch_error`、`parse_error`、`empty_result`，适合快速检查真实源当前是否可用。
 
 当前已接入的真实源：
 

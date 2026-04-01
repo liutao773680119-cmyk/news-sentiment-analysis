@@ -1,4 +1,5 @@
 from news_sentiment.cli import main
+from news_sentiment.collectors.errors import CollectorFetchError
 from news_sentiment.models import RawNews
 
 
@@ -48,11 +49,11 @@ def test_live_smoke_reports_failed_sources_and_keeps_running(tmp_path, monkeypat
     )
     monkeypatch.setattr(
         "news_sentiment.cli.collect_stcn_news",
-        lambda: (_ for _ in ()).throw(RuntimeError("stcn unavailable")),
+        lambda: (_ for _ in ()).throw(CollectorFetchError("stcn", "timed out")),
     )
     monkeypatch.setattr("news_sentiment.cli.collect_miit_news", lambda: [])
 
     assert main(["live-smoke", "--source", "all"]) == 0
     output = capsys.readouterr().out
     assert "raw_news=1" in output
-    assert "failed_sources=stcn" in output
+    assert "failed_sources=stcn:fetch_error" in output

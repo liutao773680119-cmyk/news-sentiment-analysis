@@ -6,6 +6,11 @@ from html import unescape
 from urllib.parse import urljoin
 from urllib.request import urlopen
 
+from news_sentiment.collectors.errors import (
+    CollectorEmptyResultError,
+    CollectorFetchError,
+    CollectorParseError,
+)
 from news_sentiment.models import RawNews
 
 
@@ -45,4 +50,15 @@ def parse_miit_news_list(html: str) -> list[RawNews]:
 
 
 def collect_miit_news() -> list[RawNews]:
-    return parse_miit_news_list(fetch_miit_news_html())
+    try:
+        html = fetch_miit_news_html()
+    except Exception as exc:
+        raise CollectorFetchError("miit", str(exc) or exc.__class__.__name__) from exc
+
+    if not html.strip():
+        raise CollectorEmptyResultError("miit", "empty response body")
+
+    rows = parse_miit_news_list(html)
+    if not rows:
+        raise CollectorParseError("miit", "no news rows matched response")
+    return rows
