@@ -53,3 +53,32 @@ def test_run_once_all_merges_sources_and_prefers_authoritative_source(tmp_path, 
     content = (tmp_path / "data" / "reports" / "latest_report.txt").read_text(encoding="utf-8")
     assert content.count("[关注]") == 1
     assert "来源: cninfo" in content
+
+
+def test_run_once_all_continues_when_one_source_fails(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    monkeypatch.setattr(
+        "news_sentiment.cli.collect_cninfo_news",
+        lambda: [
+            RawNews(
+                news_id="cninfo-1",
+                source="cninfo",
+                source_type="hard_event",
+                published_at="2026-04-01T09:31:00+08:00",
+                captured_at="2026-04-01T09:31:30+08:00",
+                title="中科曙光签署算力合作协议公告",
+                content="中科曙光签署算力合作协议公告。",
+                url="https://www.cninfo.com.cn/notice/1",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "news_sentiment.cli.collect_stcn_news",
+        lambda: (_ for _ in ()).throw(RuntimeError("stcn unavailable")),
+    )
+    monkeypatch.setattr("news_sentiment.cli.collect_miit_news", lambda: [])
+
+    assert main(["run-once", "--source", "all"]) == 0
+    content = (tmp_path / "data" / "reports" / "latest_report.txt").read_text(encoding="utf-8")
+    assert "中科曙光签署算力合作协议公告" in content

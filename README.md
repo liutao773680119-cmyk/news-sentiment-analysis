@@ -58,7 +58,10 @@ python3 -m venv .venv
 ```bash
 .venv/bin/python -m news_sentiment collect --source all
 .venv/bin/python -m news_sentiment run-once --source all
+.venv/bin/python -m news_sentiment live-smoke --source all
 ```
+
+`live-smoke` 会直接跑完整链路，并输出 `raw_news`、`events`、`analyses`、`failed_sources` 和报告路径，适合快速检查真实源当前是否可用。
 
 当前已接入的真实源：
 

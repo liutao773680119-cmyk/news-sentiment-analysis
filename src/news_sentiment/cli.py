@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
+import sys
 from typing import Sequence
 
 from news_sentiment.analysis import score_event
@@ -30,6 +32,12 @@ COMMANDS = (
 )
 
 
+@dataclass(frozen=True)
+class CollectResult:
+    rows: list[RawNews]
+    failed_sources: list[str]
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="news-sentiment")
     subparsers = parser.add_subparsers(dest="command")
@@ -52,7 +60,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     paths = ProjectPaths.discover()
 
     if args.command == "collect":
-        return run_collect(paths, args.source)
+        result = run_collect(paths, args.source)
+        if result.failed_sources:
+            print(
+                f"warning: failed_sources={','.join(result.failed_sources)}",
+                file=sys.stderr,
+            )
+        return 0
     if args.command == "normalize":
         return run_normalize(paths)
     if args.command == "merge-events":
@@ -72,18 +86,27 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
-def run_collect(paths: ProjectPaths, source: str) -> int:
+def run_collect(paths: ProjectPaths, source: str) -> CollectResult:
     store = JsonlStore(paths.raw_news_path, RawNews)
-    if source == "all":
-        rows = []
-        for source_definition in load_source_definitions():
-            if not source_definition.enabled:
-                continue
+    result = collect_from_source(source)
+    store.write_many(result.rows)
+    return result
+
+
+def collect_from_source(source: str) -> CollectResult:
+    if source != "all":
+        return CollectResult(rows=_collect_rows(source), failed_sources=[])
+
+    rows: list[RawNews] = []
+    failed_sources: list[str] = []
+    for source_definition in load_source_definitions():
+        if not source_definition.enabled:
+            continue
+        try:
             rows.extend(_collect_rows(source_definition.source_id))
-    else:
-        rows = _collect_rows(source)
-    store.write_many(rows)
-    return 0
+        except Exception:
+            failed_sources.append(source_definition.source_id)
+    return CollectResult(rows=rows, failed_sources=failed_sources)
 
 
 def _collect_rows(source: str) -> list[RawNews]:
@@ -130,7 +153,7 @@ def run_report(paths: ProjectPaths) -> int:
 
 
 def run_live_smoke(paths: ProjectPaths, source: str) -> int:
-    run_collect(paths, source)
+    collect_result = run_collect(paths, source)
     run_normalize(paths)
     run_merge_events(paths)
     run_analyze_events(paths)
@@ -147,6 +170,7 @@ def run_live_smoke(paths: ProjectPaths, source: str) -> int:
                 f"normalized_news={normalized_count}",
                 f"events={event_count}",
                 f"analyses={analysis_count}",
+                f"failed_sources={','.join(collect_result.failed_sources) or 'none'}",
                 f"report={paths.latest_report_path}",
             ]
         )
