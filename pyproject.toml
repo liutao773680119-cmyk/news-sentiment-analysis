@@ -7,7 +7,7 @@ name = "news-sentiment-analysis"
 version = "0.1.0"
 description = "A starter project for news sentiment analysis."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = ["PyYAML>=6.0"]
 
 [project.optional-dependencies]
