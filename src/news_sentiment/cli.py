@@ -4,10 +4,12 @@ import argparse
 from typing import Sequence
 
 from news_sentiment.collectors import collect_fixture_news
+from news_sentiment.event_merge import merge_news_items
 from news_sentiment.models import NormalizedNews, RawNews
 from news_sentiment.normalize import normalize_news_items
 from news_sentiment.settings import ProjectPaths
 from news_sentiment.storage import JsonlStore
+from news_sentiment.models import Event
 
 
 COMMANDS = (
@@ -43,9 +45,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_collect(paths, args.source)
     if args.command == "normalize":
         return run_normalize(paths)
+    if args.command == "merge-events":
+        return run_merge_events(paths)
     if args.command == "run-once":
         run_collect(paths, args.source)
-        return run_normalize(paths)
+        run_normalize(paths)
+        return run_merge_events(paths)
     return 0
 
 
@@ -61,4 +66,11 @@ def run_normalize(paths: ProjectPaths) -> int:
     raw_store = JsonlStore(paths.raw_news_path, RawNews)
     normalized_store = JsonlStore(paths.normalized_news_path, NormalizedNews)
     normalized_store.write_many(normalize_news_items(raw_store.read_all()))
+    return 0
+
+
+def run_merge_events(paths: ProjectPaths) -> int:
+    normalized_store = JsonlStore(paths.normalized_news_path, NormalizedNews)
+    events_store = JsonlStore(paths.events_path, Event)
+    events_store.write_many(merge_news_items(normalized_store.read_all()))
     return 0
