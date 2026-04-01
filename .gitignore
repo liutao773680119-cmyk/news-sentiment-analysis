@@ -25,6 +25,7 @@ dist/
 # Local outputs
 output/
 artifacts/
+.worktrees/
 
 # Data files
 data/raw/*
