@@ -21,6 +21,9 @@ def write_text_report(
         lines.extend(
             [
                 f"[{status}] {event.canonical_title}",
+                f"来源: {event.source or '未知'}",
+                f"发布时间: {event.published_at or event.first_seen_at or '未知'}",
+                f"URL: {event.url or '无'}",
                 f"方向: {analysis.direction}",
                 f"强度: {analysis.impact_score:.1f}",
                 f"题材: {', '.join(analysis.themes) if analysis.themes else '无'}",

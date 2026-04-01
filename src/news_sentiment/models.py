@@ -35,6 +35,9 @@ class Event:
     last_seen_at: str
     canonical_title: str
     summary: str
+    source: str = ""
+    published_at: str = ""
+    url: str = ""
     member_news_ids: List[str] = field(default_factory=list)
     event_type: str = "general"
     primary_entities: List[str] = field(default_factory=list)
