@@ -1,0 +1,16 @@
+sources:
+  - id: cninfo
+    name: 巨潮资讯
+    type: hard_event
+    enabled: true
+    priority: 100
+  - id: stcn
+    name: 证券时报
+    type: fast_news
+    enabled: true
+    priority: 80
+  - id: miit
+    name: 工信部新闻发布
+    type: policy
+    enabled: true
+    priority: 90

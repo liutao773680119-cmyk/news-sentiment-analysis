@@ -1,0 +1,4 @@
+stock_code,stock_name,board,is_st,has_delisting_risk,industry
+300308,中际旭创,创业板,false,false,通信设备
+603019,中科曙光,主板,false,false,计算机设备
+300024,机器人,创业板,false,false,自动化设备

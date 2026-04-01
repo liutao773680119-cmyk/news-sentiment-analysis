@@ -1,0 +1,4 @@
+theme_id,theme_name,stock_code,stock_name,relation_type,weight,updated_at
+theme-suanli,算力,300308,中际旭创,core_beneficiary,0.95,2026-04-01
+theme-suanli,算力,603019,中科曙光,leader,1.00,2026-04-01
+theme-robotics,机器人,300024,机器人,leader,1.00,2026-04-01

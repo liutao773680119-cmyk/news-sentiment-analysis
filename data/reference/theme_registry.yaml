@@ -1,0 +1,17 @@
+themes:
+  - name: 算力
+    aliases:
+      - 智算
+      - 算力基础设施
+      - AIDC
+    status: active
+  - name: 机器人
+    aliases:
+      - 人形机器人
+      - 工业机器人
+    status: active
+  - name: 创新药
+    aliases:
+      - 创新药物
+      - 生物医药
+    status: active

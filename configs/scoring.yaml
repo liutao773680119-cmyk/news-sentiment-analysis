@@ -1,0 +1,8 @@
+thresholds:
+  trigger_score: 70
+
+weights:
+  source_authority: 30
+  freshness: 20
+  policy_boost: 25
+  theme_expansion: 25
