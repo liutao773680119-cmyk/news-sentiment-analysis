@@ -13,11 +13,16 @@ def write_text_report(
 ) -> None:
     event_map = {event.event_id: event for event in events}
     lines: list[str] = []
-    for analysis in analyses:
+    ranked_analyses = sorted(
+        [analysis for analysis in analyses if analysis.triggered],
+        key=lambda analysis: analysis.impact_score,
+        reverse=True,
+    )
+    for analysis in ranked_analyses:
         event = event_map[analysis.event_id]
         theme_matches = map_themes_to_stocks(analysis.themes)
         historical = match_historical_events(analysis.themes)
-        status = "关注" if analysis.triggered else "观察"
+        status = "关注"
         lines.extend(
             [
                 f"[{status}] {event.canonical_title}",
@@ -34,4 +39,5 @@ def write_text_report(
         )
 
     paths.latest_report_path.parent.mkdir(parents=True, exist_ok=True)
-    paths.latest_report_path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
+    content = "\n".join(lines).strip()
+    paths.latest_report_path.write_text((content + "\n") if content else "", encoding="utf-8")
