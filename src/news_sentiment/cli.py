@@ -9,6 +9,7 @@ from news_sentiment.config_loader import load_scoring_config
 from news_sentiment.event_merge import merge_news_items
 from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews
 from news_sentiment.normalize import normalize_news_items
+from news_sentiment.reporting import write_text_report
 from news_sentiment.settings import ProjectPaths
 from news_sentiment.storage import JsonlStore
 
@@ -50,11 +51,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_merge_events(paths)
     if args.command == "analyze-events":
         return run_analyze_events(paths)
+    if args.command == "report":
+        return run_report(paths)
     if args.command == "run-once":
         run_collect(paths, args.source)
         run_normalize(paths)
         run_merge_events(paths)
-        return run_analyze_events(paths)
+        run_analyze_events(paths)
+        return run_report(paths)
     return 0
 
 
@@ -87,4 +91,11 @@ def run_analyze_events(paths: ProjectPaths) -> int:
     analyses_store.write_many(
         [score_event(event, scoring_config=scoring_config) for event in events_store.read_all()]
     )
+    return 0
+
+
+def run_report(paths: ProjectPaths) -> int:
+    events_store = JsonlStore(paths.events_path, Event)
+    analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
+    write_text_report(paths, events_store.read_all(), analyses_store.read_all())
     return 0

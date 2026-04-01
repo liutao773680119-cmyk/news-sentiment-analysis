@@ -8,7 +8,7 @@ def collect_fixture_news() -> list[RawNews]:
         RawNews(
             news_id="fixture-001",
             source="fixture",
-            source_type="fast_news",
+            source_type="policy",
             published_at="2026-04-01T09:30:00+08:00",
             captured_at="2026-04-01T09:31:00+08:00",
             title="工信部发布算力基础设施支持政策",
