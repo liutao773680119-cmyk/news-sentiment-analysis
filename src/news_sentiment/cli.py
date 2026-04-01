@@ -3,13 +3,14 @@ from __future__ import annotations
 import argparse
 from typing import Sequence
 
+from news_sentiment.analysis import score_event
 from news_sentiment.collectors import collect_fixture_news
+from news_sentiment.config_loader import load_scoring_config
 from news_sentiment.event_merge import merge_news_items
-from news_sentiment.models import NormalizedNews, RawNews
+from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews
 from news_sentiment.normalize import normalize_news_items
 from news_sentiment.settings import ProjectPaths
 from news_sentiment.storage import JsonlStore
-from news_sentiment.models import Event
 
 
 COMMANDS = (
@@ -47,10 +48,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_normalize(paths)
     if args.command == "merge-events":
         return run_merge_events(paths)
+    if args.command == "analyze-events":
+        return run_analyze_events(paths)
     if args.command == "run-once":
         run_collect(paths, args.source)
         run_normalize(paths)
-        return run_merge_events(paths)
+        run_merge_events(paths)
+        return run_analyze_events(paths)
     return 0
 
 
@@ -73,4 +77,14 @@ def run_merge_events(paths: ProjectPaths) -> int:
     normalized_store = JsonlStore(paths.normalized_news_path, NormalizedNews)
     events_store = JsonlStore(paths.events_path, Event)
     events_store.write_many(merge_news_items(normalized_store.read_all()))
+    return 0
+
+
+def run_analyze_events(paths: ProjectPaths) -> int:
+    events_store = JsonlStore(paths.events_path, Event)
+    analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
+    scoring_config = load_scoring_config()
+    analyses_store.write_many(
+        [score_event(event, scoring_config=scoring_config) for event in events_store.read_all()]
+    )
     return 0
