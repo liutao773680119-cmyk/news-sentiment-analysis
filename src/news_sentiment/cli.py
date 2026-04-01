@@ -24,6 +24,7 @@ COMMANDS = (
     "normalize",
     "merge-events",
     "analyze-events",
+    "live-smoke",
     "report",
     "run-once",
 )
@@ -37,6 +38,8 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("normalize")
     subparsers.add_parser("merge-events")
     subparsers.add_parser("analyze-events")
+    live_smoke_parser = subparsers.add_parser("live-smoke")
+    live_smoke_parser.add_argument("--source", default="all")
     subparsers.add_parser("report")
     run_once_parser = subparsers.add_parser("run-once")
     run_once_parser.add_argument("--source", default="fixture")
@@ -56,6 +59,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_merge_events(paths)
     if args.command == "analyze-events":
         return run_analyze_events(paths)
+    if args.command == "live-smoke":
+        return run_live_smoke(paths, args.source)
     if args.command == "report":
         return run_report(paths)
     if args.command == "run-once":
@@ -121,4 +126,29 @@ def run_report(paths: ProjectPaths) -> int:
     events_store = JsonlStore(paths.events_path, Event)
     analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
     write_text_report(paths, events_store.read_all(), analyses_store.read_all())
+    return 0
+
+
+def run_live_smoke(paths: ProjectPaths, source: str) -> int:
+    run_collect(paths, source)
+    run_normalize(paths)
+    run_merge_events(paths)
+    run_analyze_events(paths)
+    run_report(paths)
+
+    raw_count = len(JsonlStore(paths.raw_news_path, RawNews).read_all())
+    normalized_count = len(JsonlStore(paths.normalized_news_path, NormalizedNews).read_all())
+    event_count = len(JsonlStore(paths.events_path, Event).read_all())
+    analysis_count = len(JsonlStore(paths.analyses_path, EventAnalysis).read_all())
+    print(
+        " ".join(
+            [
+                f"raw_news={raw_count}",
+                f"normalized_news={normalized_count}",
+                f"events={event_count}",
+                f"analyses={analysis_count}",
+                f"report={paths.latest_report_path}",
+            ]
+        )
+    )
     return 0

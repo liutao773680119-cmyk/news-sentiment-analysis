@@ -9,6 +9,7 @@ def test_parser_exposes_expected_commands() -> None:
         "normalize",
         "merge-events",
         "analyze-events",
+        "live-smoke",
         "report",
         "run-once",
     } <= set(choices)
