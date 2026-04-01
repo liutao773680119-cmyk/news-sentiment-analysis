@@ -4,7 +4,12 @@ import argparse
 from typing import Sequence
 
 from news_sentiment.analysis import score_event
-from news_sentiment.collectors import collect_cninfo_news, collect_fixture_news, collect_miit_news
+from news_sentiment.collectors import (
+    collect_cninfo_news,
+    collect_fixture_news,
+    collect_miit_news,
+    collect_stcn_news,
+)
 from news_sentiment.config_loader import load_scoring_config
 from news_sentiment.event_merge import merge_news_items
 from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews
@@ -70,6 +75,8 @@ def run_collect(paths: ProjectPaths, source: str) -> int:
         rows = collect_cninfo_news()
     elif source == "miit":
         rows = collect_miit_news()
+    elif source == "stcn":
+        rows = collect_stcn_news()
     else:
         raise ValueError(f"Unsupported source: {source}")
     store.write_many(rows)
