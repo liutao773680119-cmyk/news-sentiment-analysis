@@ -10,7 +10,7 @@ from news_sentiment.collectors import (
     collect_miit_news,
     collect_stcn_news,
 )
-from news_sentiment.config_loader import load_scoring_config
+from news_sentiment.config_loader import load_scoring_config, load_source_definitions
 from news_sentiment.event_merge import merge_news_items
 from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews
 from news_sentiment.normalize import normalize_news_items
@@ -69,18 +69,28 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def run_collect(paths: ProjectPaths, source: str) -> int:
     store = JsonlStore(paths.raw_news_path, RawNews)
-    if source == "fixture":
-        rows = collect_fixture_news()
-    elif source == "cninfo":
-        rows = collect_cninfo_news()
-    elif source == "miit":
-        rows = collect_miit_news()
-    elif source == "stcn":
-        rows = collect_stcn_news()
+    if source == "all":
+        rows = []
+        for source_definition in load_source_definitions():
+            if not source_definition.enabled:
+                continue
+            rows.extend(_collect_rows(source_definition.source_id))
     else:
-        raise ValueError(f"Unsupported source: {source}")
+        rows = _collect_rows(source)
     store.write_many(rows)
     return 0
+
+
+def _collect_rows(source: str) -> list[RawNews]:
+    if source == "fixture":
+        return collect_fixture_news()
+    if source == "cninfo":
+        return collect_cninfo_news()
+    if source == "miit":
+        return collect_miit_news()
+    if source == "stcn":
+        return collect_stcn_news()
+    raise ValueError(f"Unsupported source: {source}")
 
 
 def run_normalize(paths: ProjectPaths) -> int:
