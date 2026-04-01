@@ -4,7 +4,7 @@ import argparse
 from typing import Sequence
 
 from news_sentiment.analysis import score_event
-from news_sentiment.collectors import collect_fixture_news
+from news_sentiment.collectors import collect_fixture_news, collect_miit_news
 from news_sentiment.config_loader import load_scoring_config
 from news_sentiment.event_merge import merge_news_items
 from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews
@@ -63,10 +63,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def run_collect(paths: ProjectPaths, source: str) -> int:
-    if source != "fixture":
-        raise ValueError(f"Unsupported source: {source}")
     store = JsonlStore(paths.raw_news_path, RawNews)
-    store.write_many(collect_fixture_news())
+    if source == "fixture":
+        rows = collect_fixture_news()
+    elif source == "miit":
+        rows = collect_miit_news()
+    else:
+        raise ValueError(f"Unsupported source: {source}")
+    store.write_many(rows)
     return 0
 
 
