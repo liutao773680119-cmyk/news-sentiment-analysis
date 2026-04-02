@@ -1,9 +1,21 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
+
 from news_sentiment.history.matcher import match_historical_events
 from news_sentiment.mapping.stock_mapper import map_themes_to_stocks
 from news_sentiment.models import Event, EventAnalysis
 from news_sentiment.settings import ProjectPaths
+
+
+REPORT_WINDOW_DAYS = 2
+
+
+def _parse_event_timestamp(event: Event) -> datetime | None:
+    timestamp = event.published_at or event.first_seen_at or event.last_seen_at
+    if not timestamp:
+        return None
+    return datetime.fromisoformat(timestamp)
 
 
 def write_text_report(
@@ -13,9 +25,33 @@ def write_text_report(
 ) -> None:
     event_map = {event.event_id: event for event in events}
     lines: list[str] = []
+    event_times = {
+        event.event_id: parsed
+        for event in events
+        for parsed in [_parse_event_timestamp(event)]
+        if parsed is not None
+    }
+    latest_batch_time = max(event_times.values(), default=None)
+    cutoff_time = (
+        latest_batch_time - timedelta(days=REPORT_WINDOW_DAYS)
+        if latest_batch_time is not None
+        else None
+    )
     ranked_analyses = sorted(
-        [analysis for analysis in analyses if analysis.triggered],
-        key=lambda analysis: analysis.impact_score,
+        [
+            analysis
+            for analysis in analyses
+            if analysis.triggered
+            and (
+                cutoff_time is None
+                or analysis.event_id not in event_times
+                or event_times[analysis.event_id] >= cutoff_time
+            )
+        ],
+        key=lambda analysis: (
+            1 if analysis.themes else 0,
+            analysis.impact_score,
+        ),
         reverse=True,
     )
     for analysis in ranked_analyses:
