@@ -10,12 +10,16 @@ def fetch_html(
     *,
     timeout_seconds: int,
     user_agent: str,
+    extra_headers: dict[str, str] | None = None,
     retry_count: int = 0,
     backoff_seconds: float = 0.0,
     urlopen_func: Callable = urlopen,
     sleep_func: Callable[[float], None] = sleep,
 ) -> str:
-    request = Request(url, headers={"User-Agent": user_agent})
+    headers = {"User-Agent": user_agent}
+    if extra_headers:
+        headers.update(extra_headers)
+    request = Request(url, headers=headers)
     for attempt in range(retry_count + 1):
         try:
             with urlopen_func(request, timeout=timeout_seconds) as response:

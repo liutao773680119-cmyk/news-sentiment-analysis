@@ -55,3 +55,27 @@ def test_fetch_html_retries_before_succeeding() -> None:
     assert html == "<html>ok</html>"
     assert attempts["count"] == 3
     assert sleeps == [0.5, 1.0]
+
+
+def test_fetch_html_merges_extra_headers() -> None:
+    captured: dict[str, object] = {}
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        captured["timeout"] = timeout
+        return DummyResponse()
+
+    fetch_html(
+        "https://example.com/news",
+        timeout_seconds=7,
+        user_agent="news-sentiment-test/1.0",
+        extra_headers={
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": "https://example.com/page",
+        },
+        urlopen_func=fake_urlopen,
+    )
+
+    assert captured["request"].headers["User-agent"] == "news-sentiment-test/1.0"
+    assert captured["request"].headers["X-requested-with"] == "XMLHttpRequest"
+    assert captured["request"].headers["Referer"] == "https://example.com/page"
