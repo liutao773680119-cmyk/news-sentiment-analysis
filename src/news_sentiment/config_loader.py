@@ -35,6 +35,8 @@ class SourceDefinition:
     source_type: str
     enabled: bool
     priority: int
+    timeout_seconds: int
+    user_agent: str
 
 
 def _project_root() -> Path:
@@ -79,6 +81,8 @@ def load_source_definitions() -> list[SourceDefinition]:
             source_type=item["type"],
             enabled=bool(item.get("enabled", True)),
             priority=int(item.get("priority", 0)),
+            timeout_seconds=int(item.get("timeout_seconds", 10)),
+            user_agent=str(item.get("user_agent", "news-sentiment-mvp/0.1")),
         )
         for item in payload.get("sources", [])
     ]
@@ -86,3 +90,7 @@ def load_source_definitions() -> list[SourceDefinition]:
 
 def load_source_priority_map() -> dict[str, int]:
     return {item.source_id: item.priority for item in load_source_definitions()}
+
+
+def load_source_definition_map() -> dict[str, SourceDefinition]:
+    return {item.source_id: item for item in load_source_definitions()}

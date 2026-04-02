@@ -4,13 +4,14 @@ import re
 from datetime import datetime, timezone
 from html import unescape
 from urllib.parse import urljoin
-from urllib.request import urlopen
 
 from news_sentiment.collectors.errors import (
     CollectorEmptyResultError,
     CollectorFetchError,
     CollectorParseError,
 )
+from news_sentiment.collectors.http import fetch_html
+from news_sentiment.config_loader import load_source_definition_map
 from news_sentiment.models import RawNews
 
 
@@ -22,8 +23,12 @@ def current_china_date() -> str:
 
 
 def fetch_stcn_news_html(url: str = STCN_FLASH_URL) -> str:
-    with urlopen(url, timeout=10) as response:
-        return response.read().decode("utf-8", errors="ignore")
+    source_definition = load_source_definition_map()["stcn"]
+    return fetch_html(
+        url,
+        timeout_seconds=source_definition.timeout_seconds,
+        user_agent=source_definition.user_agent,
+    )
 
 
 def parse_stcn_news_list(html: str, date_str: str | None = None) -> list[RawNews]:
