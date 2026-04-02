@@ -287,3 +287,85 @@ def test_write_text_report_filters_neutral_hard_event_without_catalyst_keyword(t
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "关于第九届董事会第三次会议决议的公告" not in content
     assert "关于2025年度向特定对象发行A股股票申请获得深圳证券交易所受理的公告" in content
+
+
+def test_write_text_report_filters_neutral_fast_news_without_catalyst_keyword(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-fast-noise",
+            first_seen_at="2026-04-02T12:50:01+08:00",
+            last_seen_at="2026-04-02T12:50:01+08:00",
+            canonical_title="王毅同巴林外交大臣扎耶尼通电话",
+            summary="巴林方面介绍了海湾合作委员会最新情况，中方表示愿加强沟通协调。",
+            source="stcn",
+            published_at="2026-04-02T12:50:01+08:00",
+            url="https://example.com/fast-noise",
+            event_type="fast_news",
+        ),
+        Event(
+            event_id="event-fast-catalyst",
+            first_seen_at="2026-04-02T12:28:47+08:00",
+            last_seen_at="2026-04-02T12:28:47+08:00",
+            canonical_title="礼来口服GLP-1减肥药在美获批上市 已提交中国上市申请",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-02T12:28:47+08:00",
+            url="https://example.com/fast-catalyst",
+            event_type="fast_news",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-fast-noise",
+            direction="neutral",
+            impact_score=74.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-fast-catalyst",
+            direction="neutral",
+            impact_score=74.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "王毅同巴林外交大臣扎耶尼通电话" not in content
+    assert "礼来口服GLP-1减肥药在美获批上市 已提交中国上市申请" in content
+
+
+def test_write_text_report_keeps_neutral_fast_news_with_market_move_keyword(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-fast-market-move",
+            first_seen_at="2026-04-02T09:31:00+08:00",
+            last_seen_at="2026-04-02T09:31:00+08:00",
+            canonical_title="布伦特原油期货涨幅扩大至6%",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-02T09:31:00+08:00",
+            url="https://example.com/fast-market-move",
+            event_type="fast_news",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-fast-market-move",
+            direction="neutral",
+            impact_score=74.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "布伦特原油期货涨幅扩大至6%" in content

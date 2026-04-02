@@ -25,6 +25,34 @@ HARD_EVENT_CATALYST_KEYWORDS = (
     "收购",
     "激励",
 )
+FAST_NEWS_CATALYST_KEYWORDS = (
+    "战略合作",
+    "合作协议",
+    "签署协议",
+    "签订合同",
+    "获批上市",
+    "获批",
+    "上市申请",
+    "中标",
+    "订单",
+    "收购",
+    "重组",
+    "回购",
+    "增持",
+    "减持",
+    "股权激励",
+)
+FAST_NEWS_MARKET_MOVE_KEYWORDS = (
+    "涨停",
+    "跌停",
+    "涨幅扩大",
+    "跌幅扩大",
+    "涨超",
+    "跌超",
+    "大涨",
+    "大跌",
+    "跳水",
+)
 
 
 def _parse_event_timestamp(event: Event) -> datetime | None:
@@ -35,14 +63,16 @@ def _parse_event_timestamp(event: Event) -> datetime | None:
 
 
 def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
     if analysis.themes:
         return True
     if analysis.direction != "neutral":
         return True
     if event.event_type == "fast_news":
-        return True
+        return any(keyword in text for keyword in FAST_NEWS_CATALYST_KEYWORDS) or any(
+            keyword in text for keyword in FAST_NEWS_MARKET_MOVE_KEYWORDS
+        )
     if event.event_type == "hard_event":
-        text = f"{event.canonical_title} {event.summary}"
         return any(keyword in text for keyword in HARD_EVENT_CATALYST_KEYWORDS)
     return False
 
