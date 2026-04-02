@@ -30,3 +30,8 @@ def test_detect_themes_matches_gold_aliases() -> None:
 def test_detect_themes_matches_oil_gas_aliases() -> None:
     text = "燃气分布式发电系统支撑页岩油示范区生产，并推进气代油工程。"
     assert "油气" in detect_themes(text)
+
+
+def test_detect_themes_matches_semiconductor_aliases() -> None:
+    text = "广州提出加快粤芯、增芯等重大项目建设，打造国家集成电路产业发展第三极。"
+    assert "半导体" in detect_themes(text)

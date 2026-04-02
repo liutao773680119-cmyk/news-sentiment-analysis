@@ -15,6 +15,12 @@ themes:
       - AI视频生成
       - Seedance
     status: active
+  - name: 户外经济
+    aliases:
+      - 户外运动
+      - 露营
+      - 景区消费
+    status: active
   - name: 机器人
     aliases:
       - 人形机器人
@@ -49,6 +55,21 @@ themes:
       - 燃气
       - 气代油
       - 分布式发电系统
+    status: active
+  - name: 锂电池
+    aliases:
+      - 电解液
+      - 锂电
+      - H股发行
+      - 电池材料
+    status: active
+  - name: 半导体
+    aliases:
+      - 芯片
+      - 集成电路
+      - 粤芯
+      - 增芯
+      - 晶圆
     status: active
   - name: 创新药
     aliases:

@@ -59,3 +59,42 @@ def test_score_event_flags_fast_news_as_triggered() -> None:
     )
     analysis = score_event(event, scoring_config=load_scoring_config())
     assert analysis.triggered is True
+
+
+def test_score_event_uses_company_theme_map_for_cninfo_hard_event() -> None:
+    event = Event(
+        event_id="event-004",
+        first_seen_at="2026-04-02T11:44:27+08:00",
+        last_seen_at="2026-04-02T11:44:27+08:00",
+        canonical_title="关于2025年度向特定对象发行A股股票申请获得深圳证券交易所受理的公告",
+        summary="关于2025年度向特定对象发行A股股票申请获得深圳证券交易所受理的公告",
+        source="cninfo",
+        published_at="2026-04-02T11:44:27+08:00",
+        url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=300005&announcementId=1225073837",
+        member_news_ids=["n4"],
+        event_type="hard_event",
+        event_subtype="financing_acceptance",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "户外经济" in analysis.themes
+    assert analysis.triggered is True
+
+
+def test_score_event_does_not_use_company_theme_map_for_generic_disclosure() -> None:
+    event = Event(
+        event_id="event-005",
+        first_seen_at="2026-04-02T11:44:27+08:00",
+        last_seen_at="2026-04-02T11:44:27+08:00",
+        canonical_title="探路者控股集团股份有限公司最近一年的财务报告及其审计报告以及最近一期的财务报告",
+        summary="探路者控股集团股份有限公司最近一年的财务报告及其审计报告以及最近一期的财务报告",
+        source="cninfo",
+        published_at="2026-04-02T11:44:27+08:00",
+        url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=300005&announcementId=1225073841",
+        member_news_ids=["n5"],
+        event_type="hard_event",
+        event_subtype="corporate_disclosure",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "户外经济" not in analysis.themes

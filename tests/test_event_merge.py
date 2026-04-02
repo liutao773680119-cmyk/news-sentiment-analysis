@@ -239,3 +239,34 @@ def test_merge_news_items_does_not_group_market_move_updates_for_different_asset
     events = merge_news_items(items)
 
     assert len(events) == 2
+
+
+def test_merge_news_items_groups_structured_cninfo_catalyst_documents() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cninfo",
+            source_type="hard_event",
+            published_at="2026-04-02T11:44:27+08:00",
+            captured_at="2026-04-02T11:44:30+08:00",
+            title="北京市天元律师事务所关于探路者控股集团股份有限公司向特定对象发行A股股票的法律意见",
+            content="北京市天元律师事务所关于探路者控股集团股份有限公司向特定对象发行A股股票的法律意见",
+            url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=300005&announcementId=1225073842",
+        ),
+        NormalizedNews(
+            news_id="n2",
+            source="cninfo",
+            source_type="hard_event",
+            published_at="2026-04-02T11:44:27+08:00",
+            captured_at="2026-04-02T11:44:31+08:00",
+            title="关于2025年度向特定对象发行A股股票申请获得深圳证券交易所受理的公告",
+            content="关于2025年度向特定对象发行A股股票申请获得深圳证券交易所受理的公告",
+            url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=300005&announcementId=1225073837",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert set(events[0].member_news_ids) == {"n1", "n2"}
+    assert events[0].event_subtype == "financing_acceptance"

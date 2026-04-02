@@ -3,6 +3,7 @@ theme-suanli,算力,300308,中际旭创,core_beneficiary,0.95,2026-04-01
 theme-suanli,算力,603019,中科曙光,leader,1.00,2026-04-01
 theme-aiapp,AI应用,002230,科大讯飞,core_beneficiary,0.92,2026-04-01
 theme-aiapp,AI应用,300624,万兴科技,leader,1.00,2026-04-01
+theme-outdoor,户外经济,300005,探路者,leader,1.00,2026-04-01
 theme-robotics,机器人,300024,机器人,leader,1.00,2026-04-01
 theme-charging,充电桩,300001,特锐德,leader,1.00,2026-04-01
 theme-charging,充电桩,300693,盛弘股份,core_beneficiary,0.92,2026-04-01
@@ -10,7 +11,12 @@ theme-security,数据安全,002268,电科网安,leader,1.00,2026-04-01
 theme-security,数据安全,300579,数字认证,core_beneficiary,0.90,2026-04-01
 theme-gold,黄金,600489,中金黄金,leader,1.00,2026-04-01
 theme-gold,黄金,601899,紫金矿业,core_beneficiary,0.94,2026-04-01
+theme-battery,锂电池,300750,宁德时代,leader,1.00,2026-04-01
+theme-battery,锂电池,603026,石大胜华,core_beneficiary,0.93,2026-04-01
+theme-chip,半导体,300223,北京君正,core_beneficiary,0.92,2026-04-01
+theme-chip,半导体,688981,中芯国际,leader,1.00,2026-04-01
 theme-oilgas,油气,600871,石化油服,core_beneficiary,0.90,2026-04-01
 theme-oilgas,油气,600968,海油发展,leader,1.00,2026-04-01
 theme-drug,创新药,300199,翰宇药业,core_beneficiary,0.90,2026-04-01
+theme-drug,创新药,300009,安科生物,core_beneficiary,0.88,2026-04-01
 theme-drug,创新药,300558,贝达药业,leader,1.00,2026-04-01

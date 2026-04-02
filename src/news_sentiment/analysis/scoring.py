@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from news_sentiment.analysis.rules import detect_direction, detect_themes
+from news_sentiment.analysis.rules import detect_direction, detect_event_themes
 from news_sentiment.config_loader import ScoringConfig
 from news_sentiment.models import Event, EventAnalysis
 
 
 def score_event(event: Event, scoring_config: ScoringConfig) -> EventAnalysis:
     text = f"{event.canonical_title} {event.summary}"
-    themes = detect_themes(text)
+    themes = detect_event_themes(event)
     direction = detect_direction(text)
 
     score = event.source_authority_score * scoring_config.source_authority_weight

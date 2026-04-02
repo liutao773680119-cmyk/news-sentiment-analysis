@@ -15,6 +15,15 @@ MARKET_MOVE_ASSETS = (
     "创业板指",
 )
 MARKET_MOVE_WINDOW_SECONDS = 15 * 60
+STRUCTURED_CATALYST_WINDOW_SECONDS = 12 * 60 * 60
+STRUCTURED_CATALYST_SUBTYPES = {
+    "financing_acceptance",
+    "control_change",
+    "equity_incentive",
+    "order_contract",
+    "cooperation_agreement",
+    "acquisition_restructuring",
+}
 
 
 def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
@@ -84,7 +93,7 @@ def _should_merge(left: NormalizedNews, right: NormalizedNews) -> bool:
     if _is_similar(left.title, right.title):
         return True
 
-    return _is_same_market_move_asset(left, right)
+    return _is_same_market_move_asset(left, right) or _is_same_structured_catalyst(left, right)
 
 
 def _is_same_market_move_asset(left: NormalizedNews, right: NormalizedNews) -> bool:
@@ -108,6 +117,25 @@ def _extract_market_move_asset(text: str) -> str:
         if asset in text:
             return asset
     return ""
+
+
+def _is_same_structured_catalyst(left: NormalizedNews, right: NormalizedNews) -> bool:
+    if left.source_type != "hard_event" or right.source_type != "hard_event":
+        return False
+
+    left_subtype = _classify_event_subtype(left.source_type, left.title, left.content)
+    right_subtype = _classify_event_subtype(right.source_type, right.title, right.content)
+    if left_subtype != right_subtype or left_subtype not in STRUCTURED_CATALYST_SUBTYPES:
+        return False
+
+    left_stock_code = _extract_stock_code_from_url(left.url)
+    right_stock_code = _extract_stock_code_from_url(right.url)
+    if not left_stock_code or left_stock_code != right_stock_code:
+        return False
+
+    left_time = datetime.fromisoformat(left.published_at)
+    right_time = datetime.fromisoformat(right.published_at)
+    return abs((left_time - right_time).total_seconds()) <= STRUCTURED_CATALYST_WINDOW_SECONDS
 
 
 def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
@@ -166,3 +194,9 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
 
 def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
     return any(keyword in text for keyword in keywords)
+
+
+def _extract_stock_code_from_url(url: str) -> str:
+    if "stockCode=" not in url:
+        return ""
+    return url.split("stockCode=", maxsplit=1)[1].split("&", maxsplit=1)[0]

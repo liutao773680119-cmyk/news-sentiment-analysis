@@ -34,3 +34,25 @@ def test_match_historical_events_supports_commodity_seed_themes() -> None:
     matches = match_historical_events(["黄金", "油气"])
     matched_themes = {theme for row in matches for theme in row["themes"]}
     assert {"黄金", "油气"} <= matched_themes
+
+
+def test_map_themes_to_stocks_supports_company_theme_seed_themes() -> None:
+    rows = map_themes_to_stocks(["户外经济", "锂电池"])
+    assert {row.theme_name for row in rows} >= {"户外经济", "锂电池"}
+
+
+def test_match_historical_events_supports_company_theme_seed_themes() -> None:
+    matches = match_historical_events(["户外经济", "锂电池"])
+    matched_themes = {theme for row in matches for theme in row["themes"]}
+    assert {"户外经济", "锂电池"} <= matched_themes
+
+
+def test_map_themes_to_stocks_supports_semiconductor_theme() -> None:
+    rows = map_themes_to_stocks(["半导体"])
+    assert {row.theme_name for row in rows} >= {"半导体"}
+
+
+def test_match_historical_events_supports_semiconductor_theme() -> None:
+    matches = match_historical_events(["半导体"])
+    matched_themes = {theme for row in matches for theme in row["themes"]}
+    assert {"半导体"} <= matched_themes
