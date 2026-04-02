@@ -30,5 +30,8 @@ artifacts/
 # Data files
 data/raw/*
 !data/raw/.gitkeep
+data/normalized/*
+data/events/*
+data/reports/*
 data/processed/*
 !data/processed/.gitkeep

@@ -40,25 +40,25 @@ python3 -m venv .venv
 逐步执行：
 
 ```bash
-.venv/bin/python -m news_sentiment collect --source cninfo
-.venv/bin/python -m news_sentiment normalize
-.venv/bin/python -m news_sentiment merge-events
-.venv/bin/python -m news_sentiment analyze-events
-.venv/bin/python -m news_sentiment report
+PYTHONPATH=src .venv/bin/python -m news_sentiment collect --source cninfo
+PYTHONPATH=src .venv/bin/python -m news_sentiment normalize
+PYTHONPATH=src .venv/bin/python -m news_sentiment merge-events
+PYTHONPATH=src .venv/bin/python -m news_sentiment analyze-events
+PYTHONPATH=src .venv/bin/python -m news_sentiment report
 ```
 
 一条命令执行完整链路：
 
 ```bash
-.venv/bin/python -m news_sentiment run-once --source fixture
+PYTHONPATH=src .venv/bin/python -m news_sentiment run-once --source fixture
 ```
 
 多源混跑：
 
 ```bash
-.venv/bin/python -m news_sentiment collect --source all
-.venv/bin/python -m news_sentiment run-once --source all
-.venv/bin/python -m news_sentiment live-smoke --source all
+PYTHONPATH=src .venv/bin/python -m news_sentiment collect --source all
+PYTHONPATH=src .venv/bin/python -m news_sentiment run-once --source all
+PYTHONPATH=src .venv/bin/python -m news_sentiment live-smoke --source all
 ```
 
 `live-smoke` 会直接跑完整链路，并输出 `raw_news`、`events`、`analyses`、`failed_sources` 和报告路径。`failed_sources` 会附带错误类型，如 `fetch_error`、`parse_error`、`empty_result`，适合快速检查真实源当前是否可用。

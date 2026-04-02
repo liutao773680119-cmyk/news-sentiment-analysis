@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import ast
+import json
 import re
 from datetime import datetime, timezone
 from html import unescape
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 
 from news_sentiment.collectors.errors import (
     CollectorEmptyResultError,
@@ -20,19 +22,47 @@ MIIT_NEWS_URL = "https://www.miit.gov.cn/xwfb/gxdt/index.html"
 
 def fetch_miit_news_html(url: str = MIIT_NEWS_URL) -> str:
     source_definition = load_source_definition_map()["miit"]
-    return fetch_html(
+    shell_html = fetch_html(
         url,
         timeout_seconds=source_definition.timeout_seconds,
         user_agent=source_definition.user_agent,
         retry_count=source_definition.retry_count,
         backoff_seconds=source_definition.backoff_seconds,
     )
+    build_url, params = extract_miit_build_request(shell_html)
+    payload = fetch_html(
+        f"{build_url}?{urlencode(params)}",
+        timeout_seconds=source_definition.timeout_seconds,
+        user_agent=source_definition.user_agent,
+        retry_count=source_definition.retry_count,
+        backoff_seconds=source_definition.backoff_seconds,
+    )
+    return parse_miit_build_response_html(payload)
+
+
+def extract_miit_build_request(html: str) -> tuple[str, dict[str, str]]:
+    match = re.search(
+        r'url="(?P<url>/api-gateway/[^"]+)"[^>]+queryData="(?P<query>\{[^"]+\})"',
+        html,
+        re.S,
+    )
+    if not match:
+        raise CollectorParseError("miit", "miit build-unit request metadata not found")
+
+    build_url = urljoin(MIIT_NEWS_URL, match.group("url"))
+    params = ast.literal_eval(match.group("query"))
+    return build_url, {str(key): str(value) for key, value in params.items()}
+
+
+def parse_miit_build_response_html(payload: str) -> str:
+    parsed = json.loads(payload)
+    return str(parsed.get("data", {}).get("html", ""))
 
 
 def parse_miit_news_list(html: str) -> list[RawNews]:
     rows: list[RawNews] = []
     pattern = re.compile(
-        r'<a[^>]+href="(?P<href>[^"]+)"[^>]+title="(?P<title>[^"]+)"[^>]*>.*?</a>\s*<span>(?P<date>\d{4}-\d{2}-\d{2})</span>',
+        r'<a[^>]+href="(?P<href>[^"]+)"[^>]+title="(?P<title>[^"]+)"[^>]*>.*?</a>\s*<span[^>]*>(?P<date>\d{4}-\d{2}-\d{2})</span>',
         re.S,
     )
     captured_at = datetime.now(timezone.utc).isoformat()
