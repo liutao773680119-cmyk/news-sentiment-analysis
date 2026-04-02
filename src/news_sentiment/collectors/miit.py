@@ -24,6 +24,8 @@ def fetch_miit_news_html(url: str = MIIT_NEWS_URL) -> str:
         url,
         timeout_seconds=source_definition.timeout_seconds,
         user_agent=source_definition.user_agent,
+        retry_count=source_definition.retry_count,
+        backoff_seconds=source_definition.backoff_seconds,
     )
 
 

@@ -10,3 +10,5 @@ def test_load_source_definitions_include_http_runtime_settings() -> None:
     sources = {item.source_id: item for item in load_source_definitions()}
     assert sources["cninfo"].timeout_seconds == 10
     assert sources["cninfo"].user_agent
+    assert sources["cninfo"].retry_count == 2
+    assert sources["cninfo"].backoff_seconds == 1.0

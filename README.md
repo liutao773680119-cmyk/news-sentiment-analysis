@@ -70,6 +70,8 @@ python3 -m venv .venv
 - `stcn`: 证券时报快讯
 - `fixture`: 本地测试夹具源
 
+真实源抓取当前支持来源级 `timeout`、`user-agent`、`retry_count` 和线性 `backoff_seconds` 配置。
+
 ## 报告输出
 
 运行 `run-once` 后，文本报告会写到：

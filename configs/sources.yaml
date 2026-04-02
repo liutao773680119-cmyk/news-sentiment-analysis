@@ -6,6 +6,8 @@ sources:
     priority: 100
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0
   - id: stcn
     name: 证券时报
     type: fast_news
@@ -13,6 +15,8 @@ sources:
     priority: 80
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0
   - id: miit
     name: 工信部新闻发布
     type: policy
@@ -20,3 +24,5 @@ sources:
     priority: 90
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0
