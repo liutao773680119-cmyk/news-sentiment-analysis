@@ -4,14 +4,42 @@ themes:
       - 智算
       - 算力基础设施
       - AIDC
+      - 太空算力
+    status: active
+  - name: AI应用
+    aliases:
+      - Sora
+      - 可灵AI
+      - Qwen
+      - 大语言模型
+      - AI视频生成
+      - Seedance
     status: active
   - name: 机器人
     aliases:
       - 人形机器人
       - 工业机器人
     status: active
+  - name: 充电桩
+    aliases:
+      - 充电设施
+      - 公共充电容量
+      - 充电网络
+      - 充电服务
+    status: active
+  - name: 数据安全
+    aliases:
+      - 安全加密
+      - DNA安全加密
+      - 信息安全
+      - 通信加密
+    status: active
   - name: 创新药
     aliases:
       - 创新药物
       - 生物医药
+      - GLP-1
+      - 减肥药
+      - 曲妥珠单抗
+      - 上市申请
     status: active

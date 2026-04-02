@@ -12,3 +12,14 @@ def test_match_historical_events_returns_theme_related_samples() -> None:
     matches = match_historical_events(["算力"])
     assert matches
     assert "算力" in matches[0]["themes"]
+
+
+def test_map_themes_to_stocks_supports_extended_seed_themes() -> None:
+    rows = map_themes_to_stocks(["AI应用", "充电桩", "数据安全"])
+    assert {row.theme_name for row in rows} >= {"AI应用", "充电桩", "数据安全"}
+
+
+def test_match_historical_events_supports_extended_seed_themes() -> None:
+    matches = match_historical_events(["AI应用", "充电桩", "数据安全"])
+    matched_themes = {theme for row in matches for theme in row["themes"]}
+    assert {"AI应用", "充电桩", "数据安全"} <= matched_themes

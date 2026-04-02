@@ -1,4 +1,12 @@
 theme_id,theme_name,stock_code,stock_name,relation_type,weight,updated_at
 theme-suanli,算力,300308,中际旭创,core_beneficiary,0.95,2026-04-01
 theme-suanli,算力,603019,中科曙光,leader,1.00,2026-04-01
+theme-aiapp,AI应用,002230,科大讯飞,core_beneficiary,0.92,2026-04-01
+theme-aiapp,AI应用,300624,万兴科技,leader,1.00,2026-04-01
 theme-robotics,机器人,300024,机器人,leader,1.00,2026-04-01
+theme-charging,充电桩,300001,特锐德,leader,1.00,2026-04-01
+theme-charging,充电桩,300693,盛弘股份,core_beneficiary,0.92,2026-04-01
+theme-security,数据安全,002268,电科网安,leader,1.00,2026-04-01
+theme-security,数据安全,300579,数字认证,core_beneficiary,0.90,2026-04-01
+theme-drug,创新药,300199,翰宇药业,core_beneficiary,0.90,2026-04-01
+theme-drug,创新药,300558,贝达药业,leader,1.00,2026-04-01

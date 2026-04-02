@@ -6,11 +6,12 @@ from news_sentiment.config_loader import load_theme_registry
 def detect_themes(text: str) -> list[str]:
     registry = load_theme_registry()
     matches: list[str] = []
+    normalized_text = text.lower()
     for theme in registry.themes:
         tokens = [theme.name, *theme.aliases]
-        if any(token in text for token in tokens):
+        if any(token.lower() in normalized_text for token in tokens):
             matches.append(theme.name)
-    return matches
+    return list(dict.fromkeys(matches))
 
 
 def detect_direction(text: str) -> str:
