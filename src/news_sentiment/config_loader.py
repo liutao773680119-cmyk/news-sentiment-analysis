@@ -25,6 +25,7 @@ class ScoringConfig:
     source_authority_weight: float
     freshness_weight: float
     policy_boost_weight: float
+    market_event_boost_weight: float
     theme_expansion_weight: float
 
 
@@ -69,6 +70,7 @@ def load_scoring_config() -> ScoringConfig:
         source_authority_weight=float(weights.get("source_authority", 30)),
         freshness_weight=float(weights.get("freshness", 20)),
         policy_boost_weight=float(weights.get("policy_boost", 25)),
+        market_event_boost_weight=float(weights.get("market_event_boost", 30)),
         theme_expansion_weight=float(weights.get("theme_expansion", 25)),
     )
 

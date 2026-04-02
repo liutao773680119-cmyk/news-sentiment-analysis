@@ -13,6 +13,8 @@ def score_event(event: Event, scoring_config: ScoringConfig) -> EventAnalysis:
     score = event.source_authority_score * scoring_config.source_authority_weight
     if event.event_type == "policy":
         score += scoring_config.policy_boost_weight
+    if event.event_type in {"hard_event", "fast_news"}:
+        score += scoring_config.market_event_boost_weight
     if themes:
         score += scoring_config.theme_expansion_weight
     score += scoring_config.freshness_weight

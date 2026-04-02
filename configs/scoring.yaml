@@ -5,4 +5,5 @@ weights:
   source_authority: 30
   freshness: 20
   policy_boost: 25
+  market_event_boost: 30
   theme_expansion: 25

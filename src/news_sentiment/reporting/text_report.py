@@ -9,6 +9,22 @@ from news_sentiment.settings import ProjectPaths
 
 
 REPORT_WINDOW_DAYS = 2
+HARD_EVENT_CATALYST_KEYWORDS = (
+    "受理",
+    "签署",
+    "合作",
+    "获批",
+    "中标",
+    "订单",
+    "合同",
+    "回购",
+    "增持",
+    "减持",
+    "定增",
+    "重组",
+    "收购",
+    "激励",
+)
 
 
 def _parse_event_timestamp(event: Event) -> datetime | None:
@@ -16,6 +32,19 @@ def _parse_event_timestamp(event: Event) -> datetime | None:
     if not timestamp:
         return None
     return datetime.fromisoformat(timestamp)
+
+
+def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
+    if analysis.themes:
+        return True
+    if analysis.direction != "neutral":
+        return True
+    if event.event_type == "fast_news":
+        return True
+    if event.event_type == "hard_event":
+        text = f"{event.canonical_title} {event.summary}"
+        return any(keyword in text for keyword in HARD_EVENT_CATALYST_KEYWORDS)
+    return False
 
 
 def write_text_report(
@@ -42,6 +71,8 @@ def write_text_report(
             analysis
             for analysis in analyses
             if analysis.triggered
+            and analysis.event_id in event_map
+            and _is_market_relevant(event_map[analysis.event_id], analysis)
             and (
                 cutoff_time is None
                 or analysis.event_id not in event_times
