@@ -34,6 +34,22 @@ themes:
       - 信息安全
       - 通信加密
     status: active
+  - name: 黄金
+    aliases:
+      - 现货黄金
+      - 黄金价格
+      - 黄金期货
+      - 白银
+      - 贵金属
+    status: active
+  - name: 油气
+    aliases:
+      - 原油
+      - 页岩油
+      - 燃气
+      - 气代油
+      - 分布式发电系统
+    status: active
   - name: 创新药
     aliases:
       - 创新药物

@@ -4,7 +4,9 @@ from news_sentiment.config_loader import load_source_definitions, load_theme_reg
 def test_load_theme_registry_contains_seed_theme() -> None:
     registry = load_theme_registry()
     assert "算力" in {theme.name for theme in registry.themes}
-    assert {"AI应用", "充电桩", "数据安全", "创新药"} <= {theme.name for theme in registry.themes}
+    assert {"AI应用", "充电桩", "数据安全", "创新药", "黄金", "油气"} <= {
+        theme.name for theme in registry.themes
+    }
 
 
 def test_load_source_definitions_include_http_runtime_settings() -> None:

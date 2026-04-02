@@ -1,7 +1,20 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from news_sentiment.config_loader import load_source_priority_map
 from news_sentiment.models import Event, NormalizedNews
+
+MARKET_MOVE_ASSETS = (
+    "现货黄金",
+    "现货白银",
+    "沪金",
+    "沪银",
+    "沪指",
+    "深证成指",
+    "创业板指",
+)
+MARKET_MOVE_WINDOW_SECONDS = 15 * 60
 
 
 def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
@@ -13,7 +26,7 @@ def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
     for item in items:
         target_group = None
         for group in groups:
-            if _is_similar(item.title, group[0].title):
+            if _should_merge(item, group[0]):
                 target_group = group
                 break
         if target_group is None:
@@ -67,6 +80,36 @@ def _is_similar(left: str, right: str) -> bool:
     return overlap / base >= 0.7
 
 
+def _should_merge(left: NormalizedNews, right: NormalizedNews) -> bool:
+    if _is_similar(left.title, right.title):
+        return True
+
+    return _is_same_market_move_asset(left, right)
+
+
+def _is_same_market_move_asset(left: NormalizedNews, right: NormalizedNews) -> bool:
+    if left.source_type != "fast_news" or right.source_type != "fast_news":
+        return False
+
+    left_asset = _extract_market_move_asset(f"{left.title} {left.content}")
+    right_asset = _extract_market_move_asset(f"{right.title} {right.content}")
+    if not left_asset or left_asset != right_asset:
+        return False
+
+    left_time = datetime.fromisoformat(left.published_at)
+    right_time = datetime.fromisoformat(right.published_at)
+    return abs((left_time - right_time).total_seconds()) <= MARKET_MOVE_WINDOW_SECONDS
+
+
+def _extract_market_move_asset(text: str) -> str:
+    if not _contains_any(text, ("涨幅扩大", "跌幅扩大", "涨超", "跌超", "跌破", "突破")):
+        return ""
+    for asset in MARKET_MOVE_ASSETS:
+        if asset in text:
+            return asset
+    return ""
+
+
 def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
     text = f"{title} {content}"
 
@@ -95,7 +138,7 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
         return "corporate_disclosure"
 
     if source_type == "fast_news":
-        if _contains_any(text, ("涨停", "跌停", "涨幅扩大", "跌幅扩大", "涨超", "跌超", "大涨", "大跌", "跳水")):
+        if _contains_any(text, ("涨停", "跌停", "涨幅扩大", "跌幅扩大", "涨超", "跌超", "大涨", "大跌", "跳水", "跌破", "突破")):
             return "market_move"
         if _contains_any(text, ("行动方案", "行动计划", "实施方案", "发展规划", "通知", "意见", "印发")):
             return "policy_signal"

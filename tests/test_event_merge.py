@@ -178,3 +178,64 @@ def test_merge_news_items_classifies_business_guidance_fast_news_subtype() -> No
 
     assert len(events) == 1
     assert events[0].event_subtype == "business_guidance"
+
+
+def test_merge_news_items_groups_market_move_updates_for_same_asset() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:49:59+08:00",
+            captured_at="2026-04-02T13:50:05+08:00",
+            title="现货黄金日内跌幅扩大至3%",
+            content="现货黄金日内跌幅扩大至3%，现货白银日内跌幅扩大至6%。",
+            url="https://www.stcn.com/article/detail/3723028.html",
+        ),
+        NormalizedNews(
+            news_id="n2",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:53:04+08:00",
+            captured_at="2026-04-02T13:53:10+08:00",
+            title="现货黄金跌破4600美元/盎司",
+            content="现货黄金跌破4600美元/盎司，日内跌3.33%。",
+            url="https://www.stcn.com/article/detail/3723032.html",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].first_seen_at == "2026-04-02T13:49:59+08:00"
+    assert set(events[0].member_news_ids) == {"n1", "n2"}
+    assert events[0].event_subtype == "market_move"
+
+
+def test_merge_news_items_does_not_group_market_move_updates_for_different_assets() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:49:59+08:00",
+            captured_at="2026-04-02T13:50:05+08:00",
+            title="现货黄金日内跌幅扩大至3%",
+            content="现货黄金日内跌幅扩大至3%。",
+            url="https://www.stcn.com/article/detail/3723028.html",
+        ),
+        NormalizedNews(
+            news_id="n2",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:56:55+08:00",
+            captured_at="2026-04-02T13:57:02+08:00",
+            title="沪指跌幅扩大至1%",
+            content="沪指跌幅扩大至1%，深证成指跌1.87%。",
+            url="https://www.stcn.com/article/detail/3723042.html",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2

@@ -20,3 +20,13 @@ def test_detect_themes_matches_innovative_drug_aliases() -> None:
     text = "礼来口服GLP-1减肥药获批上市，曲妥珠单抗销售目标仍保持增长。"
     themes = detect_themes(text)
     assert "创新药" in themes
+
+
+def test_detect_themes_matches_gold_aliases() -> None:
+    text = "现货黄金日内跌幅扩大至3%，现货白银日内跌幅扩大至6%。"
+    assert "黄金" in detect_themes(text)
+
+
+def test_detect_themes_matches_oil_gas_aliases() -> None:
+    text = "燃气分布式发电系统支撑页岩油示范区生产，并推进气代油工程。"
+    assert "油气" in detect_themes(text)
