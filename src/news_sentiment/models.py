@@ -40,6 +40,7 @@ class Event:
     url: str = ""
     member_news_ids: List[str] = field(default_factory=list)
     event_type: str = "general"
+    event_subtype: str = "general"
     primary_entities: List[str] = field(default_factory=list)
     source_authority_score: float = 0.0
 

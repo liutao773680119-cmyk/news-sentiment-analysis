@@ -9,6 +9,7 @@ def test_run_once_generates_text_report(tmp_path, monkeypatch) -> None:
     assert report_path.exists()
     content = report_path.read_text(encoding="utf-8")
     assert "关注" in content
+    assert "事件类型:" in content
     assert "来源:" in content
     assert "发布时间:" in content
     assert "URL:" in content
@@ -52,6 +53,7 @@ def test_run_once_all_merges_sources_and_prefers_authoritative_source(tmp_path, 
     assert main(["run-once", "--source", "all"]) == 0
     content = (tmp_path / "data" / "reports" / "latest_report.txt").read_text(encoding="utf-8")
     assert content.count("[关注]") == 1
+    assert "事件类型: 合作协议" in content
     assert "来源: cninfo" in content
 
 

@@ -53,6 +53,25 @@ FAST_NEWS_MARKET_MOVE_KEYWORDS = (
     "大跌",
     "跳水",
 )
+EVENT_SUBTYPE_LABELS = {
+    "policy_support": "产业政策",
+    "policy_update": "政策动态",
+    "control_change": "控制权变更",
+    "financing_acceptance": "融资受理",
+    "equity_incentive": "股权激励",
+    "order_contract": "订单合同",
+    "cooperation_agreement": "合作协议",
+    "acquisition_restructuring": "并购重组",
+    "board_resolution": "董事会决议",
+    "executive_change": "高管变动",
+    "corporate_disclosure": "一般公告",
+    "market_move": "市场异动",
+    "regulatory_approval": "监管获批",
+    "policy_signal": "政策信号",
+    "company_update": "公司动态",
+    "general_fast_news": "一般快讯",
+    "general": "一般事件",
+}
 
 
 def _parse_event_timestamp(event: Event) -> datetime | None:
@@ -123,6 +142,7 @@ def write_text_report(
         lines.extend(
             [
                 f"[{status}] {event.canonical_title}",
+                f"事件类型: {EVENT_SUBTYPE_LABELS.get(event.event_subtype, event.event_subtype)}",
                 f"来源: {event.source or '未知'}",
                 f"发布时间: {event.published_at or event.first_seen_at or '未知'}",
                 f"URL: {event.url or '无'}",
