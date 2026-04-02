@@ -97,14 +97,23 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
     if source_type == "fast_news":
         if _contains_any(text, ("涨停", "跌停", "涨幅扩大", "跌幅扩大", "涨超", "跌超", "大涨", "大跌", "跳水")):
             return "market_move"
-        if _contains_any(text, ("获批上市", "获批", "上市申请", "药监局批准")):
+        if _contains_any(text, ("行动方案", "行动计划", "实施方案", "发展规划", "通知", "意见", "印发")):
+            return "policy_signal"
+        if _contains_any(text, ("科学家", "研究人员", "研究团队", "科研")) and _contains_any(
+            text,
+            ("实现", "突破", "测试", "开发出", "新途径"),
+        ):
+            return "tech_breakthrough"
+        if _contains_any(text, ("周活跃用户", "月活跃用户", "WAU", "MAU", "数据显示")):
+            return "industry_data"
+        if _contains_any(text, ("电话会议", "销售目标", "业绩指引", "收入", "利润", "盈利")):
+            return "business_guidance"
+        if _contains_any(title, ("获批上市", "获批", "上市申请", "药监局批准")):
             return "regulatory_approval"
         if _contains_any(text, ("中标", "订单", "合同")):
             return "order_contract"
         if _contains_any(text, ("战略合作", "合作协议", "签署协议", "签订协议")):
             return "cooperation_agreement"
-        if _contains_any(text, ("实施方案", "行动计划", "发展规划", "发布方案", "政策")):
-            return "policy_signal"
         if "：" in title or _contains_any(text, ("发布", "上线", "推出")):
             return "company_update"
         return "general_fast_news"

@@ -98,3 +98,83 @@ def test_merge_news_items_classifies_market_move_fast_news_subtype() -> None:
 
     assert len(events) == 1
     assert events[0].event_subtype == "market_move"
+
+
+def test_merge_news_items_classifies_policy_signal_fast_news_subtype() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:02:32+08:00",
+            captured_at="2026-04-02T13:02:40+08:00",
+            title="四川：到2027年底在全省范围内建成205万个充电设施",
+            content="四川省发展和改革委员会等部门印发《四川省电动汽车充电设施服务能力倍增行动方案》。",
+            url="https://www.stcn.com/article/detail/3722999.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "policy_signal"
+
+
+def test_merge_news_items_classifies_tech_breakthrough_fast_news_subtype() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:18:30+08:00",
+            captured_at="2026-04-02T13:18:35+08:00",
+            title="科学家实现DNA安全加密实景测试",
+            content="研究人员开发出一种基于DNA的安全加密方案并完成真实场景测试。",
+            url="https://www.stcn.com/article/detail/3723007.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "tech_breakthrough"
+
+
+def test_merge_news_items_classifies_industry_data_fast_news_subtype() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T13:27:31+08:00",
+            captured_at="2026-04-02T13:27:40+08:00",
+            title="Sora退出 可灵AI周度活跃用户环比增长",
+            content="数据显示，可灵AI周活跃用户环比增长4%，月活跃用户达780万。",
+            url="https://www.stcn.com/article/detail/3723013.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "industry_data"
+
+
+def test_merge_news_items_classifies_business_guidance_fast_news_subtype() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-02T12:57:03+08:00",
+            captured_at="2026-04-02T12:57:10+08:00",
+            title="安科生物：2026年曲妥珠单抗销售目标仍是收入及利润大幅增长",
+            content="公司在电话会议上表示，2026年销售目标仍是收入、利润双双大幅增长。此前产品已获批上市。",
+            url="https://www.stcn.com/article/detail/3722993.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "business_guidance"
