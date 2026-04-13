@@ -5,21 +5,124 @@ themes:
       - 算力基础设施
       - AIDC
       - 太空算力
+      - CPO
+      - 光模块
+      - 光通信
+      - 液冷服务器
+      - 数据中心
+      - 数据中心存储
     status: active
   - name: AI应用
     aliases:
       - Sora
       - 可灵AI
       - Qwen
+      - 智谱AI
       - 大语言模型
       - AI视频生成
       - Seedance
+      - AI营销
+      - 人工智能应用软件开发
     status: active
   - name: 户外经济
     aliases:
       - 户外运动
       - 露营
       - 景区消费
+    status: active
+  - name: 文旅
+    aliases:
+      - 清明档
+      - 电影片单
+      - 院线
+      - 旅游演艺
+    status: active
+  - name: 新能源车
+    aliases:
+      - 新能源批发
+      - 新能源乘用车
+      - 新能源汽车
+    status: active
+  - name: 电力资源
+    aliases:
+      - 新型能源体系
+      - 新型电力系统
+      - 电厂迁建EPC
+    status: active
+  - name: 工程机械
+    aliases:
+      - 建设机械
+      - 徐工机械
+      - 中联重科
+    status: active
+  - name: 保险
+    aliases:
+      - 中国太保
+      - 新华保险
+      - 中国人保
+    status: active
+  - name: 航空
+    aliases:
+      - 广联航空
+      - 航发动力
+      - 爱乐达
+    match_name: false
+    status: active
+  - name: PCB
+    aliases:
+      - 印制电路板
+      - 覆铜板
+      - 沪电股份
+    status: active
+  - name: 房地产
+    aliases:
+      - 中天服务
+      - 保利发展
+      - 万科A
+    status: active
+  - name: 港口机械
+    aliases:
+      - 装船机
+      - 卸船机
+      - GENMA
+    status: active
+  - name: 商业航天
+    aliases:
+      - 宇迹航天
+    status: active
+  - name: 铜缆高速连接
+    aliases:
+      - 铜缆高速连接
+    status: active
+  - name: 苹果链
+    aliases:
+      - 苹果概念
+    status: active
+  - name: 储能
+    aliases:
+      - 储能系统集成
+      - 组串式PCS
+    status: active
+  - name: 稀土永磁
+    aliases: []
+    status: active
+  - name: 新材料
+    aliases:
+      - 先进基础材料
+      - 关键战略材料
+      - 前沿新材料
+      - 人工智能+材料
+    match_name: false
+    status: active
+  - name: 节能装备
+    aliases:
+      - 高效节能设备
+      - 节能设备
+    status: active
+  - name: 信创
+    aliases:
+      - 信息技术创新应用
+      - 信息技术应用创新
     status: active
   - name: 机器人
     aliases:
@@ -39,6 +142,7 @@ themes:
       - DNA安全加密
       - 信息安全
       - 通信加密
+      - 侵害用户权益行为的APP（SDK）通报
     status: active
   - name: 黄金
     aliases:
@@ -52,24 +156,22 @@ themes:
     aliases:
       - 原油
       - 页岩油
-      - 燃气
       - 气代油
-      - 分布式发电系统
     status: active
   - name: 锂电池
     aliases:
       - 电解液
       - 锂电
-      - H股发行
       - 电池材料
     status: active
   - name: 半导体
     aliases:
-      - 芯片
       - 集成电路
       - 粤芯
       - 增芯
       - 晶圆
+      - EDA
+      - 先进封装
     status: active
   - name: 创新药
     aliases:
@@ -78,5 +180,4 @@ themes:
       - GLP-1
       - 减肥药
       - 曲妥珠单抗
-      - 上市申请
     status: active
