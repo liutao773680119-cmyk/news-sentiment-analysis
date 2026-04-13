@@ -3,6 +3,7 @@ from news_sentiment.collectors.errors import CollectorParseError
 from news_sentiment.collectors.miit import (
     collect_miit_news,
     extract_miit_build_request,
+    parse_miit_article_text,
     parse_miit_build_response_html,
     parse_miit_news_list,
 )
@@ -70,6 +71,39 @@ def test_parse_miit_build_response_html_extracts_inner_html() -> None:
     assert "工业和信息化部举行新闻发布会" in html
 
 
+def test_parse_miit_article_text_extracts_main_body_text() -> None:
+    html = """
+    <html>
+      <body>
+        <div class="Custom_UnionStyle">
+          <p>工业和信息化部召开新材料领域中小企业圆桌会。</p>
+          <p>会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。</p>
+          <p>推动人工智能+材料发展。</p>
+        </div>
+      </body>
+    </html>
+    """
+    text = parse_miit_article_text(html)
+    assert "工业和信息化部召开新材料领域中小企业圆桌会。" in text
+    assert "聚焦先进基础材料、关键战略材料、前沿新材料。" in text
+    assert "推动人工智能+材料发展。" in text
+
+
+def test_parse_miit_article_text_falls_back_to_paragraphs_without_known_container() -> None:
+    html = """
+    <html>
+      <body>
+        <div class="article">
+          <p>工业和信息化部召开新材料领域中小企业圆桌会。</p>
+          <p>会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。</p>
+        </div>
+      </body>
+    </html>
+    """
+    text = parse_miit_article_text(html)
+    assert text == "工业和信息化部召开新材料领域中小企业圆桌会。 会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。"
+
+
 def test_collect_miit_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     html = """
     <ul>
@@ -89,6 +123,44 @@ def test_collect_miit_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     )
     assert main(["collect", "--source", "miit"]) == 0
     assert (tmp_path / "data" / "raw" / "raw_news.jsonl").exists()
+
+
+def test_collect_miit_news_uses_article_body_as_content(monkeypatch) -> None:
+    list_html = """
+    <ul>
+      <li>
+        <a href="/xwfb/gxdt/art/2026/art_123.html" title="工业和信息化部召开新材料领域中小企业圆桌会">
+          工业和信息化部召开新材料领域中小企业圆桌会
+        </a>
+        <span>2026-04-01</span>
+      </li>
+    </ul>
+    """
+    article_html = """
+    <html>
+      <body>
+        <div class="Custom_UnionStyle">
+          <p>工业和信息化部召开新材料领域中小企业圆桌会。</p>
+          <p>会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。</p>
+        </div>
+      </body>
+    </html>
+    """
+
+    monkeypatch.setattr(
+        "news_sentiment.collectors.miit.fetch_miit_news_html",
+        lambda url=None: list_html,
+    )
+    monkeypatch.setattr(
+        "news_sentiment.collectors.miit.fetch_html",
+        lambda url, **kwargs: article_html,
+    )
+
+    rows = collect_miit_news()
+    assert len(rows) == 1
+    assert rows[0].content == (
+        "工业和信息化部召开新材料领域中小企业圆桌会。 会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。"
+    )
 
 
 def test_collect_miit_news_raises_parse_error_on_unmatched_html(monkeypatch) -> None:

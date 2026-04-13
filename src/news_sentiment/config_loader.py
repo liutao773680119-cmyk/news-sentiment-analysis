@@ -11,6 +11,7 @@ import yaml
 class ThemeDefinition:
     name: str
     aliases: List[str]
+    match_name: bool
     status: str
 
 
@@ -53,6 +54,7 @@ def load_theme_registry() -> ThemeRegistry:
         ThemeDefinition(
             name=item["name"],
             aliases=list(item.get("aliases", [])),
+            match_name=bool(item.get("match_name", True)),
             status=item.get("status", "active"),
         )
         for item in payload.get("themes", [])

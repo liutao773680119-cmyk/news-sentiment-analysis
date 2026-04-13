@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import json
 import re
+from dataclasses import replace
 from datetime import datetime, timezone
 from html import unescape
 from urllib.parse import urlencode, urljoin
@@ -18,6 +19,11 @@ from news_sentiment.models import RawNews
 
 
 MIIT_NEWS_URL = "https://www.miit.gov.cn/xwfb/gxdt/index.html"
+MIIT_ARTICLE_BODY_PATTERNS = (
+    r'<div[^>]+class="[^"]*Custom_UnionStyle[^"]*"[^>]*>(?P<body>.*?)</div>',
+    r'<div[^>]+class="[^"]*TRS_Editor[^"]*"[^>]*>(?P<body>.*?)</div>',
+    r'<div[^>]+class="[^"]*article-content[^"]*"[^>]*>(?P<body>.*?)</div>',
+)
 
 
 def fetch_miit_news_html(url: str = MIIT_NEWS_URL) -> str:
@@ -86,6 +92,51 @@ def parse_miit_news_list(html: str) -> list[RawNews]:
     return rows
 
 
+def parse_miit_article_text(html: str) -> str:
+    for pattern in MIIT_ARTICLE_BODY_PATTERNS:
+        match = re.search(pattern, html, re.S)
+        if not match:
+            continue
+        body = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", match.group("body"), flags=re.S)
+        text = re.sub(r"<[^>]+>", " ", unescape(body))
+        return " ".join(text.replace("\xa0", " ").split())
+
+    paragraphs = re.findall(r"<p[^>]*>(.*?)</p>", html, re.S)
+    if paragraphs:
+        cleaned = []
+        for paragraph in paragraphs:
+            text = re.sub(r"<[^>]+>", " ", unescape(paragraph))
+            normalized = " ".join(text.replace("\xa0", " ").split())
+            if normalized:
+                cleaned.append(normalized)
+        if cleaned:
+            return " ".join(cleaned)
+    return ""
+
+
+def fetch_miit_article_text(url: str) -> str:
+    source_definition = load_source_definition_map()["miit"]
+    html = fetch_html(
+        url,
+        timeout_seconds=source_definition.timeout_seconds,
+        user_agent=source_definition.user_agent,
+        retry_count=source_definition.retry_count,
+        backoff_seconds=source_definition.backoff_seconds,
+    )
+    return parse_miit_article_text(html)
+
+
+def enrich_miit_news_content(rows: list[RawNews]) -> list[RawNews]:
+    enriched_rows: list[RawNews] = []
+    for row in rows:
+        try:
+            article_text = fetch_miit_article_text(row.url)
+        except Exception:
+            article_text = ""
+        enriched_rows.append(replace(row, content=article_text or row.title))
+    return enriched_rows
+
+
 def collect_miit_news() -> list[RawNews]:
     try:
         html = fetch_miit_news_html()
@@ -98,4 +149,4 @@ def collect_miit_news() -> list[RawNews]:
     rows = parse_miit_news_list(html)
     if not rows:
         raise CollectorParseError("miit", "no news rows matched response")
-    return rows
+    return enrich_miit_news_content(rows)

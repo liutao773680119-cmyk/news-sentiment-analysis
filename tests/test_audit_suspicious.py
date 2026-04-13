@@ -1,0 +1,436 @@
+from news_sentiment.cli import main
+from news_sentiment.models import Event, EventAnalysis
+from news_sentiment.settings import ProjectPaths
+from news_sentiment.storage import JsonlStore
+
+
+def test_audit_suspicious_prints_flagged_candidates(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-risk",
+                first_seen_at="2026-04-09T00:00:00+08:00",
+                last_seen_at="2026-04-09T00:00:00+08:00",
+                canonical_title="美克家居关于被债权人申请重整及预重整的专项自查报告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-04-09T00:00:00+08:00",
+                url="https://example.com/risk",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-theme-fast",
+                first_seen_at="2026-04-08T14:39:37+08:00",
+                last_seen_at="2026-04-08T14:39:37+08:00",
+                canonical_title="琏升科技成立数字科技公司 含AI及卫星相关业务",
+                summary="summary",
+                source="stcn",
+                published_at="2026-04-08T14:39:37+08:00",
+                url="https://example.com/theme-fast",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-fast-legal",
+                first_seen_at="2026-04-08T19:51:57+08:00",
+                last_seen_at="2026-04-08T19:51:57+08:00",
+                canonical_title="佰维存储：作为被告涉及两起侵害发明专利权纠纷案件 涉案金额合计5000万元",
+                summary="summary",
+                source="stcn",
+                published_at="2026-04-08T19:51:57+08:00",
+                url="https://example.com/fast-legal",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+            Event(
+                event_id="event-keep",
+                first_seen_at="2026-04-08T18:59:25+08:00",
+                last_seen_at="2026-04-08T18:59:25+08:00",
+                canonical_title="内蒙古：建设全国领先的绿色智能算力保障基地 持续提升智能算力规模",
+                summary="summary",
+                source="stcn",
+                published_at="2026-04-08T18:59:25+08:00",
+                url="https://example.com/keep",
+                event_type="fast_news",
+                event_subtype="policy_signal",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-risk",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-theme-fast",
+                direction="neutral",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["AI应用"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-fast-legal",
+                direction="neutral",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-keep",
+                direction="bullish",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=3" in output
+    assert "hard_event_risk_keyword" in output
+    assert "general_fast_news_with_theme" in output
+    assert "company_update_legal_keyword" in output
+    assert "美克家居关于被债权人申请重整及预重整的专项自查报告" in output
+    assert "琏升科技成立数字科技公司 含AI及卫星相关业务" in output
+    assert "佰维存储：作为被告涉及两起侵害发明专利权纠纷案件 涉案金额合计5000万元" in output
+    assert "内蒙古：建设全国领先的绿色智能算力保障基地 持续提升智能算力规模" not in output
+
+
+def test_audit_suspicious_skips_cninfo_restructuring_material_reply(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-restructuring-reply",
+                first_seen_at="2026-04-08T20:00:00+08:00",
+                last_seen_at="2026-04-08T20:00:00+08:00",
+                canonical_title="中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-04-08T20:00:00+08:00",
+                url="https://example.com/cninfo-restructuring-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-restructuring-reply",
+                direction="bullish",
+                impact_score=100.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in output
+
+
+def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-szse-annual-report-inquiry-reply",
+                first_seen_at="2026-04-11T00:00:00+08:00",
+                last_seen_at="2026-04-11T00:00:00+08:00",
+                canonical_title="*ST仁东：关于对深圳证券交易所2025年年报问询函回复的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-11T00:00:00+08:00",
+                url="https://example.com/szse-annual-report-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-special-explanation",
+                first_seen_at="2026-04-11T00:00:00+08:00",
+                last_seen_at="2026-04-11T00:00:00+08:00",
+                canonical_title="*ST仁东：评估机构关于仁东控股年报问询函有关问题的专项说明",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-11T00:00:00+08:00",
+                url="https://example.com/szse-special-explanation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-szse-annual-report-inquiry-reply",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-special-explanation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "*ST仁东：关于对深圳证券交易所2025年年报问询函回复的公告" not in output
+    assert "*ST仁东：评估机构关于仁东控股年报问询函有关问题的专项说明" not in output
+
+
+def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_person_notices(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-szse-litigation-progress",
+                first_seen_at="2026-04-11T00:00:00+08:00",
+                last_seen_at="2026-04-11T00:00:00+08:00",
+                canonical_title="合力泰：关于诉讼事项的进展暨公司部分银行账户及子公司股权解除冻结的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-11T00:00:00+08:00",
+                url="https://example.com/szse-litigation-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-dishonest-person",
+                first_seen_at="2026-04-11T00:00:00+08:00",
+                last_seen_at="2026-04-11T00:00:00+08:00",
+                canonical_title="麦趣尔：关于公司被纳入失信被执行人的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-11T00:00:00+08:00",
+                url="https://example.com/szse-dishonest-person",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-cumulative-litigation",
+                first_seen_at="2026-04-11T00:00:00+08:00",
+                last_seen_at="2026-04-11T00:00:00+08:00",
+                canonical_title="幸福蓝海：关于累计诉讼、仲裁案件情况的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-11T00:00:00+08:00",
+                url="https://example.com/szse-cumulative-litigation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-szse-litigation-progress",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-dishonest-person",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-cumulative-litigation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "合力泰：关于诉讼事项的进展暨公司部分银行账户及子公司股权解除冻结的公告" not in output
+    assert "麦趣尔：关于公司被纳入失信被执行人的公告" not in output
+    assert "幸福蓝海：关于累计诉讼、仲裁案件情况的公告" not in output
+
+
+def test_audit_suspicious_skips_exchange_major_litigation_and_filing_progress_notices(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-litigation-filing-progress",
+                first_seen_at="2026-04-13T00:00:00+08:00",
+                last_seen_at="2026-04-13T00:00:00+08:00",
+                canonical_title="关于控股子公司提起诉讼的进展公告",
+                summary="summary",
+                source="sse",
+                published_at="2026-04-13T00:00:00+08:00",
+                url="https://example.com/sse-litigation-filing-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-major-litigation",
+                first_seen_at="2026-04-13T00:00:00+08:00",
+                last_seen_at="2026-04-13T00:00:00+08:00",
+                canonical_title="长药退：重大诉讼公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-13T00:00:00+08:00",
+                url="https://example.com/szse-major-litigation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-litigation-filing-progress",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-major-litigation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于控股子公司提起诉讼的进展公告" not in output
+    assert "长药退：重大诉讼公告" not in output
+
+
+def test_audit_suspicious_skips_exchange_waiting_freeze_notice(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-szse-share-freeze-waiting",
+                first_seen_at="2026-04-11T00:00:00+08:00",
+                last_seen_at="2026-04-11T00:00:00+08:00",
+                canonical_title="关于持股5%以上股东及其一致行动人股份被轮候冻结的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-11T00:00:00+08:00",
+                url="https://example.com/szse-share-freeze-waiting",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-szse-share-freeze-waiting",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于持股5%以上股东及其一致行动人股份被轮候冻结的公告" not in output
+
+
+def test_audit_suspicious_skips_convertible_bond_inquiry_reply_revision(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cb-inquiry-reply-revision",
+                first_seen_at="2026-04-14T00:00:00+08:00",
+                last_seen_at="2026-04-14T00:00:00+08:00",
+                canonical_title="三鑫医疗：关于江西三鑫医疗科技股份有限公司申请向不特定对象发行可转换公司债券的审核问询函之回复（修订稿）",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-14T00:00:00+08:00",
+                url="https://example.com/cb-inquiry-reply-revision",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cb-inquiry-reply-revision",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "三鑫医疗：关于江西三鑫医疗科技股份有限公司申请向不特定对象发行可转换公司债券的审核问询函之回复（修订稿）" not in output

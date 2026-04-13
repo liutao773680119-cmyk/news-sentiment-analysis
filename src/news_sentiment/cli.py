@@ -9,10 +9,7 @@ from news_sentiment.analysis import score_event
 from news_sentiment.collectors import (
     CollectFailure,
     CollectorError,
-    collect_cninfo_news,
-    collect_fixture_news,
-    collect_miit_news,
-    collect_stcn_news,
+    get_registered_collectors,
 )
 from news_sentiment.config_loader import load_scoring_config, load_source_definitions
 from news_sentiment.event_merge import merge_news_items
@@ -28,9 +25,64 @@ COMMANDS = (
     "normalize",
     "merge-events",
     "analyze-events",
+    "audit-suspicious",
     "live-smoke",
     "report",
     "run-once",
+)
+
+HARD_EVENT_RISK_REVIEW_KEYWORDS = (
+    "申请重整",
+    "预重整",
+    "商标争议",
+    "诉讼",
+    "仲裁",
+    "冻结",
+    "查封",
+    "被执行",
+    "失信",
+    "立案",
+    "问询函",
+)
+LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
+    "审核问询函回复",
+    "审核问询函之回复",
+    "报告书（修订稿）",
+    "报告书(修订稿)",
+)
+LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS = (
+    "发行股份购买资产",
+    "关联交易",
+    "重大资产重组",
+    "并购重组",
+)
+LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS = (
+    "向不特定对象发行可转换公司债券",
+    "发行可转换公司债券",
+    "可转换公司债券",
+)
+LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
+    "年报问询函回复",
+    "问询函有关问题的专项说明",
+    "诉讼事项的进展",
+    "提起诉讼的进展公告",
+    "累计诉讼",
+    "重大诉讼公告",
+    "失信被执行人",
+    "轮候冻结",
+)
+FAST_NEWS_LEGAL_REVIEW_KEYWORDS = (
+    "商标争议",
+    "侵害发明专利权纠纷",
+    "专利权纠纷",
+    "诉讼",
+    "仲裁",
+)
+SUSPICIOUS_MARKET_ROUNDUP_PREFIXES = (
+    "开评：",
+    "收评：",
+    "午评：",
+    "早盘：",
 )
 
 
@@ -48,6 +100,8 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("normalize")
     subparsers.add_parser("merge-events")
     subparsers.add_parser("analyze-events")
+    audit_parser = subparsers.add_parser("audit-suspicious")
+    audit_parser.add_argument("--limit", type=int, default=10)
     live_smoke_parser = subparsers.add_parser("live-smoke")
     live_smoke_parser.add_argument("--source", default="all")
     subparsers.add_parser("report")
@@ -75,6 +129,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_merge_events(paths)
     if args.command == "analyze-events":
         return run_analyze_events(paths)
+    if args.command == "audit-suspicious":
+        return run_audit_suspicious(paths, args.limit)
     if args.command == "live-smoke":
         return run_live_smoke(paths, args.source)
     if args.command == "report":
@@ -132,14 +188,9 @@ def format_collect_failures(failures: list[CollectFailure]) -> str:
 
 
 def _collect_rows(source: str) -> list[RawNews]:
-    if source == "fixture":
-        return collect_fixture_news()
-    if source == "cninfo":
-        return collect_cninfo_news()
-    if source == "miit":
-        return collect_miit_news()
-    if source == "stcn":
-        return collect_stcn_news()
+    collector = get_registered_collectors().get(source)
+    if collector is not None:
+        return collector()
     raise ValueError(f"Unsupported source: {source}")
 
 
@@ -172,6 +223,94 @@ def run_report(paths: ProjectPaths) -> int:
     analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
     write_text_report(paths, events_store.read_all(), analyses_store.read_all())
     return 0
+
+
+def run_audit_suspicious(paths: ProjectPaths, limit: int) -> int:
+    events_store = JsonlStore(paths.events_path, Event)
+    analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
+    analyses = {analysis.event_id: analysis for analysis in analyses_store.read_all()}
+    candidates = []
+    for event in events_store.read_all():
+        analysis = analyses.get(event.event_id)
+        if analysis is None or not analysis.triggered:
+            continue
+        reason = _suspicious_reason(event, analysis)
+        if reason is None:
+            continue
+        candidates.append((analysis.impact_score, event.published_at, reason, event, analysis))
+
+    candidates.sort(key=lambda row: (row[0], row[1]), reverse=True)
+    print(f"suspicious_count={len(candidates)}")
+    for _, _, reason, event, analysis in candidates[: max(limit, 0)]:
+        themes = ",".join(analysis.themes) if analysis.themes else "无"
+        print(
+            " | ".join(
+                [
+                    f"reason={reason}",
+                    f"subtype={event.event_subtype}",
+                    f"direction={analysis.direction}",
+                    f"score={analysis.impact_score:.1f}",
+                    f"themes={themes}",
+                    f"title={event.canonical_title}",
+                ]
+            )
+        )
+    return 0
+
+
+def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
+    title = event.canonical_title
+    if (
+        event.source in {"cninfo", "sse", "szse"}
+        and event.event_type == "hard_event"
+        and event.event_subtype in {"corporate_disclosure", "acquisition_restructuring"}
+        and _is_low_signal_cninfo_restructuring_material(title)
+    ):
+        return None
+    if (
+        event.event_type == "hard_event"
+        and event.event_subtype == "corporate_disclosure"
+        and any(keyword in title for keyword in HARD_EVENT_RISK_REVIEW_KEYWORDS)
+        and not _is_low_signal_hard_event_risk_disclosure(title)
+    ):
+        return "hard_event_risk_keyword"
+    if (
+        event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and bool(analysis.themes)
+    ):
+        return "general_fast_news_with_theme"
+    if (
+        event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+        and _contains_any(title, FAST_NEWS_LEGAL_REVIEW_KEYWORDS)
+    ):
+        return "company_update_legal_keyword"
+    if (
+        event.event_type == "fast_news"
+        and event.event_subtype == "market_move"
+        and any(title.startswith(prefix) for prefix in SUSPICIOUS_MARKET_ROUNDUP_PREFIXES)
+    ):
+        return "market_roundup_candidate"
+    return None
+
+
+def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
+    return any(keyword in text for keyword in keywords)
+
+
+def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
+    return (
+        _contains_any(title, LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS)
+        and (
+            _contains_any(title, LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS)
+            or _contains_any(title, LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS)
+        )
+    )
+
+
+def _is_low_signal_hard_event_risk_disclosure(title: str) -> bool:
+    return _contains_any(title, LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS)
 
 
 def run_live_smoke(paths: ProjectPaths, source: str) -> int:
