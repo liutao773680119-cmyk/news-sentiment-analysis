@@ -17,22 +17,67 @@ COMPANY_THEME_EVENT_SUBTYPES = {
     "cooperation_agreement",
     "acquisition_restructuring",
 }
+FAST_NEWS_FINANCIAL_RESULT_KEYWORDS = (
+    "净利润",
+    "营业收入",
+    "营收",
+    "年报",
+    "季报",
+    "一季报",
+    "半年报",
+    "三季报",
+    "业绩",
+    "扭亏为盈",
+    "亏损",
+)
 
 
 def detect_themes(text: str) -> list[str]:
+    return list(_detect_theme_hits(text).keys())
+
+
+def _detect_theme_hits(text: str, *, include_theme_name: bool = True) -> dict[str, int]:
     registry = load_theme_registry()
-    matches: list[str] = []
+    matches: dict[str, int] = {}
     normalized_text = text.lower()
     for theme in registry.themes:
-        tokens = [theme.name, *theme.aliases]
-        if any(token.lower() in normalized_text for token in tokens):
-            matches.append(theme.name)
-    return list(dict.fromkeys(matches))
+        tokens = list(theme.aliases)
+        if include_theme_name and theme.match_name:
+            tokens.insert(0, theme.name)
+        hit_count = sum(1 for token in tokens if token.lower() in normalized_text)
+        if hit_count:
+            matches[theme.name] = hit_count
+    return matches
 
 
 def detect_event_themes(event: Event) -> list[str]:
-    text = f"{event.canonical_title} {event.summary}"
-    matches = detect_themes(text)
+    title_matches = detect_themes(event.canonical_title)
+    if event.event_type == "policy":
+        if title_matches:
+            matches = title_matches
+        else:
+            summary_hits = _detect_theme_hits(event.summary, include_theme_name=False)
+            matches = [theme for theme, hit_count in summary_hits.items() if hit_count >= 2]
+    elif event.event_type == "fast_news":
+        if title_matches:
+            if _is_company_update_title_theme_spillover(event, title_matches):
+                matches = []
+            else:
+                matches = title_matches
+        elif event.event_subtype == "market_move":
+            matches = []
+        elif event.event_subtype == "general_fast_news":
+            matches = []
+        elif _is_company_update_summary_theme_spillover(event):
+            matches = []
+        elif _is_financial_result_business_guidance(event):
+            matches = []
+        elif _is_regional_industry_data_theme_spillover(event):
+            matches = []
+        else:
+            matches = detect_themes(f"{event.canonical_title} {event.summary}")
+    else:
+        matches = detect_themes(f"{event.canonical_title} {event.summary}")
     stock_code = _extract_stock_code_from_url(event.url)
     if stock_code and event.event_subtype in COMPANY_THEME_EVENT_SUBTYPES:
         matches.extend(_load_company_theme_map().get(stock_code, []))
@@ -41,7 +86,20 @@ def detect_event_themes(event: Event) -> list[str]:
 
 def detect_direction(text: str) -> str:
     bullish_tokens = ("支持", "推进", "发布", "突破", "增长")
-    bearish_tokens = ("限制", "处罚", "下滑", "收缩", "风险")
+    bearish_tokens = (
+        "限制",
+        "处罚",
+        "下滑",
+        "收缩",
+        "风险",
+        "申请重整",
+        "预重整",
+        "申请破产清算",
+        "破产清算",
+        "商标争议",
+        "侵害发明专利权纠纷",
+        "专利权纠纷",
+    )
     if any(token in text for token in bullish_tokens):
         return "bullish"
     if any(token in text for token in bearish_tokens):
@@ -54,6 +112,87 @@ def _extract_stock_code_from_url(url: str) -> str:
         return ""
     query = parse_qs(urlparse(url).query)
     return query.get("stockCode", [""])[0]
+
+
+def _is_financial_result_business_guidance(event: Event) -> bool:
+    return (
+        event.event_subtype == "business_guidance"
+        and any(keyword in event.canonical_title for keyword in FAST_NEWS_FINANCIAL_RESULT_KEYWORDS)
+    )
+
+
+def _is_company_update_title_theme_spillover(event: Event, title_matches: list[str]) -> bool:
+    if event.event_subtype != "company_update" or len(title_matches) != 1:
+        return False
+
+    return (
+        title_matches == ["算力"]
+        and "数据中心" in event.canonical_title
+        and "电力供应领域" in f"{event.canonical_title} {event.summary}"
+    )
+
+
+def _is_company_update_summary_theme_spillover(event: Event) -> bool:
+    if event.event_subtype != "company_update":
+        return False
+
+    if _is_expert_interview_summary_theme_spillover(event):
+        return True
+
+    summary_hits = _detect_theme_hits(event.summary)
+    if _is_background_track_summary_theme_spillover(event, summary_hits):
+        return True
+
+    if _is_application_field_summary_theme_spillover(event.summary, summary_hits):
+        return True
+
+    if len(summary_hits) < 2:
+        return False
+
+    return any(keyword in event.summary for keyword in ("应用场景", "下游应用领域"))
+
+
+def _is_regional_industry_data_theme_spillover(event: Event) -> bool:
+    if event.event_subtype != "industry_data":
+        return False
+
+    if "：" not in event.canonical_title:
+        return False
+
+    if not any(keyword in event.canonical_title for keyword in ("先导产业", "产值", "工业增加值", "制造业增加值")):
+        return False
+
+    summary_hits = _detect_theme_hits(event.summary)
+    return len(summary_hits) >= 2
+
+
+def _is_expert_interview_summary_theme_spillover(event: Event) -> bool:
+    if "教授" not in event.canonical_title:
+        return False
+
+    if not _detect_theme_hits(event.summary):
+        return False
+
+    return all(keyword in event.summary for keyword in ("专访", "表示"))
+
+
+def _is_application_field_summary_theme_spillover(summary: str, summary_hits: dict[str, int]) -> bool:
+    if len(summary_hits) != 1:
+        return False
+
+    return "领域" in summary and any(keyword in summary for keyword in ("应用于", "应用在", "用于"))
+
+
+def _is_background_track_summary_theme_spillover(event: Event, summary_hits: dict[str, int]) -> bool:
+    if len(summary_hits) != 1:
+        return False
+
+    if "项目定点" not in event.canonical_title:
+        return False
+
+    return "业绩说明会" in event.summary and any(
+        keyword in event.summary for keyword in ("赛道之一", "量产交付", "预研发")
+    )
 
 
 @lru_cache(maxsize=1)
