@@ -1783,6 +1783,59 @@ def test_write_text_report_filters_domestic_futures_night_session_mixed_roundup(
     assert "国内期货夜盘收盘涨跌不一 焦煤跌超4%" not in content
 
 
+def test_write_text_report_filters_domestic_futures_night_session_up_roundup(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-fast-night-session-up",
+            first_seen_at="2026-04-16T23:05:01+08:00",
+            last_seen_at="2026-04-16T23:05:01+08:00",
+            canonical_title="国内期货夜盘收盘多数上涨 甲醇等涨超2%",
+            summary="人民财讯4月16日电，国内期货夜盘收盘多数上涨，甲醇等涨超2%。",
+            source="stcn",
+            published_at="2026-04-16T23:05:01+08:00",
+            url="https://example.com/night-session-up-roundup",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-fast-oil-keep-3",
+            first_seen_at="2026-04-16T23:06:01+08:00",
+            last_seen_at="2026-04-16T23:06:01+08:00",
+            canonical_title="WTI原油期货涨超13%",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-16T23:06:01+08:00",
+            url="https://example.com/fast-oil-keep-3",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-fast-night-session-up",
+            direction="neutral",
+            impact_score=74.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-fast-oil-keep-3",
+            direction="neutral",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["油气"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "WTI原油期货涨超13%" in content
+    assert "国内期货夜盘收盘多数上涨 甲醇等涨超2%" not in content
+
+
 def test_write_text_report_filters_domestic_futures_opening_roundup(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

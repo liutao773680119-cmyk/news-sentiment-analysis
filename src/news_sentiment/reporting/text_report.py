@@ -321,6 +321,7 @@ LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS = (
 LOW_SIGNAL_DOMESTIC_FUTURES_MARKET_MOVE_KEYWORDS = (
     "国内期货市场夜盘收盘",
     "国内商品期货夜盘收盘",
+    "国内期货夜盘收盘多数上涨",
     "国内期货夜盘收盘涨跌不一",
     "国内期市开盘多数下跌",
     "国内期货开盘涨跌不一",
