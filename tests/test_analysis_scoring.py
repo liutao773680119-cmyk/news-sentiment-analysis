@@ -452,6 +452,26 @@ def test_score_event_marks_delisting_risk_revocation_application_as_bullish() ->
     assert analysis.direction == "bullish"
 
 
+def test_score_event_marks_delisting_risk_revocation_application_with_stock_trading_wording_as_bullish() -> None:
+    event = Event(
+        event_id="event-001cc3",
+        first_seen_at="2026-04-17T00:00:00+08:00",
+        last_seen_at="2026-04-17T00:00:00+08:00",
+        canonical_title="*ST荣控：荣丰控股集团关于申请撤销对公司股票交易实施退市风险警示的公告",
+        summary="公司已向深交所提交申请撤销对公司股票交易实施退市风险警示的材料。",
+        source="szse",
+        published_at="2026-04-17T00:00:00+08:00",
+        url="https://example.com/szse-delisting-risk-revocation-application-2",
+        member_news_ids=["n1cc3"],
+        event_type="hard_event",
+        event_subtype="delisting_risk",
+        primary_entities=[],
+        source_authority_score=0.94,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bullish"
+
+
 def test_score_event_does_not_treat_generic_model_api_rank_as_ai_application() -> None:
     event = Event(
         event_id="event-001j",
