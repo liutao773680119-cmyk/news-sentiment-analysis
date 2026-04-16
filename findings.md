@@ -300,3 +300,64 @@
 - 一个重要注意点是：
   - `report` 过滤和 `audit-suspicious` 是分离逻辑
   - 因此启用 `hkex` 前，必须同时盯 report 头部和 `audit-suspicious` 结果，不能只看其一
+
+## Update 2026-04-16
+
+### Current Phase
+- `Phase 9`
+- 含义：`cls` 并入后的主线已从“全球快讯降层”转到“低信号披露/栏目稿尾噪收尾 + 保留边界锁定”。
+
+### What Changed
+- `report` 层继续清掉一批低信号披露与编辑尾噪：
+  - `审核问询函回复 / 并购重组材料文档 / 报告书（修订稿）`
+  - `解除司法冻结 / 重大诉讼的公告 / 重大诉讼、仲裁情况进展`
+  - `增持公司股份计划 / 股份减持完成 / 变更股份回购用途`
+  - `停牌核查 + 股票交易风险/风险提示`
+  - `【风口研报·洞察】 / 【金牌纪要库】 / 《新闻联播》要闻 / 【电报解读】`
+  - `现货白银... / 美股光通信股走势分化 / 再次向港交所提交上市申请书 / 盘后A股上市公司重点业绩公告精选`
+- `analysis/scoring` 新增最窄上游抑制：
+  - `cninfo + hard_event + corporate_disclosure` 中，`ESG报告 / 业绩网上说明会 / 责任保险` 不再默认触发
+- 正样本边界已明确锁住：
+  - `中远海能...投资建造两艘巴拿马型原油轮暨关联交易`
+  - `关于延期披露2025年年度报告及退市风险提示性公告`
+  - `【公告全知道】...245亿元投建算电协同项目`
+  - `华测导航...开展供应链融资业务合作暨对外担保`
+  - `GQY视讯...可能被实施退市风险警示的风险提示公告`
+
+### Verification Baseline Override
+- `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -q`
+  - `45 passed`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "gold_memo_column" -q`
+  - `1 passed`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_global_market_brief_without_hiding_domestic_order_catalyst" -q`
+  - `1 passed`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "after_hours_earnings_digest or repeat_hk_listing_application_fast_news" -q`
+  - `2 passed`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+  - `raw_news=1235`
+  - `normalized_news=1235`
+  - `events=280`
+  - `analyses=280`
+  - `failed_sources=none`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  - `suspicious_count=0`
+
+### Current Report Head
+- `中远海能...投资建造两艘巴拿马型原油轮暨关联交易`
+- `印度石油部...80万吨液化石油气进口订单`
+- `【公告全知道】...245亿元投建算电协同项目`
+- `上交所就晶科科技...245亿元建设算力中心相关项目发布监管工作函`
+- `*ST荣控...申请撤销对公司股票交易实施退市风险警示`
+- `华测导航...开展供应链融资业务合作暨对外担保`
+- `GQY视讯...可能被实施退市风险警示的风险提示公告`
+
+### Current Decisions
+- `【公告全知道】` 当前先保留；它是“栏目包装 + 真催化摘要”的混合体，不按纯编辑稿压。
+- `华测导航...开展供应链融资业务合作暨对外担保` 当前先保留；它不等同于纯授信/担保额度材料。
+- `GQY视讯...可能被实施退市风险警示的风险提示公告` 当前按首次风险提示保留。
+- 如果后续重审 `华测导航`，先补 3 条测试：`scoring triggered`、`report 一保一压`、`event_merge subtype`。
+
+### Known Risks Override
+- `【公告全知道】` 继续下刀前必须先确认是否误伤真催化摘要。
+- `业务合作 + 对外担保` 这类标题只是弱簇，不是纯材料簇；直接压整簇风险大。
+- `report` 过滤和 `audit-suspicious` 仍是两套逻辑；继续验收时必须成对看。

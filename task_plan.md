@@ -283,3 +283,28 @@ Phase 8
 - `hkex` 虽然单源验通，但披露型文档比例高，直接并入 `--source all` 很可能拉低 report 信噪比。
 - `report` 过滤和 `audit-suspicious` 属于两套逻辑；只压 report 头部，不代表巡检计数一定同步下降。
 - 当前 worktree 里源码和交接文档都有未提交修改；下个会话接手前必须先看 `git -C .worktrees/mvp-foundation status --short`。
+
+## Update 2026-04-16
+
+### Immediate Next Steps Override
+1. 先重跑当天基线：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+2. 只读检查当天 report 头部是否仍保留这 3 类边界：
+   - `【公告全知道】...`
+   - `华测导航...开展供应链融资业务合作暨对外担保`
+   - `GQY视讯...可能被实施退市风险警示的风险提示公告`
+3. 如果要重审 `华测导航`，先补 3 条测试再动规则：
+   - `tests/test_analysis_scoring.py`：`华测导航...` 保持 `triggered=True`
+   - `tests/test_text_report_sorting.py`：`华测导航...` 保留，对照 `申请综合授信额度` 过滤
+   - `tests/test_event_merge.py`：`华测导航...` subtype 仍是 `corporate_disclosure`
+4. 当前不要继续压：
+   - `cls` 全球内容
+   - `【公告全知道】` 栏目包装稿
+   - `业务合作 + 对外担保` 整簇
+5. 如果主线暂时停在这里，优先做标准交接和远端同步，不再追加新规则。
+
+### Known Risks Override
+- `【公告全知道】` 是“栏目包装 + 真催化摘要”的混合体，不适合按纯编辑尾噪处理。
+- `业务合作 + 对外担保` 不是纯低信号材料簇；直接压整簇会误伤真实业务动作。
+- `repeat hk listing application` 不只来自 `stcn`，`cls` 也会出现同类标题；规则不要只绑单一 source。
