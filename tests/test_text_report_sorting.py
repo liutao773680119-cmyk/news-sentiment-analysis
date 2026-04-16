@@ -5482,6 +5482,80 @@ def test_write_text_report_filters_exchange_inquiry_reply_and_special_explanatio
     assert "*ST仁东：评估机构关于仁东控股年报问询函有关问题的专项说明" not in content
 
 
+def test_write_text_report_filters_financing_inquiry_reply_and_judicial_unfreeze_without_hiding_catalyst(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-financing-inquiry-reply",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="亿道信息：深圳市亿道信息股份有限公司关于深圳证券交易所《关于深圳市亿道信息股份有限公司发行股份及支付现金购买资产并募集配套资金申请的审核问询函》之回复",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/financing-inquiry-reply",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-judicial-unfreeze",
+            first_seen_at="2026-04-16T00:01:00+08:00",
+            last_seen_at="2026-04-16T00:01:00+08:00",
+            canonical_title="居然智家：关于公司原实际控制人所持公司股份解除司法冻结的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-16T00:01:00+08:00",
+            url="https://example.com/judicial-unfreeze",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-16T00:02:00+08:00",
+            last_seen_at="2026-04-16T00:02:00+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-financing-inquiry-reply",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-judicial-unfreeze",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-acquisition",
+            direction="bullish",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["锂电池"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "亿道信息：深圳市亿道信息股份有限公司关于深圳证券交易所" not in content
+    assert "居然智家：关于公司原实际控制人所持公司股份解除司法冻结的公告" not in content
+
+
 def test_write_text_report_filters_hkex_governance_and_material_announcements_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -7183,6 +7257,379 @@ def test_write_text_report_filters_current_live_exchange_material_disclosures(tm
     assert "哈尔斯：董事会薪酬与考核委员会关于2024年股票增值权激励计划第一个行权期的行权名单的核查意见" not in content
     assert "广东建工：关于重大资产重组业绩承诺期满标的资产减值测试情况的公告" not in content
     assert "凯瑞德：关于持股5%以上股东减持期限届满未减持股份的公告" not in content
+
+
+def test_write_text_report_filters_current_live_equity_incentive_variants(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-option-exercise-condition",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="中远海能关于2023年股票期权激励计划首次授予期权第一个行权期符合行权条件的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/sse-option-exercise-condition",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-sse-option-adjust-cancel",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="中远海能关于调整2023年股票期权激励计划期权数量、行权价格并注销部分已获授但未行权的股票期权的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/sse-option-adjust-cancel",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-equity-plan-draft",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="汇成真空：2026年限制性股票激励计划（草案）",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-equity-plan-draft",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-sse-option-exercise-condition", direction="neutral", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-option-adjust-cancel", direction="neutral", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-plan-draft", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "中远海能关于2023年股票期权激励计划首次授予期权第一个行权期符合行权条件的公告" not in content
+    assert "中远海能关于调整2023年股票期权激励计划期权数量、行权价格并注销部分已获授但未行权的股票期权的公告" not in content
+    assert "汇成真空：2026年限制性股票激励计划（草案）" not in content
+
+
+def test_write_text_report_filters_remaining_live_equity_and_cls_admin_fast_news(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-repurchase-cancel-unlock",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="宇环数控：关于回购注销部分已获授但尚未解除限售的限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-repurchase-cancel-unlock",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-equity-void-unvested",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="开立医疗：关于2023年限制性股票激励计划第三个归属期归属条件未成就暨作废部分已授予但尚未归属的限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-equity-void-unvested",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-cls-reduction",
+            first_seen_at="2026-04-16T19:29:02+08:00",
+            last_seen_at="2026-04-16T19:29:02+08:00",
+            canonical_title="致远新能：股东王然拟合计减持不超3%公司股份",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T19:29:02+08:00",
+            url="https://example.com/cls-reduction",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-cls-lof-suspension",
+            first_seen_at="2026-04-16T19:12:28+08:00",
+            last_seen_at="2026-04-16T19:12:28+08:00",
+            canonical_title="财联社4月16日电，南方原油LOF(501018)将于2026年4月17日开市起至当日10:30停牌，自2026年4月17日10:30复牌。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T19:12:28+08:00",
+            url="https://example.com/cls-lof-suspension",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-repurchase-cancel-unlock", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-void-unvested", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-cls-reduction", direction="neutral", impact_score=74.3, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-cls-lof-suspension", direction="neutral", impact_score=79.3, reasoning="rule", themes=["油气"], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "宇环数控：关于回购注销部分已获授但尚未解除限售的限制性股票的公告" not in content
+    assert "开立医疗：关于2023年限制性股票激励计划第三个归属期归属条件未成就暨作废部分已授予但尚未归属的限制性股票的公告" not in content
+    assert "致远新能：股东王然拟合计减持不超3%公司股份" not in content
+    assert "南方原油LOF(501018)" not in content
+
+
+def test_write_text_report_filters_control_change_performance_statement_and_share_increase_plan(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-share-increase-plan",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="共达电声：共达电声股份有限公司关于控股股东的一致行动人增持公司股份计划的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-share-increase-plan",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-control-change-performance",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="金一文化：关于收购开科唯识控制权事项业绩承诺实现情况的专项说明",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-control-change-performance",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-share-increase-plan", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-control-change-performance", direction="bullish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "共达电声：共达电声股份有限公司关于控股股东的一致行动人增持公司股份计划的公告" not in content
+    assert "金一文化：关于收购开科唯识控制权事项业绩承诺实现情况的专项说明" not in content
+
+
+def test_write_text_report_filters_central_bank_gold_reserve_brief_without_hiding_catalyst(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-gold-reserve-brief",
+            first_seen_at="2026-04-16T19:36:58+08:00",
+            last_seen_at="2026-04-16T19:36:58+08:00",
+            canonical_title="财联社4月16日电，据土耳其央行数据，截至4月10日当周，其国际标准黄金储备增加5.77吨，至699.89吨。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T19:36:58+08:00",
+            url="https://example.com/cls-gold-reserve-brief",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-gold-reserve-brief", direction="neutral", impact_score=79.3, reasoning="rule", themes=["黄金"], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "国际标准黄金储备增加5.77吨" not in content
+
+
+def test_write_text_report_filters_local_leader_manufacturing_visit_and_repeated_delisting_risk_notice(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-local-leader-visit",
+            first_seen_at="2026-04-16T19:28:56+08:00",
+            last_seen_at="2026-04-16T19:28:56+08:00",
+            canonical_title="河南省省长王凯到郑州调研先进制造业发展",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-16T19:28:56+08:00",
+            url="https://example.com/stcn-local-leader-visit",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-repeated-delisting-risk",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="*ST椰岛关于公司股票交易风险暨可能被终止上市的第六次风险提示公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/sse-repeated-delisting-risk",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-stcn-local-leader-visit", direction="bullish", impact_score=99.0, reasoning="rule", themes=["新能源车"], triggered=True),
+        EventAnalysis(event_id="event-sse-repeated-delisting-risk", direction="bearish", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "河南省省长王凯到郑州调研先进制造业发展" not in content
+    assert "*ST椰岛关于公司股票交易风险暨可能被终止上市的第六次风险提示公告" not in content
+
+
+def test_write_text_report_filters_news_broadcast_roundup_without_hiding_catalyst(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-news-broadcast-roundup",
+            first_seen_at="2026-04-16T20:10:21+08:00",
+            last_seen_at="2026-04-16T20:10:21+08:00",
+            canonical_title="4月16日周四《新闻联播》要闻22条",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T20:10:21+08:00",
+            url="https://example.com/cls-news-broadcast-roundup",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-news-broadcast-roundup", direction="bullish", impact_score=99.3, reasoning="rule", themes=["算力", "文旅"], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "《新闻联播》要闻22条" not in content
+
+
+def test_write_text_report_filters_cls_telegraph_interpretation_column_without_hiding_catalyst(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-telegraph-interpretation",
+            first_seen_at="2026-04-16T20:06:58+08:00",
+            last_seen_at="2026-04-16T20:06:58+08:00",
+            canonical_title="【电报解读】马斯克要求“光速”推进Terafab项目！分析师强Call“火箭+卫星+光伏+算力芯片”全面布局下，马斯克太空算力版图有望实现商业闭环，这家公司设备主要应用于逻辑芯片、存储芯片制造领域",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T20:06:58+08:00",
+            url="https://example.com/cls-telegraph-interpretation",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-telegraph-interpretation", direction="neutral", impact_score=79.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "【电报解读】马斯克要求“光速”推进Terafab项目" not in content
 
 
 def test_write_text_report_filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk(

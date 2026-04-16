@@ -436,6 +436,126 @@ def test_audit_suspicious_skips_convertible_bond_inquiry_reply_revision(tmp_path
     assert "三鑫医疗：关于江西三鑫医疗科技股份有限公司申请向不特定对象发行可转换公司债券的审核问询函之回复（修订稿）" not in output
 
 
+def test_audit_suspicious_skips_financing_inquiry_reply_material(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-financing-inquiry-reply",
+                first_seen_at="2026-04-16T00:00:00+08:00",
+                last_seen_at="2026-04-16T00:00:00+08:00",
+                canonical_title="亿道信息：深圳市亿道信息股份有限公司关于深圳证券交易所《关于深圳市亿道信息股份有限公司发行股份及支付现金购买资产并募集配套资金申请的审核问询函》之回复",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-16T00:00:00+08:00",
+                url="https://example.com/financing-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-financing-inquiry-reply",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "亿道信息：深圳市亿道信息股份有限公司关于深圳证券交易所" not in output
+
+
+def test_audit_suspicious_skips_judicial_unfreeze_disclosure(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-judicial-unfreeze",
+                first_seen_at="2026-04-16T00:00:00+08:00",
+                last_seen_at="2026-04-16T00:00:00+08:00",
+                canonical_title="居然智家：关于公司原实际控制人所持公司股份解除司法冻结的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-16T00:00:00+08:00",
+                url="https://example.com/judicial-unfreeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-judicial-unfreeze",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "解除司法冻结" not in output
+
+
+def test_audit_suspicious_skips_major_litigation_disclosure(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-major-litigation",
+                first_seen_at="2026-04-16T00:00:00+08:00",
+                last_seen_at="2026-04-16T00:00:00+08:00",
+                canonical_title="重大诉讼的公告",
+                summary="summary",
+                source="sse",
+                published_at="2026-04-16T00:00:00+08:00",
+                url="https://example.com/major-litigation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-major-litigation",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "重大诉讼的公告" not in output
+
+
 def test_audit_suspicious_skips_commodity_market_move_with_theme(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

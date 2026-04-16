@@ -98,6 +98,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "鉴证报告",
     "增持公司股份结果公告",
     "增持股份结果",
+    "增持公司股份计划",
     "增持计划实施完成",
     "减持股份预披露",
     "减持股份的预披露公告",
@@ -150,6 +151,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "年度审计报告",
     "监管措施或处罚及整改情况",
     "上市投资风险特别公告",
+    "风险提示公告",
     "不存在被证券监管部门和交易所采取处罚或监管措施",
     "附条件生效的股份认购协议",
     "相关规定的核查意见",
@@ -165,20 +167,26 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "考核管理办法",
     "独立财务顾问报告",
     "法律意见书",
+    "（草案）",
     "（草案）摘要",
     "草案摘要",
     "注销首期股票期权激励计划部分股票期权",
     "注销2024年股票期权激励计划部分股票期权",
     "解锁条件成就",
     "解除限售条件",
+    "符合行权条件",
     "首次授予限制性股票",
     "向激励对象授予限制性股票",
     "授予登记完成",
     "归属结果暨股份上市",
     "解除限售期解锁暨限制性股票上市公告",
     "行权条件成就",
+    "期权数量、行权价格并注销部分已获授但未行权的股票期权",
     "回购注销限制性股票减资暨通知债权人",
     "回购注销部分限制性股票",
+    "尚未解除限售的限制性股票",
+    "尚未归属的限制性股票",
+    "归属条件未成就",
     "激励对象名单",
     "股票期权注销事项的核查意见",
     "股票增值权激励计划第一个行权期的行权名单的核查意见",
@@ -220,6 +228,10 @@ LOW_SIGNAL_EXCHANGE_RESTRUCTURING_RESULT_KEYWORDS = (
     "复牌",
     "控制权变更",
     "要约",
+)
+LOW_SIGNAL_CONTROL_CHANGE_MATERIAL_KEYWORDS = (
+    "业绩承诺实现情况",
+    "专项说明",
 )
 LOW_SIGNAL_EXCHANGE_TEMPLATE_COOPERATION_STRONG_KEYWORDS = (
     "战略",
@@ -394,6 +406,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "暴雨黄色预警信号",
     "取消部分化肥关税",
     "外立面遭防空系统拦截碎片击中",
+    "调研先进制造业发展",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -494,6 +507,14 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_exchange_template_cooperation_agreement(event, analysis):
         return False
+    if _is_low_signal_cls_fund_suspend_resume_notice(event):
+        return False
+    if _is_low_signal_cls_central_bank_gold_reserve_brief(event, text):
+        return False
+    if _is_low_signal_cls_news_broadcast_roundup(event):
+        return False
+    if _is_low_signal_cls_telegraph_interpretation_column(event):
+        return False
     if analysis.themes:
         return True
     if _is_low_signal_shareholder_reduction_fast_news(event.canonical_title, event):
@@ -544,6 +565,15 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             keyword in event.canonical_title
             for keyword in LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS
         )
+
+    if event.event_subtype == "control_change":
+        return event.source in {"sse", "szse"} and all(
+            keyword in event.canonical_title for keyword in LOW_SIGNAL_CONTROL_CHANGE_MATERIAL_KEYWORDS
+        )
+
+    if event.event_subtype == "delisting_risk":
+        title = event.canonical_title
+        return "可能被终止上市" in title and "风险提示公告" in title and "第" in title
 
     return False
 
@@ -672,12 +702,58 @@ def _is_low_signal_stcn_single_stock_market_move(title: str, event: Event, analy
 
 def _is_low_signal_shareholder_reduction_fast_news(title: str, event: Event) -> bool:
     if not (
-        event.source == "stcn"
+        event.source in {"stcn", "cls"}
         and event.event_type == "fast_news"
     ):
         return False
 
     return any(keyword in title for keyword in LOW_SIGNAL_SHAREHOLDER_REDUCTION_FAST_NEWS_KEYWORDS)
+
+
+def _is_low_signal_cls_fund_suspend_resume_notice(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    return "LOF" in title and "停牌" in title and "复牌" in title
+
+
+def _is_low_signal_cls_central_bank_gold_reserve_brief(event: Event, text: str) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return "央行数据" in text and "黄金储备" in text
+
+
+def _is_low_signal_cls_news_broadcast_roundup(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype in {"general_fast_news", "company_update"}
+    ):
+        return False
+
+    title = event.canonical_title
+    return "《新闻联播》要闻" in title
+
+
+def _is_low_signal_cls_telegraph_interpretation_column(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return "【电报解读】" in event.canonical_title
 
 
 def _is_low_signal_stcn_broker_macro_commentary(event: Event, text: str) -> bool:
@@ -758,7 +834,7 @@ def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
     if not (
         event.source == "stcn"
         and event.event_type == "fast_news"
-        and event.event_subtype == "general_fast_news"
+        and event.event_subtype in {"general_fast_news", "company_update"}
     ):
         return False
 

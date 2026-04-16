@@ -60,6 +60,7 @@ LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS = (
     "向不特定对象发行可转换公司债券",
     "发行可转换公司债券",
     "可转换公司债券",
+    "募集配套资金",
 )
 LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报问询函回复",
@@ -68,8 +69,10 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "提起诉讼的进展公告",
     "累计诉讼",
     "重大诉讼公告",
+    "重大诉讼的公告",
     "失信被执行人",
     "轮候冻结",
+    "解除司法冻结",
 )
 FAST_NEWS_LEGAL_REVIEW_KEYWORDS = (
     "商标争议",
@@ -314,10 +317,10 @@ def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
 def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
     return (
         _contains_any(title, LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS)
-        and (
-            _contains_any(title, LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS)
-            or _contains_any(title, LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS)
-        )
+        or ("审核问询函" in title and _contains_any(title, ("回复", "之回复")))
+    ) and (
+        _contains_any(title, LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS)
+        or _contains_any(title, LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS)
     )
 
 
