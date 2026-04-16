@@ -434,3 +434,123 @@ def test_audit_suspicious_skips_convertible_bond_inquiry_reply_revision(tmp_path
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "三鑫医疗：关于江西三鑫医疗科技股份有限公司申请向不特定对象发行可转换公司债券的审核问询函之回复（修订稿）" not in output
+
+
+def test_audit_suspicious_skips_commodity_market_move_with_theme(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-gold-market-move",
+                first_seen_at="2026-04-14T21:39:36+08:00",
+                last_seen_at="2026-04-14T21:39:36+08:00",
+                canonical_title="财联社4月14日电，现货黄金向上触及4800美元，日内上涨1.28%。",
+                summary="财联社4月14日电，现货黄金向上触及4800美元，日内上涨1.28%。",
+                source="cls",
+                published_at="2026-04-14T21:39:36+08:00",
+                url="https://www.cls.cn/detail/2344033",
+                event_type="fast_news",
+                event_subtype="market_move",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-gold-market-move",
+                direction="neutral",
+                impact_score=99.3,
+                reasoning="rule",
+                themes=["黄金"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "现货黄金向上触及4800美元" not in output
+
+
+def test_audit_suspicious_skips_cls_editorial_roundup_column(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cls-editorial-roundup",
+                first_seen_at="2026-04-14T22:02:15+08:00",
+                last_seen_at="2026-04-14T22:02:15+08:00",
+                canonical_title="【公告全知道】锂电池+PCB+芯片+固态电池+储能+数据中心！公司锂电铜箔出货量持续上升",
+                summary="summary",
+                source="cls",
+                published_at="2026-04-14T22:02:15+08:00",
+                url="https://www.cls.cn/detail/2344048",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cls-editorial-roundup",
+                direction="bullish",
+                impact_score=99.3,
+                reasoning="rule",
+                themes=["算力", "PCB", "储能", "锂电池"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "【公告全知道】锂电池+PCB+芯片+固态电池+储能+数据中心！公司锂电铜箔出货量持续上升" not in output
+
+
+def test_audit_suspicious_skips_cls_general_fast_news_with_theme(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cls-global-roundup",
+                first_seen_at="2026-04-15T06:31:03+08:00",
+                last_seen_at="2026-04-15T06:31:03+08:00",
+                canonical_title="周三你需要知道的隔夜全球要闻：以黎同意将启动直接谈判；特朗普称与伊朗会谈“可能未来两天内”举行；霍尔木兹海峡恢复部分通航 美军封锁伊朗港口持续；国际原油下挫 美股纳指十连涨",
+                summary="summary",
+                source="cls",
+                published_at="2026-04-15T06:31:03+08:00",
+                url="https://www.cls.cn/detail/2344207",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cls-global-roundup",
+                direction="bullish",
+                impact_score=99.3,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "隔夜全球要闻" not in output

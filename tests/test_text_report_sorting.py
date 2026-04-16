@@ -418,6 +418,59 @@ def test_write_text_report_filters_miit_industry_meeting_and_press_conference_wi
     assert "工业和信息化部举行“推动国家高新区高质量发展”新闻发布会" not in content
 
 
+def test_write_text_report_filters_miit_standardization_group_meeting_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-miit-standardization-group-meeting",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="2026年国家智能制造标准化总体组和专家咨询组全体会议在京召开",
+            summary="会议研究部署下一阶段智能制造标准化重点工作。",
+            source="miit",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/miit-standardization-group-meeting",
+            event_type="policy",
+            event_subtype="policy_update",
+        ),
+        Event(
+            event_id="event-miit-themed-policy-standard",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="工业和信息化部等部门印发智能制造标准体系建设指南",
+            summary="围绕智能制造标准体系建设作出部署。",
+            source="miit",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/miit-themed-policy-standard",
+            event_type="policy",
+            event_subtype="policy_support",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-miit-standardization-group-meeting",
+            direction="bullish",
+            impact_score=72.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-miit-themed-policy-standard",
+            direction="bullish",
+            impact_score=97.0,
+            reasoning="rule",
+            themes=["智能制造"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "2026年国家智能制造标准化总体组和专家咨询组全体会议在京召开" not in content
+    assert "工业和信息化部等部门印发智能制造标准体系建设指南" in content
+
+
 def test_write_text_report_filters_miit_policy_activity_and_study_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -6626,3 +6679,1123 @@ def test_write_text_report_filters_exchange_equity_incentive_plan_summary_withou
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "乘联分会：3月全国乘用车厂商新能源批发预估112万辆" in content
     assert "顶固集创：2026年限制性股票激励计划（草案）摘要" not in content
+
+
+def test_write_text_report_filters_new_exchange_disclosure_noise_families(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-dno-insurance",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="上海电力股份有限公司关于为董事及高级管理人员投保责任保险的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/sse-dno-insurance",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sse-cash-management",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="宁波联合关于使用暂时闲置自有资金开展国债逆回购、结构性存款业务的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/sse-cash-management",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-reduction-predisclosure",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="启迪环境：关于持股5%以上股东股份减持计划的预披露公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-reduction-predisclosure",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-equity-legal-opinion",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="创业慧康：北京市天元律师事务所关于创业慧康科技股份有限公司作废处理部分限制性股票的法律意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-equity-legal-opinion",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-dno-insurance",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["保险"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-sse-cash-management",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-reduction-predisclosure",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-equity-legal-opinion",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-acquisition",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "上海电力股份有限公司关于为董事及高级管理人员投保责任保险的公告" not in content
+    assert "宁波联合关于使用暂时闲置自有资金开展国债逆回购、结构性存款业务的公告" not in content
+    assert "启迪环境：关于持股5%以上股东股份减持计划的预披露公告" not in content
+    assert "创业慧康：北京市天元律师事务所关于创业慧康科技股份有限公司作废处理部分限制性股票的法律意见" not in content
+
+
+def test_write_text_report_filters_followup_live_head_disclosure_noise(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-option-cancel",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="上海电力股份有限公司关于注销首期股票期权激励计划部分股票期权的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/sse-option-cancel",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-option-review-opinion",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="创业慧康：董事会薪酬与考核委员会关于公司作废部分已授予尚未归属的限制性股票相关事项的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-option-review-opinion",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-share-buyback-board",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="燕京啤酒：关于提请股东会授权董事会审议股份回购事项的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-share-buyback-board",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-szse-repurchase-cancel",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="盛视科技：关于回购注销部分限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-repurchase-cancel",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-ongoing-supervision",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="力合科创：国信证券股份有限公司关于《深圳市力合科创股份有限公司收购报告书》之持续督导意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-ongoing-supervision",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-miit-inspection-meeting",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="工业和信息化部党组召开第六轮巡视动员部署会",
+            summary="会议对巡视工作进行动员部署。",
+            source="miit",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/miit-inspection-meeting",
+            event_type="policy",
+            event_subtype="policy_support",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-sse-option-cancel", direction="neutral", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-option-review-opinion", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-share-buyback-board", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-repurchase-cancel", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-ongoing-supervision", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-miit-inspection-meeting", direction="bullish", impact_score=72.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "上海电力股份有限公司关于注销首期股票期权激励计划部分股票期权的公告" not in content
+    assert "创业慧康：董事会薪酬与考核委员会关于公司作废部分已授予尚未归属的限制性股票相关事项的核查意见" not in content
+    assert "燕京啤酒：关于提请股东会授权董事会审议股份回购事项的公告" not in content
+    assert "盛视科技：关于回购注销部分限制性股票的公告" not in content
+    assert "力合科创：国信证券股份有限公司关于《深圳市力合科创股份有限公司收购报告书》之持续督导意见" not in content
+    assert "工业和信息化部党组召开第六轮巡视动员部署会" not in content
+
+
+def test_write_text_report_filters_remaining_live_template_agreements_and_equity_opinions(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-template-cooperation",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="齐翔腾达：关于与蓝帆医疗股份有限公司签署《深化战略合作框架协议》的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-template-cooperation",
+            event_type="hard_event",
+            event_subtype="cooperation_agreement",
+        ),
+        Event(
+            event_id="event-szse-equity-review-opinion",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="盛视科技：董事会薪酬与考核委员会关于2024年限制性股票激励计划相关事项的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-equity-review-opinion",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-template-cooperation", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-review-opinion", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "齐翔腾达：关于与蓝帆医疗股份有限公司签署《深化战略合作框架协议》的公告" not in content
+    assert "盛视科技：董事会薪酬与考核委员会关于2024年限制性股票激励计划相关事项的核查意见" not in content
+
+
+def test_write_text_report_filters_exchange_order_contract_progress_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-order-progress",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="行云科技：关于中标项目签订协议的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-order-progress",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-order-progress", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "行云科技：关于中标项目签订协议的进展公告" not in content
+
+
+def test_write_text_report_filters_exchange_cash_management_variants_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-cash-management-product",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="南方精工：关于利用自有闲置资金择机购买中短期低风险金融理财产品的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-cash-management-product",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-cash-management-product", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "南方精工：关于利用自有闲置资金择机购买中短期低风险金融理财产品的公告" not in content
+
+
+def test_write_text_report_filters_latest_live_exchange_disclosure_variants(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-reduction-complete",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="罗博特科：关于股东股份减持计划完成的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/szse-reduction-complete",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-equity-self-check",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="瑞丰光电：关于2026年股票期权与限制性股票激励计划内幕信息知情人买卖公司股票情况的自查报告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/szse-equity-self-check",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-rights-transfer",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="乐普医疗：关于子公司签署药品受让协议的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/szse-rights-transfer",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-reduction-complete", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-self-check", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-rights-transfer", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "罗博特科：关于股东股份减持计划完成的公告" not in content
+    assert "瑞丰光电：关于2026年股票期权与限制性股票激励计划内幕信息知情人买卖公司股票情况的自查报告" not in content
+    assert "乐普医疗：关于子公司签署药品受让协议的公告" not in content
+
+
+def test_write_text_report_filters_current_live_exchange_material_disclosures(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-audit-duty-report",
+            first_seen_at="2026-04-14T00:00:00+08:00",
+            last_seen_at="2026-04-14T00:00:00+08:00",
+            canonical_title="上海电力股份有限公司董事会审计与风险委员会2025年度履职情况报告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-14T00:00:00+08:00",
+            url="https://example.com/sse-audit-duty-report",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-szse-stock-appreciation-opinion",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="哈尔斯：董事会薪酬与考核委员会关于2024年股票增值权激励计划第一个行权期的行权名单的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-stock-appreciation-opinion",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-restructuring-impairment-test",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="广东建工：关于重大资产重组业绩承诺期满标的资产减值测试情况的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-impairment-test",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-szse-reduction-expire-no-sale",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="凯瑞德：关于持股5%以上股东减持期限届满未减持股份的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-reduction-expire-no-sale",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-sse-audit-duty-report", direction="bearish", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-stock-appreciation-opinion", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-restructuring-impairment-test", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-reduction-expire-no-sale", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+    assert "上海电力股份有限公司董事会审计与风险委员会2025年度履职情况报告" not in content
+    assert "哈尔斯：董事会薪酬与考核委员会关于2024年股票增值权激励计划第一个行权期的行权名单的核查意见" not in content
+    assert "广东建工：关于重大资产重组业绩承诺期满标的资产减值测试情况的公告" not in content
+    assert "凯瑞德：关于持股5%以上股东减持期限届满未减持股份的公告" not in content
+
+
+def test_write_text_report_filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-restructuring-performance-audit",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="维业股份：关于重大资产重组业绩承诺实现情况说明专项审核报告维业-信会师报字[2026]第ZM10552号",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-performance-audit",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-keep-delisting-risk",
+            first_seen_at="2026-04-15T00:01:00+08:00",
+            last_seen_at="2026-04-15T00:01:00+08:00",
+            canonical_title="ST中青宝：关于撤销其他风险警示暨股票停复牌的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:01:00+08:00",
+            url="https://example.com/keep-delisting-risk",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-szse-restructuring-performance-audit",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-delisting-risk",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "ST中青宝：关于撤销其他风险警示暨股票停复牌的公告" in content
+    assert "维业股份：关于重大资产重组业绩承诺实现情况说明专项审核报告维业-信会师报字[2026]第ZM10552号" not in content
+
+
+def test_write_text_report_keeps_cls_morning_brief_column_for_global_news_collection(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-morning-brief",
+            first_seen_at="2026-04-14T21:24:04+08:00",
+            last_seen_at="2026-04-14T21:24:04+08:00",
+            canonical_title="【财联社早知道】重大突破！我国最大规模科学智能计算集群投入使用，机构称AI应用持续发展正推动算力需求维持高位，这家公司子公司运营着全国最大C端AI算力云平台",
+            summary="①重大突破！我国最大规模科学智能计算集群投入使用；②国办发布健全药品价格形成机制的若干意见；③这家公司截至目前算力业务规模已超过4000P。",
+            source="cls",
+            published_at="2026-04-14T21:24:04+08:00",
+            url="https://www.cls.cn/detail/2343479",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-cls-keep-acquisition",
+            first_seen_at="2026-04-14T21:14:22+08:00",
+            last_seen_at="2026-04-14T21:14:22+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="财联社4月14日电，公司拟增资杭可仪器并将其纳入合并报表范围。",
+            source="cls",
+            published_at="2026-04-14T21:14:22+08:00",
+            url="https://www.cls.cn/detail/2344008",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-morning-brief",
+            direction="bullish",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["算力", "AI应用"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-keep-acquisition",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+    assert "【财联社早知道】重大突破！我国最大规模科学智能计算集群投入使用" in content
+
+
+def test_write_text_report_keeps_cls_overseas_aviation_fuel_story_for_global_news_collection(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-aviation-fuel-story",
+            first_seen_at="2026-04-14T21:16:23+08:00",
+            last_seen_at="2026-04-14T21:16:23+08:00",
+            canonical_title="五一假期国际航班遭大规模取消？专家：燃油成本大涨为主因 国际低成本航司压力更大",
+            summary="财联社4月14日电，多位网友称飞往东南亚及大洋洲航班被取消。专家表示核心原因在于航空燃油成本大幅攀升，国际低成本航司压力更大。",
+            source="cls",
+            published_at="2026-04-14T21:16:23+08:00",
+            url="https://www.cls.cn/detail/2344010",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-keep-acquisition",
+            first_seen_at="2026-04-14T21:14:22+08:00",
+            last_seen_at="2026-04-14T21:14:22+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="财联社4月14日电，公司拟增资杭可仪器并将其纳入合并报表范围。",
+            source="cls",
+            published_at="2026-04-14T21:14:22+08:00",
+            url="https://www.cls.cn/detail/2344008",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-aviation-fuel-story",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-keep-acquisition",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+    assert "五一假期国际航班遭大规模取消？专家：燃油成本大涨为主因 国际低成本航司压力更大" in content
+
+
+def test_write_text_report_keeps_cls_foreign_index_fast_news_for_global_news_collection(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-us-index-open",
+            first_seen_at="2026-04-14T21:30:50+08:00",
+            last_seen_at="2026-04-14T21:30:50+08:00",
+            canonical_title="美股三大指数小幅高开",
+            summary="财联社4月14日电，美股三大指数小幅高开，道指涨0.1%，纳指涨0.71%，标普500指数涨0.32%。GoPro大涨超19%；美国航空涨超7%。",
+            source="cls",
+            published_at="2026-04-14T21:30:50+08:00",
+            url="https://www.cls.cn/detail/2344018",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-china-concept-index-open",
+            first_seen_at="2026-04-14T21:31:37+08:00",
+            last_seen_at="2026-04-14T21:31:37+08:00",
+            canonical_title="利弗莫尔中概股龙头指数盘初涨1%",
+            summary="财联社4月14日电，利弗莫尔中概股龙头指数盘初涨幅扩大至1%，报9648.25点。成分股中，金山云涨4.54%，京东涨3.33%。",
+            source="cls",
+            published_at="2026-04-14T21:31:37+08:00",
+            url="https://www.cls.cn/detail/2344020",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-cls-keep-acquisition",
+            first_seen_at="2026-04-14T21:14:22+08:00",
+            last_seen_at="2026-04-14T21:14:22+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="财联社4月14日电，公司拟增资杭可仪器并将其纳入合并报表范围。",
+            source="cls",
+            published_at="2026-04-14T21:14:22+08:00",
+            url="https://www.cls.cn/detail/2344008",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-us-index-open",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-china-concept-index-open",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-keep-acquisition",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+    assert "美股三大指数小幅高开" in content
+    assert "利弗莫尔中概股龙头指数盘初涨1%" in content
+
+
+def test_write_text_report_keeps_cls_single_stock_market_move_for_global_news_collection(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-foreign-single-stock-move",
+            first_seen_at="2026-04-14T21:33:57+08:00",
+            last_seen_at="2026-04-14T21:33:57+08:00",
+            canonical_title="财联社4月14日电，富国银行股价下跌6%，创一个月来最大跌幅。",
+            summary="财联社4月14日电，富国银行股价下跌6%，创一个月来最大跌幅。",
+            source="cls",
+            published_at="2026-04-14T21:33:57+08:00",
+            url="https://www.cls.cn/detail/2344024",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-keep-acquisition",
+            first_seen_at="2026-04-14T21:14:22+08:00",
+            last_seen_at="2026-04-14T21:14:22+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="财联社4月14日电，公司拟增资杭可仪器并将其纳入合并报表范围。",
+            source="cls",
+            published_at="2026-04-14T21:14:22+08:00",
+            url="https://www.cls.cn/detail/2344008",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-foreign-single-stock-move",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-keep-acquisition",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+    assert "富国银行股价下跌6%" in content
+
+
+def test_write_text_report_filters_latest_live_exchange_noise_variants(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-equity-unlock-listing",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="华润双鹤关于公司2021年限制性股票激励计划首次授予部分第三个解除限售期解锁暨限制性股票上市公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/sse-equity-unlock-listing",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-sse-order-signing-brief",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="上海建工2026年一季度新签合同情况公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/sse-order-signing-brief",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-szse-restructuring-risk-tip",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="永达股份：关于披露重组报告书暨一般风险提示性公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-risk-tip",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-szse-restructuring-review-opinion",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="永达股份：国金证券股份有限公司关于本次交易符合《上市公司重大资产重组管理办法》第十一条、第四十三条及第四十四条规定的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-review-opinion",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-keep-delisting-revocation",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="*ST中地：关于申请撤销公司股票退市风险警示的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/keep-delisting-revocation",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+        Event(
+            event_id="event-szse-option-cancel",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="纳思达：关于注销2024年股票期权激励计划部分股票期权的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-option-cancel",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-equity-grant",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="哈尔斯：关于向激励对象授予限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-equity-grant",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-compliance-opinion",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="永达股份：国金证券股份有限公司关于本次交易符合《关于加强证券公司在投资银行类业务中聘请第三方等廉洁从业风险防控的意见》相关规定的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-compliance-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-etf-flow",
+            first_seen_at="2026-04-15T07:16:10+08:00",
+            last_seen_at="2026-04-15T07:16:10+08:00",
+            canonical_title="ETF资金流向分化 公募策略趋于多元",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-15T07:16:10+08:00",
+            url="https://example.com/stcn-etf-flow",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-szse-reorganization-investment-agreement",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="美年健康：关于签署《重整投资协议》的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/szse-reorganization-investment-agreement",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-equity-unlock-listing",
+            direction="bearish",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-sse-order-signing-brief",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-restructuring-risk-tip",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-restructuring-review-opinion",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-delisting-revocation",
+            direction="bullish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-option-cancel",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-equity-grant",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-compliance-opinion",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-etf-flow",
+            direction="neutral",
+            impact_score=74.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-reorganization-investment-agreement",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "华润双鹤关于公司2021年限制性股票激励计划首次授予部分第三个解除限售期解锁暨限制性股票上市公告" not in content
+    assert "上海建工2026年一季度新签合同情况公告" not in content
+    assert "永达股份：关于披露重组报告书暨一般风险提示性公告" not in content
+    assert "永达股份：国金证券股份有限公司关于本次交易符合《上市公司重大资产重组管理办法》第十一条、第四十三条及第四十四条规定的核查意见" not in content
+    assert "纳思达：关于注销2024年股票期权激励计划部分股票期权的公告" not in content
+    assert "哈尔斯：关于向激励对象授予限制性股票的公告" not in content
+    assert "永达股份：国金证券股份有限公司关于本次交易符合《关于加强证券公司在投资银行类业务中聘请第三方等廉洁从业风险防控的意见》相关规定的核查意见" not in content
+    assert "ETF资金流向分化 公募策略趋于多元" not in content
+    assert "美年健康：关于签署《重整投资协议》的公告" not in content
+
+
+def test_write_text_report_deprioritizes_cls_global_information_below_direct_catalysts(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-control-change",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="公司推进控制权收购事项。",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/control-change",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+        Event(
+            event_id="event-cls-industry-data",
+            first_seen_at="2026-04-15T12:48:23+08:00",
+            last_seen_at="2026-04-15T12:48:23+08:00",
+            canonical_title="韩国3月汽车出口额为63.7亿美元 同比增长2.2%",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-15T12:48:23+08:00",
+            url="https://example.com/cls-industry-data",
+            event_type="fast_news",
+            event_subtype="industry_data",
+        ),
+        Event(
+            event_id="event-cls-general-fast-news",
+            first_seen_at="2026-04-15T13:07:55+08:00",
+            last_seen_at="2026-04-15T13:07:55+08:00",
+            canonical_title="财联社4月15日电，韩国总统府官员称，已从海外确保获得2.73亿桶原油供应。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-15T13:07:55+08:00",
+            url="https://example.com/cls-general-fast-news",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-delisting-risk",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="*ST中地：关于申请撤销公司股票退市风险警示的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/delisting-risk",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-control-change",
+            direction="bullish",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-industry-data",
+            direction="bullish",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["新能源车"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-general-fast-news",
+            direction="neutral",
+            impact_score=79.3,
+            reasoning="rule",
+            themes=["油气"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-delisting-risk",
+            direction="bullish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    control_change_pos = content.index("盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告")
+    delisting_risk_pos = content.index("*ST中地：关于申请撤销公司股票退市风险警示的公告")
+    cls_industry_data_pos = content.index("韩国3月汽车出口额为63.7亿美元 同比增长2.2%")
+    cls_general_fast_news_pos = content.index("财联社4月15日电，韩国总统府官员称，已从海外确保获得2.73亿桶原油供应。")
+
+    assert control_change_pos < delisting_risk_pos
+    assert delisting_risk_pos < cls_industry_data_pos
+    assert delisting_risk_pos < cls_general_fast_news_pos
+    assert "*ST中地：关于申请撤销公司股票退市风险警示的公告" in content

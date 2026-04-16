@@ -390,6 +390,68 @@ def test_score_event_marks_delisting_risk_as_bearish() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_marks_risk_warning_revocation_as_bullish() -> None:
+    event = Event(
+        event_id="event-001ldr",
+        first_seen_at="2026-04-15T00:00:00+08:00",
+        last_seen_at="2026-04-15T00:00:00+08:00",
+        canonical_title="ST中青宝：关于撤销其他风险警示暨股票停复牌的公告",
+        summary="公司撤销其他风险警示的申请已获得深交所审核同意，股票将停牌一天后复牌并撤销其他风险警示。",
+        source="szse",
+        published_at="2026-04-15T00:00:00+08:00",
+        url="https://example.com/szse-risk-warning-revocation",
+        member_news_ids=["n1ldr"],
+        event_type="hard_event",
+        event_subtype="delisting_risk",
+        primary_entities=[],
+        source_authority_score=0.94,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bullish"
+    assert analysis.triggered is True
+
+
+def test_score_event_marks_control_change_acquisition_as_bullish() -> None:
+    event = Event(
+        event_id="event-001cc",
+        first_seen_at="2026-04-15T00:00:00+08:00",
+        last_seen_at="2026-04-15T00:00:00+08:00",
+        canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+        summary="公司拟通过本次交易收购标的公司控制权。",
+        source="szse",
+        published_at="2026-04-15T00:00:00+08:00",
+        url="https://example.com/szse-control-change-acquisition",
+        member_news_ids=["n1cc"],
+        event_type="hard_event",
+        event_subtype="control_change",
+        primary_entities=[],
+        source_authority_score=0.94,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bullish"
+    assert analysis.triggered is True
+
+
+def test_score_event_marks_delisting_risk_revocation_application_as_bullish() -> None:
+    event = Event(
+        event_id="event-001cc2",
+        first_seen_at="2026-04-15T00:00:00+08:00",
+        last_seen_at="2026-04-15T00:00:00+08:00",
+        canonical_title="*ST中地：关于申请撤销公司股票退市风险警示的公告",
+        summary="公司已向深交所提交申请撤销公司股票退市风险警示的材料。",
+        source="szse",
+        published_at="2026-04-15T00:00:00+08:00",
+        url="https://example.com/szse-delisting-risk-revocation-application",
+        member_news_ids=["n1cc2"],
+        event_type="hard_event",
+        event_subtype="delisting_risk",
+        primary_entities=[],
+        source_authority_score=0.94,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bullish"
+
+
 def test_score_event_does_not_treat_generic_model_api_rank_as_ai_application() -> None:
     event = Event(
         event_id="event-001j",
@@ -542,6 +604,65 @@ def test_score_event_does_not_treat_general_fast_news_summary_theme_as_event_the
     )
     analysis = score_event(event, scoring_config=load_scoring_config())
     assert analysis.themes == []
+
+
+def test_score_event_uses_lower_boost_for_general_fast_news_with_theme() -> None:
+    event = Event(
+        event_id="event-007a1",
+        first_seen_at="2026-04-15T06:20:13+08:00",
+        last_seen_at="2026-04-15T06:20:13+08:00",
+        canonical_title="光通信进入可持续景气周期 产业链多环节成长空间打开",
+        summary="有研究机构认为，2026年是AI光互联的大年，光互联将持续向算力连接环节不断渗透。",
+        source="cls",
+        published_at="2026-04-15T06:20:13+08:00",
+        url="https://www.cls.cn/detail/2344212",
+        member_news_ids=["n7a1"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == ["算力"]
+    assert analysis.impact_score == 79.0
+    assert analysis.triggered is True
+
+
+def test_score_event_marks_editorial_roundup_general_fast_news_as_neutral() -> None:
+    event = Event(
+        event_id="event-007a2",
+        first_seen_at="2026-04-15T06:31:03+08:00",
+        last_seen_at="2026-04-15T06:31:03+08:00",
+        canonical_title="周三你需要知道的隔夜全球要闻：国际原油下挫 美股纳指十连涨",
+        summary="霍尔木兹海峡恢复部分通航，国际原油期货收盘下挫，美股三大指数集体收涨。",
+        source="cls",
+        published_at="2026-04-15T06:31:03+08:00",
+        url="https://www.cls.cn/detail/2344207",
+        member_news_ids=["n7a2"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "neutral"
+
+
+def test_score_event_marks_general_fast_news_feature_story_as_neutral() -> None:
+    event = Event(
+        event_id="event-007a3",
+        first_seen_at="2026-04-15T06:20:13+08:00",
+        last_seen_at="2026-04-15T06:20:13+08:00",
+        canonical_title="光通信进入可持续景气周期 产业链多环节成长空间打开",
+        summary="美国光通信龙头表示需求正在加速增长，公司预计两个季度内将售罄2028年产能。光互联将持续向算力连接环节不断渗透，为未来几年打开更大的成长空间。",
+        source="cls",
+        published_at="2026-04-15T06:20:13+08:00",
+        url="https://www.cls.cn/detail/2344212",
+        member_news_ids=["n7a3"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "neutral"
 
 
 def test_score_event_does_not_treat_advanced_storage_equipment_as_compute_infra() -> None:

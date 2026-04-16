@@ -6,6 +6,7 @@ from news_sentiment.models import RawNews
 def _collector_map(**overrides):
     collectors = {
         "fixture": lambda: [],
+        "cls": lambda: [],
         "csrc": lambda: [],
         "cninfo": lambda: [],
         "miit": lambda: [],

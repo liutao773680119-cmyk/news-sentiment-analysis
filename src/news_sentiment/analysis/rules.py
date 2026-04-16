@@ -100,11 +100,35 @@ def detect_direction(text: str) -> str:
         "侵害发明专利权纠纷",
         "专利权纠纷",
     )
+    if _is_bullish_risk_warning_revocation(text):
+        return "bullish"
+    if _is_bullish_control_change(text):
+        return "bullish"
     if any(token in text for token in bullish_tokens):
         return "bullish"
     if any(token in text for token in bearish_tokens):
         return "bearish"
     return "neutral"
+
+
+def _is_bullish_risk_warning_revocation(text: str) -> bool:
+    return any(
+        phrase in text
+        for phrase in (
+            "撤销其他风险警示",
+            "撤销退市风险警示",
+            "申请撤销退市风险警示",
+            "申请撤销公司股票退市风险警示",
+            "申请撤销其他风险警示",
+        )
+    )
+
+
+def _is_bullish_control_change(text: str) -> bool:
+    if "控制权" not in text:
+        return False
+
+    return any(keyword in text for keyword in ("收购", "取得", "获得"))
 
 
 def _extract_stock_code_from_url(url: str) -> str:

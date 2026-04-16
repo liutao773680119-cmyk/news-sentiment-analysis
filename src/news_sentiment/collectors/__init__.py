@@ -1,3 +1,4 @@
+from news_sentiment.collectors.cls import collect_cls_news, parse_cls_telegraph_html
 from news_sentiment.collectors.cninfo import collect_cninfo_news, parse_cninfo_news_list
 from news_sentiment.collectors.csrc import collect_csrc_news, parse_csrc_news_list
 from news_sentiment.collectors.errors import (
@@ -16,6 +17,7 @@ from news_sentiment.collectors.szse import collect_szse_news, parse_szse_news_pa
 
 REGISTERED_COLLECTORS = {
     "fixture": collect_fixture_news,
+    "cls": collect_cls_news,
     "csrc": collect_csrc_news,
     "cninfo": collect_cninfo_news,
     "hkex": collect_hkex_news,
@@ -32,6 +34,7 @@ def get_registered_collectors():
 
 __all__ = [
     "CollectFailure",
+    "collect_cls_news",
     "collect_cninfo_news",
     "collect_csrc_news",
     "collect_fixture_news",
@@ -45,6 +48,7 @@ __all__ = [
     "CollectorError",
     "CollectorFetchError",
     "CollectorParseError",
+    "parse_cls_telegraph_html",
     "parse_cninfo_news_list",
     "parse_csrc_news_list",
     "parse_hkex_news_payload",

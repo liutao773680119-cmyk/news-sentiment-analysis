@@ -260,6 +260,8 @@ def run_audit_suspicious(paths: ProjectPaths, limit: int) -> int:
 
 def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     title = event.canonical_title
+    if _is_cls_editorial_roundup_column(event):
+        return None
     if (
         event.source in {"cninfo", "sse", "szse"}
         and event.event_type == "hard_event"
@@ -277,6 +279,7 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     if (
         event.event_type == "fast_news"
         and event.event_subtype == "general_fast_news"
+        and event.source != "cls"
         and bool(analysis.themes)
     ):
         return "general_fast_news_with_theme"
@@ -293,6 +296,15 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     ):
         return "market_roundup_candidate"
     return None
+
+
+def _is_cls_editorial_roundup_column(event: Event) -> bool:
+    return (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "【公告全知道】" in event.canonical_title
+    )
 
 
 def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:

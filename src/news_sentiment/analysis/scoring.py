@@ -9,12 +9,16 @@ def score_event(event: Event, scoring_config: ScoringConfig) -> EventAnalysis:
     text = f"{event.canonical_title} {event.summary}"
     themes = detect_event_themes(event)
     direction = detect_direction(text)
+    if event.event_subtype == "general_fast_news":
+        direction = "neutral"
 
     score = event.source_authority_score * scoring_config.source_authority_weight
     if event.event_type == "policy":
         score += scoring_config.policy_boost_weight
-    if event.event_type in {"hard_event", "fast_news"}:
+    if event.event_type == "hard_event":
         score += scoring_config.market_event_boost_weight
+    if event.event_type == "fast_news":
+        score += _fast_news_boost_weight(event, scoring_config)
     if themes:
         score += scoring_config.theme_expansion_weight
     score += scoring_config.freshness_weight
@@ -30,3 +34,9 @@ def score_event(event: Event, scoring_config: ScoringConfig) -> EventAnalysis:
         time_window="intraday_next_day",
         triggered=score >= scoring_config.trigger_score,
     )
+
+
+def _fast_news_boost_weight(event: Event, scoring_config: ScoringConfig) -> float:
+    if event.event_subtype == "general_fast_news":
+        return scoring_config.market_event_boost_weight / 3
+    return scoring_config.market_event_boost_weight

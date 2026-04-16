@@ -88,6 +88,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "实施进展",
     "进展公告",
     "通知债权人",
+    "责任保险",
     "行政处罚事先告知书",
     "述职报告",
     "业绩说明会",
@@ -102,9 +103,12 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持股份的预披露公告",
     "减持股份预披露公告",
     "减持股份计划公告",
+    "减持计划的预披露公告",
+    "减持计划完成",
     "减持计划实施完成",
     "减持计划期限届满暨实施情况",
     "减持股份计划期限届满暨实施情况",
+    "减持期限届满未减持股份",
     "减持股份结果",
     "减持公司股份比例触及",
     "终止股份减持计划",
@@ -126,7 +130,11 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "营业收入扣除事项的专项核查意见",
     "股票交易异常波动公告",
     "使用暂时闲置自有资金进行现金管理",
+    "国债逆回购",
+    "结构性存款",
+    "中短期低风险金融理财产品",
     "申请综合授信额度",
+    "受让协议",
     "未弥补的亏损达实收股本总额三分之一",
     "募集资金存放、管理与实际使用情况的专项报告",
     "年度薪酬方案",
@@ -144,6 +152,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "上市投资风险特别公告",
     "不存在被证券监管部门和交易所采取处罚或监管措施",
     "附条件生效的股份认购协议",
+    "相关规定的核查意见",
+    "重整投资协议",
     "问询函回复",
     "专项说明",
     "诉讼事项的进展",
@@ -157,29 +167,51 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "法律意见书",
     "（草案）摘要",
     "草案摘要",
+    "注销首期股票期权激励计划部分股票期权",
+    "注销2024年股票期权激励计划部分股票期权",
     "解锁条件成就",
     "解除限售条件",
     "首次授予限制性股票",
+    "向激励对象授予限制性股票",
     "授予登记完成",
     "归属结果暨股份上市",
+    "解除限售期解锁暨限制性股票上市公告",
     "行权条件成就",
     "回购注销限制性股票减资暨通知债权人",
+    "回购注销部分限制性股票",
     "激励对象名单",
     "股票期权注销事项的核查意见",
+    "股票增值权激励计划第一个行权期的行权名单的核查意见",
+    "作废处理部分限制性股票的法律意见",
+    "作废部分已授予尚未归属的限制性股票相关事项的核查意见",
+    "限制性股票相关事项的核查意见",
+    "限制性股票激励计划相关事项的核查意见",
     "激励对象买卖公司股票情况的自查报告",
+    "内幕信息知情人买卖公司股票情况的自查报告",
     "符合归属条件的公告",
     "归属条件成就",
 )
 LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS = (
     "履行监督职责情况的报告",
     "审计与风险管理委员会",
+    "审计与风险委员会",
     "独立性情况的专项意见",
+    "授权董事会审议股份回购事项",
 )
 LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "实施情况之法律意见书",
     "重大资产重组实施情况之法律意见书",
+    "重大资产重组业绩承诺期满标的资产减值测试情况",
+    "重大资产重组业绩承诺实现情况说明专项审核报告",
+    "持续督导意见",
     "第四条规定的说明",
     "进展公告",
+    "一般风险提示性公告",
+    "管理办法》第十一条、第四十三条及第四十四条规定的核查意见",
+)
+LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS = (
+    "中标项目签订协议的进展公告",
+    "新签合同情况公告",
 )
 LOW_SIGNAL_EXCHANGE_RESTRUCTURING_RESULT_KEYWORDS = (
     "拟",
@@ -330,6 +362,10 @@ LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_TITLE_KEYWORDS = (
     "对冲组合风险",
     "配置逻辑出现新变化",
 )
+LOW_SIGNAL_STCN_ETF_ALLOCATION_COMMENTARY_TITLE_KEYWORDS = (
+    "ETF资金流向分化",
+    "公募策略趋于多元",
+)
 LOW_SIGNAL_STCN_OPERATIONAL_UPDATE_KEYWORDS = (
     "目前生产经营正常",
     "订单情况整体稳定",
@@ -362,15 +398,19 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
     "行业会议",
+    "全体会议",
     "工作会议",
     "推进会",
     "会见",
     "并座谈",
     "活动",
+    "部署会",
     "报告会",
     "开班式",
     "新闻发布会",
     "领导小组会议",
+    "总体组",
+    "咨询组",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_BODY_KEYWORDS = (
     "召开",
@@ -499,6 +539,12 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             _is_low_signal_exchange_share_purchase_agreement_material(event.canonical_title, event)
         )
 
+    if event.event_subtype == "order_contract":
+        return event.source in {"sse", "szse"} and any(
+            keyword in event.canonical_title
+            for keyword in LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS
+        )
+
     return False
 
 
@@ -553,7 +599,7 @@ def _is_low_signal_exchange_template_cooperation_agreement(event: Event, analysi
         return False
 
     title = event.canonical_title
-    if not any(keyword in title for keyword in ("关于签订", "关于签署")):
+    if not any(keyword in title for keyword in ("签订", "签署")):
         return False
 
     if "框架协议" in title:
@@ -654,7 +700,13 @@ def _is_low_signal_stcn_fund_manager_allocation_commentary(event: Event) -> bool
     ):
         return False
 
-    return all(keyword in event.canonical_title for keyword in LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_TITLE_KEYWORDS)
+    return all(
+        keyword in event.canonical_title
+        for keyword in LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_TITLE_KEYWORDS
+    ) or all(
+        keyword in event.canonical_title
+        for keyword in LOW_SIGNAL_STCN_ETF_ALLOCATION_COMMENTARY_TITLE_KEYWORDS
+    )
 
 
 def _is_low_signal_stcn_operational_update(event: Event, text: str) -> bool:
@@ -702,8 +754,6 @@ def _is_low_signal_stcn_overseas_aviation_fuel_story(event: Event, text: str) ->
         any(keyword in title for keyword in LOW_SIGNAL_STCN_OVERSEAS_AVIATION_FUEL_TITLE_KEYWORDS)
         and any(keyword in text for keyword in LOW_SIGNAL_STCN_OVERSEAS_AVIATION_FUEL_BODY_KEYWORDS)
     )
-
-
 def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
     if not (
         event.source == "stcn"
@@ -771,6 +821,12 @@ def _has_fast_news_title_catalyst(title: str) -> bool:
 
 
 def _report_priority(event: Event, analysis: EventAnalysis) -> int:
+    if (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype in {"industry_data", "general_fast_news"}
+    ):
+        return 0
     if analysis.themes:
         return 2
     if _is_ashare_core_index_market_move(event, analysis):

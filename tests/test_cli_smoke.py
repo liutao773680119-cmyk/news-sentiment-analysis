@@ -18,4 +18,4 @@ def test_parser_exposes_expected_commands() -> None:
 
 
 def test_registered_collectors_expose_expected_sources() -> None:
-    assert {"fixture", "cninfo", "miit", "stcn"} <= set(get_registered_collectors())
+    assert {"fixture", "cls", "cninfo", "miit", "stcn"} <= set(get_registered_collectors())

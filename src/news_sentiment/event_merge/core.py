@@ -145,7 +145,10 @@ def _is_same_market_move_asset(left: NormalizedNews, right: NormalizedNews) -> b
 
 
 def _extract_market_move_asset(text: str) -> str:
-    if not _contains_any(text, ("涨幅扩大", "跌幅扩大", "涨超", "跌超", "跌破", "突破", "高开", "低开", "开盘")):
+    if not _contains_any(
+        text,
+        ("涨幅扩大", "跌幅扩大", "涨超", "跌超", "跌破", "突破", "向上触及", "向下触及", "高开", "低开", "开盘"),
+    ):
         return ""
     for asset in MARKET_MOVE_ASSETS:
         if asset in text:
@@ -208,7 +211,9 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
     if source_type == "fast_news":
         if _is_broker_commentary_fast_news(title, text):
             return "general_fast_news"
-        if _is_market_move_fast_news(text):
+        if _is_editorial_roundup_fast_news(title):
+            return "general_fast_news"
+        if _is_market_move_fast_news(title, text):
             return "market_move"
         if _is_policy_document_fast_news(title, text):
             return "policy_signal"
@@ -254,12 +259,16 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
     return "general"
 
 
-def _is_market_move_fast_news(text: str) -> bool:
+def _is_market_move_fast_news(title: str, text: str) -> bool:
     if _is_industry_price_data_fast_news(text):
         return False
     if _extract_market_move_asset(text):
         return True
-    return _contains_any(text, ("涨停", "跌停", "涨超", "跌超", "大涨", "大跌", "跳水"))
+    return _contains_any(title, ("涨停", "跌停", "涨超", "跌超", "大涨", "大跌", "跳水"))
+
+
+def _is_editorial_roundup_fast_news(title: str) -> bool:
+    return _contains_any(title, ("隔夜全球要闻", "新闻精选", "你需要知道"))
 
 
 def _is_policy_document_fast_news(title: str, text: str) -> bool:

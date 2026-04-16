@@ -861,6 +861,66 @@ def test_merge_news_items_does_not_group_market_move_updates_for_different_asset
     assert len(events) == 2
 
 
+def test_merge_news_items_classifies_gold_touch_price_fast_news_as_market_move() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-14T21:39:36+08:00",
+            captured_at="2026-04-14T21:39:40+08:00",
+            title="财联社4月14日电，现货黄金向上触及4800美元，日内上涨1.28%。",
+            content="财联社4月14日电，现货黄金向上触及4800美元，日内上涨1.28%。",
+            url="https://www.cls.cn/detail/2344033",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "market_move"
+
+
+def test_merge_news_items_classifies_cls_overnight_roundup_as_general_fast_news() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-15T06:31:03+08:00",
+            captured_at="2026-04-15T06:31:10+08:00",
+            title="周三你需要知道的隔夜全球要闻：以黎同意将启动直接谈判；特朗普称与伊朗会谈“可能未来两天内”举行；霍尔木兹海峡恢复部分通航 美军封锁伊朗港口持续；国际原油下挫 美股纳指十连涨",
+            content="国际原油期货收盘下挫，WTI原油期货结算价收跌7.87%，美股三大指数集体收涨，道指涨0.66%，纳指涨1.96%。",
+            url="https://www.cls.cn/detail/2344207",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "general_fast_news"
+
+
+def test_merge_news_items_does_not_classify_optical_communication_feature_story_as_market_move() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-15T06:20:13+08:00",
+            captured_at="2026-04-15T06:20:20+08:00",
+            title="光通信进入可持续景气周期 产业链多环节成长空间打开",
+            content="近日，美国光通信龙头Lumentum表示，美国巨型AI数据中心对其光通信组件的需求正在加速增长。这家获得英伟达投资的公司，其股价过去一年上涨超过1500%。",
+            url="https://www.cls.cn/detail/2344212",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype != "market_move"
+
+
 def test_merge_news_items_groups_structured_cninfo_catalyst_documents() -> None:
     items = [
         NormalizedNews(
