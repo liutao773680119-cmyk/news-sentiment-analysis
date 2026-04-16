@@ -351,6 +351,7 @@ A_SHARE_CORE_INDEX_KEYWORDS = (
 )
 LOW_SIGNAL_HK_LISTING_APPLICATION_KEYWORDS = (
     "向港交所提交上市申请书",
+    "再次向港交所提交上市申请书",
     "向港交所递交上市申请",
     "港交所提交上市申请书",
     "港交所上市申请书",
@@ -540,6 +541,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_wind_research_insight_column(event):
         return False
+    if _is_low_signal_cls_after_hours_earnings_digest(event):
+        return False
     if _is_low_signal_cls_general_fast_news_market_brief(event):
         return False
     if analysis.themes:
@@ -710,7 +713,7 @@ def _is_low_signal_domestic_futures_market_move(title: str, event: Event) -> boo
 
 def _is_low_signal_hk_listing_application_fast_news(title: str, event: Event) -> bool:
     if not (
-        event.source == "stcn"
+        event.source in {"stcn", "cls"}
         and event.event_type == "fast_news"
     ):
         return False
@@ -834,6 +837,17 @@ def _is_low_signal_cls_wind_research_insight_column(event: Event) -> bool:
         return False
 
     return "【风口研报·洞察】" in event.canonical_title
+
+
+def _is_low_signal_cls_after_hours_earnings_digest(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "business_guidance"
+    ):
+        return False
+
+    return "盘后A股上市公司重点业绩公告精选" in event.canonical_title
 
 
 def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:

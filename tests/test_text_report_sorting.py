@@ -1889,6 +1889,116 @@ def test_write_text_report_filters_hk_listing_application_fast_news_without_them
     assert "新希望乳业股份有限公司向港交所提交上市申请书" not in content
 
 
+def test_write_text_report_filters_repeat_hk_listing_application_fast_news_without_hiding_order_contract(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-fast-repeat-hk-listing",
+            first_seen_at="2026-04-16T22:29:55+08:00",
+            last_seen_at="2026-04-16T22:29:55+08:00",
+            canonical_title="财联社4月16日电，利弗莫尔证券显示，珠海精实测控技术股份有限公司再次向港交所提交上市申请书，联席保荐人为中金公司、浦银国际。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:29:55+08:00",
+            url="https://example.com/fast-repeat-hk-listing",
+            event_type="fast_news",
+            event_subtype="regulatory_approval",
+        ),
+        Event(
+            event_id="event-keep-order-contract",
+            first_seen_at="2026-04-16T22:18:36+08:00",
+            last_seen_at="2026-04-16T22:18:36+08:00",
+            canonical_title="财联社4月16日电，印度石油部表示，已敲定80万吨液化石油气进口订单，相关供应货物正在运往印度途中。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:18:36+08:00",
+            url="https://example.com/keep-order-contract",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-fast-repeat-hk-listing",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-order-contract",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["油气"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "财联社4月16日电，利弗莫尔证券显示，珠海精实测控技术股份有限公司再次向港交所提交上市申请书" not in content
+    assert "财联社4月16日电，印度石油部表示，已敲定80万吨液化石油气进口订单，相关供应货物正在运往印度途中。" in content
+
+
+def test_write_text_report_filters_cls_after_hours_earnings_digest_without_hiding_real_guidance(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-after-hours-earnings-digest",
+            first_seen_at="2026-04-16T22:37:31+08:00",
+            last_seen_at="2026-04-16T22:37:31+08:00",
+            canonical_title="盘后A股上市公司重点业绩公告精选",
+            summary="【盘后A股上市公司重点业绩公告精选】财联社4月16日电，据财联社不完全统计，截至发稿，盘后包括中际旭创、赣锋锂业、华友钴业、宏和科技、湖南黄金、东方雨虹、永辉超市、拉卡拉、株冶集团、银邦股份、海通发展、豫园股份、杰瑞股份、金徽酒在内的多家A股上市公司发布2026年一季度业绩预告/报告。其中，中际旭创公告，一季度净利润同比增长262%。小财注：龙蟠科技、宁波富邦、鼎通科技昨日盘后发布一季度业绩预告或一季度报告，今日均收盘涨停。",
+            source="cls",
+            published_at="2026-04-16T22:37:31+08:00",
+            url="https://example.com/cls-after-hours-earnings-digest",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-keep-guidance",
+            first_seen_at="2026-04-16T22:05:36+08:00",
+            last_seen_at="2026-04-16T22:05:36+08:00",
+            canonical_title="【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:05:36+08:00",
+            url="https://example.com/keep-guidance",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-after-hours-earnings-digest",
+            direction="bullish",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-guidance",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["算力", "储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "盘后A股上市公司重点业绩公告精选" not in content
+    assert "【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目" in content
+
+
 def test_write_text_report_filters_stcn_shareholder_reduction_fast_news_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
