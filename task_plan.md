@@ -134,7 +134,8 @@ Phase 8
 - 工作分支：`mvp-foundation`
 - 当前分支状态：有未提交修改
 - 当前最新提交：`d854a9d feat: map cninfo catalysts to themes`
-- 当前真实源：`cninfo`、`miit`、`stcn`
+- 当前已启用真实源：`cninfo`、`miit`、`stcn`、`csrc`、`sse`、`szse`、`cls`
+- 当前 staged 真实源：`hkex`
 - 当前 CLI：
   - `collect`
   - `normalize`
@@ -146,50 +147,78 @@ Phase 8
   - `live-smoke`
 
 ## Verification Baseline
-- `.venv/bin/python -m pytest tests -q` -> `231 passed`
-- `PYTHONPATH=src .venv/bin/python -m news_sentiment live-smoke --source all`
-  - `raw_news=64`
-  - `normalized_news=64`
-  - `events=45`
-  - `analyses=45`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "miit_standardization_group_meeting_without_theme or deprioritizes_cls_global_information_below_direct_catalysts" -q`
+  - `2 passed`
+- `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q`
+  - `3 passed`
+- `./.venv/bin/python -m pytest tests/test_live_smoke.py tests/test_cli_smoke.py tests/test_reference_data.py -q`
+  - `6 passed`
+- `./.venv/bin/python -m pytest tests/test_cls_collector.py -q`
+  - `3 passed`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+  - `raw_news=1250`
+  - `normalized_news=1250`
+  - `events=285`
+  - `analyses=285`
   - `failed_sources=none`
-- `PYTHONPATH=src .venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
   - `suspicious_count=0`
-- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source csrc`
-  - 真实网络验收通过
-  - `data/raw/raw_news.jsonl` 当前写出 `5` 条 `csrc` 官方样本
-- `./.venv/bin/python -m pytest tests/test_csrc_collector.py tests/test_cli_smoke.py tests/test_live_smoke.py tests/test_report_pipeline.py -q`
-  - `12 passed`
 
 ## Immediate Next Steps
-1. 先不要继续改规则；当前优先级已经切到“扩源验收”，先确认 `csrc` 打开后不影响现有主链。
+1. 先重跑当天主链，不沿用上一轮头部判断：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
 2. 下一步第一条命令固定为：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 3. 如果 `live-smoke --source all` 通过，再继续：
-   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
-   - 先看 report 头部是否因为 `csrc` 新样本引入新噪音
-   - 再看 `stcn` 是否有新的真实 live 边界
-4. 如果 `csrc` 在 `--source all` 下超时、报错或把 report 头部污染成低信号政策通稿，优先做的是：
-   - 先把 `configs/sources.yaml` 里的 `csrc.enabled` 临时改回 `false`
-   - 保留 collector 和测试，不回退代码骨架
-5. `sse` 当前仍只到 staged 状态：
-   - 保留 `src/news_sentiment/collectors/sse.py`
-   - 保留 `configs/sources.yaml` 中 `enabled: false`
-   - 下一步只做参数验通，不直接放进 `--source all`
-6. 主线和支线继续分离：
-   - 主线：继续 live 样本收口，仍按 `stcn -> miit -> cninfo` 的顺序排查
-   - 支线：继续官方源扩展，优先把 `sse` 验通，或启动下一个官方源
-7. 当前新的默认目标是两条并行：
-   - 保持现有 `event_subtype` / report 头部信噪比不回退
-   - 把第一批官方源从“骨架”推进到“可安全并入 all-source”
+   - 先看当天 report 头部是否仍主要是：
+     - `盈新发展...控制权变更`
+     - `cls` 的算力/原油市场异动
+     - `cls` 的 `【风口研报·公司】...`
+     - `*ST中地...申请撤销退市风险警示`
+   - 再判断这些保留项是否需要更细的 subtype / 强度 / 展示分层
+4. 当前不要继续压 `cls` 的全球内容：
+   - `cls` 现在承担“全球快讯覆盖”角色
+   - 海外市场和全球栏目稿保留是当前目标的一部分
+5. 如果主线切回扩源：
+   - `hkex` 仍保持 staged
+   - 先 `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
+   - 不要直接并入 `--source all`
 
 ## Known Risks
 - 当前题材识别仍是规则驱动，后续仍可能出现新的宽词误伤。
 - `company_theme_map` 目前是种子表，不是完整股票库。
 - `cninfo` 部分公告仍然会以“材料型文档”进入高分区，需要继续压缩。
 - 当前还没有市场确认层，也没有真实交易回测。
-- `csrc` 当前抓的是证监会首页模块，不是归档分页；它更适合“拿最新头部官方政策样本”，不代表全量归档已打通。
-- `sse` 仍未完成真实接口参数验通；在此之前不要把它视为已接入完成。
+- `cls` 已并入主链后，report 头部会自然出现全球快讯；不要把这类样本默认当成噪音。
+- `cls` 的研报/解读稿仍可能吃到 `order_contract` 或强催化路径，需要继续收 subtype 边界。
+- `report` 过滤和 `audit-suspicious` 是两套逻辑；不能只看其中一边。
+
+## Update 2026-04-15
+
+### Current Phase
+- `Phase 9`
+- 含义：`cls` 已完成 staged -> mainline 并入，当前主任务从“修明显漏口”切到“看头部保留项是否需要进一步分层”。
+
+### Verification Baseline Override
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "miit_standardization_group_meeting_without_theme or deprioritizes_cls_global_information_below_direct_catalysts" -q`
+  - `2 passed`
+- `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q`
+  - `3 passed`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+  - `raw_news=1250`
+  - `normalized_news=1250`
+  - `events=285`
+  - `analyses=285`
+  - `failed_sources=none`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  - `suspicious_count=0`
+
+### Immediate Next Steps Override
+1. 先重跑当天 `live-smoke --source all` 和 `audit-suspicious --limit 10`。
+2. 如果结果仍稳定，优先检查 `cls` 的 `【风口研报·公司】...` 是否要与真实 `order_contract` 分开，而不是继续堆 `report` 过滤。
+3. 如果切回扩源，下一条支线命令才是：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
 
 ## Update 2026-04-11
 

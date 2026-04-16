@@ -1,5 +1,79 @@
 # Progress Log
 
+## Latest Handoff Snapshot
+- Task-ID:
+  - `phase8-live-boundary`
+- Task-Name:
+  - `live 样本边界收口 + cls 全球资讯降层`
+- Files Changed:
+  - `configs/sources.yaml`
+  - `src/news_sentiment/collectors/cls.py`
+  - `src/news_sentiment/collectors/__init__.py`
+  - `src/news_sentiment/event_merge/core.py`
+  - `src/news_sentiment/analysis/rules.py`
+  - `src/news_sentiment/analysis/scoring.py`
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_cls_collector.py`
+  - `tests/test_event_merge.py`
+  - `tests/test_analysis_scoring.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_live_smoke.py`
+  - `tests/test_text_report_sorting.py`
+  - `task_plan.md`
+  - `progress.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - `cls` collector 已落地并启用到 `--source all`，当前作为全球快讯源保留，不再按“A股单一目标”继续压海外内容
+  - 已完成 `cls` 相关边界收口：
+    - `向上触及 / 向下触及` 这类价格快讯归到 `market_move`
+    - `隔夜全球要闻 / 新闻精选 / 你需要知道` 这类栏目稿归到 `general_fast_news`
+    - `general_fast_news` 强度下调到低于 `market_move`，方向统一改为 `neutral`
+    - `audit-suspicious` 不再把 `cls` 的栏目稿和 `general_fast_news + themes` 误打成可疑
+  - 本轮继续收口两处最新 live 边界：
+    - `miit` 的 `总体组 / 咨询组 / 全体会议` 无题材会务重新并入会务低信号过滤
+    - `cls` 的 `industry_data / general_fast_news` 在 report 层降一档，只降排序，不删全球内容
+  - 主链继续清掉一批交易所材料噪音：
+    - `解除限售期解锁暨限制性股票上市公告`
+    - `新签合同情况公告`
+    - `注销股票期权 / 授予限制性股票 / 相关规定的核查意见`
+    - `重整投资协议`
+  - 上游分析已补：
+    - `申请撤销公司股票退市风险警示` -> `bullish`
+  - 当前最新验证：
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "miit_standardization_group_meeting_without_theme or deprioritizes_cls_global_information_below_direct_catalysts" -q` -> `2 passed`
+    - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q` -> `3 passed`
+    - `./.venv/bin/python -m pytest tests/test_live_smoke.py tests/test_cli_smoke.py tests/test_reference_data.py -q` -> `6 passed`
+    - `./.venv/bin/python -m pytest tests/test_cls_collector.py -q` -> `3 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1250 normalized_news=1250 events=285 analyses=285 failed_sources=none`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - 当前 report 头部已变为：
+    - `盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告`
+    - `算力租赁概念反复走强 协创数据、宏景科技涨超10%续创历史新高`
+    - `财联社4月15日电，布伦特原油期货涨幅扩大至1%，报95.77美元/桶。`
+    - `*ST中地：关于申请撤销公司股票退市风险警示的公告`
+- Open TODO:
+  - 先不要继续压 `cls` 的全球栏目稿；下一步优先判断当前头部保留项是否需要更细分层
+  - 重点观察：
+    - `control_change` 是否需要再细分强度
+    - `cls` 的 `【风口研报·公司】...` 是否要与真实 `order_contract` 分开
+    - `*ST中地` 这类 `delisting_risk revocation` 是否需要更稳的风险正负面边界
+  - `hkex` 仍保持 staged，后续如果切回扩源，再单独做验收
+- Risks/Blockers:
+  - `cls` 已并入主链后，report 头部会出现全球快讯；这不是默认 bug，除非明确偏离当前“全球覆盖”目标
+  - `cls` 的研报/解读稿仍可能因为正文含 `订单 / 突破 / 出货` 被抬成强催化；下一步更像 subtype 边界，不是 report 过滤问题
+  - `report` 过滤和 `audit-suspicious` 仍是两套逻辑，后续每轮验收都要同时看两边
+  - `live` 样本每日滚动，下一次继续收边界前仍需重跑真实链路，不能沿用本轮头部清单
+- Next First Command:
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+- Known Avoidances:
+  - 不要把 `cls` 的海外/全球内容重新按旧 A 股单线目标硬压掉
+  - 对 `cls industry_data / general_fast_news`，优先降层或展示分层，不要直接删内容
+  - 对 `【风口研报·公司】` 这类样本，先看是否该独立 subtype，不要直接按 `order_contract` 或 report 噪音一刀切
+  - 对 `order_contract / control_change / delisting_risk revocation` 头部项，先判断是否真是催化，再决定是否上游细分
+
 ## Session: 2026-04-01
 
 ### Phase 1: 初始化、调研、设计
