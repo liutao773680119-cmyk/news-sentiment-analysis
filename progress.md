@@ -6,6 +6,7 @@
 - Task-Name:
   - `live 样本边界收口 + 低信号披露/cls 栏目稿降噪`
 - Files Changed:
+  - `src/news_sentiment/analysis/rules.py`
   - `src/news_sentiment/analysis/scoring.py`
   - `src/news_sentiment/cli.py`
   - `src/news_sentiment/reporting/text_report.py`
@@ -35,6 +36,9 @@
     - `【公告全知道】...245亿元投建算电协同项目`
     - `华测导航...开展供应链融资业务合作暨对外担保`
     - `GQY视讯...可能被实施退市风险警示的风险提示公告`
+  - 本轮最新两刀：
+    - `国内期货夜盘收盘多数上涨 甲醇等涨超2%` 已按同簇 `market_move roundup` 过滤出 report
+    - `*ST荣控...申请撤销对公司股票交易实施退市风险警示的公告` 已从 `bearish` 回正到 `bullish`
   - 本轮新增提交：
     - `4201aff` `fix: tighten disclosure tail-noise filters`
     - `a71b0ed` `test: lock halt-check and delisting-risk boundaries`
@@ -42,18 +46,16 @@
     - `97100b5` `fix: filter live report editorial tail noise`
     - `691cd5d` `fix: trim low-signal cls market briefs`
     - `5ac6bf4` `fix: trim low-signal cls digest variants`
+    - `a5b129e` `fix: filter futures night-session up roundup`
+    - `99d9ccf` `fix: mark delisting warning revocation as bullish`
   - 当前最新验证：
-    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -q` -> `45 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "gold_memo_column" -q` -> `1 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_global_market_brief_without_hiding_domestic_order_catalyst" -q` -> `1 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "after_hours_earnings_digest or repeat_hk_listing_application_fast_news" -q` -> `2 passed`
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1235 normalized_news=1235 events=280 analyses=280 failed_sources=none`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "domestic_futures_night_session_up_roundup" -q` -> `1 passed`
+    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "delisting_risk_revocation_application" -q` -> `2 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1259 normalized_news=1259 events=270 analyses=270 failed_sources=none`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
   - 当前 report 头部已收敛到更像真实催化/可讨论边界：
     - `中远海能...投资建造两艘巴拿马型原油轮暨关联交易`
-    - `印度石油部...80万吨液化石油气进口订单`
-    - `【公告全知道】...245亿元投建算电协同项目`
-    - `上交所就晶科科技...245亿元建设算力中心相关项目发布监管工作函`
+    - `*ST中基...申请撤销退市风险警示`
     - `*ST荣控...申请撤销对公司股票交易实施退市风险警示`
     - `华测导航...开展供应链融资业务合作暨对外担保`
     - `GQY视讯...可能被实施退市风险警示的风险提示公告`
@@ -65,6 +67,7 @@
     - `text_report` 里和 `申请综合授信额度` 做一保一压对照
     - `event_merge` 里 subtype 仍是 `corporate_disclosure`
   - `GQY视讯...可能被实施退市风险警示的风险提示公告` 当前按首次风险提示保留
+  - `申请撤销对公司股票交易实施退市风险警示` 这类措辞已纳入 bullish 风险撤销白名单；后续不要再被通用 `风险` 词反压回 `bearish`
   - `hkex` 仍保持 staged，后续如果切回扩源，再单独做验收
 - Risks/Blockers:
   - `【公告全知道】` 是“包装栏目 + 真催化摘要”的混合体，不能按纯编辑稿一刀切

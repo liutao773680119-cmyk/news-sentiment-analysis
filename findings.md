@@ -361,3 +361,39 @@
 - `【公告全知道】` 继续下刀前必须先确认是否误伤真催化摘要。
 - `业务合作 + 对外担保` 这类标题只是弱簇，不是纯材料簇；直接压整簇风险大。
 - `report` 过滤和 `audit-suspicious` 仍是两套逻辑；继续验收时必须成对看。
+
+## Update 2026-04-17
+
+### What Changed
+- `国内期货夜盘收盘多数上涨 甲醇等涨超2%` 已确认是已知 `market_move roundup` 同簇新变体：
+  - 问题在 `text_report` 低信号词表缺少 `夜盘收盘多数上涨`
+  - 已用最小方案修复：补 1 条回归 + 补 1 个词表项
+- `*ST荣控...申请撤销对公司股票交易实施退市风险警示的公告` 已确认不是事件分类问题：
+  - 问题在 `analysis/rules.py` 的 bullish 风险撤销白名单缺少该措辞
+  - 已用最小方案修复：补 1 条白名单短语 + 补 1 条分析回归
+
+### Verification Baseline Override
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "domestic_futures_night_session_up_roundup" -q`
+  - `1 passed`
+- `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "delisting_risk_revocation_application" -q`
+  - `2 passed`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+  - `raw_news=1259`
+  - `normalized_news=1259`
+  - `events=270`
+  - `analyses=270`
+  - `failed_sources=none`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  - `suspicious_count=0`
+
+### Current Report Head
+- `中远海能...投资建造两艘巴拿马型原油轮暨关联交易`
+- `*ST中基...申请撤销退市风险警示`
+- `*ST荣控...申请撤销对公司股票交易实施退市风险警示`
+- `华测导航...开展供应链融资业务合作暨对外担保`
+- `GQY视讯...可能被实施退市风险警示的风险提示公告`
+
+### Current Decisions
+- `*ST荣控` 当前已回正到 `bullish`，后续不要再按通用 `风险` 词打回 `bearish`。
+- `华测导航...开展供应链融资业务合作暨对外担保` 仍是弱簇边界样本，先保留。
+- `GQY视讯...可能被实施退市风险警示的风险提示公告` 当天没有新的重复提示变体，继续保留。

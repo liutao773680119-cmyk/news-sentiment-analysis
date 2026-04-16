@@ -308,3 +308,27 @@ Phase 8
 - `【公告全知道】` 是“栏目包装 + 真催化摘要”的混合体，不适合按纯编辑尾噪处理。
 - `业务合作 + 对外担保` 不是纯低信号材料簇；直接压整簇会误伤真实业务动作。
 - `repeat hk listing application` 不只来自 `stcn`，`cls` 也会出现同类标题；规则不要只绑单一 source。
+
+## Update 2026-04-17
+
+### Immediate Next Steps Override
+1. 先重跑当天基线：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+2. 只读检查当天 report 头部是否仍保留这 4 类边界：
+   - `中远海能...关联交易`
+   - `*ST中基 / *ST荣控` 风险撤销申请
+   - `华测导航...开展供应链融资业务合作暨对外担保`
+   - `GQY视讯...可能被实施退市风险警示的风险提示公告`
+3. 当前不要继续压：
+   - `【公告全知道】` 栏目包装稿
+   - `业务合作 + 对外担保` 整簇
+   - 风险撤销申请的 bullish 变体
+4. 如果后续重审 `华测导航`，仍先补 3 条测试再动规则：
+   - `analysis/scoring.py` 保持 `triggered=True`
+   - `text_report` 一保一压
+   - `event_merge` subtype 保持 `corporate_disclosure`
+
+### Known Risks Override
+- `国内期货夜盘收盘多数上涨` 这类 round-up 变体优先按 `text_report` 标题词表收，不要误扩到上游。
+- `申请撤销对公司股票交易实施退市风险警示` 这类措辞虽带 `风险`，但语义是风险撤销申请；不要被通用 bearish 词覆盖。
