@@ -8066,6 +8066,47 @@ def test_write_text_report_filters_cls_wind_research_insight_column_without_hidi
     assert "上交所就晶科科技公告拟投资245亿元建设算力中心相关项目发布监管工作函" in content
 
 
+def test_write_text_report_filters_cls_gold_memo_column_without_hiding_notice_digest(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-gold-memo",
+            first_seen_at="2026-04-16T22:15:55+08:00",
+            last_seen_at="2026-04-16T22:15:55+08:00",
+            canonical_title="【金牌纪要库】中国移动启动AI超节点设备集采，国产AI算力生态在大规模推理时代迎来关键拐点，核心增量在于内部高效互联的Scale up环节",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:15:55+08:00",
+            url="https://example.com/cls-gold-memo",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-notice-digest",
+            first_seen_at="2026-04-16T22:05:36+08:00",
+            last_seen_at="2026-04-16T22:05:36+08:00",
+            canonical_title="【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:05:36+08:00",
+            url="https://example.com/keep-notice-digest",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-gold-memo", direction="neutral", impact_score=79.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-keep-notice-digest", direction="neutral", impact_score=99.3, reasoning="rule", themes=["算力", "储能"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "【金牌纪要库】中国移动启动AI超节点设备集采" not in content
+    assert "【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目" in content
+
+
 def test_write_text_report_filters_current_live_asset_valuation_and_governance_material_without_hiding_real_disclosure(
     tmp_path,
 ) -> None:

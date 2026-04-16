@@ -530,6 +530,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_telegraph_interpretation_column(event):
         return False
+    if _is_low_signal_cls_gold_memo_column(event):
+        return False
     if _is_low_signal_cls_wind_research_column(event):
         return False
     if _is_low_signal_cls_wind_research_insight_column(event):
@@ -793,6 +795,17 @@ def _is_low_signal_cls_telegraph_interpretation_column(event: Event) -> bool:
         return False
 
     return "【电报解读】" in event.canonical_title
+
+
+def _is_low_signal_cls_gold_memo_column(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return "【金牌纪要库】" in event.canonical_title
 
 
 def _is_low_signal_cls_wind_research_column(event: Event) -> bool:
