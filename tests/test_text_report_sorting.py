@@ -7865,6 +7865,166 @@ def test_write_text_report_filters_current_live_disclosure_tail_noise_cluster(tm
     assert "红棉股份：关于持股5%以上股东股份减持完成的公告" not in content
 
 
+def test_write_text_report_filters_stock_trading_risk_tip_and_halt_check_notice_without_hiding_cls_halt_check(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-risk-tip-halt-check",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="关于股票交易风险提示暨停牌核查的公告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/cninfo-risk-tip-halt-check",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T20:16:13+08:00",
+            last_seen_at="2026-04-16T20:16:13+08:00",
+            canonical_title="甘肃能化：拟收购金昌化工100%股权 股票复牌",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T20:16:13+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cninfo-risk-tip-halt-check", direction="bearish", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="neutral", impact_score=74.3, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "关于股票交易风险提示暨停牌核查的公告" not in content
+    assert "甘肃能化：拟收购金昌化工100%股权 股票复牌" in content
+
+
+def test_write_text_report_filters_repeated_delisting_risk_tip_variants_without_hiding_revocation(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-repeated-stock-risk-tip",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="中化岩土：关于公司股票交易风险的第三次提示性公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/repeated-stock-risk-tip",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+        Event(
+            event_id="event-repeated-delisting-risk-tip",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="GQY视讯：关于公司股票可能被实施退市风险警示的第三次提示性公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/repeated-delisting-risk-tip",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+        Event(
+            event_id="event-keep-delisting-revocation",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="*ST铖昌：浙江铖昌科技股份有限公司关于申请撤销公司股票退市风险警示的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/keep-delisting-revocation",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-repeated-stock-risk-tip", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-repeated-delisting-risk-tip", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-delisting-revocation", direction="bullish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "中化岩土：关于公司股票交易风险的第三次提示性公告" not in content
+    assert "GQY视讯：关于公司股票可能被实施退市风险警示的第三次提示性公告" not in content
+    assert "*ST铖昌：浙江铖昌科技股份有限公司关于申请撤销公司股票退市风险警示的公告" in content
+
+
+def test_write_text_report_keeps_current_live_related_party_shipbuilding_catalyst(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-shipbuilding-related-party-catalyst",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="公告2026-017-中远海能关于投资建造两艘巴拿马型原油轮暨关联交易的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/shipbuilding-related-party-catalyst",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-shipbuilding-related-party-catalyst",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["油气"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "公告2026-017-中远海能关于投资建造两艘巴拿马型原油轮暨关联交易的公告" in content
+
+
+def test_write_text_report_keeps_current_live_first_delisting_risk_tip_notice(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-first-delisting-risk-tip",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="关于延期披露2025年年度报告及退市风险提示性公告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/first-delisting-risk-tip",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-first-delisting-risk-tip",
+            direction="bearish",
+            impact_score=80.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "关于延期披露2025年年度报告及退市风险提示性公告" in content
+
+
 def test_write_text_report_filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk(
     tmp_path,
 ) -> None:

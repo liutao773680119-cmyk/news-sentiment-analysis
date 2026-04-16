@@ -135,6 +135,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "利润分配预案",
     "营业收入扣除事项的专项核查意见",
     "股票交易异常波动公告",
+    "股票交易风险提示暨停牌核查",
     "使用暂时闲置自有资金进行现金管理",
     "国债逆回购",
     "结构性存款",
@@ -558,6 +559,7 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             or _is_low_signal_cninfo_cancel_shareholder_meeting(event.canonical_title)
             or _is_low_signal_exchange_shareholder_meeting_notice(event.canonical_title)
             or _is_low_signal_exchange_shareholder_meeting_legal_opinion(event.canonical_title)
+            or _is_low_signal_exchange_halt_check_risk_notice(event.canonical_title)
             or _is_low_signal_exchange_operational_disclosure(event.canonical_title, event)
             or _is_low_signal_cninfo_restructuring_material(event.canonical_title)
             or _is_low_signal_exchange_inquiry_transfer_verification_report(event.canonical_title)
@@ -586,8 +588,7 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
         )
 
     if event.event_subtype == "delisting_risk":
-        title = event.canonical_title
-        return "可能被终止上市" in title and "风险提示公告" in title and "第" in title
+        return _is_low_signal_repeated_delisting_risk_notice(event.canonical_title)
 
     return False
 
@@ -609,6 +610,21 @@ def _is_low_signal_exchange_shareholder_meeting_notice(title: str) -> bool:
 
 def _is_low_signal_exchange_shareholder_meeting_legal_opinion(title: str) -> bool:
     return "法律意见书" in title and any(keyword in title for keyword in ("股东会", "股东大会"))
+
+
+def _is_low_signal_exchange_halt_check_risk_notice(title: str) -> bool:
+    return "停牌核查" in title and any(keyword in title for keyword in ("股票交易风险", "风险提示"))
+
+
+def _is_low_signal_repeated_delisting_risk_notice(title: str) -> bool:
+    return (
+        "第" in title
+        and any(keyword in title for keyword in ("风险提示公告", "提示性公告"))
+        and any(
+            keyword in title
+            for keyword in ("股票交易风险", "可能被终止上市", "可能被实施退市风险警示", "退市风险警示")
+        )
+    )
 
 
 def _is_low_signal_hkex_disclosure_title(title: str) -> bool:
