@@ -70,6 +70,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "累计诉讼",
     "重大诉讼公告",
     "重大诉讼的公告",
+    "重大诉讼、仲裁情况进展",
     "失信被执行人",
     "轮候冻结",
     "解除司法冻结",

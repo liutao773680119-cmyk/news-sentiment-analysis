@@ -103,6 +103,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持股份预披露",
     "减持股份的预披露公告",
     "减持股份预披露公告",
+    "股东计划减持公司股份的预披露公告",
     "减持股份计划公告",
     "减持计划的预披露公告",
     "减持计划完成",
@@ -111,12 +112,15 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持股份计划期限届满暨实施情况",
     "减持期限届满未减持股份",
     "减持股份结果",
+    "股份减持完成",
     "减持公司股份比例触及",
     "终止股份减持计划",
     "提前终止股份减持计划",
     "回购实施结果",
     "回购股份用途并注销",
     "回购股份的用途并注销",
+    "一般风险提示暨公司股票复牌",
+    "变更股份回购用途",
     "回购股份用途",
     "库存股减少公司注册资本",
     "注销回购股份并减少注册资本",
@@ -126,6 +130,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "信用评级报告",
     "股东质询建议函",
     "金融服务协议及相关风险控制措施执行情况的核查意见",
+    "金融服务协议",
     "履职情况评估报告",
     "利润分配预案",
     "营业收入扣除事项的专项核查意见",
@@ -154,11 +159,13 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "风险提示公告",
     "不存在被证券监管部门和交易所采取处罚或监管措施",
     "附条件生效的股份认购协议",
+    "股权委托管理协议",
     "相关规定的核查意见",
     "重整投资协议",
     "问询函回复",
     "专项说明",
     "诉讼事项的进展",
+    "重大诉讼、仲裁情况进展",
     "累计诉讼",
     "失信被执行人",
     "轮候冻结",
@@ -183,6 +190,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "行权条件成就",
     "期权数量、行权价格并注销部分已获授但未行权的股票期权",
     "回购注销限制性股票减资暨通知债权人",
+    "暨通知债权人",
     "回购注销部分限制性股票",
     "尚未解除限售的限制性股票",
     "尚未归属的限制性股票",
@@ -205,6 +213,7 @@ LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS = (
     "审计与风险委员会",
     "独立性情况的专项意见",
     "授权董事会审议股份回购事项",
+    "股票价格波动情况的说明",
 )
 LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "实施情况之法律意见书",
@@ -215,6 +224,8 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "第四条规定的说明",
     "进展公告",
     "一般风险提示性公告",
+    "一般风险提示暨公司股票复牌",
+    "并购重组审核委员会审核通过",
     "管理办法》第十一条、第四十三条及第四十四条规定的核查意见",
 )
 LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS = (
@@ -515,6 +526,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_telegraph_interpretation_column(event):
         return False
+    if _is_low_signal_cls_wind_research_column(event):
+        return False
     if analysis.themes:
         return True
     if _is_low_signal_shareholder_reduction_fast_news(event.canonical_title, event):
@@ -544,6 +557,7 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             any(keyword in text for keyword in LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS)
             or _is_low_signal_cninfo_cancel_shareholder_meeting(event.canonical_title)
             or _is_low_signal_exchange_shareholder_meeting_notice(event.canonical_title)
+            or _is_low_signal_exchange_shareholder_meeting_legal_opinion(event.canonical_title)
             or _is_low_signal_exchange_operational_disclosure(event.canonical_title, event)
             or _is_low_signal_cninfo_restructuring_material(event.canonical_title)
             or _is_low_signal_exchange_inquiry_transfer_verification_report(event.canonical_title)
@@ -591,6 +605,10 @@ def _is_low_signal_cninfo_cancel_shareholder_meeting(title: str) -> bool:
 
 def _is_low_signal_exchange_shareholder_meeting_notice(title: str) -> bool:
     return "关于召开" in title and any(keyword in title for keyword in ("股东会", "股东大会"))
+
+
+def _is_low_signal_exchange_shareholder_meeting_legal_opinion(title: str) -> bool:
+    return "法律意见书" in title and any(keyword in title for keyword in ("股东会", "股东大会"))
 
 
 def _is_low_signal_hkex_disclosure_title(title: str) -> bool:
@@ -754,6 +772,17 @@ def _is_low_signal_cls_telegraph_interpretation_column(event: Event) -> bool:
         return False
 
     return "【电报解读】" in event.canonical_title
+
+
+def _is_low_signal_cls_wind_research_column(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return "【风口研报·公司】" in event.canonical_title
 
 
 def _is_low_signal_stcn_broker_macro_commentary(event: Event, text: str) -> bool:

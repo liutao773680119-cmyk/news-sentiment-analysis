@@ -556,6 +556,48 @@ def test_audit_suspicious_skips_major_litigation_disclosure(tmp_path, monkeypatc
     assert "重大诉讼的公告" not in output
 
 
+def test_audit_suspicious_skips_major_litigation_arbitration_progress_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-major-litigation-arbitration-progress",
+                first_seen_at="2026-04-16T00:00:00+08:00",
+                last_seen_at="2026-04-16T00:00:00+08:00",
+                canonical_title="中化岩土：关于重大诉讼、仲裁情况进展的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-16T00:00:00+08:00",
+                url="https://example.com/major-litigation-arbitration-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-major-litigation-arbitration-progress",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中化岩土：关于重大诉讼、仲裁情况进展的公告" not in output
+
+
 def test_audit_suspicious_skips_commodity_market_move_with_theme(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

@@ -7632,6 +7632,239 @@ def test_write_text_report_filters_cls_telegraph_interpretation_column_without_h
     assert "【电报解读】马斯克要求“光速”推进Terafab项目" not in content
 
 
+def test_write_text_report_filters_cls_wind_research_column_and_share_reduction_plan_variant(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-wind-research",
+            first_seen_at="2026-04-16T20:15:59+08:00",
+            last_seen_at="2026-04-16T20:15:59+08:00",
+            canonical_title="【风口研报·公司】积极拓展智算服务+数据智能，这家公司加码扩充万卡级算力、租赁服务需求可期，多路径布局AI算力和应用产品线；这家光通信芯片公司在数据中心侧芯片实现从追赶到并跑的突破",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T20:15:59+08:00",
+            url="https://example.com/cls-wind-research",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-szse-share-reduction-plan",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="和胜股份：关于股东计划减持公司股份的预披露公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-share-reduction-plan",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-wind-research", direction="neutral", impact_score=79.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-szse-share-reduction-plan", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "【风口研报·公司】积极拓展智算服务+数据智能" not in content
+    assert "和胜股份：关于股东计划减持公司股份的预披露公告" not in content
+
+
+def test_write_text_report_filters_current_live_related_party_and_restructuring_material_cluster(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-financial-service-agreement",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="佛山照明：关于与广东省广晟财务有限公司签署《金融服务协议》的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-financial-service-agreement",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-equity-entrust-manage",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="中成股份：中成进出口股份有限公司关于与中国成套设备进出口集团有限公司签署《股权委托管理协议》暨关联交易的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-equity-entrust-manage",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-restructuring-review-approved",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="电投能源：关于公司发行股份及支付现金购买资产并募集配套资金暨关联交易获得深圳证券交易所并购重组审核委员会审核通过的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-review-approved",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-szse-restructuring-risk-resume",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="甘肃能化：关于披露发行股份及支付现金购买资产并募集配套资金暨关联交易预案的一般风险提示暨公司股票复牌的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-risk-resume",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-price-fluctuation-note",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="甘肃能化：董事会关于本次交易信息发布前公司股票价格波动情况的说明",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-price-fluctuation-note",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T18:51:44+08:00",
+            last_seen_at="2026-04-16T18:51:44+08:00",
+            canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T18:51:44+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-financial-service-agreement", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-entrust-manage", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-restructuring-review-approved", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-restructuring-risk-resume", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-price-fluctuation-note", direction="bullish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
+    assert "佛山照明：关于与广东省广晟财务有限公司签署《金融服务协议》的公告" not in content
+    assert "中成股份：中成进出口股份有限公司关于与中国成套设备进出口集团有限公司签署《股权委托管理协议》暨关联交易的公告" not in content
+    assert "电投能源：关于公司发行股份及支付现金购买资产并募集配套资金暨关联交易获得深圳证券交易所并购重组审核委员会审核通过的公告" not in content
+    assert "甘肃能化：关于披露发行股份及支付现金购买资产并募集配套资金暨关联交易预案的一般风险提示暨公司股票复牌的公告" not in content
+    assert "甘肃能化：董事会关于本次交易信息发布前公司股票价格波动情况的说明" not in content
+
+
+def test_write_text_report_filters_current_live_disclosure_tail_noise_cluster(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-shareholder-meeting-legal-opinion",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="ST岭南：北京市康达(深圳)律师事务所关于岭南生态文旅股份有限公司2026年第一次临时股东会的法律意见书",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/szse-shareholder-meeting-legal-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-equity-creditor-notice",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="索菱股份：关于回购注销2023年限制性股票与股票期权激励计划部分限制性股票暨通知债权人的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/szse-equity-creditor-notice",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-buyback-purpose-change",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="中宠股份：关于变更股份回购用途的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/szse-buyback-purpose-change",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-share-reduction-finished",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="红棉股份：关于持股5%以上股东股份减持完成的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/szse-share-reduction-finished",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-catalyst",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="华业香料：关于实施食品添加剂数智化改扩建项目暨拟签署投资协议的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/keep-catalyst",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-shareholder-meeting-legal-opinion", direction="neutral", impact_score=100.0, reasoning="rule", themes=["文旅"], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-creditor-notice", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-buyback-purpose-change", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-share-reduction-finished", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-catalyst", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "华业香料：关于实施食品添加剂数智化改扩建项目暨拟签署投资协议的公告" in content
+    assert "ST岭南：北京市康达(深圳)律师事务所关于岭南生态文旅股份有限公司2026年第一次临时股东会的法律意见书" not in content
+    assert "索菱股份：关于回购注销2023年限制性股票与股票期权激励计划部分限制性股票暨通知债权人的公告" not in content
+    assert "中宠股份：关于变更股份回购用途的公告" not in content
+    assert "红棉股份：关于持股5%以上股东股份减持完成的公告" not in content
+
+
 def test_write_text_report_filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk(
     tmp_path,
 ) -> None:
