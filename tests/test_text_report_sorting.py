@@ -8107,6 +8107,61 @@ def test_write_text_report_filters_cls_gold_memo_column_without_hiding_notice_di
     assert "【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目" in content
 
 
+def test_write_text_report_filters_cls_global_market_brief_without_hiding_domestic_order_catalyst(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-silver-brief",
+            first_seen_at="2026-04-16T22:05:49+08:00",
+            last_seen_at="2026-04-16T22:05:49+08:00",
+            canonical_title="财联社4月16日电，现货白银跌1%，报78.12美元/盎司。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:05:49+08:00",
+            url="https://example.com/cls-silver-brief",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-cls-us-optical-brief",
+            first_seen_at="2026-04-16T21:49:48+08:00",
+            last_seen_at="2026-04-16T21:49:48+08:00",
+            canonical_title="美股光通信股走势分化",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T21:49:48+08:00",
+            url="https://example.com/cls-us-optical-brief",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-domestic-order",
+            first_seen_at="2026-04-16T22:18:36+08:00",
+            last_seen_at="2026-04-16T22:18:36+08:00",
+            canonical_title="财联社4月16日电，印度石油部表示，已敲定80万吨液化石油气进口订单，相关供应货物正在运往印度途中。",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T22:18:36+08:00",
+            url="https://example.com/keep-domestic-order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-silver-brief", direction="neutral", impact_score=79.3, reasoning="rule", themes=["黄金"], triggered=True),
+        EventAnalysis(event_id="event-cls-us-optical-brief", direction="neutral", impact_score=79.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-keep-domestic-order", direction="neutral", impact_score=99.3, reasoning="rule", themes=["油气"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "财联社4月16日电，现货白银跌1%，报78.12美元/盎司。" not in content
+    assert "美股光通信股走势分化" not in content
+    assert "财联社4月16日电，印度石油部表示，已敲定80万吨液化石油气进口订单，相关供应货物正在运往印度途中。" in content
+
+
 def test_write_text_report_filters_current_live_asset_valuation_and_governance_material_without_hiding_real_disclosure(
     tmp_path,
 ) -> None:

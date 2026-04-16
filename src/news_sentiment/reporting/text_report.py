@@ -314,6 +314,10 @@ LOW_SIGNAL_FOREIGN_INDEX_FAST_NEWS_KEYWORDS = (
     "德国DAX30指数",
     "意大利富时MIB指数",
 )
+LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS = (
+    "现货白银",
+    "美股光通信股走势分化",
+)
 LOW_SIGNAL_DOMESTIC_FUTURES_MARKET_MOVE_KEYWORDS = (
     "国内期货市场夜盘收盘",
     "国内商品期货夜盘收盘",
@@ -535,6 +539,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_cls_wind_research_column(event):
         return False
     if _is_low_signal_cls_wind_research_insight_column(event):
+        return False
+    if _is_low_signal_cls_general_fast_news_market_brief(event):
         return False
     if analysis.themes:
         return True
@@ -828,6 +834,20 @@ def _is_low_signal_cls_wind_research_insight_column(event: Event) -> bool:
         return False
 
     return "【风口研报·洞察】" in event.canonical_title
+
+
+def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return any(
+        keyword in event.canonical_title
+        for keyword in LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS
+    )
 
 
 def _is_low_signal_stcn_broker_macro_commentary(event: Event, text: str) -> bool:
