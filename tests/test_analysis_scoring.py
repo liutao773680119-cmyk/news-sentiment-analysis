@@ -549,6 +549,86 @@ def test_score_event_does_not_use_company_theme_map_for_generic_disclosure() -> 
     assert "户外经济" not in analysis.themes
 
 
+def test_score_event_does_not_trigger_low_signal_cninfo_esg_disclosure() -> None:
+    event = Event(
+        event_id="event-005a",
+        first_seen_at="2026-04-17T00:00:00+08:00",
+        last_seen_at="2026-04-17T00:00:00+08:00",
+        canonical_title="青岛食品2025年度环境、社会和公司治理报告",
+        summary="青岛食品2025年度环境、社会和公司治理报告。",
+        source="cninfo",
+        published_at="2026-04-17T00:00:00+08:00",
+        url="https://example.com/cninfo-esg-report",
+        member_news_ids=["n5a"],
+        event_type="hard_event",
+        event_subtype="corporate_disclosure",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == []
+    assert analysis.triggered is False
+
+
+def test_score_event_does_not_trigger_low_signal_cninfo_earnings_briefing_notice() -> None:
+    event = Event(
+        event_id="event-005b",
+        first_seen_at="2026-04-17T00:00:00+08:00",
+        last_seen_at="2026-04-17T00:00:00+08:00",
+        canonical_title="关于举行2025年度业绩网上说明会的公告",
+        summary="关于举行2025年度业绩网上说明会的公告。",
+        source="cninfo",
+        published_at="2026-04-17T00:00:00+08:00",
+        url="https://example.com/cninfo-earnings-briefing",
+        member_news_ids=["n5b"],
+        event_type="hard_event",
+        event_subtype="corporate_disclosure",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == []
+    assert analysis.triggered is False
+
+
+def test_score_event_keeps_thematic_related_party_capex_disclosure_triggered() -> None:
+    event = Event(
+        event_id="event-005c",
+        first_seen_at="2026-04-16T00:00:00+08:00",
+        last_seen_at="2026-04-16T00:00:00+08:00",
+        canonical_title="公告2026-017-中远海能关于投资建造两艘巴拿马型原油轮暨关联交易的公告",
+        summary="summary",
+        source="sse",
+        published_at="2026-04-16T00:00:00+08:00",
+        url="https://example.com/thematic-related-party-capex",
+        member_news_ids=["n5c"],
+        event_type="hard_event",
+        event_subtype="corporate_disclosure",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == ["油气"]
+    assert analysis.triggered is True
+
+
+def test_score_event_does_not_trigger_low_signal_cninfo_director_liability_insurance_notice() -> None:
+    event = Event(
+        event_id="event-005d",
+        first_seen_at="2026-04-17T00:00:00+08:00",
+        last_seen_at="2026-04-17T00:00:00+08:00",
+        canonical_title="关于拟购买董事及高级管理人员责任保险的公告",
+        summary="关于拟购买董事及高级管理人员责任保险的公告。",
+        source="cninfo",
+        published_at="2026-04-17T00:00:00+08:00",
+        url="https://example.com/cninfo-director-liability-insurance",
+        member_news_ids=["n5d"],
+        event_type="hard_event",
+        event_subtype="corporate_disclosure",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "保险" in analysis.themes
+    assert analysis.triggered is False
+
+
 def test_score_event_does_not_treat_summary_theme_as_market_move_theme() -> None:
     event = Event(
         event_id="event-006",

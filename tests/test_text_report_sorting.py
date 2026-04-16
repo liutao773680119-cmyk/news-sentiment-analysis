@@ -8025,6 +8025,143 @@ def test_write_text_report_keeps_current_live_first_delisting_risk_tip_notice(tm
     assert "关于延期披露2025年年度报告及退市风险提示性公告" in content
 
 
+def test_write_text_report_filters_cls_wind_research_insight_column_without_hiding_real_fast_news(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-wind-research-insight",
+            first_seen_at="2026-04-16T21:54:41+08:00",
+            last_seen_at="2026-04-16T21:54:41+08:00",
+            canonical_title="【风口研报·洞察】SpaceX星舰V3发射在即，深蓝航天等企业计划首飞，商业航天催化剂在第二季度密集进入落地期，分析师看好太空光伏逻辑持续演绎；权益反攻正在进行",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T21:54:41+08:00",
+            url="https://example.com/cls-wind-research-insight",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-fast-news",
+            first_seen_at="2026-04-16T21:57:51+08:00",
+            last_seen_at="2026-04-16T21:57:51+08:00",
+            canonical_title="上交所就晶科科技公告拟投资245亿元建设算力中心相关项目发布监管工作函",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-16T21:57:51+08:00",
+            url="https://example.com/keep-fast-news",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-wind-research-insight", direction="bullish", impact_score=99.3, reasoning="rule", themes=["商业航天"], triggered=True),
+        EventAnalysis(event_id="event-keep-fast-news", direction="bullish", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "【风口研报·洞察】SpaceX星舰V3发射在即" not in content
+    assert "上交所就晶科科技公告拟投资245亿元建设算力中心相关项目发布监管工作函" in content
+
+
+def test_write_text_report_filters_current_live_asset_valuation_and_governance_material_without_hiding_real_disclosure(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-asset-valuation-report",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="东方雨虹：北京东方雨虹防水技术股份有限公司拟处置资产涉及的成都市金堂县格林雅苑四处房地产及无锡市锡山区美溪蓝庭一处房地产市场价值资产评估报告（中评正信评报字[2026]162号）",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/asset-valuation-report",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-governance-policy-material",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="*ST荣控：内部控制及风险管理制度",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/governance-policy-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-disclosure",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="华测导航：关于开展供应链融资业务合作暨对外担保的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/keep-disclosure",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-asset-valuation-report", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-governance-policy-material", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-disclosure", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "东方雨虹：北京东方雨虹防水技术股份有限公司拟处置资产涉及的成都市金堂县格林雅苑四处房地产及无锡市锡山区美溪蓝庭一处房地产市场价值资产评估报告" not in content
+    assert "*ST荣控：内部控制及风险管理制度" not in content
+    assert "华测导航：关于开展供应链融资业务合作暨对外担保的公告" in content
+
+
+def test_write_text_report_filters_current_live_restructuring_impairment_audit_report_without_hiding_revocation(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-restructuring-impairment-audit-report",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="会计师事务所关于电投水电重大资产重组标的减值测试报告的专项审核报告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/restructuring-impairment-audit-report",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-keep-delisting-revocation",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="*ST荣控：荣丰控股集团关于申请撤销对公司股票交易实施退市风险警示的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/keep-delisting-revocation-2",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-restructuring-impairment-audit-report", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-delisting-revocation", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "会计师事务所关于电投水电重大资产重组标的减值测试报告的专项审核报告" not in content
+    assert "*ST荣控：荣丰控股集团关于申请撤销对公司股票交易实施退市风险警示的公告" in content
+
+
 def test_write_text_report_filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk(
     tmp_path,
 ) -> None:

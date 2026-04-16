@@ -96,6 +96,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "风险持续评估报告",
     "环境、社会与公司治理（ESG）报告",
     "鉴证报告",
+    "资产评估报告",
     "增持公司股份结果公告",
     "增持股份结果",
     "增持公司股份计划",
@@ -148,6 +149,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "提质增效重回报",
     "回购股份价格上限",
     "互动易平台信息发布及回复内部审核制度",
+    "风险管理制度",
     "行政处罚决定书",
     "年度报告摘要",
     "年度报告",
@@ -220,6 +222,7 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "实施情况之法律意见书",
     "重大资产重组实施情况之法律意见书",
     "重大资产重组业绩承诺期满标的资产减值测试情况",
+    "减值测试报告",
     "重大资产重组业绩承诺实现情况说明专项审核报告",
     "持续督导意见",
     "第四条规定的说明",
@@ -529,6 +532,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_wind_research_column(event):
         return False
+    if _is_low_signal_cls_wind_research_insight_column(event):
+        return False
     if analysis.themes:
         return True
     if _is_low_signal_shareholder_reduction_fast_news(event.canonical_title, event):
@@ -799,6 +804,17 @@ def _is_low_signal_cls_wind_research_column(event: Event) -> bool:
         return False
 
     return "【风口研报·公司】" in event.canonical_title
+
+
+def _is_low_signal_cls_wind_research_insight_column(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+    ):
+        return False
+
+    return "【风口研报·洞察】" in event.canonical_title
 
 
 def _is_low_signal_stcn_broker_macro_commentary(event: Event, text: str) -> bool:
