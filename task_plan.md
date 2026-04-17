@@ -3,6 +3,22 @@
 ## Goal
 把项目推进到“真实多源输入 -> 事件归并 -> 题材/个股/历史参考输出”的可运行 MVP，并把当前接力点写清楚，保证后续会话能直接继续。
 
+## Update 2026-04-17
+- 最新已落盘并推远端的提交：
+  - `443f22b` `fix: reduce registry company-update theme spillover`
+  - `df2fec8` `fix: trim cls science feature story`
+  - `8b6dce2` `fix: trim shareholder agreement supplement material`
+- 本轮确认的保留/过滤边界：
+  - 过滤：
+    - `企查查APP显示 + 经营范围包含 + 股权穿透显示` 造成的 `company_update` 题材误抬
+    - `cls + general_fast_news + 全球首款/研发成功 + 科技日报 + 教授`
+    - `sse/szse corporate_disclosure + 股东协议 + 补充协议`
+  - 保留：
+    - `华荣股份：国内首创智能化防爆高压环网柜研制成功`
+    - `盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告`
+    - `恒瑞医药关于药物纳入突破性治疗品种名单的公告`
+    - `云天化关于引入合作方投资建设新能源电池正极材料项目的公告`
+
 ## Current Phase
 Phase 8
 
@@ -132,8 +148,8 @@ Phase 8
 
 ## Current State
 - 工作分支：`mvp-foundation`
-- 当前分支状态：有未提交修改
-- 当前最新提交：`d854a9d feat: map cninfo catalysts to themes`
+- 当前分支状态：clean
+- 当前最新提交：`8b6dce2 fix: trim shareholder agreement supplement material`
 - 当前已启用真实源：`cninfo`、`miit`、`stcn`、`csrc`、`sse`、`szse`、`cls`
 - 当前 staged 真实源：`hkex`
 - 当前 CLI：
@@ -147,20 +163,14 @@ Phase 8
   - `live-smoke`
 
 ## Verification Baseline
-- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "miit_standardization_group_meeting_without_theme or deprioritizes_cls_global_information_below_direct_catalysts" -q`
+- `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "company_setup_registry_scope_as_theme or advanced_storage_equipment_as_compute_infra" -q`
   - `2 passed`
-- `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q`
-  - `3 passed`
-- `./.venv/bin/python -m pytest tests/test_live_smoke.py tests/test_cli_smoke.py tests/test_reference_data.py -q`
-  - `6 passed`
-- `./.venv/bin/python -m pytest tests/test_cls_collector.py -q`
-  - `3 passed`
-- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
-  - `raw_news=1250`
-  - `normalized_news=1250`
-  - `events=285`
-  - `analyses=285`
-  - `failed_sources=none`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_science_feature_story_without_hiding_company_product_progress" -q`
+  - `1 passed`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "exchange_shareholder_agreement_supplement_material_without_hiding_control_change_progress" -q`
+  - `1 passed`
+- `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report`
+  - `latest_report.txt` 已刷新
 - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
   - `suspicious_count=0`
 
@@ -172,14 +182,13 @@ Phase 8
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 3. 如果 `live-smoke --source all` 通过，再继续：
    - 先看当天 report 头部是否仍主要是：
-     - `盈新发展...控制权变更`
-     - `cls` 的算力/原油市场异动
-     - `cls` 的 `【风口研报·公司】...`
-     - `*ST中地...申请撤销退市风险警示`
-   - 再判断这些保留项是否需要更细的 subtype / 强度 / 展示分层
-4. 当前不要继续压 `cls` 的全球内容：
-   - `cls` 现在承担“全球快讯覆盖”角色
-   - 海外市场和全球栏目稿保留是当前目标的一部分
+     - `华荣股份...国内首创智能化防爆高压环网柜研制成功`
+     - `云天化...引入合作方投资建设新能源电池正极材料项目`
+     - `恒瑞医药...药物纳入突破性治疗品种名单`
+   - 再判断是否需要更细的 subtype / 强度 / 展示分层，而不是继续在 `report` 层硬压
+4. 当前不要继续压：
+   - `云天化...引入合作方投资建设新能源电池正极材料项目`
+   - `恒瑞医药...药物纳入突破性治疗品种名单`
 5. 如果主线切回扩源：
    - `hkex` 仍保持 staged
    - 先 `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`

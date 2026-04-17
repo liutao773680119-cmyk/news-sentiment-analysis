@@ -4,13 +4,10 @@
 - Task-ID:
   - `phase8-live-boundary`
 - Task-Name:
-  - `live 样本边界收口 + 低信号披露/cls 栏目稿降噪`
+  - `live 样本边界收口 + 低信号披露/cls 科技稿/协议材料降噪`
 - Files Changed:
   - `src/news_sentiment/analysis/rules.py`
-  - `src/news_sentiment/analysis/scoring.py`
-  - `src/news_sentiment/cli.py`
   - `src/news_sentiment/reporting/text_report.py`
-  - `tests/test_audit_suspicious.py`
   - `tests/test_analysis_scoring.py`
   - `tests/test_text_report_sorting.py`
   - `progress.md`
@@ -20,68 +17,59 @@
   - `修改记录_会话备忘.md`
   - `避坑记录.md`
 - Completed This Session:
-  - 已把 `live` 主链和 `audit-suspicious` 一起压回稳定基线，持续保持 `suspicious_count=0`
-  - `report` 层继续清掉一批低信号披露与栏目稿：
-    - `审核问询函回复 / 并购重组材料文档 / 报告书（修订稿）`
-    - `解除司法冻结 / 重大诉讼的公告 / 重大诉讼、仲裁情况进展`
-    - `增持公司股份计划 / 股份减持完成 / 变更股份回购用途`
-    - `停牌核查 + 股票交易风险/风险提示`
-    - `【风口研报·洞察】 / 【金牌纪要库】 / 《新闻联播》要闻 / 【电报解读】`
-    - `现货白银... / 美股光通信股走势分化 / 再次向港交所提交上市申请书 / 盘后A股上市公司重点业绩公告精选`
-  - `analysis/scoring` 已补最窄上游抑制：
-    - `cninfo + hard_event + corporate_disclosure` 的 `ESG报告 / 业绩网上说明会 / 责任保险` 不再默认触发
+  - 已继续把当天头部材料/栏目尾噪往下压，且保持 `audit-suspicious=0`
+  - `analysis/rules` 新增最窄 `company_update` 题材 spillover 抑制：
+    - `企查查APP显示 + 经营范围包含 + 股权穿透显示`
+    - `中国电建成立绿能科技服务公司` 已从 `themes=["储能"], score=99.0` 回落到 `themes=[], score=74.0`
+  - `report` 层新增最窄过滤：
+    - `sse/szse corporate_disclosure + 股东协议 + 补充协议`
+    - `cls general_fast_news + 全球首款/研发成功 + 科技日报 + 教授`
+  - 新收掉的当天样本：
+    - `上海电力...股票期权注销完成`
+    - `新疆天阳律师事务所...增持股份之法律意见书`
+    - `收评：创业板指涨超1%再创近11年新高...`
+    - `4月17日涨停分析`
+    - `国内商品期货主力合约涨多跌少 集运欧线涨超6%`
+    - `全球首款可耐受1300℃高温的锂电池材料研发成功`
+    - `东睦股份关于签署《关于上海富驰高科技股份有限公司之股东协议的补充协议（三）》的公告`
   - 已补正样本与边界回归，明确保留：
-    - `中远海能...投资建造两艘巴拿马型原油轮暨关联交易`
-    - `关于延期披露2025年年度报告及退市风险提示性公告`
-    - `【公告全知道】...245亿元投建算电协同项目`
-    - `华测导航...开展供应链融资业务合作暨对外担保`
-    - `GQY视讯...可能被实施退市风险警示的风险提示公告`
-  - 本轮最新两刀：
-    - `国内期货夜盘收盘多数上涨 甲醇等涨超2%` 已按同簇 `market_move roundup` 过滤出 report
-    - `*ST荣控...申请撤销对公司股票交易实施退市风险警示的公告` 已从 `bearish` 回正到 `bullish`
+    - `华荣股份：国内首创智能化防爆高压环网柜研制成功`
+    - `盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告`
+    - `恒瑞医药关于药物纳入突破性治疗品种名单的公告`
+    - `云天化关于引入合作方投资建设新能源电池正极材料项目的公告`
   - 本轮新增提交：
-    - `4201aff` `fix: tighten disclosure tail-noise filters`
-    - `a71b0ed` `test: lock halt-check and delisting-risk boundaries`
-    - `71f5ede` `fix: reduce low-signal disclosure triggering`
-    - `97100b5` `fix: filter live report editorial tail noise`
-    - `691cd5d` `fix: trim low-signal cls market briefs`
-    - `5ac6bf4` `fix: trim low-signal cls digest variants`
-    - `a5b129e` `fix: filter futures night-session up roundup`
-    - `99d9ccf` `fix: mark delisting warning revocation as bullish`
+    - `075b7f7` `fix: trim market roundup and sse tail noise`
+    - `b15aeaa` `fix: filter domestic futures roundup variant`
+    - `443f22b` `fix: reduce registry company-update theme spillover`
+    - `df2fec8` `fix: trim cls science feature story`
+    - `8b6dce2` `fix: trim shareholder agreement supplement material`
   - 当前最新验证：
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "domestic_futures_night_session_up_roundup" -q` -> `1 passed`
-    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "delisting_risk_revocation_application" -q` -> `2 passed`
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1259 normalized_news=1259 events=270 analyses=270 failed_sources=none`
+    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "company_setup_registry_scope_as_theme or advanced_storage_equipment_as_compute_infra" -q` -> `2 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_science_feature_story_without_hiding_company_product_progress" -q` -> `1 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "exchange_shareholder_agreement_supplement_material_without_hiding_control_change_progress" -q` -> `1 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` -> 已重刷 `latest_report.txt`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
   - 当前 report 头部已收敛到更像真实催化/可讨论边界：
-    - `中远海能...投资建造两艘巴拿马型原油轮暨关联交易`
-    - `*ST中基...申请撤销退市风险警示`
-    - `*ST荣控...申请撤销对公司股票交易实施退市风险警示`
-    - `华测导航...开展供应链融资业务合作暨对外担保`
-    - `GQY视讯...可能被实施退市风险警示的风险提示公告`
+    - `工信部：要加快急需标准制定 制定发布自动驾驶、数据安全等标准`
+    - `华荣股份：国内首创智能化防爆高压环网柜研制成功`
+    - `云天化关于引入合作方投资建设新能源电池正极材料项目的公告`
+    - `恒瑞医药关于药物纳入突破性治疗品种名单的公告`
 - Open TODO:
-  - 先不要回头继续压 `cls` 全球内容；这一轮主线已经切到“剩余保留项是否真要动”
-  - `【公告全知道】...` 当前先保留，不按单纯栏目稿处理
-  - `华测导航...供应链融资业务合作暨对外担保` 当前先保留；若重审，先补 3 条测试：
-    - `analysis/scoring` 里保持 `triggered=True`
-    - `text_report` 里和 `申请综合授信额度` 做一保一压对照
-    - `event_merge` 里 subtype 仍是 `corporate_disclosure`
-  - `GQY视讯...可能被实施退市风险警示的风险提示公告` 当前按首次风险提示保留
-  - `申请撤销对公司股票交易实施退市风险警示` 这类措辞已纳入 bullish 风险撤销白名单；后续不要再被通用 `风险` 词反压回 `bearish`
-  - `hkex` 仍保持 staged，后续如果切回扩源，再单独做验收
+  - `云天化...引入合作方投资建设新能源电池正极材料项目` 当前先保留；标题含 `引入合作方 + 投资建设 + 项目`，误伤风险高
+  - `恒瑞医药...药物纳入突破性治疗品种名单` 当前先保留；更像真实药品催化，不按材料稿处理
+  - 下一轮先不要继续在 `report` 层硬压 `云天化/恒瑞`
+  - 若重审 `云天化`，先补正反样本再决定是否收口
 - Risks/Blockers:
-  - `【公告全知道】` 是“包装栏目 + 真催化摘要”的混合体，不能按纯编辑稿一刀切
-  - `业务合作 + 对外担保` 这类标题是弱簇，不是纯材料簇；直接压整簇有误伤真实业务动作的风险
+  - `云天化` 和 `恒瑞` 现在都不是明显材料尾噪；继续压有过拟合风险
   - `report` 过滤和 `audit-suspicious` 仍是两套逻辑，后续每轮验收都要同时看两边
-  - `live` 样本每日滚动，下一次继续收边界前仍需重跑真实链路，不能沿用本轮头部清单
+  - `live-smoke` 在当前环境里偶尔会“产物已刷新但 stdout 没摘要回吐”，不要只盯终端输出
 - Next First Command:
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 - Known Avoidances:
-  - 不要把 `cls` 的海外/全球内容重新按旧 A 股单线目标硬压掉
-  - 不要把 `【公告全知道】` 直接按编辑栏目稿压掉；先看它包的是否是真催化
-  - 不要把 `华测导航...供应链融资业务合作暨对外担保` 自动并入“授信/担保额度材料”一刀切过滤
-  - `repeat hk listing application` 的过滤不要只绑 `stcn`；`cls` 也会出同类标题
-  - `盘后A股上市公司重点业绩公告精选` 这类 digest 要用真实摘要做回归，不要用占位文本代替
+  - 不要把 `企查查APP显示 + 经营范围包含 + 股权穿透显示` 这种 `company_update` 题材误抬再放回 report；优先改 `analysis/rules.py`
+  - 不要把 `cls + general_fast_news + 科技日报/教授` 这类科技特稿当成真实公司催化
+  - `股东协议 + 补充协议` 先按材料簇处理，但不要误伤带 `完成/获批/控制权变更/复牌` 的结果公告
+  - 不要继续在 `report` 层硬压 `云天化...引入合作方投资建设...` 和 `恒瑞医药...突破性治疗品种名单`
 
 ## Session: 2026-04-01
 
