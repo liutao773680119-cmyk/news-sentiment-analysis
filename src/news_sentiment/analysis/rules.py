@@ -165,6 +165,9 @@ def _is_company_update_summary_theme_spillover(event: Event) -> bool:
         return True
 
     summary_hits = _detect_theme_hits(event.summary)
+    if _is_company_setup_registry_summary_theme_spillover(event, summary_hits):
+        return True
+
     if _is_background_track_summary_theme_spillover(event, summary_hits):
         return True
 
@@ -206,6 +209,17 @@ def _is_application_field_summary_theme_spillover(summary: str, summary_hits: di
         return False
 
     return "领域" in summary and any(keyword in summary for keyword in ("应用于", "应用在", "用于"))
+
+
+def _is_company_setup_registry_summary_theme_spillover(event: Event, summary_hits: dict[str, int]) -> bool:
+    if len(summary_hits) != 1:
+        return False
+
+    if "成立" not in event.canonical_title or "公司" not in event.canonical_title:
+        return False
+
+    summary = event.summary
+    return all(keyword in summary for keyword in ("企查查APP显示", "经营范围包含", "股权穿透显示"))
 
 
 def _is_background_track_summary_theme_spillover(event: Event, summary_hits: dict[str, int]) -> bool:

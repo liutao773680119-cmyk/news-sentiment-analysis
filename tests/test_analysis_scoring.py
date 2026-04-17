@@ -803,6 +803,25 @@ def test_score_event_does_not_treat_company_update_downstream_scene_list_as_them
     assert analysis.themes == []
 
 
+def test_score_event_does_not_treat_company_setup_registry_scope_as_theme() -> None:
+    event = Event(
+        event_id="event-007c2",
+        first_seen_at="2026-04-17T15:13:06+08:00",
+        last_seen_at="2026-04-17T15:13:06+08:00",
+        canonical_title="中国电建成立绿能科技服务公司",
+        summary="人民财讯4月17日电，企查查APP显示，近日，广东丰汇绿能科技服务有限公司成立，法定代表人为王晓明，经营范围包含：新兴能源技术研发；集中式快速充电站；储能技术服务；太阳能发电技术服务；合同能源管理等。企查查股权穿透显示，该公司由中国电建间接全资持股。",
+        source="stcn",
+        published_at="2026-04-17T15:13:06+08:00",
+        url="https://example.com/company-setup-registry-scope",
+        member_news_ids=["n7c2"],
+        event_type="fast_news",
+        event_subtype="company_update",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == []
+
+
 def test_score_event_does_not_treat_background_track_commentary_as_project_theme() -> None:
     event = Event(
         event_id="event-007d",
