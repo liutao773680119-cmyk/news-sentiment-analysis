@@ -8463,6 +8463,47 @@ def test_write_text_report_filters_cls_global_market_brief_without_hiding_domest
     assert "财联社4月16日电，印度石油部表示，已敲定80万吨液化石油气进口订单，相关供应货物正在运往印度途中。" in content
 
 
+def test_write_text_report_filters_cls_science_feature_story_without_hiding_company_product_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-science-feature-story",
+            first_seen_at="2026-04-17T15:22:35+08:00",
+            last_seen_at="2026-04-17T15:22:35+08:00",
+            canonical_title="全球首款可耐受1300℃高温的锂电池材料研发成功",
+            summary="【全球首款可耐受1300℃高温的锂电池材料研发成功】财联社4月17日电，在4月初举行的第十四届储能国际峰会暨展览会上，南京工业大学教授沈晓冬团队展示的一款新材料，引发众人关注。这便是全球首款可耐受1300℃高温的新能源锂离子电池用高热阻气凝胶隔热片。“十五五”规划纲要提出，加快新能源、新材料等战略性新兴产业发展，这让沈晓冬对未来充满期待：“我们将加强基础研究和产业化进程，推动气凝胶隔热材料从新能源电池的‘高端选配’变为‘主流必配’，同时探索开拓其在消防、商业航天、太空算力等领域的应用，推动建立中国的气凝胶纳米材料产业体系。” (科技日报)",
+            source="cls",
+            published_at="2026-04-17T15:22:35+08:00",
+            url="https://example.com/cls-science-feature-story",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-company-product-progress",
+            first_seen_at="2026-04-17T15:10:22+08:00",
+            last_seen_at="2026-04-17T15:10:22+08:00",
+            canonical_title="华荣股份：国内首创智能化防爆高压环网柜研制成功",
+            summary="人民财讯4月17日电，从华荣股份了解到，公司面向海外高端市场，海洋油气钻井平台危险作业区定制研发的智能化防爆高压环网柜正式研制成功，目前已顺利进入IECEx/ATEX/CCC认证阶段。该产品为国内首创，填补了我国在海洋平台智能化防爆高压环网柜领域的技术空白。",
+            source="stcn",
+            published_at="2026-04-17T15:10:22+08:00",
+            url="https://example.com/keep-company-product-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-science-feature-story", direction="neutral", impact_score=79.3, reasoning="rule", themes=["锂电池"], triggered=True),
+        EventAnalysis(event_id="event-keep-company-product-progress", direction="neutral", impact_score=99.0, reasoning="rule", themes=["油气"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "全球首款可耐受1300℃高温的锂电池材料研发成功" not in content
+    assert "华荣股份：国内首创智能化防爆高压环网柜研制成功" in content
+
+
 def test_write_text_report_filters_current_live_asset_valuation_and_governance_material_without_hiding_real_disclosure(
     tmp_path,
 ) -> None:

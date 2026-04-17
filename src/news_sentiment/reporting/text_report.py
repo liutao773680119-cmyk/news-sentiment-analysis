@@ -550,6 +550,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_general_fast_news_market_brief(event):
         return False
+    if _is_low_signal_cls_science_feature_story(event, text):
+        return False
     if analysis.themes:
         return True
     if _is_low_signal_shareholder_reduction_fast_news(event.canonical_title, event):
@@ -867,6 +869,18 @@ def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
         keyword in event.canonical_title
         for keyword in LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS
     )
+
+
+def _is_low_signal_cls_science_feature_story(event: Event, text: str) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    return any(keyword in title for keyword in ("全球首款", "研发成功")) and "科技日报" in text and "教授" in text
 
 
 def _is_low_signal_stcn_broker_macro_commentary(event: Event, text: str) -> bool:
