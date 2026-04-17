@@ -5892,13 +5892,37 @@ def test_write_text_report_filters_hkex_governance_and_material_announcements_wi
             event_subtype="corporate_disclosure",
         ),
         Event(
+            event_id="event-hkex-chinese-section-placeholder",
+            first_seen_at="2026-04-17T21:17:00+08:00",
+            last_seen_at="2026-04-17T21:17:00+08:00",
+            canonical_title="An announcement has just been published by the issuer in the Chinese section of this website, a corresponding version of which may or may not be published in this section",
+            summary="summary",
+            source="hkex",
+            published_at="2026-04-17T21:17:00+08:00",
+            url="https://example.com/hkex-chinese-section-placeholder",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-general-mandates",
+            first_seen_at="2026-04-17T21:10:00+08:00",
+            last_seen_at="2026-04-17T21:10:00+08:00",
+            canonical_title="PROPOSALS FOR GENERAL MANDATES TO ISSUE SHARES AND PURCHASE SHARES AND RE-ELECTION OF DIRECTORS AND PROPOSED AMENDMENTS TO THE MEMORANDUM AND ARTICLES OF ASSOCIATION AND THE ADOPTION OF THE THIRD AMENDED AND RESTATED MEMORANDUM AND ARTICLES OF ASSOCIATION AND NOTICE OF ANNUAL GENERAL MEETING",
+            summary="summary",
+            source="hkex",
+            published_at="2026-04-17T21:10:00+08:00",
+            url="https://example.com/hkex-general-mandates",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
             event_id="event-stcn-keep-hkex-filter",
-            first_seen_at="2026-04-10T20:01:00+08:00",
-            last_seen_at="2026-04-10T20:01:00+08:00",
+            first_seen_at="2026-04-17T20:01:00+08:00",
+            last_seen_at="2026-04-17T20:01:00+08:00",
             canonical_title="国产EDA工具链和先进封装产线建设提速",
             summary="summary",
             source="stcn",
-            published_at="2026-04-10T20:01:00+08:00",
+            published_at="2026-04-17T20:01:00+08:00",
             url="https://example.com/stcn-keep-hkex-filter",
             event_type="fast_news",
             event_subtype="company_update",
@@ -5962,6 +5986,22 @@ def test_write_text_report_filters_hkex_governance_and_material_announcements_wi
             triggered=True,
         ),
         EventAnalysis(
+            event_id="event-hkex-chinese-section-placeholder",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-general-mandates",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
             event_id="event-stcn-keep-hkex-filter",
             direction="bullish",
             impact_score=99.0,
@@ -5981,6 +6021,62 @@ def test_write_text_report_filters_hkex_governance_and_material_announcements_wi
     assert "Annual Report 2025" not in content
     assert "Environmental, Social and Governance Report 2025" not in content
     assert "Date of Board Meeting" not in content
+    assert "An announcement has just been published by the issuer in the Chinese section" not in content
+    assert "PROPOSALS FOR GENERAL MANDATES TO ISSUE SHARES AND PURCHASE SHARES" not in content
+
+
+def test_write_text_report_keeps_hkex_transaction_catalyst_while_filtering_governance_material(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-governance-material",
+            first_seen_at="2026-04-17T21:17:00+08:00",
+            last_seen_at="2026-04-17T21:17:00+08:00",
+            canonical_title="NOTICE OF ANNUAL GENERAL MEETING",
+            summary="NOTICE OF ANNUAL GENERAL MEETING",
+            source="hkex",
+            published_at="2026-04-17T21:17:00+08:00",
+            url="https://example.com/hkex-governance-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-transaction-catalyst",
+            first_seen_at="2026-04-17T21:08:00+08:00",
+            last_seen_at="2026-04-17T21:08:00+08:00",
+            canonical_title="MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT",
+            summary="MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT",
+            source="hkex",
+            published_at="2026-04-17T21:08:00+08:00",
+            url="https://example.com/hkex-transaction-catalyst",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-governance-material",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-transaction-catalyst",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT" in content
+    assert "NOTICE OF ANNUAL GENERAL MEETING" not in content
 
 
 def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_announcements(tmp_path) -> None:

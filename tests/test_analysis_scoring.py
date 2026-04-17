@@ -369,6 +369,48 @@ def test_score_event_marks_patent_infringement_dispute_as_bearish() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_marks_hkex_profit_warning_as_bearish() -> None:
+    event = Event(
+        event_id="event-hk-pw",
+        first_seen_at="2026-04-17T20:00:00+08:00",
+        last_seen_at="2026-04-17T20:00:00+08:00",
+        canonical_title="PROFIT WARNING",
+        summary="PROFIT WARNING",
+        source="hkex",
+        published_at="2026-04-17T20:00:00+08:00",
+        url="https://example.com/hkex-profit-warning",
+        member_news_ids=["n-hk-pw"],
+        event_type="hard_event",
+        event_subtype="business_guidance",
+        primary_entities=[],
+        source_authority_score=0.93,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bearish"
+    assert analysis.triggered is True
+
+
+def test_score_event_marks_hkex_positive_profit_alert_as_bullish() -> None:
+    event = Event(
+        event_id="event-hk-ppa",
+        first_seen_at="2026-04-16T21:28:00+08:00",
+        last_seen_at="2026-04-16T21:28:00+08:00",
+        canonical_title="INSIDE INFORMATION - POSITIVE PROFIT ALERT",
+        summary="INSIDE INFORMATION - POSITIVE PROFIT ALERT",
+        source="hkex",
+        published_at="2026-04-16T21:28:00+08:00",
+        url="https://example.com/hkex-positive-profit-alert",
+        member_news_ids=["n-hk-ppa"],
+        event_type="hard_event",
+        event_subtype="business_guidance",
+        primary_entities=[],
+        source_authority_score=0.93,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bullish"
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_delisting_risk_as_bearish() -> None:
     event = Event(
         event_id="event-001ld",

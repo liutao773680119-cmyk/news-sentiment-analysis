@@ -25,6 +25,17 @@ HARD_EVENT_CATALYST_KEYWORDS = (
     "重组",
     "收购",
     "激励",
+    "PROFIT WARNING",
+    "PROFIT ALERT",
+    "INSIDE INFORMATION",
+    "CONNECTED TRANSACTION",
+    "CONTINUING CONNECTED TRANSACTIONS",
+    "MAJOR TRANSACTION",
+    "VERY SUBSTANTIAL",
+    "DISCLOSEABLE TRANSACTION",
+    "ACQUISITION",
+    "DISPOSAL",
+    "SUSPENSION OF TRADING",
 )
 FAST_NEWS_CATALYST_KEYWORDS = (
     "战略合作",
@@ -273,6 +284,7 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS = (
 )
 LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS = (
     "An announcement has just been published by the Company on the HKEXnews website",
+    "published by the issuer in the Chinese section",
     "Current Listed Company Information",
     "Next Day Disclosure Return",
     "Monthly Return of Equity Issuer",
@@ -290,6 +302,9 @@ LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS = (
     "Environmental, Social and Governance Report",
     "ESG Report",
     "Sustainability Report",
+    "General Mandates to Issue Shares and Purchase Shares",
+    "Re-election of Directors",
+    "Articles of Association",
     "List of Directors and their Roles and Functions",
 )
 LOW_SIGNAL_EXCHANGE_OPERATIONAL_DISCLOSURE_KEYWORDS = (
@@ -652,7 +667,8 @@ def _is_low_signal_repeated_delisting_risk_notice(title: str) -> bool:
 
 
 def _is_low_signal_hkex_disclosure_title(title: str) -> bool:
-    return any(keyword in title for keyword in LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS)
+    normalized_title = title.lower()
+    return any(keyword.lower() in normalized_title for keyword in LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS)
 
 
 def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> bool:

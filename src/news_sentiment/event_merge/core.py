@@ -44,6 +44,7 @@ LEGAL_DISPUTE_KEYWORDS = (
     "商标争议",
     "侵害发明专利权纠纷",
     "专利权纠纷",
+    "ARBITRATION PROCEEDINGS",
 )
 FAST_NEWS_FINANCIAL_RESULT_KEYWORDS = (
     "净利润",
@@ -57,6 +58,33 @@ FAST_NEWS_FINANCIAL_RESULT_KEYWORDS = (
     "业绩",
     "扭亏为盈",
     "亏损",
+)
+HKEX_FINANCIAL_RESULT_KEYWORDS = (
+    "PROFIT WARNING",
+    "PROFIT ALERT",
+)
+HKEX_TRANSACTION_KEYWORDS = (
+    "CONNECTED TRANSACTION",
+    "Connected Transaction",
+    "CONTINUING CONNECTED TRANSACTIONS",
+    "Continuing Connected Transactions",
+    "MAJOR TRANSACTION",
+    "Major Transaction",
+    "VERY SUBSTANTIAL",
+    "Very Substantial",
+    "DISCLOSEABLE TRANSACTION",
+    "Discloseable Transaction",
+    "DISPOSAL OF",
+    "Disposal of",
+    "ACQUISITION OF",
+    "Acquisition of",
+)
+HKEX_EXECUTIVE_CHANGE_KEYWORDS = (
+    "CHANGE OF DIRECTORS",
+    "RE-DESIGNATION OF DIRECTOR",
+    "RESIGNATION OF CHIEF EXECUTIVE OFFICER",
+    "APPOINTMENT OF CHIEF EXECUTIVE OFFICER",
+    "CHANGE OF COMPANY SECRETARY",
 )
 
 
@@ -124,6 +152,9 @@ def _is_similar(left: str, right: str) -> bool:
 
 
 def _should_merge(left: NormalizedNews, right: NormalizedNews) -> bool:
+    if left.source == "hkex" or right.source == "hkex":
+        return _is_same_market_move_asset(left, right) or _is_same_structured_catalyst(left, right)
+
     if _is_similar(left.title, right.title):
         return True
 
@@ -186,12 +217,14 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
     if source_type == "hard_event":
         if _contains_any(text, ("控制权", "股份转让协议", "实控人变更")):
             return "control_change"
-        if _contains_any(text, ("申请重整", "预重整", "庭外重组", "申请破产清算", "破产清算")):
+        if _contains_any(text, ("申请重整", "预重整", "庭外重组", "申请破产清算", "破产清算", "WINDING UP PETITION")):
             return "reorganization_risk"
         if _contains_any(text, ("退市风险警示", "退市风险提示", "其他风险警示")):
             return "delisting_risk"
         if _contains_any(text, LEGAL_DISPUTE_KEYWORDS):
             return "legal_dispute"
+        if _contains_any(text, HKEX_FINANCIAL_RESULT_KEYWORDS):
+            return "business_guidance"
         if _contains_any(text, ("受理", "向特定对象发行", "定增", "发行股票申请")):
             return "financing_acceptance"
         if _contains_any(text, ("激励计划", "限制性股票", "归属")):
@@ -200,11 +233,14 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "order_contract"
         if _contains_any(text, ("合作协议", "战略合作", "签署协议", "签订协议", "签署合作", "授权许可协议")):
             return "cooperation_agreement"
-        if _contains_any(text, ("收购", "重组")):
+        if _contains_any(text, ("收购", "重组")) or _contains_any(text, HKEX_TRANSACTION_KEYWORDS):
             return "acquisition_restructuring"
         if _contains_any(text, ("董事会", "监事会", "股东大会", "会议决议")):
             return "board_resolution"
-        if _contains_any(text, ("聘任", "辞任", "离任", "首席执行官", "总经理", "董事长")):
+        if _contains_any(text, ("聘任", "辞任", "离任", "首席执行官", "总经理", "董事长")) or _contains_any(
+            text,
+            HKEX_EXECUTIVE_CHANGE_KEYWORDS,
+        ):
             return "executive_change"
         return "corporate_disclosure"
 

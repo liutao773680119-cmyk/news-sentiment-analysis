@@ -260,6 +260,135 @@ def test_merge_news_items_classifies_executive_departure_disclosure_as_executive
     assert events[0].event_subtype == "executive_change"
 
 
+def test_merge_news_items_classifies_hkex_profit_warning_as_business_guidance() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hkpw",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T21:00:00+08:00",
+            captured_at="2026-04-17T21:00:30+08:00",
+            title="PROFIT WARNING",
+            content="PROFIT WARNING",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/example-profit-warning.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "business_guidance"
+
+
+def test_merge_news_items_classifies_hkex_change_of_directors_as_executive_change() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hked",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T21:24:00+08:00",
+            captured_at="2026-04-17T21:24:30+08:00",
+            title="CHANGE OF DIRECTORS RE-DESIGNATION OF DIRECTOR AND CHANGE IN COMPOSITION OF BOARD COMMITTEES",
+            content="CHANGE OF DIRECTORS RE-DESIGNATION OF DIRECTOR AND CHANGE IN COMPOSITION OF BOARD COMMITTEES",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/example-director-change.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "executive_change"
+
+
+def test_merge_news_items_classifies_hkex_very_substantial_connected_transaction_as_acquisition_restructuring() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hktx",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-10T22:55:00+08:00",
+            captured_at="2026-04-10T22:55:30+08:00",
+            title="(1) Very Substantial Disposal and Connected Transaction - Disposal of a Subsidiary",
+            content="(1) Very Substantial Disposal and Connected Transaction - Disposal of a Subsidiary",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0410/example-transaction.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "acquisition_restructuring"
+
+
+def test_merge_news_items_does_not_merge_unrelated_hkex_english_disclosures_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hkmd",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T21:26:00+08:00",
+            captured_at="2026-04-17T21:26:30+08:00",
+            title="LIST OF DIRECTORS AND THEIR ROLES AND FUNCTIONS",
+            content="LIST OF DIRECTORS AND THEIR ROLES AND FUNCTIONS",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/example-directors.pdf",
+        ),
+        NormalizedNews(
+            news_id="n1hkpw",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T21:00:00+08:00",
+            captured_at="2026-04-17T21:00:30+08:00",
+            title="PROFIT WARNING",
+            content="PROFIT WARNING",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/example-profit-warning.pdf",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
+def test_merge_news_items_classifies_hkex_inside_information_winding_up_petition_as_reorganization_risk() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hkiw",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T18:42:00+08:00",
+            captured_at="2026-04-17T18:42:30+08:00",
+            title="INSIDE INFORMATION - UPDATE ON WINDING UP PETITION",
+            content="INSIDE INFORMATION - UPDATE ON WINDING UP PETITION",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/example-winding-up.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "reorganization_risk"
+
+
+def test_merge_news_items_classifies_hkex_inside_information_arbitration_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hkia",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-16T17:29:00+08:00",
+            captured_at="2026-04-16T17:29:30+08:00",
+            title="INSIDE INFORMATION IN RELATION TO ARBITRATION PROCEEDINGS",
+            content="INSIDE INFORMATION IN RELATION TO ARBITRATION PROCEEDINGS",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0416/example-arbitration.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
 def test_merge_news_items_classifies_market_move_fast_news_subtype() -> None:
     items = [
         NormalizedNews(

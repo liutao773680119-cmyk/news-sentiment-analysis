@@ -92,6 +92,8 @@ def detect_direction(text: str) -> str:
         "下滑",
         "收缩",
         "风险",
+        "PROFIT WARNING",
+        "WINDING UP PETITION",
         "申请重整",
         "预重整",
         "申请破产清算",
@@ -99,7 +101,10 @@ def detect_direction(text: str) -> str:
         "商标争议",
         "侵害发明专利权纠纷",
         "专利权纠纷",
+        "ARBITRATION PROCEEDINGS",
     )
+    if _is_bullish_profit_alert(text):
+        return "bullish"
     if _is_bullish_risk_warning_revocation(text):
         return "bullish"
     if _is_bullish_control_change(text):
@@ -109,6 +114,10 @@ def detect_direction(text: str) -> str:
     if any(token in text for token in bearish_tokens):
         return "bearish"
     return "neutral"
+
+
+def _is_bullish_profit_alert(text: str) -> bool:
+    return "POSITIVE PROFIT ALERT" in text
 
 
 def _is_bullish_risk_warning_revocation(text: str) -> bool:
