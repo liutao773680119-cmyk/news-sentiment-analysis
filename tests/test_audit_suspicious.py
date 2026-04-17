@@ -716,3 +716,64 @@ def test_audit_suspicious_skips_cls_general_fast_news_with_theme(tmp_path, monke
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "隔夜全球要闻" not in output
+
+
+def test_audit_suspicious_skips_cls_market_roundup_and_limitup_digest(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cls-close-roundup",
+                first_seen_at="2026-04-17T15:01:54+08:00",
+                last_seen_at="2026-04-17T15:01:54+08:00",
+                canonical_title="收评：创业板指涨超1%再创近11年新高 算力硬件方向持续爆发",
+                summary="summary",
+                source="cls",
+                published_at="2026-04-17T15:01:54+08:00",
+                url="https://www.cls.cn/detail/2347306",
+                event_type="fast_news",
+                event_subtype="market_move",
+            ),
+            Event(
+                event_id="event-cls-limit-up-digest",
+                first_seen_at="2026-04-17T15:13:25+08:00",
+                last_seen_at="2026-04-17T15:13:25+08:00",
+                canonical_title="4月17日涨停分析",
+                summary="summary",
+                source="cls",
+                published_at="2026-04-17T15:13:25+08:00",
+                url="https://www.cls.cn/detail/2347335",
+                event_type="fast_news",
+                event_subtype="market_move",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cls-close-roundup",
+                direction="neutral",
+                impact_score=99.3,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cls-limit-up-digest",
+                direction="neutral",
+                impact_score=99.3,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "收评：创业板指涨超1%再创近11年新高 算力硬件方向持续爆发" not in output
+    assert "4月17日涨停分析" not in output

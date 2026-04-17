@@ -757,6 +757,59 @@ def test_write_text_report_filters_stcn_market_open_roundup_without_theme(tmp_pa
     assert "现货黄金跌破4600美元/盎司" in content
 
 
+def test_write_text_report_filters_cls_ashare_roundup_and_limitup_digest(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-close-roundup",
+            first_seen_at="2026-04-17T15:01:54+08:00",
+            last_seen_at="2026-04-17T15:01:54+08:00",
+            canonical_title="收评：创业板指涨超1%再创近11年新高 算力硬件方向持续爆发",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-17T15:01:54+08:00",
+            url="https://example.com/cls-close-roundup",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-limit-up-digest",
+            first_seen_at="2026-04-17T15:13:25+08:00",
+            last_seen_at="2026-04-17T15:13:25+08:00",
+            canonical_title="4月17日涨停分析",
+            summary="【4月17日涨停分析】今日全市场共71股涨停。",
+            source="cls",
+            published_at="2026-04-17T15:13:25+08:00",
+            url="https://example.com/cls-limit-up-digest",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-keep-order",
+            first_seen_at="2026-04-17T15:20:00+08:00",
+            last_seen_at="2026-04-17T15:20:00+08:00",
+            canonical_title="印度石油部表示已敲定80万吨液化石油气进口订单",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-17T15:20:00+08:00",
+            url="https://example.com/cls-keep-order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-close-roundup", direction="neutral", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-cls-limit-up-digest", direction="neutral", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-cls-keep-order", direction="neutral", impact_score=99.3, reasoning="rule", themes=["油气"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "印度石油部表示已敲定80万吨液化石油气进口订单" in content
+    assert "收评：创业板指涨超1%再创近11年新高 算力硬件方向持续爆发" not in content
+    assert "4月17日涨停分析" not in content
+
+
 def test_write_text_report_filters_domestic_futures_opening_roundup_variant_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -8026,6 +8079,59 @@ def test_write_text_report_filters_current_live_disclosure_tail_noise_cluster(tm
     assert "索菱股份：关于回购注销2023年限制性股票与股票期权激励计划部分限制性股票暨通知债权人的公告" not in content
     assert "中宠股份：关于变更股份回购用途的公告" not in content
     assert "红棉股份：关于持股5%以上股东股份减持完成的公告" not in content
+
+
+def test_write_text_report_filters_current_live_sse_tail_noise_cluster(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-option-cancel-finished",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="上海电力股份有限公司关于首期股票期权激励计划部分股票期权注销完成的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/sse-option-cancel-finished",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-sse-share-increase-legal-opinion",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="新疆天阳律师事务所关于新疆天业股份有限公司控股股东增持股份之法律意见书",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/sse-share-increase-legal-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-related-party-shipbuilding",
+            first_seen_at="2026-04-16T00:00:00+08:00",
+            last_seen_at="2026-04-16T00:00:00+08:00",
+            canonical_title="公告2026-017-中远海能关于投资建造两艘巴拿马型原油轮暨关联交易的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-16T00:00:00+08:00",
+            url="https://example.com/keep-related-party-shipbuilding",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-sse-option-cancel-finished", direction="neutral", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-share-increase-legal-opinion", direction="neutral", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-related-party-shipbuilding", direction="neutral", impact_score=100.0, reasoning="rule", themes=["油气"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "公告2026-017-中远海能关于投资建造两艘巴拿马型原油轮暨关联交易的公告" in content
+    assert "上海电力股份有限公司关于首期股票期权激励计划部分股票期权注销完成的公告" not in content
+    assert "新疆天阳律师事务所关于新疆天业股份有限公司控股股东增持股份之法律意见书" not in content
 
 
 def test_write_text_report_filters_stock_trading_risk_tip_and_halt_check_notice_without_hiding_cls_halt_check(

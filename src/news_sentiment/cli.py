@@ -88,6 +88,7 @@ SUSPICIOUS_MARKET_ROUNDUP_PREFIXES = (
     "午评：",
     "早盘：",
 )
+LOW_SIGNAL_MARKET_ROUNDUP_KEYWORDS = ("涨停分析",)
 
 
 @dataclass(frozen=True)
@@ -266,6 +267,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     title = event.canonical_title
     if _is_cls_editorial_roundup_column(event):
         return None
+    if _is_low_signal_market_roundup_candidate(event):
+        return None
     if (
         event.source in {"cninfo", "sse", "szse"}
         and event.event_type == "hard_event"
@@ -308,6 +311,20 @@ def _is_cls_editorial_roundup_column(event: Event) -> bool:
         and event.event_type == "fast_news"
         and event.event_subtype == "general_fast_news"
         and "【公告全知道】" in event.canonical_title
+    )
+
+
+def _is_low_signal_market_roundup_candidate(event: Event) -> bool:
+    if not (
+        event.source in {"stcn", "cls"}
+        and event.event_type == "fast_news"
+        and event.event_subtype == "market_move"
+    ):
+        return False
+
+    title = event.canonical_title
+    return any(title.startswith(prefix) for prefix in SUSPICIOUS_MARKET_ROUNDUP_PREFIXES) or any(
+        keyword in title for keyword in LOW_SIGNAL_MARKET_ROUNDUP_KEYWORDS
     )
 
 

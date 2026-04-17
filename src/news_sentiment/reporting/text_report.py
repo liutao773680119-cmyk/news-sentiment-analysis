@@ -99,6 +99,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "资产评估报告",
     "增持公司股份结果公告",
     "增持股份结果",
+    "增持股份之法律意见书",
     "增持公司股份计划",
     "增持计划实施完成",
     "减持股份预披露",
@@ -200,6 +201,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "归属条件未成就",
     "激励对象名单",
     "股票期权注销事项的核查意见",
+    "股票期权注销完成",
     "股票增值权激励计划第一个行权期的行权名单的核查意见",
     "作废处理部分限制性股票的法律意见",
     "作废部分已授予尚未归属的限制性股票相关事项的核查意见",
@@ -334,6 +336,7 @@ LOW_SIGNAL_STCN_MARKET_ROUNDUP_TITLE_KEYWORDS = (
     "收评：三大指数",
     "午评：三大指数",
     "早盘：三大指数",
+    "涨停分析",
 )
 LOW_SIGNAL_STCN_MARKET_ROUNDUP_TITLE_PREFIXES = (
     "开评：",
@@ -724,7 +727,7 @@ def _is_low_signal_hk_listing_application_fast_news(title: str, event: Event) ->
 
 def _is_low_signal_stcn_market_roundup(title: str, event: Event, analysis: EventAnalysis) -> bool:
     if not (
-        event.source == "stcn"
+        event.source in {"stcn", "cls"}
         and event.event_type == "fast_news"
         and event.event_subtype == "market_move"
     ):
