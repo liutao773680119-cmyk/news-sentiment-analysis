@@ -2,13 +2,16 @@
 
 ## Latest Handoff Snapshot
 - Task-ID:
-  - `phase8-live-boundary`
+  - `phase9-source-expansion`
 - Task-Name:
-  - `live 样本边界收口 + 低信号披露/cls 科技稿/协议材料降噪`
+  - `hkex staged 扩源收口 + 英文标题最小分类/过滤接线`
 - Files Changed:
+  - `src/news_sentiment/event_merge/core.py`
   - `src/news_sentiment/analysis/rules.py`
   - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_event_merge.py`
   - `tests/test_analysis_scoring.py`
+  - `tests/test_hkex_collector.py`
   - `tests/test_text_report_sorting.py`
   - `progress.md`
   - `findings.md`
@@ -17,59 +20,63 @@
   - `修改记录_会话备忘.md`
   - `避坑记录.md`
 - Completed This Session:
-  - 已继续把当天头部材料/栏目尾噪往下压，且保持 `audit-suspicious=0`
-  - `analysis/rules` 新增最窄 `company_update` 题材 spillover 抑制：
-    - `企查查APP显示 + 经营范围包含 + 股权穿透显示`
-    - `中国电建成立绿能科技服务公司` 已从 `themes=["储能"], score=99.0` 回落到 `themes=[], score=74.0`
-  - `report` 层新增最窄过滤：
-    - `sse/szse corporate_disclosure + 股东协议 + 补充协议`
-    - `cls general_fast_news + 全球首款/研发成功 + 科技日报 + 教授`
-  - 新收掉的当天样本：
-    - `上海电力...股票期权注销完成`
-    - `新疆天阳律师事务所...增持股份之法律意见书`
-    - `收评：创业板指涨超1%再创近11年新高...`
-    - `4月17日涨停分析`
-    - `国内商品期货主力合约涨多跌少 集运欧线涨超6%`
-    - `全球首款可耐受1300℃高温的锂电池材料研发成功`
-    - `东睦股份关于签署《关于上海富驰高科技股份有限公司之股东协议的补充协议（三）》的公告`
-  - 已补正样本与边界回归，明确保留：
-    - `华荣股份：国内首创智能化防爆高压环网柜研制成功`
-    - `盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告`
-    - `恒瑞医药关于药物纳入突破性治疗品种名单的公告`
-    - `云天化关于引入合作方投资建设新能源电池正极材料项目的公告`
+  - `hkex` 单源真实抓取已跑通，`collect --source hkex` 当次写出 `1087` 条 raw 标题
+  - 已确认 `hkex` 不能走通用字符重合归并；修复前 `1087` 条会错并成 `10` 个 event
+  - `event_merge` 已补最小英文 subtype：
+    - `PROFIT WARNING / PROFIT ALERT` -> `business_guidance`
+    - `CHANGE OF DIRECTORS / RE-DESIGNATION ...` -> `executive_change`
+    - `CONNECTED / MAJOR / VERY SUBSTANTIAL / DISCLOSEABLE TRANSACTION` -> `acquisition_restructuring`
+    - `INSIDE INFORMATION - UPDATE ON WINDING UP PETITION` -> `reorganization_risk`
+    - `INSIDE INFORMATION ... ARBITRATION PROCEEDINGS` -> `legal_dispute`
+  - `analysis/rules` 已补最小方向回正：
+    - `PROFIT WARNING` -> `bearish`
+    - `POSITIVE PROFIT ALERT` -> `bullish`
+    - `WINDING UP PETITION / ARBITRATION PROCEEDINGS` -> `bearish`
+  - `report` 已补 `hkex` 英文材料过滤与催化词接线：
+    - `published by the issuer in the Chinese section`
+    - `General Mandates ...`
+    - `Re-election of Directors`
+    - `Articles of Association`
+    - `PROFIT WARNING / INSIDE INFORMATION / CONNECTED TRANSACTION / MAJOR TRANSACTION / ACQUISITION / DISPOSAL / SUSPENSION OF TRADING`
+  - `hkex` 单源顺序链路已重跑：
+    - `normalize`
+    - `merge-events`
+    - `analyze-events`
+    - `report`
+    - `audit-suspicious --limit 10`
+  - 当前 `hkex` 单源结果：
+    - `events=1087`
+    - `audit-suspicious=0`
+    - `latest_report.txt` 已不再为空，能保留 `MAJOR TRANSACTION / CONNECTED TRANSACTION / PROFIT WARNING` 一类真实催化
+  - 当前 subtype 分布：
+    - `corporate_disclosure: 1036`
+    - `acquisition_restructuring: 41`
+    - `business_guidance: 6`
+    - `executive_change: 4`
   - 本轮新增提交：
-    - `075b7f7` `fix: trim market roundup and sse tail noise`
-    - `b15aeaa` `fix: filter domestic futures roundup variant`
-    - `443f22b` `fix: reduce registry company-update theme spillover`
-    - `df2fec8` `fix: trim cls science feature story`
-    - `8b6dce2` `fix: trim shareholder agreement supplement material`
+    - `2db6b3f` `fix: tighten hkex staged source classification`
   - 当前最新验证：
-    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "company_setup_registry_scope_as_theme or advanced_storage_equipment_as_compute_infra" -q` -> `2 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_science_feature_story_without_hiding_company_product_progress" -q` -> `1 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "exchange_shareholder_agreement_supplement_material_without_hiding_control_change_progress" -q` -> `1 passed`
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` -> 已重刷 `latest_report.txt`
+    - `./.venv/bin/python -m pytest tests/test_event_merge.py -q` -> `51 passed`
+    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "hkex_profit_warning or hkex_positive_profit_alert or delisting_risk or legal_dispute or reorganization_risk" -q` -> `7 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "hkex_" -q` -> `2 passed`
+    - `./.venv/bin/python -m pytest tests/test_hkex_collector.py -q` -> `5 passed`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
-  - 当前 report 头部已收敛到更像真实催化/可讨论边界：
-    - `工信部：要加快急需标准制定 制定发布自动驾驶、数据安全等标准`
-    - `华荣股份：国内首创智能化防爆高压环网柜研制成功`
-    - `云天化关于引入合作方投资建设新能源电池正极材料项目的公告`
-    - `恒瑞医药关于药物纳入突破性治疗品种名单的公告`
 - Open TODO:
-  - `云天化...引入合作方投资建设新能源电池正极材料项目` 当前先保留；标题含 `引入合作方 + 投资建设 + 项目`，误伤风险高
-  - `恒瑞医药...药物纳入突破性治疗品种名单` 当前先保留；更像真实药品催化，不按材料稿处理
-  - 下一轮先不要继续在 `report` 层硬压 `云天化/恒瑞`
-  - 若重审 `云天化`，先补正反样本再决定是否收口
+  - `hkex` 仍有 `1036` 条落在 `corporate_disclosure`，还没到能直接并入 `--source all` 的状态
+  - `INSIDE INFORMATION` 仍过宽，后续若继续做 `hkex`，优先补更细上下文分流
+  - `hkex` 还没有 stock code / company mapping，当前个股仍是空
+  - 下一轮若切回主线，先按既有交接重跑 `live-smoke --source all`
 - Risks/Blockers:
-  - `云天化` 和 `恒瑞` 现在都不是明显材料尾噪；继续压有过拟合风险
-  - `report` 过滤和 `audit-suspicious` 仍是两套逻辑，后续每轮验收都要同时看两边
-  - `live-smoke` 在当前环境里偶尔会“产物已刷新但 stdout 没摘要回吐”，不要只盯终端输出
+  - `hkex` 英文标题如果继续走字符重合归并，会把完全不相干的公告错并
+  - `hkex` 当前仍以英文治理/材料公告为主，直接启用到 `--source all` 会明显拉低主链信噪比
+  - `report` 过滤和 `audit-suspicious` 仍是两套逻辑；`hkex` 验收也要两边同时看
 - Next First Command:
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
 - Known Avoidances:
-  - 不要把 `企查查APP显示 + 经营范围包含 + 股权穿透显示` 这种 `company_update` 题材误抬再放回 report；优先改 `analysis/rules.py`
-  - 不要把 `cls + general_fast_news + 科技日报/教授` 这类科技特稿当成真实公司催化
-  - `股东协议 + 补充协议` 先按材料簇处理，但不要误伤带 `完成/获批/控制权变更/复牌` 的结果公告
-  - 不要继续在 `report` 层硬压 `云天化...引入合作方投资建设...` 和 `恒瑞医药...突破性治疗品种名单`
+  - 不要把 `hkex` 直接开进 `--source all`
+  - 不要让 `hkex` 继续走通用字符重合归并
+  - 不要把 `INSIDE INFORMATION` 整体当成单一 subtype
+  - 不要用大小写敏感匹配处理 `hkex` 英文材料标题
 
 ## Session: 2026-04-01
 

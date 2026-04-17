@@ -1,5 +1,29 @@
 # Findings & Decisions
 
+## Update 2026-04-17（hkex staged）
+- 本轮新增确认：
+  - `hkex` collector 已经能抓官方 JSON，不是采集没通；当前问题在于英文标题的 subtype 和降噪还不够。
+  - `hkex` 英文标题不能沿用通用字符重合归并；`LIST OF DIRECTORS ...` 和 `PROFIT WARNING` 这种完全不相干的标题会被错并。
+  - `hkex` 只补 `report` 过滤不够；至少还需要最小英文 subtype，才能把真催化从 `corporate_disclosure` 里分出来。
+  - `report` 的 `hkex` 英文材料过滤必须大小写无关；真实标题会同时出现全大写和普通大小写变体。
+- 本轮已落地：
+  - `PROFIT WARNING / PROFIT ALERT` -> `business_guidance`
+  - `CHANGE OF DIRECTORS / RE-DESIGNATION ...` -> `executive_change`
+  - `CONNECTED / MAJOR / VERY SUBSTANTIAL / DISCLOSEABLE TRANSACTION` -> `acquisition_restructuring`
+  - `INSIDE INFORMATION - UPDATE ON WINDING UP PETITION` -> `reorganization_risk`
+  - `INSIDE INFORMATION ... ARBITRATION PROCEEDINGS` -> `legal_dispute`
+  - `PROFIT WARNING` -> `bearish`
+  - `POSITIVE PROFIT ALERT` -> `bullish`
+- 当前单源验收结论：
+  - `collect --source hkex` 实际写出 `1087` 条 raw
+  - 修复前 `1087` 条会错并成 `10` 个 event；修复后恢复到 `1087` 个 event
+  - `audit-suspicious --limit 10` 已回到 `0`
+  - `latest_report.txt` 已能保留 `MAJOR / CONNECTED TRANSACTION`、`PROFIT WARNING` 一类真实催化标题
+- 当前仍未完成：
+  - `corporate_disclosure` 仍有 `1036` 条，说明 `hkex` 还不能直接开进 `--source all`
+  - `INSIDE INFORMATION` 仍过宽，后续需要更细上下文分流
+  - `hkex` 还没有 stock code / company mapping，当前个股仍为空
+
 ## Update 2026-04-17
 - 本轮新增确认：
   - `company_update` 的题材误抬，不一定该在 `report` 层收；像 `中国电建成立绿能科技服务公司` 这类 `企查查APP显示 + 经营范围包含 + 股权穿透显示`，更稳的修法是 `analysis/rules.py` 的 summary spillover 抑制。

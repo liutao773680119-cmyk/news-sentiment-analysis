@@ -8,6 +8,8 @@
   - `443f22b` `fix: reduce registry company-update theme spillover`
   - `df2fec8` `fix: trim cls science feature story`
   - `8b6dce2` `fix: trim shareholder agreement supplement material`
+- 本轮新增 staged 扩源提交：
+  - `2db6b3f` `fix: tighten hkex staged source classification`
 - 本轮确认的保留/过滤边界：
   - 过滤：
     - `企查查APP显示 + 经营范围包含 + 股权穿透显示` 造成的 `company_update` 题材误抬
@@ -149,7 +151,7 @@ Phase 8
 ## Current State
 - 工作分支：`mvp-foundation`
 - 当前分支状态：clean
-- 当前最新提交：`8b6dce2 fix: trim shareholder agreement supplement material`
+- 当前最新提交：`2db6b3f fix: tighten hkex staged source classification`
 - 当前已启用真实源：`cninfo`、`miit`、`stcn`、`csrc`、`sse`、`szse`、`cls`
 - 当前 staged 真实源：`hkex`
 - 当前 CLI：
@@ -163,6 +165,14 @@ Phase 8
   - `live-smoke`
 
 ## Verification Baseline
+- `./.venv/bin/python -m pytest tests/test_event_merge.py -q`
+  - `51 passed`
+- `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "hkex_profit_warning or hkex_positive_profit_alert or delisting_risk or legal_dispute or reorganization_risk" -q`
+  - `7 passed`
+- `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "hkex_" -q`
+  - `2 passed`
+- `./.venv/bin/python -m pytest tests/test_hkex_collector.py -q`
+  - `5 passed`
 - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "company_setup_registry_scope_as_theme or advanced_storage_equipment_as_compute_infra" -q`
   - `2 passed`
 - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_science_feature_story_without_hiding_company_product_progress" -q`
@@ -192,7 +202,16 @@ Phase 8
 5. 如果主线切回扩源：
    - `hkex` 仍保持 staged
    - 先 `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
-   - 不要直接并入 `--source all`
+   - 再顺序跑：
+     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment normalize`
+     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment merge-events`
+     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment analyze-events`
+     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report`
+     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+6. `hkex` 下一步不要直接扩过滤面，优先补：
+   - `INSIDE INFORMATION` 的更细 subtype/方向边界
+   - stock code / company mapping
+   - 再决定是否能进入 `--source all`
 
 ## Known Risks
 - 当前题材识别仍是规则驱动，后续仍可能出现新的宽词误伤。
@@ -202,6 +221,8 @@ Phase 8
 - `cls` 已并入主链后，report 头部会自然出现全球快讯；不要把这类样本默认当成噪音。
 - `cls` 的研报/解读稿仍可能吃到 `order_contract` 或强催化路径，需要继续收 subtype 边界。
 - `report` 过滤和 `audit-suspicious` 是两套逻辑；不能只看其中一边。
+- `hkex` 当前虽然已经能留下部分真催化，但 `corporate_disclosure` 仍有 `1036` 条；现在启用到主链会明显拉低信噪比。
+- `hkex` 英文标题如果继续走通用字符重合归并，会再次出现大面积错并。
 
 ## Update 2026-04-15
 
