@@ -6304,6 +6304,61 @@ def test_write_text_report_filters_exchange_share_purchase_agreement_material_wi
     assert "若羽臣：关于全资孙公司收购股权暨签署股份购买协议的公告" not in content
 
 
+def test_write_text_report_filters_exchange_shareholder_agreement_supplement_material_without_hiding_control_change_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-shareholder-agreement-supplement-material",
+            first_seen_at="2026-04-17T00:00:00+08:00",
+            last_seen_at="2026-04-17T00:00:00+08:00",
+            canonical_title="东睦股份关于签署《关于上海富驰高科技股份有限公司之股东协议的补充协议（三）》的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-17T00:00:00+08:00",
+            url="https://example.com/sse-shareholder-agreement-supplement-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-control-change-progress",
+            first_seen_at="2026-04-15T00:00:00+08:00",
+            last_seen_at="2026-04-15T00:00:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="公司推进控制权收购事项。",
+            source="szse",
+            published_at="2026-04-15T00:00:00+08:00",
+            url="https://example.com/keep-control-change-progress",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-shareholder-agreement-supplement-material",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-control-change-progress",
+            direction="bullish",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "东睦股份关于签署《关于上海富驰高科技股份有限公司之股东协议的补充协议（三）》的公告" not in content
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+
+
 def test_write_text_report_filters_exchange_litigation_and_dishonest_person_notices_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

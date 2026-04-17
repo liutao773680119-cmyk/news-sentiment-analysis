@@ -584,6 +584,7 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             or _is_low_signal_exchange_shareholder_meeting_legal_opinion(event.canonical_title)
             or _is_low_signal_exchange_halt_check_risk_notice(event.canonical_title)
             or _is_low_signal_exchange_operational_disclosure(event.canonical_title, event)
+            or _is_low_signal_exchange_shareholder_agreement_supplement_material(event.canonical_title, event)
             or _is_low_signal_cninfo_restructuring_material(event.canonical_title)
             or _is_low_signal_exchange_inquiry_transfer_verification_report(event.canonical_title)
         )
@@ -668,6 +669,17 @@ def _is_low_signal_exchange_share_purchase_agreement_material(title: str, event:
     return (
         "收购股权" in title
         and "股份购买协议" in title
+        and not any(keyword in title for keyword in LOW_SIGNAL_EXCHANGE_RESTRUCTURING_RESULT_KEYWORDS)
+    )
+
+
+def _is_low_signal_exchange_shareholder_agreement_supplement_material(title: str, event: Event) -> bool:
+    if event.source not in {"sse", "szse"}:
+        return False
+
+    return (
+        "股东协议" in title
+        and "补充协议" in title
         and not any(keyword in title for keyword in LOW_SIGNAL_EXCHANGE_RESTRUCTURING_RESULT_KEYWORDS)
     )
 
