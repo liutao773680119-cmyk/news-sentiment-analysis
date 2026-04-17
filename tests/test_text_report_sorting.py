@@ -1432,6 +1432,38 @@ def test_write_text_report_filters_domestic_futures_roundup_variant_fast_news(tm
     assert "国内商品期货多数收跌 液化气跌停" not in content
 
 
+def test_write_text_report_filters_domestic_futures_main_contract_roundup_variant(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-fast-domestic-futures-main-contract-roundup",
+            first_seen_at="2026-04-17T15:06:31+08:00",
+            last_seen_at="2026-04-17T15:06:31+08:00",
+            canonical_title="国内商品期货主力合约涨多跌少 集运欧线涨超6%",
+            summary="人民财讯4月17日电，国内商品期货主力合约涨多跌少，集运欧线涨超6%。",
+            source="stcn",
+            published_at="2026-04-17T15:06:31+08:00",
+            url="https://example.com/domestic-futures-main-contract-roundup",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-fast-domestic-futures-main-contract-roundup",
+            direction="neutral",
+            impact_score=74.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国内商品期货主力合约涨多跌少 集运欧线涨超6%" not in content
+
+
 def test_write_text_report_filters_broker_allocation_commentary_fast_news(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
