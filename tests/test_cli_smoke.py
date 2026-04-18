@@ -23,6 +23,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "boe",
         "boc_press",
         "boj",
+        "bis",
         "cls",
         "cninfo",
         "csrc",

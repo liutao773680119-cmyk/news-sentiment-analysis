@@ -1,4 +1,13 @@
 sources:
+  - id: bis
+    name: BIS新闻稿
+    type: policy
+    enabled: false
+    priority: 88
+    timeout_seconds: 10
+    user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0
   - id: boj
     name: 日本银行货币政策
     type: policy

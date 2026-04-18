@@ -1,3 +1,4 @@
+from news_sentiment.collectors.bis import collect_bis_news, parse_bis_press_feed
 from news_sentiment.collectors.boj import collect_boj_news, parse_boj_policy_feed
 from news_sentiment.collectors.boc_press import collect_boc_press_news, parse_boc_press_feed
 from news_sentiment.collectors.boe import collect_boe_news, parse_boe_news_feed
@@ -27,6 +28,7 @@ from news_sentiment.collectors.szse import collect_szse_news, parse_szse_news_pa
 
 REGISTERED_COLLECTORS = {
     "fixture": collect_fixture_news,
+    "bis": collect_bis_news,
     "boj": collect_boj_news,
     "boc_press": collect_boc_press_news,
     "boe": collect_boe_news,
@@ -54,6 +56,7 @@ def get_registered_collectors():
 
 __all__ = [
     "CollectFailure",
+    "collect_bis_news",
     "collect_boj_news",
     "collect_boc_press_news",
     "collect_cls_news",
@@ -78,6 +81,7 @@ __all__ = [
     "CollectorError",
     "CollectorFetchError",
     "CollectorParseError",
+    "parse_bis_press_feed",
     "parse_boj_policy_feed",
     "parse_boc_press_feed",
     "parse_boe_news_feed",

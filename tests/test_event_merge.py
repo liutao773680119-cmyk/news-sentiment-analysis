@@ -234,6 +234,35 @@ def test_merge_news_items_does_not_merge_fedreg_sec_documents_by_character_overl
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_bis_press_releases_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="bis-1",
+            source="bis",
+            source_type="policy",
+            published_at="2026-04-16T12:47:00+00:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="CPMI-IOSCO assesses that the United Kingdom has implemented the Principles for financial market infrastructures for two FMI types, but recommends some improvements",
+            content="The UK's framework is complete and consistent with the PFMI in most aspects.",
+            url="https://www.bis.org/press/p260416.htm",
+        ),
+        NormalizedNews(
+            news_id="bis-2",
+            source="bis",
+            source_type="policy",
+            published_at="2026-03-27T09:03:00+00:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="BIS extends term for John Williams as Chair of the Markets Committee",
+            content="John C. Williams is to continue as Chair of the Markets Committee.",
+            url="https://www.bis.org/press/p260327.htm",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(
