@@ -307,6 +307,14 @@ LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS = (
     "Articles of Association",
     "List of Directors and their Roles and Functions",
 )
+LOW_SIGNAL_HKEX_GOVERNANCE_MATERIAL_KEYWORDS = (
+    "General Mandates",
+    "Re-election of Directors",
+    "Notice of Annual General Meeting",
+    "Annual General Meeting",
+    "Re-appointment of Auditor",
+    "Articles of Association",
+)
 LOW_SIGNAL_EXCHANGE_OPERATIONAL_DISCLOSURE_KEYWORDS = (
     "销售情况简报",
     "获得房地产项目",
@@ -611,8 +619,10 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
         return any(keyword in text for keyword in LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS)
 
     if event.event_subtype == "acquisition_restructuring":
-        return any(keyword in text for keyword in LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS) or (
-            _is_low_signal_exchange_share_purchase_agreement_material(event.canonical_title, event)
+        return (
+            any(keyword in text for keyword in LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS)
+            or _is_low_signal_exchange_share_purchase_agreement_material(event.canonical_title, event)
+            or _is_low_signal_hkex_compound_governance_transaction_material(event.canonical_title, event)
         )
 
     if event.event_subtype == "order_contract":
@@ -669,6 +679,22 @@ def _is_low_signal_repeated_delisting_risk_notice(title: str) -> bool:
 def _is_low_signal_hkex_disclosure_title(title: str) -> bool:
     normalized_title = title.lower()
     return any(keyword.lower() in normalized_title for keyword in LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS)
+
+
+def _is_low_signal_hkex_compound_governance_transaction_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    if "continuing connected transaction" not in normalized_title:
+        return False
+
+    matched_governance_keywords = sum(
+        1
+        for keyword in LOW_SIGNAL_HKEX_GOVERNANCE_MATERIAL_KEYWORDS
+        if keyword.lower() in normalized_title
+    )
+    return matched_governance_keywords >= 2
 
 
 def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> bool:

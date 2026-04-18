@@ -6079,6 +6079,60 @@ def test_write_text_report_keeps_hkex_transaction_catalyst_while_filtering_gover
     assert "NOTICE OF ANNUAL GENERAL MEETING" not in content
 
 
+def test_write_text_report_filters_hkex_compound_governance_transaction_material_without_hiding_pure_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-compound-governance-transaction-material",
+            first_seen_at="2026-04-17T22:48:00+08:00",
+            last_seen_at="2026-04-17T22:48:00+08:00",
+            canonical_title="(1) RENEWAL OF EXISTING CONTINUING CONNECTED TRANSACTIONS; (2) PROPOSED GRANT OF GENERAL MANDATES TO ISSUE AND REPURCHASE SHARES; (3) RE-ELECTION OF RETIRING DIRECTORS; (4) RE-APPOINTMENT OF AUDITOR; AND NOTICE OF ANNUAL GENERAL MEETING",
+            summary="(1) RENEWAL OF EXISTING CONTINUING CONNECTED TRANSACTIONS; (2) PROPOSED GRANT OF GENERAL MANDATES TO ISSUE AND REPURCHASE SHARES; (3) RE-ELECTION OF RETIRING DIRECTORS; (4) RE-APPOINTMENT OF AUDITOR; AND NOTICE OF ANNUAL GENERAL MEETING",
+            source="hkex",
+            published_at="2026-04-17T22:48:00+08:00",
+            url="https://example.com/hkex-compound-governance-transaction-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-pure-transaction-keep",
+            first_seen_at="2026-04-17T22:55:00+08:00",
+            last_seen_at="2026-04-17T22:55:00+08:00",
+            canonical_title="DISCLOSEABLE TRANSACTION - PROVISION OF LOAN",
+            summary="DISCLOSEABLE TRANSACTION - PROVISION OF LOAN",
+            source="hkex",
+            published_at="2026-04-17T22:55:00+08:00",
+            url="https://example.com/hkex-pure-transaction-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-compound-governance-transaction-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-pure-transaction-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "DISCLOSEABLE TRANSACTION - PROVISION OF LOAN" in content
+    assert "RENEWAL OF EXISTING CONTINUING CONNECTED TRANSACTIONS" not in content
+
+
 def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_announcements(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
