@@ -9001,6 +9001,42 @@ def test_write_text_report_filters_sse_einteractive_investor_complaint_and_repor
             event_type="fast_news",
             event_subtype="market_move",
         ),
+        Event(
+            event_id="event-sse-einteractive-disclosure-fallback",
+            first_seen_at="2026-04-17T18:22:00+08:00",
+            last_seen_at="2026-04-17T18:22:00+08:00",
+            canonical_title="贵州燃气：您好！贵州燃气公司有氢燃料或相关技术储备吗？",
+            summary="问题：贵州燃气公司有氢燃料或相关技术储备吗？\n回复：尊敬的投资者您好，感谢您对公司的关注！在“双碳”背景下，公司积极响应国家政策，具体请关注公司定期报告及有关公告，谢谢！",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:22:00+08:00",
+            url="https://example.com/sse-einteractive-disclosure-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-annual-report-fallback",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="*ST星农：会不会出非标审计报告？",
+            summary="问题：会不会出非标审计报告？\n回复：尊敬的投资者您好，最终审计意见以2025年年度报告披露为准，感谢您的关注。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-annual-report-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-undisclosed-info-fallback",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="山东出版：尊敬的董秘您好，近日公司股价突发性暴跌超过15%，公司是否有未公告潜在重大利空?",
+            summary="问题：近日公司股价突发性暴跌超过15%，是否有未公告潜在重大利空？\n回复：尊敬的投资者您好，公司不存在应披露而未披露的信息，感谢您的关注。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-undisclosed-info-fallback",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
     ]
     analyses = [
         EventAnalysis(event_id="event-sse-einteractive-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
@@ -9008,6 +9044,9 @@ def test_write_text_report_filters_sse_einteractive_investor_complaint_and_repor
         EventAnalysis(event_id="event-sse-einteractive-keep-substantive", direction="bullish", impact_score=99.9, reasoning="rule", themes=["商业航天", "新能源车"], triggered=True),
         EventAnalysis(event_id="event-sse-einteractive-buyback-rule-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-sse-einteractive-plunge-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-disclosure-fallback", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-annual-report-fallback", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-undisclosed-info-fallback", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
@@ -9016,6 +9055,9 @@ def test_write_text_report_filters_sse_einteractive_investor_complaint_and_repor
     assert "2026年1季度报告什么时候发布" not in content
     assert "强烈要求公司回购的股份进行注销" not in content
     assert "股价突发性暴跌超过15%" not in content
+    assert "贵州燃气公司有氢燃料或相关技术储备吗" not in content
+    assert "会不会出非标审计报告" not in content
+    assert "是否有未公告潜在重大利空" not in content
     assert "聚合顺：你好，我司年报中提及我司高端复合尼龙新材料应用于商业航天" in content
 
 
