@@ -88,4 +88,4 @@ def test_collect_fedreg_sec_news_raises_parse_error_on_unmatched_payload(monkeyp
 def test_fedreg_sec_source_definition_is_registered() -> None:
     source = load_source_definition_map()["fedreg_sec"]
     assert source.source_type == "policy"
-    assert source.enabled is False
+    assert source.enabled is True

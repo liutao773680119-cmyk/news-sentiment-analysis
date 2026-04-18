@@ -11,7 +11,7 @@ sources:
   - id: boj
     name: 日本银行货币政策
     type: policy
-    enabled: false
+    enabled: true
     priority: 89
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
@@ -20,7 +20,7 @@ sources:
   - id: boc_press
     name: 加拿大央行新闻稿
     type: policy
-    enabled: false
+    enabled: true
     priority: 88
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
@@ -29,7 +29,7 @@ sources:
   - id: boe
     name: 英国央行新闻稿
     type: policy
-    enabled: false
+    enabled: true
     priority: 88
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
@@ -56,7 +56,7 @@ sources:
   - id: ecb
     name: 欧洲央行新闻稿
     type: policy
-    enabled: false
+    enabled: true
     priority: 89
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
@@ -92,7 +92,7 @@ sources:
   - id: fedreg_sec
     name: Federal Register SEC
     type: policy
-    enabled: false
+    enabled: true
     priority: 86
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
