@@ -17,6 +17,15 @@ sources:
     user_agent: news-sentiment-mvp/0.1
     retry_count: 2
     backoff_seconds: 1.0
+  - id: ecb
+    name: 欧洲央行新闻稿
+    type: policy
+    enabled: false
+    priority: 89
+    timeout_seconds: 10
+    user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0
   - id: eia_wpsr
     name: EIA石油周报
     type: fast_news

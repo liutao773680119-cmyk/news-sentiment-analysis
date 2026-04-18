@@ -23,6 +23,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "cls",
         "cninfo",
         "csrc",
+        "ecb",
         "eia_gasdiesel",
         "eia_wpsr",
         "fed",

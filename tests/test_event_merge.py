@@ -89,6 +89,35 @@ def test_merge_news_items_does_not_merge_fed_monetary_updates_by_character_overl
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_ecb_press_releases_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="ecb-1",
+            source="ecb",
+            source_type="policy",
+            published_at="2026-04-14T11:00:00+02:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="ECB Governing Council urges Single Market boost to strengthen bank competitiveness",
+            content="ECB Governing Council urges Single Market boost to strengthen bank competitiveness",
+            url="https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.pr260414~ad43db8bb6.en.html",
+        ),
+        NormalizedNews(
+            news_id="ecb-2",
+            source="ecb",
+            source_type="policy",
+            published_at="2026-03-31T10:00:00+02:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Eurosystem sets out comprehensive strategy for future of European payments",
+            content="Eurosystem sets out comprehensive strategy for future of European payments",
+            url="https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.pr260331~04561d8476.en.html",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(

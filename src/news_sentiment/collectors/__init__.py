@@ -1,6 +1,7 @@
 from news_sentiment.collectors.cls import collect_cls_news, parse_cls_telegraph_html
 from news_sentiment.collectors.cninfo import collect_cninfo_news, parse_cninfo_news_list
 from news_sentiment.collectors.csrc import collect_csrc_news, parse_csrc_news_list
+from news_sentiment.collectors.ecb import collect_ecb_news, parse_ecb_press_feed
 from news_sentiment.collectors.eia_gasdiesel import collect_eia_gasdiesel_news, parse_eia_gasdiesel_feed
 from news_sentiment.collectors.eia_wpsr import collect_eia_wpsr_news, parse_eia_wpsr_release
 from news_sentiment.collectors.errors import (
@@ -25,6 +26,7 @@ REGISTERED_COLLECTORS = {
     "cls": collect_cls_news,
     "csrc": collect_csrc_news,
     "cninfo": collect_cninfo_news,
+    "ecb": collect_ecb_news,
     "eia_gasdiesel": collect_eia_gasdiesel_news,
     "eia_wpsr": collect_eia_wpsr_news,
     "fed": collect_fed_news,
@@ -47,6 +49,7 @@ __all__ = [
     "collect_cls_news",
     "collect_cninfo_news",
     "collect_csrc_news",
+    "collect_ecb_news",
     "collect_eia_gasdiesel_news",
     "collect_eia_wpsr_news",
     "collect_fed_news",
@@ -66,6 +69,7 @@ __all__ = [
     "parse_cls_telegraph_html",
     "parse_cninfo_news_list",
     "parse_csrc_news_list",
+    "parse_ecb_press_feed",
     "parse_eia_gasdiesel_feed",
     "parse_eia_wpsr_release",
     "parse_fed_press_feed",
