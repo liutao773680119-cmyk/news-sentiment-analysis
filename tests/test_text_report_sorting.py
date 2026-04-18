@@ -8936,6 +8936,89 @@ def test_write_text_report_filters_irm_cninfo_investor_complaint_and_shareholder
     assert "TCL中环：董秘您好：公司拥有大量BC核心专利" in content
 
 
+def test_write_text_report_filters_sse_einteractive_investor_complaint_and_report_calendar_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-einteractive-complaint",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="有友食品：尊敬的董秘，近期贵公司市值持续下跌且遭受315的风波冲击，贵公司是否考虑回购注销一定量的股票来增强市场投资者的信心，请您回复谢谢。",
+            summary="问题：近期贵公司市值持续下跌，是否考虑回购注销股票增强投资者信心？\n回复：公司将始终聚焦主业经营，切实维护全体股东权益。感谢您的关注。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-complaint",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-einteractive-report-calendar",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="豫园股份：董秘您好，请问贵公司2026年1季度报告什么时候发布，谢谢",
+            summary="问题：请问贵公司2026年1季度报告什么时候发布？\n回复：公司已于4月17日在上交所网站披露了2026年第一季度报告，感谢您对公司的关注。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-report-calendar",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-keep-substantive",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="聚合顺：你好，我司年报中提及我司高端复合尼龙新材料应用于商业航天，新能源汽车电池等应用场景，请问为何我司产品可应用到以上场景？",
+            summary="问题：我司高端复合尼龙新材料为何可应用于商业航天和新能源汽车电池场景？\n回复：公司产品经下游企业改性技术后，可在商业航天和新能源汽车相关场景提供轻量化与耐化学性支持。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-keep-substantive",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-einteractive-buyback-rule-complaint",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="豫园股份：根据上市公司股份回购规则《上海证券交易所自律监管指引第7号-回购股份》等相关规定为维护公司价值及股东权益所必需回购情形，应当符合以下条件公司股票收盘价格低于最近一期每股净资产连续二十个交易日内公司股票收盘价格跌幅累计达到百分之二十公司股票收盘价格低于最近一年股票最高收盘价格的百分之五十中国证监会规定的其他条件公司股价低于每股净资产严重损害到全体股东利益为维护全体股东权益强烈要求公司回购的股份进行注销",
+            summary="问题：根据上交所回购规则，强烈要求公司回购注销股份。\n回复：尊敬的投资者，您好！您的建议已收悉，公司将严格按照监管规则审慎评估。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-buyback-rule-complaint",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+        Event(
+            event_id="event-sse-einteractive-plunge-complaint",
+            first_seen_at="2026-04-17T18:21:00+08:00",
+            last_seen_at="2026-04-17T18:21:00+08:00",
+            canonical_title="山东出版：尊敬的董秘您好，近日公司股价突发性暴跌超过15%，公司是否有未公告潜在重大利空?面对打压，公司不作为也是在默许或配合了资本市场玩家，为什么不及时澄清?",
+            summary="问题：近日公司股价突发性暴跌超过15%，是否有未公告潜在重大利空？\n回复：尊敬的投资者您好，公司不存在应披露未披露事项，感谢您的关注。",
+            source="sse_einteractive",
+            published_at="2026-04-17T18:21:00+08:00",
+            url="https://example.com/sse-einteractive-plunge-complaint",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-sse-einteractive-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-report-calendar", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-keep-substantive", direction="bullish", impact_score=99.9, reasoning="rule", themes=["商业航天", "新能源车"], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-buyback-rule-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-plunge-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "近期贵公司市值持续下跌" not in content
+    assert "2026年1季度报告什么时候发布" not in content
+    assert "强烈要求公司回购的股份进行注销" not in content
+    assert "股价突发性暴跌超过15%" not in content
+    assert "聚合顺：你好，我司年报中提及我司高端复合尼龙新材料应用于商业航天" in content
+
+
 def test_write_text_report_filters_current_live_restructuring_impairment_audit_report_without_hiding_revocation(
     tmp_path,
 ) -> None:

@@ -521,6 +521,16 @@ LOW_SIGNAL_IRM_CNINFO_INVESTOR_QA_COMPLAINT_KEYWORDS = (
     "连续下跌",
     "跟上同行步伐",
 )
+LOW_SIGNAL_SSE_EINTERACTIVE_INVESTOR_QA_TITLE_KEYWORDS = ("股东人数", "什么时候发布")
+LOW_SIGNAL_SSE_EINTERACTIVE_INVESTOR_QA_COMPLAINT_KEYWORDS = (
+    "市值持续下跌",
+    "市值管理",
+    "投资者信心",
+    "回购注销",
+    "315",
+    "未公告潜在重大利空",
+    "及时澄清",
+)
 
 
 def _parse_event_timestamp(event: Event) -> datetime | None:
@@ -587,6 +597,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_cls_science_feature_story(event, text):
         return False
     if _is_low_signal_irm_cninfo_investor_qa(event, text):
+        return False
+    if _is_low_signal_sse_einteractive_investor_qa(event, text):
         return False
     if analysis.themes:
         return True
@@ -1110,6 +1122,33 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("市值管理" in text and "投资者信心" in text)
         or ("股价" in text and "稳定投资者信心" in text)
         or ("股价" in text and "跟上同行步伐" in text)
+    )
+
+
+def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool:
+    if not (event.source == "sse_einteractive" and event.event_type == "fast_news"):
+        return False
+
+    title = event.canonical_title
+    if "报告" in title and any(keyword in title for keyword in LOW_SIGNAL_SSE_EINTERACTIVE_INVESTOR_QA_TITLE_KEYWORDS):
+        return True
+    if "股东人数" in title:
+        return True
+    if "自律监管指引第7号-回购股份" in text and "您的意见我们已收悉" in text:
+        return True
+    if "回购的股份进行注销" in text and "您的意见我们已收悉" in text:
+        return True
+
+    return (
+        ("股价" in text and "投资者信心" in text)
+        or ("股价" in text and "回购注销" in text)
+        or ("市值持续下跌" in text and "315" in text)
+        or ("市值管理" in text and "股价" in text)
+        or ("回购注销" in text and "感谢您的关注" in text)
+        or ("股价突发性暴跌" in text and "未公告潜在重大利空" in text)
+        or ("股价突发性暴跌" in text and "及时澄清" in text)
+        or any(keyword in text for keyword in LOW_SIGNAL_SSE_EINTERACTIVE_INVESTOR_QA_COMPLAINT_KEYWORDS[:4])
+        and "股价" in text
     )
 
 
