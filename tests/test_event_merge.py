@@ -118,6 +118,35 @@ def test_merge_news_items_does_not_merge_ecb_press_releases_by_character_overlap
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_boe_news_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="boe-1",
+            source="boe",
+            source_type="policy",
+            published_at="2026-04-13T11:00:00+01:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Bank of England enhances resolution readiness with updated operational guides",
+            content="The Bank of England has today published new and updated guidance on how the Bank might implement the UK’s resolution regime in the event of a bank failure.",
+            url="https://www.bankofengland.co.uk/news/2026/april/boe-enhances-resolution-readiness-with-updated-operational-guides",
+        ),
+        NormalizedNews(
+            news_id="boe-2",
+            source="boe",
+            source_type="policy",
+            published_at="2026-04-02T09:30:00+01:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Changes to publication dates of the Decision Maker Panel data and Agents’ summary of business conditions",
+            content="We are changing the publication dates of the Decision Maker Panel and Agents’ summary of business conditions so that they no longer fall on the same day as publication of the Monetary Policy Report.",
+            url="https://www.bankofengland.co.uk/news/2026/april/changes-to-publication-dates-of-the-decision-maker-panel-data-and-agents-summary",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(

@@ -20,6 +20,7 @@ def test_parser_exposes_expected_commands() -> None:
 def test_registered_collectors_expose_expected_sources() -> None:
     assert {
         "fixture",
+        "boe",
         "cls",
         "cninfo",
         "csrc",
