@@ -27,6 +27,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "irm_cninfo",
         "miit",
         "sse",
+        "sse_einteractive",
         "stcn",
         "szse",
     } <= set(get_registered_collectors())
