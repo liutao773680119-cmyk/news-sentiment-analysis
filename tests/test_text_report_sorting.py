@@ -8881,6 +8881,61 @@ def test_write_text_report_filters_current_live_asset_valuation_and_governance_m
     assert "华测导航：关于开展供应链融资业务合作暨对外担保的公告" in content
 
 
+def test_write_text_report_filters_irm_cninfo_investor_complaint_and_shareholder_count_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-shareholder-count",
+            first_seen_at="2026-04-17T21:57:33+08:00",
+            last_seen_at="2026-04-17T21:57:33+08:00",
+            canonical_title="TCL中环：请问截止4月10日股东人数是多少？",
+            summary="问题：请问截止4月10日股东人数是多少？\n回复：您好，截至3月31日，公司普通股股东总数约为28.9万，感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-17T21:57:33+08:00",
+            url="https://example.com/irm-shareholder-count",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-market-cap-complaint",
+            first_seen_at="2026-04-17T21:54:03+08:00",
+            last_seen_at="2026-04-17T21:54:03+08:00",
+            canonical_title="TCL中环：尊敬的TCL中环管理层：当前公司股价持续承压，而隆基、爱旭等同行已通过积极举措带动股价回暖。股价关乎公司口碑、员工士气、市场形象、融资授信和政府观感，政府、银行和客户看到这种K线图，谁还愿意给低成本融资和长期订单？股价也是社会各界对管理层能力的直观评价。希望各位正视行业差距，拿出切实的市值管理行动，稳定投资者信心，跟上同行步伐。",
+            summary="问题：当前公司股价持续承压，希望管理层拿出切实的市值管理行动。\n回复：公司会持续做好经营管理并加强沟通，感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-17T21:54:03+08:00",
+            url="https://example.com/irm-market-cap-complaint",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-reply",
+            first_seen_at="2026-04-17T21:47:03+08:00",
+            last_seen_at="2026-04-17T21:47:03+08:00",
+            canonical_title="TCL中环：董秘您好：公司拥有大量BC核心专利，但尚未形成规模化、高盈利的BC量产能力。请问当前BC技术在专利授权、技术合作、量产落地方面的真实进展如何？",
+            summary="问题：请问当前BC技术在量产落地方面的真实进展如何？\n回复：公司已围绕BC技术完成多项专利布局，并推进重点客户验证与量产准备。",
+            source="irm_cninfo",
+            published_at="2026-04-17T21:47:03+08:00",
+            url="https://example.com/irm-keep-substantive-reply",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-shareholder-count", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-market-cap-complaint", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-reply", direction="bullish", impact_score=75.2, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "TCL中环：请问截止4月10日股东人数是多少？" not in content
+    assert "当前公司股价持续承压" not in content
+    assert "TCL中环：董秘您好：公司拥有大量BC核心专利" in content
+
+
 def test_write_text_report_filters_current_live_restructuring_impairment_audit_report_without_hiding_revocation(
     tmp_path,
 ) -> None:

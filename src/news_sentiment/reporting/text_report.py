@@ -513,6 +513,14 @@ LOW_SIGNAL_MIIT_POLICY_SUPERVISION_BODY_KEYWORDS = (
     "统计数据质量",
     "从严从实推进督察反馈问题整改",
 )
+LOW_SIGNAL_IRM_CNINFO_INVESTOR_QA_TITLE_KEYWORDS = ("股东人数",)
+LOW_SIGNAL_IRM_CNINFO_INVESTOR_QA_COMPLAINT_KEYWORDS = (
+    "股价持续承压",
+    "市值管理",
+    "稳定投资者信心",
+    "连续下跌",
+    "跟上同行步伐",
+)
 
 
 def _parse_event_timestamp(event: Event) -> datetime | None:
@@ -577,6 +585,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_cls_general_fast_news_market_brief(event):
         return False
     if _is_low_signal_cls_science_feature_story(event, text):
+        return False
+    if _is_low_signal_irm_cninfo_investor_qa(event, text):
         return False
     if analysis.themes:
         return True
@@ -1082,6 +1092,24 @@ def _is_low_signal_miit_policy_supervision_feedback(
     title = event.canonical_title
     return any(keyword in title for keyword in LOW_SIGNAL_MIIT_POLICY_SUPERVISION_TITLE_KEYWORDS) and any(
         keyword in text for keyword in LOW_SIGNAL_MIIT_POLICY_SUPERVISION_BODY_KEYWORDS
+    )
+
+
+def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
+    if not (event.source == "irm_cninfo" and event.event_type == "fast_news"):
+        return False
+
+    title = event.canonical_title
+    if any(keyword in title for keyword in LOW_SIGNAL_IRM_CNINFO_INVESTOR_QA_TITLE_KEYWORDS):
+        return True
+
+    return (
+        "股价持续承压" in text
+        or ("股价" in text and "市值管理" in text)
+        or ("连续下跌" in text and "市值管理" in text)
+        or ("市值管理" in text and "投资者信心" in text)
+        or ("股价" in text and "稳定投资者信心" in text)
+        or ("股价" in text and "跟上同行步伐" in text)
     )
 
 
