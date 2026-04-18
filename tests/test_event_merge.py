@@ -176,6 +176,35 @@ def test_merge_news_items_does_not_merge_boc_press_releases_by_character_overlap
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_boj_policy_documents_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="boj-1",
+            source="boj",
+            source_type="policy",
+            published_at="2026-03-30T08:50:00+09:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="金融政策決定会合における主な意見（3月18、19日開催分）",
+            content="金融政策決定会合における主な意見（3月18、19日開催分）",
+            url="http://www.boj.or.jp/mopo/mpmsche_minu/opinion_2026/opi260319.pdf",
+        ),
+        NormalizedNews(
+            news_id="boj-2",
+            source="boj",
+            source_type="policy",
+            published_at="2026-03-25T08:50:00+09:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="金融政策決定会合議事要旨（1月22、23日開催分）",
+            content="金融政策決定会合議事要旨（1月22、23日開催分）",
+            url="http://www.boj.or.jp/mopo/mpmsche_minu/minu_2026/g260123.pdf",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(
