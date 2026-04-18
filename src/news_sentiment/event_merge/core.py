@@ -152,7 +152,7 @@ def _is_similar(left: str, right: str) -> bool:
 
 
 def _should_merge(left: NormalizedNews, right: NormalizedNews) -> bool:
-    if left.source in {"hkex", "fed", "ecb", "boe", "boc_press", "boj"} or right.source in {"hkex", "fed", "ecb", "boe", "boc_press", "boj"}:
+    if left.source in {"hkex", "fed", "ecb", "boe", "boc_press", "boj", "fedreg_sec"} or right.source in {"hkex", "fed", "ecb", "boe", "boc_press", "boj", "fedreg_sec"}:
         return _is_same_market_move_asset(left, right) or _is_same_structured_catalyst(left, right)
 
     if _is_similar(left.title, right.title):

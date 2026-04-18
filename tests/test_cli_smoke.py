@@ -30,6 +30,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "eia_gasdiesel",
         "eia_wpsr",
         "fed",
+        "fedreg_sec",
         "hkex",
         "irm_cninfo",
         "miit",

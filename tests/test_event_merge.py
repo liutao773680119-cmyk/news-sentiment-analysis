@@ -205,6 +205,35 @@ def test_merge_news_items_does_not_merge_boj_policy_documents_by_character_overl
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_fedreg_sec_documents_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="fedreg-1",
+            source="fedreg_sec",
+            source_type="policy",
+            published_at="2026-04-20T00:00:00+00:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Concept Release on Consolidated Audit Trail and Other Audit Trails and Data Sources",
+            content="Type: Proposed Rule\nAbstract: The Securities and Exchange Commission is publishing this concept release.",
+            url="https://www.federalregister.gov/documents/2026/04/20/2026-07651/concept-release-on-consolidated-audit-trail-and-other-audit-trails-and-data-sources",
+        ),
+        NormalizedNews(
+            news_id="fedreg-2",
+            source="fedreg_sec",
+            source_type="policy",
+            published_at="2026-04-20T00:00:00+00:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Sunshine Act Meetings",
+            content="Type: Notice",
+            url="https://www.federalregister.gov/documents/2026/04/20/2026-07650/sunshine-act-meetings",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(

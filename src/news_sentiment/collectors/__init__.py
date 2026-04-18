@@ -15,6 +15,7 @@ from news_sentiment.collectors.errors import (
     CollectorParseError,
 )
 from news_sentiment.collectors.fed import collect_fed_news, parse_fed_press_feed
+from news_sentiment.collectors.fedreg_sec import collect_fedreg_sec_news, parse_fedreg_sec_payload
 from news_sentiment.collectors.fixtures import collect_fixture_news
 from news_sentiment.collectors.hkex import collect_hkex_news, parse_hkex_news_payload
 from news_sentiment.collectors.irm_cninfo import collect_irm_cninfo_news, parse_irm_cninfo_homepage
@@ -36,6 +37,7 @@ REGISTERED_COLLECTORS = {
     "eia_gasdiesel": collect_eia_gasdiesel_news,
     "eia_wpsr": collect_eia_wpsr_news,
     "fed": collect_fed_news,
+    "fedreg_sec": collect_fedreg_sec_news,
     "hkex": collect_hkex_news,
     "irm_cninfo": collect_irm_cninfo_news,
     "miit": collect_miit_news,
@@ -62,6 +64,7 @@ __all__ = [
     "collect_eia_gasdiesel_news",
     "collect_eia_wpsr_news",
     "collect_fed_news",
+    "collect_fedreg_sec_news",
     "collect_fixture_news",
     "collect_hkex_news",
     "collect_irm_cninfo_news",
@@ -85,6 +88,7 @@ __all__ = [
     "parse_eia_gasdiesel_feed",
     "parse_eia_wpsr_release",
     "parse_fed_press_feed",
+    "parse_fedreg_sec_payload",
     "parse_hkex_news_payload",
     "parse_irm_cninfo_homepage",
     "parse_miit_news_list",
