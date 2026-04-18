@@ -8,6 +8,7 @@ from news_sentiment.collectors.errors import (
     CollectorFetchError,
     CollectorParseError,
 )
+from news_sentiment.collectors.fed import collect_fed_news, parse_fed_press_feed
 from news_sentiment.collectors.fixtures import collect_fixture_news
 from news_sentiment.collectors.hkex import collect_hkex_news, parse_hkex_news_payload
 from news_sentiment.collectors.irm_cninfo import collect_irm_cninfo_news, parse_irm_cninfo_homepage
@@ -22,6 +23,7 @@ REGISTERED_COLLECTORS = {
     "cls": collect_cls_news,
     "csrc": collect_csrc_news,
     "cninfo": collect_cninfo_news,
+    "fed": collect_fed_news,
     "hkex": collect_hkex_news,
     "irm_cninfo": collect_irm_cninfo_news,
     "miit": collect_miit_news,
@@ -41,6 +43,7 @@ __all__ = [
     "collect_cls_news",
     "collect_cninfo_news",
     "collect_csrc_news",
+    "collect_fed_news",
     "collect_fixture_news",
     "collect_hkex_news",
     "collect_irm_cninfo_news",
@@ -57,6 +60,7 @@ __all__ = [
     "parse_cls_telegraph_html",
     "parse_cninfo_news_list",
     "parse_csrc_news_list",
+    "parse_fed_press_feed",
     "parse_hkex_news_payload",
     "parse_irm_cninfo_homepage",
     "parse_miit_news_list",

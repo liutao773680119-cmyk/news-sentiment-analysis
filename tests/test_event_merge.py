@@ -60,6 +60,35 @@ def test_merge_news_items_prefers_more_authoritative_source_metadata() -> None:
     assert events[0].event_subtype == "cooperation_agreement"
 
 
+def test_merge_news_items_does_not_merge_fed_monetary_updates_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="fed-1",
+            source="fed",
+            source_type="policy",
+            published_at="2026-04-14T18:00:00+00:00",
+            captured_at="2026-04-18T01:48:33+00:00",
+            title="Minutes of the Board’s discount rate meetings on February 9 and March 18, 2026",
+            content="Category: Monetary Policy\nSummary: Minutes of the Board’s discount rate meetings on February 9 and March 18, 2026",
+            url="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260414a.htm",
+        ),
+        NormalizedNews(
+            news_id="fed-2",
+            source="fed",
+            source_type="policy",
+            published_at="2026-04-08T18:00:00+00:00",
+            captured_at="2026-04-18T01:48:33+00:00",
+            title="Minutes of the Federal Open Market Committee, March 17–18, 2026",
+            content="Category: Monetary Policy\nSummary: Minutes of the Federal Open Market Committee, March 17–18, 2026",
+            url="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260408a.htm",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(
