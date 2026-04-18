@@ -396,6 +396,12 @@ def _is_industry_data_fast_news(text: str) -> bool:
     if _contains_any(text, ("周活跃用户", "月活跃用户", "WAU", "MAU", "数据显示")):
         return True
 
+    if _contains_any(text, ("库存", "较前周")) and _contains_any(
+        text,
+        ("原油", "汽油", "馏分油", "柴油"),
+    ):
+        return True
+
     if _contains_any(text, ("模型调用排行榜", "调用量")) and _contains_any(
         text,
         ("日榜", "Token", "排行榜"),

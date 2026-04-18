@@ -23,6 +23,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "cls",
         "cninfo",
         "csrc",
+        "eia_wpsr",
         "fed",
         "hkex",
         "irm_cninfo",

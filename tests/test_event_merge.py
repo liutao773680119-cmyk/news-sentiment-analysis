@@ -878,6 +878,26 @@ def test_merge_news_items_classifies_model_usage_rank_fast_news_subtype() -> Non
     assert events[0].event_subtype == "industry_data"
 
 
+def test_merge_news_items_classifies_eia_inventory_weekly_report_as_industry_data() -> None:
+    items = [
+        NormalizedNews(
+            news_id="eia-1",
+            source="eia_wpsr",
+            source_type="fast_news",
+            published_at="2026-04-15T10:30:00-04:00",
+            captured_at="2026-04-18T01:56:35+00:00",
+            title="EIA周报 美国商业原油库存减少0.913百万桶 汽油库存减少6.328百万桶 馏分油库存减少3.123百万桶",
+            content="数据截至 2026-04-10；报告日期 2026-04-15。美国商业原油库存 463.804 百万桶，较前周 -0.913；汽油库存 232.944 百万桶，较前周 -6.328；馏分油库存 111.559 百万桶，较前周 -3.123。来源：EIA Weekly Petroleum Status Report",
+            url="https://www.eia.gov/petroleum/supply/weekly/index.php",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "industry_data"
+
+
 def test_merge_news_items_classifies_business_guidance_fast_news_subtype() -> None:
     items = [
         NormalizedNews(

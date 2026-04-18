@@ -1,6 +1,8 @@
 from news_sentiment.analysis.scoring import score_event
+from news_sentiment.collectors.eia_wpsr import parse_eia_wpsr_release
 from news_sentiment.config_loader import load_scoring_config
-from news_sentiment.models import Event
+from news_sentiment.event_merge.core import merge_news_items
+from news_sentiment.models import Event, NormalizedNews
 
 
 def test_score_event_flags_policy_event_as_triggered() -> None:
@@ -41,6 +43,44 @@ def test_score_event_detects_rare_earth_magnet_theme_for_market_move() -> None:
     analysis = score_event(event, scoring_config=load_scoring_config())
     assert analysis.themes == ["稀土永磁"]
     assert analysis.triggered is True
+
+
+def test_score_event_keeps_eia_wpsr_as_neutral_oil_signal() -> None:
+    page_html = """
+    <html>
+      <body>
+        <span>Data for week ending Apr. 10, 2026</span>
+        <span class="responsive-container"><span class="label">Release Date:</span> <span class="date">Apr. 15, 2026</span></span>
+      </body>
+    </html>
+    """
+    table1_csv = '''"STUB_1","4/10/26","4/3/26","Difference","Percent Change"
+"Commercial (Excluding SPR)","463.804","464.717","-0.913","-0.200"
+"Total Motor Gasoline","232.944","239.272","-6.328","-2.600"
+"Distillate Fuel Oil","111.559","114.681","-3.123","-2.700"
+'''
+
+    row = parse_eia_wpsr_release(page_html, table1_csv)[0]
+    event = merge_news_items(
+        [
+            NormalizedNews(
+                news_id=row.news_id,
+                source=row.source,
+                source_type=row.source_type,
+                published_at=row.published_at,
+                captured_at=row.captured_at,
+                title=row.title,
+                content=row.content,
+                url=row.url,
+            )
+        ]
+    )[0]
+
+    analysis = score_event(event, scoring_config=load_scoring_config())
+
+    assert event.event_subtype == "industry_data"
+    assert analysis.direction == "neutral"
+    assert analysis.themes == ["油气"]
 
 
 def test_score_event_detects_compute_infra_theme_for_optical_communication_market_move() -> None:

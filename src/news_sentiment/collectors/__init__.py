@@ -1,6 +1,7 @@
 from news_sentiment.collectors.cls import collect_cls_news, parse_cls_telegraph_html
 from news_sentiment.collectors.cninfo import collect_cninfo_news, parse_cninfo_news_list
 from news_sentiment.collectors.csrc import collect_csrc_news, parse_csrc_news_list
+from news_sentiment.collectors.eia_wpsr import collect_eia_wpsr_news, parse_eia_wpsr_release
 from news_sentiment.collectors.errors import (
     CollectFailure,
     CollectorEmptyResultError,
@@ -23,6 +24,7 @@ REGISTERED_COLLECTORS = {
     "cls": collect_cls_news,
     "csrc": collect_csrc_news,
     "cninfo": collect_cninfo_news,
+    "eia_wpsr": collect_eia_wpsr_news,
     "fed": collect_fed_news,
     "hkex": collect_hkex_news,
     "irm_cninfo": collect_irm_cninfo_news,
@@ -43,6 +45,7 @@ __all__ = [
     "collect_cls_news",
     "collect_cninfo_news",
     "collect_csrc_news",
+    "collect_eia_wpsr_news",
     "collect_fed_news",
     "collect_fixture_news",
     "collect_hkex_news",
@@ -60,6 +63,7 @@ __all__ = [
     "parse_cls_telegraph_html",
     "parse_cninfo_news_list",
     "parse_csrc_news_list",
+    "parse_eia_wpsr_release",
     "parse_fed_press_feed",
     "parse_hkex_news_payload",
     "parse_irm_cninfo_homepage",
