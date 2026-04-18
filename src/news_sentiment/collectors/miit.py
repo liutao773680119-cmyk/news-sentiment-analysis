@@ -114,29 +114,6 @@ def parse_miit_article_text(html: str) -> str:
     return ""
 
 
-def fetch_miit_article_text(url: str) -> str:
-    source_definition = load_source_definition_map()["miit"]
-    html = fetch_html(
-        url,
-        timeout_seconds=source_definition.timeout_seconds,
-        user_agent=source_definition.user_agent,
-        retry_count=source_definition.retry_count,
-        backoff_seconds=source_definition.backoff_seconds,
-    )
-    return parse_miit_article_text(html)
-
-
-def enrich_miit_news_content(rows: list[RawNews]) -> list[RawNews]:
-    enriched_rows: list[RawNews] = []
-    for row in rows:
-        try:
-            article_text = fetch_miit_article_text(row.url)
-        except Exception:
-            article_text = ""
-        enriched_rows.append(replace(row, content=article_text or row.title))
-    return enriched_rows
-
-
 def collect_miit_news() -> list[RawNews]:
     try:
         html = fetch_miit_news_html()
@@ -149,4 +126,4 @@ def collect_miit_news() -> list[RawNews]:
     rows = parse_miit_news_list(html)
     if not rows:
         raise CollectorParseError("miit", "no news rows matched response")
-    return enrich_miit_news_content(rows)
+    return [replace(row, content=row.title) for row in rows]

@@ -102,4 +102,4 @@ def test_collect_eia_wpsr_news_raises_parse_error_on_unmatched_payload(monkeypat
 def test_eia_wpsr_source_definition_is_registered() -> None:
     source = load_source_definition_map()["eia_wpsr"]
     assert source.source_type == "fast_news"
-    assert source.enabled is False
+    assert source.enabled is True

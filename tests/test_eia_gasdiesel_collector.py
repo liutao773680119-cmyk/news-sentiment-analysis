@@ -103,4 +103,4 @@ def test_collect_eia_gasdiesel_news_raises_parse_error_on_unmatched_payload(monk
 def test_eia_gasdiesel_source_definition_is_registered() -> None:
     source = load_source_definition_map()["eia_gasdiesel"]
     assert source.source_type == "fast_news"
-    assert source.enabled is False
+    assert source.enabled is True

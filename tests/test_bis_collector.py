@@ -91,4 +91,4 @@ def test_collect_bis_news_raises_parse_error_on_unmatched_payload(monkeypatch) -
 def test_bis_source_definition_is_registered() -> None:
     source = load_source_definition_map()["bis"]
     assert source.source_type == "policy"
-    assert source.enabled is False
+    assert source.enabled is True

@@ -125,7 +125,7 @@ def test_collect_miit_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     assert (tmp_path / "data" / "raw" / "raw_news.jsonl").exists()
 
 
-def test_collect_miit_news_uses_article_body_as_content(monkeypatch) -> None:
+def test_collect_miit_news_uses_title_as_content_without_fetching_article_body(monkeypatch) -> None:
     list_html = """
     <ul>
       <li>
@@ -136,31 +136,15 @@ def test_collect_miit_news_uses_article_body_as_content(monkeypatch) -> None:
       </li>
     </ul>
     """
-    article_html = """
-    <html>
-      <body>
-        <div class="Custom_UnionStyle">
-          <p>工业和信息化部召开新材料领域中小企业圆桌会。</p>
-          <p>会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。</p>
-        </div>
-      </body>
-    </html>
-    """
 
     monkeypatch.setattr(
         "news_sentiment.collectors.miit.fetch_miit_news_html",
         lambda url=None: list_html,
     )
-    monkeypatch.setattr(
-        "news_sentiment.collectors.miit.fetch_html",
-        lambda url, **kwargs: article_html,
-    )
 
     rows = collect_miit_news()
     assert len(rows) == 1
-    assert rows[0].content == (
-        "工业和信息化部召开新材料领域中小企业圆桌会。 会议指出，要聚焦先进基础材料、关键战略材料、前沿新材料。"
-    )
+    assert rows[0].content == "工业和信息化部召开新材料领域中小企业圆桌会"
 
 
 def test_collect_miit_news_raises_parse_error_on_unmatched_html(monkeypatch) -> None:
@@ -176,3 +160,29 @@ def test_collect_miit_news_raises_parse_error_on_unmatched_html(monkeypatch) -> 
         assert exc.kind == "parse_error"
     else:
         raise AssertionError("Expected CollectorParseError")
+
+
+def test_collect_miit_news_does_not_fetch_article_body(monkeypatch) -> None:
+    list_html = """
+    <ul>
+      <li>
+        <a href="/xwfb/gxdt/art/2026/art_123.html" title="工信部动态">工信部动态</a>
+        <span>2026-04-01</span>
+      </li>
+    </ul>
+    """
+
+    monkeypatch.setattr(
+        "news_sentiment.collectors.miit.fetch_miit_news_html",
+        lambda url=None: list_html,
+    )
+
+    def _unexpected_fetch_html(url, **kwargs):
+        raise AssertionError("collect_miit_news should not fetch article pages")
+
+    monkeypatch.setattr("news_sentiment.collectors.miit.fetch_html", _unexpected_fetch_html)
+
+    rows = collect_miit_news()
+
+    assert len(rows) == 1
+    assert rows[0].content == rows[0].title
