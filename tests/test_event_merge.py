@@ -898,6 +898,24 @@ def test_merge_news_items_classifies_eia_inventory_weekly_report_as_industry_dat
     assert events[0].event_subtype == "industry_data"
 
 
+def test_merge_news_items_classifies_eia_gasdiesel_price_update_as_industry_data() -> None:
+    items = [
+        NormalizedNews(
+            news_id="eia-gd-1",
+            source="eia_gasdiesel",
+            source_type="fast_news",
+            published_at="2026-04-14T14:07:55-04:00",
+            captured_at="2026-04-18T02:10:00+00:00",
+            title="EIA汽柴油零售价更新 美国汽油4.123美元/加仑 美国柴油5.608美元/加仑",
+            content="美国汽油零售价 4.123 美元/加仑；美国柴油零售价 5.608 美元/加仑。来源：EIA Gasoline and Diesel Fuel Update",
+            url="http://www.eia.gov/petroleum/gasdiesel/",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "industry_data"
 def test_merge_news_items_classifies_business_guidance_fast_news_subtype() -> None:
     items = [
         NormalizedNews(
