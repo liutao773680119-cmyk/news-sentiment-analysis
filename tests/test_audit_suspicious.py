@@ -253,6 +253,18 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
                 event_type="hard_event",
                 event_subtype="corporate_disclosure",
             ),
+            Event(
+                event_id="event-szse-generic-litigation-progress",
+                first_seen_at="2026-04-18T00:00:00+08:00",
+                last_seen_at="2026-04-18T00:00:00+08:00",
+                canonical_title="ST中迪：中迪投资关于公司全资子公司重庆中美恒置业有限公司诉讼进展公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-18T00:00:00+08:00",
+                url="https://example.com/szse-generic-litigation-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
         ]
     )
     JsonlStore(paths.analyses_path, EventAnalysis).write_many(
@@ -281,6 +293,14 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
                 themes=[],
                 triggered=True,
             ),
+            EventAnalysis(
+                event_id="event-szse-generic-litigation-progress",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
         ]
     )
 
@@ -291,6 +311,7 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
     assert "合力泰：关于诉讼事项的进展暨公司部分银行账户及子公司股权解除冻结的公告" not in output
     assert "麦趣尔：关于公司被纳入失信被执行人的公告" not in output
     assert "幸福蓝海：关于累计诉讼、仲裁案件情况的公告" not in output
+    assert "ST中迪：中迪投资关于公司全资子公司重庆中美恒置业有限公司诉讼进展公告" not in output
 
 
 def test_audit_suspicious_skips_exchange_major_litigation_and_filing_progress_notices(

@@ -318,6 +318,9 @@ LOW_SIGNAL_HKEX_GOVERNANCE_MATERIAL_KEYWORDS = (
 LOW_SIGNAL_EXCHANGE_OPERATIONAL_DISCLOSURE_KEYWORDS = (
     "销售情况简报",
     "获得房地产项目",
+    "关联合伙企业及相关主体开展关联交易",
+    "对外提供财务资助",
+    "以房抵款事项",
     "股票回购贷款承诺函",
     "谅解备忘录",
 )

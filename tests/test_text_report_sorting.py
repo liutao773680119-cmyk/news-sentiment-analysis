@@ -6191,6 +6191,42 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
     paths = ProjectPaths(tmp_path)
     events = [
         Event(
+            event_id="event-sse-related-party-fund-material",
+            first_seen_at="2026-04-18T00:00:00+08:00",
+            last_seen_at="2026-04-18T00:00:00+08:00",
+            canonical_title="保利发展控股集团股份有限公司关于与关联合伙企业及相关主体开展关联交易的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-18T00:00:00+08:00",
+            url="https://example.com/sse-related-party-fund-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sse-financial-support-material",
+            first_seen_at="2026-04-18T00:00:00+08:00",
+            last_seen_at="2026-04-18T00:00:00+08:00",
+            canonical_title="保利发展控股集团股份有限公司关于2026年度对外提供财务资助的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-18T00:00:00+08:00",
+            url="https://example.com/sse-financial-support-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-property-offset-material",
+            first_seen_at="2026-04-18T00:00:00+08:00",
+            last_seen_at="2026-04-18T00:00:00+08:00",
+            canonical_title="ST中迪：中迪投资关于公司子公司达州绵石房地产开发有限公司以房抵款事项的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-18T00:00:00+08:00",
+            url="https://example.com/szse-property-offset-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
             event_id="event-sse-real-estate-project",
             first_seen_at="2026-04-11T00:00:00+08:00",
             last_seen_at="2026-04-11T00:00:00+08:00",
@@ -6240,18 +6276,42 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
         ),
         Event(
             event_id="event-stcn-keep-low-signal-exchange",
-            first_seen_at="2026-04-10T20:01:00+08:00",
-            last_seen_at="2026-04-10T20:01:00+08:00",
+            first_seen_at="2026-04-18T00:01:00+08:00",
+            last_seen_at="2026-04-18T00:01:00+08:00",
             canonical_title="国产EDA工具链和先进封装产线建设提速",
             summary="summary",
             source="stcn",
-            published_at="2026-04-10T20:01:00+08:00",
+            published_at="2026-04-18T00:01:00+08:00",
             url="https://example.com/stcn-keep-low-signal-exchange",
             event_type="fast_news",
             event_subtype="company_update",
         ),
     ]
     analyses = [
+        EventAnalysis(
+            event_id="event-sse-related-party-fund-material",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-sse-financial-support-material",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-property-offset-material",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
         EventAnalysis(
             event_id="event-sse-real-estate-project",
             direction="neutral",
@@ -6297,6 +6357,9 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert "保利发展控股集团股份有限公司关于与关联合伙企业及相关主体开展关联交易的公告" not in content
+    assert "保利发展控股集团股份有限公司关于2026年度对外提供财务资助的公告" not in content
+    assert "ST中迪：中迪投资关于公司子公司达州绵石房地产开发有限公司以房抵款事项的公告" not in content
     assert "保利发展控股集团股份有限公司关于本公司获得房地产项目的公告" not in content
     assert "保利发展控股集团股份有限公司2026年3月份销售情况简报" not in content
     assert "中国东方航空股份有限公司关于取得金融机构股票回购贷款承诺函的公告" not in content
