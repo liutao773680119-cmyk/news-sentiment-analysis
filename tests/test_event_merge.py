@@ -147,6 +147,35 @@ def test_merge_news_items_does_not_merge_boe_news_by_character_overlap() -> None
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_boc_press_releases_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="boc-1",
+            source="boc_press",
+            source_type="policy",
+            published_at="2026-03-18T09:47:23+00:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Bank of Canada maintains policy rate at 2 1/4%",
+            content="The Bank of Canada today held its target for the overnight rate at 2.25%.",
+            url="https://www.bankofcanada.ca/2026/03/fad-press-release-2026-03-18/",
+        ),
+        NormalizedNews(
+            news_id="boc-2",
+            source="boc_press",
+            source_type="policy",
+            published_at="2026-01-28T09:47:56+00:00",
+            captured_at="2026-04-18T12:14:51+00:00",
+            title="Bank of Canada maintains policy rate at 2 1/4%",
+            content="The Bank of Canada today held its target for the overnight rate at 2.25%.",
+            url="https://www.bankofcanada.ca/2026/01/fad-press-release-2026-01-28/",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(

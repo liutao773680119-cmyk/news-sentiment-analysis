@@ -21,6 +21,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
     assert {
         "fixture",
         "boe",
+        "boc_press",
         "cls",
         "cninfo",
         "csrc",

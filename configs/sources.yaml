@@ -1,4 +1,13 @@
 sources:
+  - id: boc_press
+    name: 加拿大央行新闻稿
+    type: policy
+    enabled: false
+    priority: 88
+    timeout_seconds: 10
+    user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0
   - id: boe
     name: 英国央行新闻稿
     type: policy
