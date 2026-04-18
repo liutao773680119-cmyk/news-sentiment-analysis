@@ -6133,6 +6133,60 @@ def test_write_text_report_filters_hkex_compound_governance_transaction_material
     assert "RENEWAL OF EXISTING CONTINUING CONNECTED TRANSACTIONS" not in content
 
 
+def test_write_text_report_filters_hkex_rule_14a60_continuing_connected_transaction_without_hiding_plain_connected_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-rule-14a60-material",
+            first_seen_at="2026-04-17T22:08:00+08:00",
+            last_seen_at="2026-04-17T22:08:00+08:00",
+            canonical_title="CONTINUING CONNECTED TRANSACTIONS PURSUANT TO RULE 14A.60 OF THE LISTING RULES",
+            summary="CONTINUING CONNECTED TRANSACTIONS PURSUANT TO RULE 14A.60 OF THE LISTING RULES",
+            source="hkex",
+            published_at="2026-04-17T22:08:00+08:00",
+            url="https://example.com/hkex-rule-14a60-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-plain-connected-transaction-keep",
+            first_seen_at="2026-04-17T22:54:00+08:00",
+            last_seen_at="2026-04-17T22:54:00+08:00",
+            canonical_title="PLACING OF NEW SHARES UNDER SPECIFIC MANDATE AND CONNECTED TRANSACTION UNDERWRITING ARRANGEMENT BY A CONTROLLING SHAREHOLDER",
+            summary="PLACING OF NEW SHARES UNDER SPECIFIC MANDATE AND CONNECTED TRANSACTION UNDERWRITING ARRANGEMENT BY A CONTROLLING SHAREHOLDER",
+            source="hkex",
+            published_at="2026-04-17T22:54:00+08:00",
+            url="https://example.com/hkex-plain-connected-transaction-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-rule-14a60-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-plain-connected-transaction-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "CONNECTED TRANSACTION UNDERWRITING ARRANGEMENT" in content
+    assert "CONTINUING CONNECTED TRANSACTIONS PURSUANT TO RULE 14A.60" not in content
+
+
 def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_announcements(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

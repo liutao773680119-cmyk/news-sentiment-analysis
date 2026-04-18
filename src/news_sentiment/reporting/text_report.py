@@ -623,6 +623,7 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             any(keyword in text for keyword in LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS)
             or _is_low_signal_exchange_share_purchase_agreement_material(event.canonical_title, event)
             or _is_low_signal_hkex_compound_governance_transaction_material(event.canonical_title, event)
+            or _is_low_signal_hkex_rule_14a60_continuing_connected_transaction(event.canonical_title, event)
         )
 
     if event.event_subtype == "order_contract":
@@ -695,6 +696,14 @@ def _is_low_signal_hkex_compound_governance_transaction_material(title: str, eve
         if keyword.lower() in normalized_title
     )
     return matched_governance_keywords >= 2
+
+
+def _is_low_signal_hkex_rule_14a60_continuing_connected_transaction(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "continuing connected transactions" in normalized_title and "rule 14a.60" in normalized_title
 
 
 def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> bool:
