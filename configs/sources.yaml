@@ -206,3 +206,12 @@ sources:
     user_agent: news-sentiment-mvp/0.1
     retry_count: 0
     backoff_seconds: 1.0
+  - id: sec_press
+    name: SEC新闻稿
+    type: policy
+    enabled: false
+    priority: 87
+    timeout_seconds: 10
+    user_agent: news-sentiment-mvp/0.1
+    retry_count: 2
+    backoff_seconds: 1.0

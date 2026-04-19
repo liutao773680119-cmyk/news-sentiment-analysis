@@ -263,6 +263,35 @@ def test_merge_news_items_does_not_merge_bis_press_releases_by_character_overlap
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_sec_press_releases_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="sec-1",
+            source="sec_press",
+            source_type="policy",
+            published_at="2026-04-16T17:02:47+00:00",
+            captured_at="2026-04-19T05:26:00+00:00",
+            title="Chairman Atkins Launches 'Material Matters' Podcast",
+            content="Summary: The Securities and Exchange Commission today announced the launch of Material Matters With SEC Chairman Paul Atkins.",
+            url="https://www.sec.gov/newsroom/press-releases/2026-39-chairman-atkins-launches-material-matters-podcast",
+        ),
+        NormalizedNews(
+            news_id="sec-2",
+            source="sec_press",
+            source_type="policy",
+            published_at="2026-04-16T15:45:04+00:00",
+            captured_at="2026-04-19T05:26:00+00:00",
+            title="SEC Small Business Advisory Committee to Explore Ways to Encourage More IPOs",
+            content="Summary: The Securities and Exchange Commission's Small Business Capital Formation Advisory Committee announced that it will hold a meeting.",
+            url="https://www.sec.gov/newsroom/press-releases/2026-38-sec-small-business-advisory-committee-explore-ways-encourage-more-ipos",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_does_not_merge_investing_feeds_by_character_overlap() -> None:
     items = [
         NormalizedNews(
