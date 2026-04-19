@@ -25,6 +25,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "boj",
         "bis",
         "cls",
+        "cftc_press",
         "cninfo",
         "csrc",
         "ecb",

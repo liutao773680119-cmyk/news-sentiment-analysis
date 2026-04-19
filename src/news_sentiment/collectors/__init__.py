@@ -2,6 +2,7 @@ from news_sentiment.collectors.bis import collect_bis_news, parse_bis_press_feed
 from news_sentiment.collectors.boj import collect_boj_news, parse_boj_policy_feed
 from news_sentiment.collectors.boc_press import collect_boc_press_news, parse_boc_press_feed
 from news_sentiment.collectors.boe import collect_boe_news, parse_boe_news_feed
+from news_sentiment.collectors.cftc_press import collect_cftc_press_news, parse_cftc_press_feed
 from news_sentiment.collectors.cls import collect_cls_news, parse_cls_telegraph_html
 from news_sentiment.collectors.cninfo import collect_cninfo_news, parse_cninfo_news_list
 from news_sentiment.collectors.csrc import collect_csrc_news, parse_csrc_news_list
@@ -43,6 +44,7 @@ REGISTERED_COLLECTORS = {
     "boj": collect_boj_news,
     "boc_press": collect_boc_press_news,
     "boe": collect_boe_news,
+    "cftc_press": collect_cftc_press_news,
     "cls": collect_cls_news,
     "csrc": collect_csrc_news,
     "cninfo": collect_cninfo_news,
@@ -77,6 +79,7 @@ __all__ = [
     "collect_boc_press_news",
     "collect_cls_news",
     "collect_boe_news",
+    "collect_cftc_press_news",
     "collect_cninfo_news",
     "collect_csrc_news",
     "collect_ecb_news",
@@ -106,6 +109,7 @@ __all__ = [
     "parse_boj_policy_feed",
     "parse_boc_press_feed",
     "parse_boe_news_feed",
+    "parse_cftc_press_feed",
     "parse_cls_telegraph_html",
     "parse_cninfo_news_list",
     "parse_csrc_news_list",

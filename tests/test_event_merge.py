@@ -292,6 +292,35 @@ def test_merge_news_items_does_not_merge_sec_press_releases_by_character_overlap
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_cftc_press_releases_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="cftc-1",
+            source="cftc_press",
+            source_type="policy",
+            published_at="2026-04-17T14:00:02+00:00",
+            captured_at="2026-04-19T05:40:00+00:00",
+            title="CFTC and Kansas State University Announce Return of AgCon Conference",
+            content="CFTC and Kansas State University Announce Return of AgCon Conference",
+            url="https://www.cftc.gov/PressRoom/PressReleases/9215-26",
+        ),
+        NormalizedNews(
+            news_id="cftc-2",
+            source="cftc_press",
+            source_type="policy",
+            published_at="2026-04-15T18:42:19+00:00",
+            captured_at="2026-04-19T05:40:00+00:00",
+            title="CFTC Approves Order to Further Strengthen U.S. Treasury Market Liquidity",
+            content="CFTC Approves Order to Further Strengthen U.S. Treasury Market Liquidity",
+            url="https://www.cftc.gov/PressRoom/PressReleases/9214-26",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_does_not_merge_investing_feeds_by_character_overlap() -> None:
     items = [
         NormalizedNews(
