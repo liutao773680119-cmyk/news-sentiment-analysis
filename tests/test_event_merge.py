@@ -263,6 +263,45 @@ def test_merge_news_items_does_not_merge_bis_press_releases_by_character_overlap
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_investing_feeds_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="investing-news-1",
+            source="investing_news",
+            source_type="fast_news",
+            published_at="2026-04-18T21:20:03+00:00",
+            captured_at="2026-04-19T03:00:00+00:00",
+            title="Russia stocks lower at close of trade; MOEX Russia Index unchanged",
+            content="Russia stocks lower at close of trade; MOEX Russia Index unchanged",
+            url="https://www.investing.com/news/stock-market-news/russia-stocks-lower-at-close-of-trade-moex-russia-index-unchanged-4622176",
+        ),
+        NormalizedNews(
+            news_id="investing-forex-1",
+            source="investing_forex",
+            source_type="fast_news",
+            published_at="2026-04-17T09:07:06+00:00",
+            captured_at="2026-04-19T03:00:00+00:00",
+            title="Go long HUF/USD, BCA says",
+            content="Go long HUF/USD, BCA says",
+            url="https://www.investing.com/news/forex-news/go-long-hufusd-bca-says-93CH-4619815",
+        ),
+        NormalizedNews(
+            news_id="investing-economic-1",
+            source="investing_economic",
+            source_type="fast_news",
+            published_at="2026-04-17T08:07:48+00:00",
+            captured_at="2026-04-19T03:00:00+00:00",
+            title="Italy’s February trade surplus widens to €4.94 billion",
+            content="Italy’s February trade surplus widens to €4.94 billion",
+            url="https://www.investing.com/news/economic-indicators/italys-february-trade-surplus-widens-to-494-billion-93CH-4619779",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 3
+
+
 def test_merge_news_items_classifies_license_agreement_hard_event_as_cooperation_agreement() -> None:
     items = [
         NormalizedNews(

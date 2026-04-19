@@ -107,4 +107,4 @@ def test_collect_investing_economic_news_raises_parse_error_on_unmatched_payload
 def test_investing_economic_source_definition_is_registered() -> None:
     source = load_source_definition_map()["investing_economic"]
     assert source.source_type == "fast_news"
-    assert source.enabled is False
+    assert source.enabled is True
