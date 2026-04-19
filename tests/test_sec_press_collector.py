@@ -87,4 +87,4 @@ def test_collect_sec_press_news_raises_parse_error_on_unmatched_payload(monkeypa
 def test_sec_press_source_definition_is_registered() -> None:
     source = load_source_definition_map()["sec_press"]
     assert source.source_type == "policy"
-    assert source.enabled is False
+    assert source.enabled is True

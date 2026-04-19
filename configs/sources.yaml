@@ -209,7 +209,7 @@ sources:
   - id: sec_press
     name: SEC新闻稿
     type: policy
-    enabled: false
+    enabled: true
     priority: 87
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
