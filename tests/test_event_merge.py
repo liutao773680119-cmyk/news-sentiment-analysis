@@ -651,6 +651,26 @@ def test_merge_news_items_classifies_hkex_h_share_full_circulation_as_capital_op
     assert events[0].event_subtype == "capital_operation"
 
 
+def test_merge_news_items_classifies_hkex_specific_mandate_share_placing_as_capital_operation() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hkplace",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T22:54:00+08:00",
+            captured_at="2026-04-17T22:54:30+08:00",
+            title="PLACING OF NEW SHARES UNDER SPECIFIC MANDATE AND CONNECTED TRANSACTION UNDERWRITING ARRANGEMENT BY A CONTROLLING SHAREHOLDER",
+            content="PLACING OF NEW SHARES UNDER SPECIFIC MANDATE AND CONNECTED TRANSACTION UNDERWRITING ARRANGEMENT BY A CONTROLLING SHAREHOLDER",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/2026041701971.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "capital_operation"
+
+
 def test_merge_news_items_classifies_market_move_fast_news_subtype() -> None:
     items = [
         NormalizedNews(
