@@ -20,6 +20,10 @@ from news_sentiment.collectors.fedreg_ofac import collect_fedreg_ofac_news, pars
 from news_sentiment.collectors.fedreg_sec import collect_fedreg_sec_news, parse_fedreg_sec_payload
 from news_sentiment.collectors.fixtures import collect_fixture_news
 from news_sentiment.collectors.hkex import collect_hkex_news, parse_hkex_news_payload
+from news_sentiment.collectors.investing_forex import (
+    collect_investing_forex_news,
+    parse_investing_forex_feed,
+)
 from news_sentiment.collectors.irm_cninfo import collect_irm_cninfo_news, parse_irm_cninfo_homepage
 from news_sentiment.collectors.investing_news import collect_investing_news, parse_investing_news_feed
 from news_sentiment.collectors.miit import collect_miit_news, parse_miit_news_list
@@ -44,6 +48,7 @@ REGISTERED_COLLECTORS = {
     "fedreg_ofac": collect_fedreg_ofac_news,
     "fedreg_sec": collect_fedreg_sec_news,
     "hkex": collect_hkex_news,
+    "investing_forex": collect_investing_forex_news,
     "irm_cninfo": collect_irm_cninfo_news,
     "investing_news": collect_investing_news,
     "miit": collect_miit_news,
@@ -75,6 +80,7 @@ __all__ = [
     "collect_fedreg_sec_news",
     "collect_fixture_news",
     "collect_hkex_news",
+    "collect_investing_forex_news",
     "collect_irm_cninfo_news",
     "collect_investing_news",
     "collect_miit_news",
@@ -101,6 +107,7 @@ __all__ = [
     "parse_fedreg_ofac_payload",
     "parse_fedreg_sec_payload",
     "parse_hkex_news_payload",
+    "parse_investing_forex_feed",
     "parse_irm_cninfo_homepage",
     "parse_investing_news_feed",
     "parse_miit_news_list",

@@ -36,6 +36,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "hkex",
         "irm_cninfo",
         "investing_news",
+        "investing_forex",
         "miit",
         "sse",
         "sse_einteractive",
