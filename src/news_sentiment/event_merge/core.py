@@ -227,6 +227,8 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "business_guidance"
         if _contains_any(text, ("受理", "向特定对象发行", "定增", "发行股票申请")):
             return "financing_acceptance"
+        if _contains_any(text, ("H SHARE FULL CIRCULATION", "H Share Full Circulation")):
+            return "capital_operation"
         if _contains_any(text, ("激励计划", "限制性股票", "归属")):
             return "equity_incentive"
         if _is_order_contract_fast_news(text):

@@ -73,6 +73,7 @@ EVENT_SUBTYPE_LABELS = {
     "delisting_risk": "退市风险",
     "legal_dispute": "法律争议",
     "financing_acceptance": "融资受理",
+    "capital_operation": "资本运作",
     "equity_incentive": "股权激励",
     "order_contract": "订单合同",
     "cooperation_agreement": "合作协议",

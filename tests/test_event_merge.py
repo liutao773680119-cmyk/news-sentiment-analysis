@@ -631,6 +631,26 @@ def test_merge_news_items_classifies_hkex_inside_information_arbitration_as_lega
     assert events[0].event_subtype == "legal_dispute"
 
 
+def test_merge_news_items_classifies_hkex_h_share_full_circulation_as_capital_operation() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1hkifc",
+            source="hkex",
+            source_type="hard_event",
+            published_at="2026-04-17T19:50:00+08:00",
+            captured_at="2026-04-17T19:50:30+08:00",
+            title="INSIDE INFORMATION COMPLETION OF THE H SHARE FULL CIRCULATION BY THE COMPANY",
+            content="INSIDE INFORMATION COMPLETION OF THE H SHARE FULL CIRCULATION BY THE COMPANY",
+            url="https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0417/2026041701393.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "capital_operation"
+
+
 def test_merge_news_items_classifies_market_move_fast_news_subtype() -> None:
     items = [
         NormalizedNews(
