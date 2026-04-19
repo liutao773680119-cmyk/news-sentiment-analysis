@@ -102,4 +102,4 @@ def test_collect_sse_einteractive_news_raises_fetch_error_on_network_failure(mon
 def test_sse_einteractive_source_definition_is_registered() -> None:
     source = load_source_definition_map()["sse_einteractive"]
     assert source.source_type == "fast_news"
-    assert source.enabled is False
+    assert source.enabled is True

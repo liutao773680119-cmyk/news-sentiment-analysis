@@ -182,7 +182,7 @@ sources:
   - id: sse_einteractive
     name: 上证e互动
     type: fast_news
-    enabled: false
+    enabled: true
     priority: 83
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
