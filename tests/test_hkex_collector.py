@@ -36,7 +36,7 @@ def test_parse_hkex_news_payload_extracts_rows_and_page_count() -> None:
     assert rows[0].source_type == "hard_event"
     assert rows[0].title == "(1) Very Substantial Disposal and Connected Transaction - Disposal of a Subsidiary"
     assert rows[0].published_at == "2026-04-10T22:55:00+08:00"
-    assert rows[0].url == "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0410/2026041001769.pdf"
+    assert rows[0].url == "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0410/2026041001769.pdf?stockCode=01906"
 
 
 def test_collect_hkex_source_writes_raw_news(tmp_path, monkeypatch) -> None:
@@ -63,6 +63,8 @@ def test_collect_hkex_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     )
     assert main(["collect", "--source", "hkex"]) == 0
     assert (tmp_path / "data" / "raw" / "raw_news.jsonl").exists()
+    content = (tmp_path / "data" / "raw" / "raw_news.jsonl").read_text(encoding="utf-8")
+    assert "stockCode=09982" in content
 
 
 def test_collect_hkex_news_raises_fetch_error_on_network_failure(monkeypatch) -> None:

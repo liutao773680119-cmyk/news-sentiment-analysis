@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urljoin
+from urllib.parse import urlencode, urljoin
 
 from news_sentiment.collectors.errors import (
     CollectorEmptyResultError,
@@ -53,6 +53,9 @@ def parse_hkex_news_payload(payload: str) -> tuple[list[RawNews], int]:
             stock_code = str(stocks[0].get("sc", "")).strip()
         if not title or not web_path or not release_time:
             continue
+        url = urljoin(HKEX_BASE_URL, web_path)
+        if stock_code:
+            url = f"{url}?{urlencode({'stockCode': stock_code})}"
         rows.append(
             RawNews(
                 news_id=f"hkex-{news_id or stock_code or len(rows) + 1}",
@@ -62,7 +65,7 @@ def parse_hkex_news_payload(payload: str) -> tuple[list[RawNews], int]:
                 captured_at=captured_at,
                 title=title,
                 content=title,
-                url=urljoin(HKEX_BASE_URL, web_path),
+                url=url,
             )
         )
     return rows, max_num_of_file
