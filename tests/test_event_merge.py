@@ -321,6 +321,35 @@ def test_merge_news_items_does_not_merge_cftc_press_releases_by_character_overla
     assert len(events) == 2
 
 
+def test_merge_news_items_does_not_merge_occ_news_releases_by_character_overlap() -> None:
+    items = [
+        NormalizedNews(
+            news_id="occ-1",
+            source="occ_news",
+            source_type="policy",
+            published_at="2026-04-16T11:00:00-04:00",
+            captured_at="2026-04-19T05:45:00+00:00",
+            title="OCC Announces Enforcement Actions for April 2026",
+            content="Summary: The Office of the Comptroller of the Currency (OCC) today released enforcement actions for April 2026.",
+            url="https://www.occ.gov/news-issuances/news-releases/2026/nr-occ-2026-28.html",
+        ),
+        NormalizedNews(
+            news_id="occ-2",
+            source="occ_news",
+            source_type="policy",
+            published_at="2026-04-07T17:32:46-04:00",
+            captured_at="2026-04-19T05:45:00+00:00",
+            title="Comptroller Statement on Final Rule Eliminating Reputation Risk from Bank Supervision",
+            content="Summary: Comptroller of the Currency Jonathan V. Gould issued the following statement today.",
+            url="https://www.occ.gov/news-issuances/news-releases/2026/nr-occ-2026-27.html",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+
+
 def test_merge_news_items_does_not_merge_investing_feeds_by_character_overlap() -> None:
     items = [
         NormalizedNews(

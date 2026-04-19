@@ -32,6 +32,7 @@ from news_sentiment.collectors.investing_economic import (
 from news_sentiment.collectors.irm_cninfo import collect_irm_cninfo_news, parse_irm_cninfo_homepage
 from news_sentiment.collectors.investing_news import collect_investing_news, parse_investing_news_feed
 from news_sentiment.collectors.miit import collect_miit_news, parse_miit_news_list
+from news_sentiment.collectors.occ_news import collect_occ_news, parse_occ_news_feed
 from news_sentiment.collectors.sec_press import collect_sec_press_news, parse_sec_press_feed
 from news_sentiment.collectors.sse import collect_sse_news, parse_sse_news_payload
 from news_sentiment.collectors.sse_einteractive import collect_sse_einteractive_news, parse_sse_einteractive_feed
@@ -60,6 +61,7 @@ REGISTERED_COLLECTORS = {
     "irm_cninfo": collect_irm_cninfo_news,
     "investing_news": collect_investing_news,
     "miit": collect_miit_news,
+    "occ_news": collect_occ_news,
     "sec_press": collect_sec_press_news,
     "sse": collect_sse_news,
     "sse_einteractive": collect_sse_einteractive_news,
@@ -95,6 +97,7 @@ __all__ = [
     "collect_irm_cninfo_news",
     "collect_investing_news",
     "collect_miit_news",
+    "collect_occ_news",
     "collect_sec_press_news",
     "collect_sse_news",
     "collect_sse_einteractive_news",
@@ -125,6 +128,7 @@ __all__ = [
     "parse_irm_cninfo_homepage",
     "parse_investing_news_feed",
     "parse_miit_news_list",
+    "parse_occ_news_feed",
     "parse_sec_press_feed",
     "parse_sse_news_payload",
     "parse_sse_einteractive_feed",

@@ -40,6 +40,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "investing_news",
         "investing_forex",
         "miit",
+        "occ_news",
         "sec_press",
         "sse",
         "sse_einteractive",
