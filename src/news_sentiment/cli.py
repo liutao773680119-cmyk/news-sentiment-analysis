@@ -90,6 +90,16 @@ SUSPICIOUS_MARKET_ROUNDUP_PREFIXES = (
     "早盘：",
 )
 LOW_SIGNAL_MARKET_ROUNDUP_KEYWORDS = ("涨停分析",)
+LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
+    "鼓励非高峰使用公共交通",
+    "延长签证宽限期",
+    "跨区域人员流动量预计",
+    "暴雨黄色预警信号",
+    "取消部分化肥关税",
+    "外立面遭防空系统拦截碎片击中",
+    "调研先进制造业发展",
+    "人形机器人半马",
+)
 
 
 @dataclass(frozen=True)
@@ -290,6 +300,11 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         and event.source != "cls"
         and bool(analysis.themes)
     ):
+        if (
+            event.source == "stcn"
+            and any(keyword in title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
+        ):
+            return None
         return "general_fast_news_with_theme"
     if (
         event.event_type == "fast_news"

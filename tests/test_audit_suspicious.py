@@ -798,3 +798,43 @@ def test_audit_suspicious_skips_cls_market_roundup_and_limitup_digest(tmp_path, 
     assert "suspicious_count=0" in output
     assert "收评：创业板指涨超1%再创近11年新高 算力硬件方向持续爆发" not in output
     assert "4月17日涨停分析" not in output
+
+
+def test_audit_suspicious_skips_stcn_robot_half_marathon_story(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-robot-half-marathon",
+                first_seen_at="2026-04-19T08:25:29+08:00",
+                last_seen_at="2026-04-19T08:25:29+08:00",
+                canonical_title="“闪电”完成2026人形机器人半马",
+                summary="2026人形机器人半程马拉松鸣枪开跑，参赛队伍超百支。",
+                source="stcn",
+                published_at="2026-04-19T08:25:29+08:00",
+                url="https://example.com/stcn-robot-half-marathon",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-robot-half-marathon",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "“闪电”完成2026人形机器人半马" not in output

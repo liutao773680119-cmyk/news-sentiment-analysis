@@ -5091,6 +5091,112 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
     assert "迪拜甲骨文大楼外立面遭防空系统拦截碎片击中 无人员伤亡" not in content
 
 
+def test_write_text_report_filters_stcn_robot_half_marathon_story_even_if_analysis_gets_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-robot-half-marathon",
+            first_seen_at="2026-04-19T08:25:29+08:00",
+            last_seen_at="2026-04-19T08:25:29+08:00",
+            canonical_title="“闪电”完成2026人形机器人半马",
+            summary="2026人形机器人半程马拉松鸣枪开跑，参赛队伍超百支。",
+            source="stcn",
+            published_at="2026-04-19T08:25:29+08:00",
+            url="https://example.com/stcn-robot-half-marathon",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-robot-order",
+            first_seen_at="2026-04-19T08:26:00+08:00",
+            last_seen_at="2026-04-19T08:26:00+08:00",
+            canonical_title="某公司获人形机器人批量订单",
+            summary="公司获得人形机器人批量订单。",
+            source="stcn",
+            published_at="2026-04-19T08:26:00+08:00",
+            url="https://example.com/stcn-robot-order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-robot-half-marathon",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-robot-order",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "“闪电”完成2026人形机器人半马" not in content
+    assert "某公司获人形机器人批量订单" in content
+
+
+def test_write_text_report_filters_cls_robot_half_marathon_story_without_hiding_robot_order(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-robot-half-marathon",
+            first_seen_at="2026-04-19T08:34:48+08:00",
+            last_seen_at="2026-04-19T08:34:48+08:00",
+            canonical_title="直击2026机器人半马：荣耀闪电率先冲线 速度较去年大幅提升",
+            summary="2026人形机器人半程马拉松开跑，荣耀闪电率先冲线。",
+            source="cls",
+            published_at="2026-04-19T08:34:48+08:00",
+            url="https://example.com/cls-robot-half-marathon",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-cls-robot-order",
+            first_seen_at="2026-04-19T08:36:00+08:00",
+            last_seen_at="2026-04-19T08:36:00+08:00",
+            canonical_title="某公司获人形机器人批量订单",
+            summary="公司获得人形机器人批量订单。",
+            source="cls",
+            published_at="2026-04-19T08:36:00+08:00",
+            url="https://example.com/cls-robot-order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-robot-half-marathon",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-robot-order",
+            direction="bullish",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "直击2026机器人半马：荣耀闪电率先冲线 速度较去年大幅提升" not in content
+    assert "某公司获人形机器人批量订单" in content
+
+
 def test_write_text_report_filters_stcn_operational_update_with_stable_order_wording(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

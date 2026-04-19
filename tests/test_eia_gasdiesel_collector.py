@@ -104,3 +104,4 @@ def test_eia_gasdiesel_source_definition_is_registered() -> None:
     source = load_source_definition_map()["eia_gasdiesel"]
     assert source.source_type == "fast_news"
     assert source.enabled is True
+    assert source.timeout_seconds == 20

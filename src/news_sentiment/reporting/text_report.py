@@ -458,6 +458,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "取消部分化肥关税",
     "外立面遭防空系统拦截碎片击中",
     "调研先进制造业发展",
+    "人形机器人半马",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -565,6 +566,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_stcn_overseas_aviation_fuel_story(event, text):
         return False
     if _is_low_signal_stcn_public_affairs_story(event):
+        return False
+    if _is_low_signal_robot_competition_story(event, text):
         return False
     if _is_low_signal_miit_policy_meeting(event, analysis, text):
         return False
@@ -1054,6 +1057,21 @@ def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
         return False
 
     return any(keyword in event.canonical_title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
+
+
+def _is_low_signal_robot_competition_story(event: Event, text: str) -> bool:
+    if not (
+        event.source in {"cls", "stcn"}
+        and event.event_type == "fast_news"
+        and event.event_subtype in {"general_fast_news", "company_update"}
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "机器人半马" in title
+        or ("半程马拉松" in text and any(keyword in text for keyword in ("率先冲线", "鸣枪开跑", "净成绩")))
+    )
 
 
 def _is_low_signal_miit_policy_meeting(event: Event, analysis: EventAnalysis, text: str) -> bool:
