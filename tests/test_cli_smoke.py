@@ -35,6 +35,7 @@ def test_registered_collectors_expose_expected_sources() -> None:
         "fedreg_sec",
         "hkex",
         "irm_cninfo",
+        "investing_economic",
         "investing_news",
         "investing_forex",
         "miit",
