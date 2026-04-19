@@ -9201,6 +9201,89 @@ def test_write_text_report_filters_irm_cninfo_investor_complaint_and_shareholder
     assert "TCL中环：董秘您好：公司拥有大量BC核心专利" in content
 
 
+def test_write_text_report_filters_irm_cninfo_generic_followup_and_no_impact_reply_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-generic-followup",
+            first_seen_at="2026-04-19T12:18:33+08:00",
+            last_seen_at="2026-04-19T12:18:33+08:00",
+            canonical_title="长春高新：公司管理层有没有思考过,贵公司和真正的创新药企业到底差在哪里？为什么荣昌生物和三生制药这种企业可以小投入换来大收获，而贵公司恰恰相反？",
+            summary="问题：公司管理层有没有思考过,贵公司和真正的创新药企业到底差在哪里？为什么荣昌生物和三生制药这种企业可以小投入换来大收获，而贵公司恰恰相反？ 回复：您好，您所提的类似问题公司已经多次回复，具体请参见之前问题回复，谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-19T12:18:33+08:00",
+            url="https://example.com/irm-generic-followup",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-no-impact-reply",
+            first_seen_at="2026-04-19T09:34:03+08:00",
+            last_seen_at="2026-04-19T09:34:03+08:00",
+            canonical_title="长春高新：美国对进口创新药增收100％关税，请问对公司以后拓展美国市场有什么影响？谢谢",
+            summary="问题：美国对进口创新药增收100％关税，请问对公司以后拓展美国市场有什么影响？谢谢 回复：您好，目前美国关税政策对公司业务无影响，谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-19T09:34:03+08:00",
+            url="https://example.com/irm-no-impact-reply",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-reply-2",
+            first_seen_at="2026-04-19T09:20:00+08:00",
+            last_seen_at="2026-04-19T09:20:00+08:00",
+            canonical_title="长春高新：请问贵公司创新药海外授权推进进展如何？",
+            summary="问题：请问贵公司创新药海外授权推进进展如何？ 回复：公司正推进多个海外商务合作项目，并与潜在合作方就授权方案持续沟通。",
+            source="irm_cninfo",
+            published_at="2026-04-19T09:20:00+08:00",
+            url="https://example.com/irm-keep-substantive-reply-2",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-disclosure-fallback",
+            first_seen_at="2026-04-19T09:32:33+08:00",
+            last_seen_at="2026-04-19T09:32:33+08:00",
+            canonical_title="长春高新：贵公司能不能尽快剥离房地产业务？给个时间表可以吗？",
+            summary="问题：贵公司能不能尽快剥离房地产业务？给个时间表可以吗？ 回复：您好，如有达到信息披露标准的情况，公司会按照法律法规要求履行披露义务，谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-19T09:32:33+08:00",
+            url="https://example.com/irm-disclosure-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-report-fallback",
+            first_seen_at="2026-04-18T18:43:03+08:00",
+            last_seen_at="2026-04-18T18:43:03+08:00",
+            canonical_title="圣阳股份：贵公司是否有中东订单",
+            summary="问题：贵公司是否有中东订单 回复：您好！有关公司业务及订单情况敬请关注公司定期报告。公司将于2026年4月24日披露2025年年度报告。感谢您的关注!",
+            source="irm_cninfo",
+            published_at="2026-04-18T18:43:03+08:00",
+            url="https://example.com/irm-report-fallback",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-generic-followup", direction="neutral", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-no-impact-reply", direction="neutral", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-reply-2", direction="bullish", impact_score=88.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-disclosure-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-irm-report-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "公司管理层有没有思考过" not in content
+    assert "美国对进口创新药增收100％关税" not in content
+    assert "贵公司能不能尽快剥离房地产业务" not in content
+    assert "贵公司是否有中东订单" not in content
+    assert "长春高新：请问贵公司创新药海外授权推进进展如何？" in content
+
+
 def test_write_text_report_filters_sse_einteractive_investor_complaint_and_report_calendar_without_hiding_substantive_reply(
     tmp_path,
 ) -> None:

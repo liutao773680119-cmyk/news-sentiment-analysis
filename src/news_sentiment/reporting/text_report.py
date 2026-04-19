@@ -1150,6 +1150,11 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("市值管理" in text and "投资者信心" in text)
         or ("股价" in text and "稳定投资者信心" in text)
         or ("股价" in text and "跟上同行步伐" in text)
+        or ("类似问题" in text and "之前问题回复" in text)
+        or ("有什么影响" in title and "对公司业务无影响" in text)
+        or ("时间表" in title and "达到信息披露标准" in text and "履行披露义务" in text)
+        or ("是否有" in title and "敬请关注公司定期报告" in text)
+        or ("您的建议已收悉" in text and "感谢您的关注" in text)
     )
 
 
