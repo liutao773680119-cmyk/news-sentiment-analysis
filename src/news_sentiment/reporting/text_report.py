@@ -459,6 +459,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "外立面遭防空系统拦截碎片击中",
     "调研先进制造业发展",
     "人形机器人半马",
+    "文旅经济发展大会召开",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -1071,6 +1072,11 @@ def _is_low_signal_robot_competition_story(event: Event, text: str) -> bool:
     return (
         "机器人半马" in title
         or ("半程马拉松" in text and any(keyword in text for keyword in ("率先冲线", "鸣枪开跑", "净成绩")))
+        or (
+            any(keyword in text for keyword in ("半程马拉松", "机器人半马"))
+            and any(keyword in text for keyword in ("夺冠", "冠军"))
+            and any(keyword in text for keyword in ("结构件", "供应商", "批量交付", "量产"))
+        )
         or (
             any(keyword in text for keyword in ("人形机器人马拉松", "排位赛"))
             and any(keyword in text for keyword in ("世界纪录", "按比例计算"))

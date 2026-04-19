@@ -5250,6 +5250,112 @@ def test_write_text_report_filters_cls_robot_record_race_story_without_hiding_ro
     assert "某公司获人形机器人批量订单" in content
 
 
+def test_write_text_report_filters_stcn_robot_half_marathon_supply_chain_story_without_hiding_robot_order(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-robot-half-marathon-supply-chain",
+            first_seen_at="2026-04-19T11:02:14+08:00",
+            last_seen_at="2026-04-19T11:02:14+08:00",
+            canonical_title="荣耀机器人半马夺冠 领益智造批量交付其全套金属结构件等产品",
+            summary="2026北京亦庄半程马拉松暨人形机器人半程马拉松上，“闪电”机器人夺冠。领益是其全套结构件和表面处理核心供应商，已批量交付产品。",
+            source="stcn",
+            published_at="2026-04-19T11:02:14+08:00",
+            url="https://example.com/stcn-robot-half-marathon-supply-chain",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-robot-order-2",
+            first_seen_at="2026-04-19T11:05:00+08:00",
+            last_seen_at="2026-04-19T11:05:00+08:00",
+            canonical_title="某公司获人形机器人批量订单",
+            summary="公司获得人形机器人批量订单。",
+            source="stcn",
+            published_at="2026-04-19T11:05:00+08:00",
+            url="https://example.com/stcn-robot-order-2",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-robot-half-marathon-supply-chain",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-robot-order-2",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "荣耀机器人半马夺冠 领益智造批量交付其全套金属结构件等产品" not in content
+    assert "某公司获人形机器人批量订单" in content
+
+
+def test_write_text_report_filters_stcn_public_affairs_conference_story_even_if_analysis_gets_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-fujian-cultural-tourism-conference",
+            first_seen_at="2026-04-19T10:12:29+08:00",
+            last_seen_at="2026-04-19T10:12:29+08:00",
+            canonical_title="2026年福建省文旅经济发展大会召开",
+            summary="据福建日报，2026年福建省文旅经济发展大会在漳州召开，强调把文化旅游业培育成为支柱产业。",
+            source="stcn",
+            published_at="2026-04-19T10:12:29+08:00",
+            url="https://example.com/stcn-fujian-cultural-tourism-conference",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-keep-cultural-tourism-order",
+            first_seen_at="2026-04-19T10:20:00+08:00",
+            last_seen_at="2026-04-19T10:20:00+08:00",
+            canonical_title="某公司签约大型文旅项目建设协议",
+            summary="公司签约大型文旅项目建设协议。",
+            source="stcn",
+            published_at="2026-04-19T10:20:00+08:00",
+            url="https://example.com/stcn-keep-cultural-tourism-order",
+            event_type="hard_event",
+            event_subtype="cooperation_agreement",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-fujian-cultural-tourism-conference",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["文旅"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-keep-cultural-tourism-order",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["文旅"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "2026年福建省文旅经济发展大会召开" not in content
+    assert "某公司签约大型文旅项目建设协议" in content
+
+
 def test_write_text_report_filters_stcn_operational_update_with_stable_order_wording(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

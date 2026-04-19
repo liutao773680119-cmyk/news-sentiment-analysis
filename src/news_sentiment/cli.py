@@ -99,6 +99,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "外立面遭防空系统拦截碎片击中",
     "调研先进制造业发展",
     "人形机器人半马",
+    "文旅经济发展大会召开",
 )
 
 
@@ -305,6 +306,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             and any(keyword in title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
         ):
             return None
+        if _is_low_signal_robot_competition_story_candidate(event):
+            return None
         return "general_fast_news_with_theme"
     if (
         event.event_type == "fast_news"
@@ -341,6 +344,31 @@ def _is_low_signal_market_roundup_candidate(event: Event) -> bool:
     title = event.canonical_title
     return any(title.startswith(prefix) for prefix in SUSPICIOUS_MARKET_ROUNDUP_PREFIXES) or any(
         keyword in title for keyword in LOW_SIGNAL_MARKET_ROUNDUP_KEYWORDS
+    )
+
+
+def _is_low_signal_robot_competition_story_candidate(event: Event) -> bool:
+    if not (
+        event.source in {"cls", "stcn"}
+        and event.event_type == "fast_news"
+        and event.event_subtype in {"general_fast_news", "company_update"}
+    ):
+        return False
+
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        "机器人半马" in title
+        or ("半程马拉松" in text and any(keyword in text for keyword in ("率先冲线", "鸣枪开跑", "净成绩")))
+        or (
+            any(keyword in text for keyword in ("半程马拉松", "机器人半马"))
+            and any(keyword in text for keyword in ("夺冠", "冠军"))
+            and any(keyword in text for keyword in ("结构件", "供应商", "批量交付", "量产"))
+        )
+        or (
+            any(keyword in text for keyword in ("人形机器人马拉松", "排位赛"))
+            and any(keyword in text for keyword in ("世界纪录", "按比例计算"))
+        )
     )
 
 

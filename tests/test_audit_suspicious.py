@@ -838,3 +838,83 @@ def test_audit_suspicious_skips_stcn_robot_half_marathon_story(tmp_path, monkeyp
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "“闪电”完成2026人形机器人半马" not in output
+
+
+def test_audit_suspicious_skips_stcn_robot_half_marathon_supply_chain_story(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-robot-half-marathon-supply-chain",
+                first_seen_at="2026-04-19T11:02:14+08:00",
+                last_seen_at="2026-04-19T11:02:14+08:00",
+                canonical_title="荣耀机器人半马夺冠 领益智造批量交付其全套金属结构件等产品",
+                summary="2026北京亦庄半程马拉松暨人形机器人半程马拉松上，“闪电”机器人夺冠。领益是其全套结构件和表面处理核心供应商，已批量交付产品。",
+                source="stcn",
+                published_at="2026-04-19T11:02:14+08:00",
+                url="https://example.com/stcn-robot-half-marathon-supply-chain",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-robot-half-marathon-supply-chain",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "荣耀机器人半马夺冠 领益智造批量交付其全套金属结构件等产品" not in output
+
+
+def test_audit_suspicious_skips_stcn_public_affairs_conference_story(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-fujian-cultural-tourism-conference",
+                first_seen_at="2026-04-19T10:12:29+08:00",
+                last_seen_at="2026-04-19T10:12:29+08:00",
+                canonical_title="2026年福建省文旅经济发展大会召开",
+                summary="据福建日报，2026年福建省文旅经济发展大会在漳州召开，强调把文化旅游业培育成为支柱产业。",
+                source="stcn",
+                published_at="2026-04-19T10:12:29+08:00",
+                url="https://example.com/stcn-fujian-cultural-tourism-conference",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-fujian-cultural-tourism-conference",
+                direction="bullish",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["文旅"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "2026年福建省文旅经济发展大会召开" not in output
