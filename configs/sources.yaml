@@ -128,7 +128,7 @@ sources:
   - id: irm_cninfo
     name: 深交所互动易
     type: fast_news
-    enabled: false
+    enabled: true
     priority: 84
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1

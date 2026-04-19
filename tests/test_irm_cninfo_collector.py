@@ -216,4 +216,4 @@ def test_collect_irm_cninfo_news_raises_fetch_error_on_network_failure(monkeypat
 def test_irm_cninfo_source_definition_is_registered() -> None:
     source = load_source_definition_map()["irm_cninfo"]
     assert source.source_type == "fast_news"
-    assert source.enabled is False
+    assert source.enabled is True
