@@ -5197,6 +5197,59 @@ def test_write_text_report_filters_cls_robot_half_marathon_story_without_hiding_
     assert "某公司获人形机器人批量订单" in content
 
 
+def test_write_text_report_filters_cls_robot_record_race_story_without_hiding_robot_order(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-robot-record-story",
+            first_seen_at="2026-04-19T10:00:00+08:00",
+            last_seen_at="2026-04-19T10:00:00+08:00",
+            canonical_title="宇树称打破人类1500米世界纪录",
+            summary="北京人形机器人马拉松排位赛举行，宇树称按比例计算已打破人类1500米世界纪录。",
+            source="cls",
+            published_at="2026-04-19T10:00:00+08:00",
+            url="https://example.com/cls-robot-record-story",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-cls-robot-order-2",
+            first_seen_at="2026-04-19T10:05:00+08:00",
+            last_seen_at="2026-04-19T10:05:00+08:00",
+            canonical_title="某公司获人形机器人批量订单",
+            summary="公司获得人形机器人批量订单。",
+            source="cls",
+            published_at="2026-04-19T10:05:00+08:00",
+            url="https://example.com/cls-robot-order-2",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-robot-record-story",
+            direction="neutral",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-robot-order-2",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "宇树称打破人类1500米世界纪录" not in content
+    assert "某公司获人形机器人批量订单" in content
+
+
 def test_write_text_report_filters_stcn_operational_update_with_stable_order_wording(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

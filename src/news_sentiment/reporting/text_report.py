@@ -1071,6 +1071,10 @@ def _is_low_signal_robot_competition_story(event: Event, text: str) -> bool:
     return (
         "机器人半马" in title
         or ("半程马拉松" in text and any(keyword in text for keyword in ("率先冲线", "鸣枪开跑", "净成绩")))
+        or (
+            any(keyword in text for keyword in ("人形机器人马拉松", "排位赛"))
+            and any(keyword in text for keyword in ("世界纪录", "按比例计算"))
+        )
     )
 
 
