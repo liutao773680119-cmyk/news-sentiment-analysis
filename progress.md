@@ -2,81 +2,53 @@
 
 ## Latest Handoff Snapshot
 - Task-ID:
-  - `phase9-source-expansion`
+  - `phase8-live-boundary`
 - Task-Name:
-  - `hkex staged 扩源收口 + 英文标题最小分类/过滤接线`
+  - `live 样本边界收口 + irm 问答/股权激励材料/cls 栏目稿降噪`
 - Files Changed:
-  - `src/news_sentiment/event_merge/core.py`
-  - `src/news_sentiment/analysis/rules.py`
   - `src/news_sentiment/reporting/text_report.py`
+  - `src/news_sentiment/event_merge/core.py`
   - `tests/test_event_merge.py`
-  - `tests/test_analysis_scoring.py`
-  - `tests/test_hkex_collector.py`
   - `tests/test_text_report_sorting.py`
   - `progress.md`
-  - `findings.md`
-  - `task_plan.md`
   - `task_registry.md`
+  - `task_plan.md`
+  - `findings.md`
   - `修改记录_会话备忘.md`
   - `避坑记录.md`
 - Completed This Session:
-  - `hkex` 单源真实抓取已跑通，`collect --source hkex` 当次写出 `1087` 条 raw 标题
-  - 已确认 `hkex` 不能走通用字符重合归并；修复前 `1087` 条会错并成 `10` 个 event
-  - `event_merge` 已补最小英文 subtype：
-    - `PROFIT WARNING / PROFIT ALERT` -> `business_guidance`
-    - `CHANGE OF DIRECTORS / RE-DESIGNATION ...` -> `executive_change`
-    - `CONNECTED / MAJOR / VERY SUBSTANTIAL / DISCLOSEABLE TRANSACTION` -> `acquisition_restructuring`
-    - `INSIDE INFORMATION - UPDATE ON WINDING UP PETITION` -> `reorganization_risk`
-    - `INSIDE INFORMATION ... ARBITRATION PROCEEDINGS` -> `legal_dispute`
-  - `analysis/rules` 已补最小方向回正：
-    - `PROFIT WARNING` -> `bearish`
-    - `POSITIVE PROFIT ALERT` -> `bullish`
-    - `WINDING UP PETITION / ARBITRATION PROCEEDINGS` -> `bearish`
-  - `report` 已补 `hkex` 英文材料过滤与催化词接线：
-    - `published by the issuer in the Chinese section`
-    - `General Mandates ...`
-    - `Re-election of Directors`
-    - `Articles of Association`
-    - `PROFIT WARNING / INSIDE INFORMATION / CONNECTED TRANSACTION / MAJOR TRANSACTION / ACQUISITION / DISPOSAL / SUSPENSION OF TRADING`
-  - `hkex` 单源顺序链路已重跑：
-    - `normalize`
-    - `merge-events`
-    - `analyze-events`
-    - `report`
-    - `audit-suspicious --limit 10`
-  - 当前 `hkex` 单源结果：
-    - `events=1087`
-    - `audit-suspicious=0`
-    - `latest_report.txt` 已不再为空，能保留 `MAJOR TRANSACTION / CONNECTED TRANSACTION / PROFIT WARNING` 一类真实催化
-  - 当前 subtype 分布：
-    - `corporate_disclosure: 1036`
-    - `acquisition_restructuring: 41`
-    - `business_guidance: 6`
-    - `executive_change: 4`
-  - 本轮新增提交：
-    - `2db6b3f` `fix: tighten hkex staged source classification`
+  - 主线继续沿 `phase8-live-boundary` 收 live 头部，不碰 `hkex staged`
+  - `text_report` 连续补了最窄过滤，清掉：
+    - `irm_cninfo` 的弱问答、回避口径、定期报告导向回复
+    - `sse/szse` 的回购、股权激励、风险管理、核查意见、土地合同等低信号材料
+    - `cls` 的夜盘综述、盘前要闻、匿名拼盘栏目稿、弱财务收益股权处置稿
+    - `海外单股并购快讯 + 无题材无个股`
+  - `event_merge` 已补当前 live 更关键的回正：
+    - `省委财经委员会 / 产业引导基金` -> `policy_signal`
+    - `乙烯法PVC供应持续收缩` -> `industry_data`
+    - `UPC诉讼 / 仲裁裁决` -> `legal_dispute`
+    - `美股盘前要闻一览` -> `general_fast_news`
+    - `出售/转让股权 + 不构成重大资产重组` 不再误打成 `acquisition_restructuring`
+  - 头部已从一串 `irm_cninfo / 股权激励 / 栏目稿 / 期货综述` 收回到更像该保留的风险公告
   - 当前最新验证：
-    - `./.venv/bin/python -m pytest tests/test_event_merge.py -q` -> `51 passed`
-    - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -k "hkex_profit_warning or hkex_positive_profit_alert or delisting_risk or legal_dispute or reorganization_risk" -q` -> `7 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "hkex_" -q` -> `2 passed`
-    - `./.venv/bin/python -m pytest tests/test_hkex_collector.py -q` -> `5 passed`
+    - `./.venv/bin/python -m pytest tests/test_event_merge.py -k "upc_patent_litigation or arbitration_award_challenge or legal_dispute or policy_signal or industry_data or cls_us_pre_market_brief or cls_overnight_roundup" -q` -> `19 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "irm_cninfo or cls_morning_brief or domestic_futures or risk_control_opinion or equity_incentive or order_contract or overseas_single_stock_cls_acquisition" -q` -> `20 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1766 normalized_news=1766 events=468 analyses=468 failed_sources=none`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
 - Open TODO:
-  - `hkex` 仍有 `1036` 条落在 `corporate_disclosure`，还没到能直接并入 `--source all` 的状态
-  - `INSIDE INFORMATION` 仍过宽，后续若继续做 `hkex`，优先补更细上下文分流
-  - `hkex` 还没有 stock code / company mapping，当前个股仍是空
-  - 下一轮若切回主线，先按既有交接重跑 `live-smoke --source all`
+  - 下一轮先重跑当天 `live-smoke --source all`，不要沿用今天这批头部
+  - 如果头部仍主要是 `*ST声迅 / 明德生物` 这类风险公告，先停，不继续过拟合
+  - 只有出现新的 `irm_cninfo / equity_incentive / cls` 弱口径样本，再补最窄 `text_report` 回归和规则
 - Risks/Blockers:
-  - `hkex` 英文标题如果继续走字符重合归并，会把完全不相干的公告错并
-  - `hkex` 当前仍以英文治理/材料公告为主，直接启用到 `--source all` 会明显拉低主链信噪比
-  - `report` 过滤和 `audit-suspicious` 仍是两套逻辑；`hkex` 验收也要两边同时看
+  - 当前收益已经明显下降；再往下压很容易误伤真实风险或催化公告
+  - `report` 过滤和 `audit-suspicious` 仍是两套逻辑；头部干净不等于巡检天然归零，仍要双跑
+  - `hkex` 仍是 staged 线，当前标准交接不应把它误写成主线
 - Next First Command:
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 - Known Avoidances:
-  - 不要把 `hkex` 直接开进 `--source all`
-  - 不要让 `hkex` 继续走通用字符重合归并
-  - 不要把 `INSIDE INFORMATION` 整体当成单一 subtype
-  - 不要用大小写敏感匹配处理 `hkex` 英文材料标题
+  - 不要沿用上一轮 live 头部清单直接继续写规则
+  - 不要把当前已经回到头部的 `退市风险警示 / 撤销风险警示` 这类公告继续当噪音硬压
+  - 不要把 `hkex staged` 和主线 `phase8-live-boundary` 混成一个任务
 
 ## Session: 2026-04-01
 

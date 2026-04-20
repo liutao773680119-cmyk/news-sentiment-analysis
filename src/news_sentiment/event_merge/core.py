@@ -44,6 +44,8 @@ LEGAL_DISPUTE_KEYWORDS = (
     "商标争议",
     "侵害发明专利权纠纷",
     "专利权纠纷",
+    "UPC诉讼",
+    "仲裁裁决",
     "ARBITRATION PROCEEDINGS",
 )
 FAST_NEWS_FINANCIAL_RESULT_KEYWORDS = (
@@ -253,6 +255,8 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "general_fast_news"
         if _is_editorial_roundup_fast_news(title):
             return "general_fast_news"
+        if _is_us_pre_market_brief_fast_news(title):
+            return "general_fast_news"
         if _is_market_move_fast_news(title, text):
             return "market_move"
         if _is_policy_document_fast_news(title, text):
@@ -263,6 +267,8 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "policy_signal"
         if _is_industry_project_release_fast_news(text):
             return "policy_signal"
+        if _is_supply_pressure_fast_news(text):
+            return "industry_data"
         if _contains_any(text, ("科学家", "研究人员", "研究团队", "科研")) and _contains_any(
             text,
             ("实现", "突破", "测试", "开发出", "新途径"),
@@ -290,6 +296,8 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "order_contract"
         if _is_cooperation_agreement_fast_news(text):
             return "cooperation_agreement"
+        if _is_share_disposal_disclaimer_fast_news(title, text):
+            return "company_update"
         if _contains_any(text, ("收购", "重组")):
             return "acquisition_restructuring"
         if "：" in title or _contains_any(text, ("发布", "上线", "推出", "回应")):
@@ -311,6 +319,10 @@ def _is_editorial_roundup_fast_news(title: str) -> bool:
     return _contains_any(title, ("隔夜全球要闻", "新闻精选", "你需要知道"))
 
 
+def _is_us_pre_market_brief_fast_news(title: str) -> bool:
+    return "美股盘前要闻一览" in title
+
+
 def _is_policy_document_fast_news(title: str, text: str) -> bool:
     if _contains_any(text, ("行动方案", "行动计划", "实施方案", "发展规划")):
         return True
@@ -329,6 +341,8 @@ def _is_authority_statement_fast_news(title: str, text: str) -> bool:
         "国防科技工业局",
         "国家发改委",
         "发改委",
+        "省委财经委员会",
+        "省委",
         "工信部",
         "财政部",
         "商务部",
@@ -433,6 +447,13 @@ def _is_industry_data_fast_news(text: str) -> bool:
     )
 
 
+def _is_supply_pressure_fast_news(text: str) -> bool:
+    return _contains_any(text, ("产能利用率", "供应持续收缩", "供应收缩")) and _contains_any(
+        text,
+        ("企业负荷", "负荷延续下降", "亏损压力增加"),
+    )
+
+
 def _is_financial_result_fast_news(title: str) -> bool:
     return _contains_any(title, FAST_NEWS_FINANCIAL_RESULT_KEYWORDS)
 
@@ -467,6 +488,16 @@ def _is_equity_investment_fast_news(text: str) -> bool:
     if not _contains_any(text, ("入股", "新增股东", "工商变更")):
         return False
     return _contains_any(text, ("注册资本", "股东", "有限公司"))
+
+
+def _is_share_disposal_disclaimer_fast_news(title: str, text: str) -> bool:
+    if not _contains_any(title, ("出售", "转让")):
+        return False
+
+    if "股权" not in title:
+        return False
+
+    return "不构成" in text and "重大资产重组" in text
 
 
 def _is_broker_commentary_fast_news(title: str, text: str) -> bool:

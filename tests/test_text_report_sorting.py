@@ -1868,6 +1868,47 @@ def test_write_text_report_filters_domestic_futures_night_session_mixed_roundup(
     assert "国内期货夜盘收盘涨跌不一 焦煤跌超4%" not in content
 
 
+def test_write_text_report_filters_cls_domestic_futures_night_open_roundup_without_hiding_themed_market_move(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-futures-night-open-roundup",
+            first_seen_at="2026-04-20T21:00:01+08:00",
+            last_seen_at="2026-04-20T21:00:01+08:00",
+            canonical_title="财联社4月20日电，国内商品期货夜盘开盘涨跌不一，原油涨2.36%，燃油涨2.2%，焦煤涨1.53%，液化气涨1.28%，沪银跌1.85%，纯苯跌0.84%，沪金跌0.68%，沪铝跌0.28%。",
+            summary="财联社4月20日电，国内商品期货夜盘开盘涨跌不一，原油涨2.36%，燃油涨2.2%，焦煤涨1.53%，液化气涨1.28%，沪银跌1.85%，纯苯跌0.84%，沪金跌0.68%，沪铝跌0.28%。",
+            source="cls",
+            published_at="2026-04-20T21:00:01+08:00",
+            url="https://www.cls.cn/detail/2349790",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-themed-oil-market-move",
+            first_seen_at="2026-04-20T21:01:01+08:00",
+            last_seen_at="2026-04-20T21:01:01+08:00",
+            canonical_title="WTI原油期货日内涨超3%",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-20T21:01:01+08:00",
+            url="https://example.com/cls-themed-oil-market-move",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-futures-night-open-roundup", direction="neutral", impact_score=99.3, reasoning="rule", themes=["油气"], triggered=True),
+        EventAnalysis(event_id="event-cls-themed-oil-market-move", direction="neutral", impact_score=99.3, reasoning="rule", themes=["油气"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "WTI原油期货日内涨超3%" in content
+    assert "财联社4月20日电，国内商品期货夜盘开盘涨跌不一" not in content
+
+
 def test_write_text_report_filters_domestic_futures_night_session_up_roundup(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -6631,6 +6672,116 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
     assert "建发股份关于控股子公司签署《谅解备忘录》暨关联交易的公告" not in content
 
 
+def test_write_text_report_filters_exchange_investment_property_accounting_policy_change_without_hiding_semiconductor_buildout(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-investment-property-accounting-policy-change",
+            first_seen_at="2026-04-20T00:00:00+08:00",
+            last_seen_at="2026-04-20T00:00:00+08:00",
+            canonical_title="江钨装备关于投资性房地产会计政策变更的公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-20T00:00:00+08:00",
+            url="https://example.com/sse-investment-property-accounting-policy-change",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-keep-semiconductor-buildout",
+            first_seen_at="2026-04-18T00:01:00+08:00",
+            last_seen_at="2026-04-18T00:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-18T00:01:00+08:00",
+            url="https://example.com/stcn-keep-semiconductor-buildout",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-investment-property-accounting-policy-change",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-keep-semiconductor-buildout",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "江钨装备关于投资性房地产会计政策变更的公告" not in content
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+
+
+def test_write_text_report_filters_cls_share_disposal_financial_gain_story_without_hiding_control_change_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-share-disposal-financial-gain",
+            first_seen_at="2026-04-20T20:00:53+08:00",
+            last_seen_at="2026-04-20T20:00:53+08:00",
+            canonical_title="翔港科技：拟2.76亿元出售参股公司金泰克13.19%股权",
+            summary="财联社4月20日电，翔港科技公告称，公司拟将持有的深圳市金泰克半导体有限公司13.1944%股权转让给南宁市和鸣启半导体合伙企业。本次交易完成后，公司将不再持有金泰克股权。预计本次交易将产生收益约2598.66万元，对公司2026年财务报表产生积极影响。",
+            source="cls",
+            published_at="2026-04-20T20:00:53+08:00",
+            url="https://example.com/cls-share-disposal-financial-gain",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-control-change-progress",
+            first_seen_at="2026-04-20T20:01:00+08:00",
+            last_seen_at="2026-04-20T20:01:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-20T20:01:00+08:00",
+            url="https://example.com/keep-control-change-progress",
+            event_type="hard_event",
+            event_subtype="control_change",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-share-disposal-financial-gain",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-control-change-progress",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "翔港科技：拟2.76亿元出售参股公司金泰克13.19%股权" not in content
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告" in content
+
+
 def test_write_text_report_filters_exchange_buyback_result_and_purpose_cancellation_without_hiding_buyback_plan(
     tmp_path,
 ) -> None:
@@ -7187,6 +7338,227 @@ def test_write_text_report_filters_exchange_reduction_predisclosure_and_risk_con
     assert "中国能建与华北电力大学签署战略合作协议" in content
     assert "天禾股份：关于公司高级管理人员减持股份预披露公告（刘勇峰）" not in content
     assert "中银证券关于宏盛华源金融服务协议及相关风险控制措施执行情况的核查意见" not in content
+
+
+def test_write_text_report_filters_exchange_risk_management_materials_without_hiding_substantive_disclosure(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-aml-risk-management",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="国元证券：国元证券股份有限公司防控洗钱和恐怖融资风险管理办法",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-aml-risk-management",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-risk-control-indicator-report",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="长城证券：2025年度风险控制指标报告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-risk-control-indicator-report",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-keep-substantive-disclosure",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="华测导航：关于开展供应链融资业务合作暨对外担保的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-keep-substantive-disclosure",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-aml-risk-management", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-risk-control-indicator-report", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-keep-substantive-disclosure", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国元证券：国元证券股份有限公司防控洗钱和恐怖融资风险管理办法" not in content
+    assert "长城证券：2025年度风险控制指标报告" not in content
+    assert "华测导航：关于开展供应链融资业务合作暨对外担保的公告" in content
+
+
+def test_write_text_report_filters_current_live_equity_incentive_and_land_use_materials_without_hiding_substantive_items(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-equity-opinion-current-2",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="英维克：薪酬和考核委员会关于 2024年股票期权激励计划有关事项的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-equity-opinion-current-2",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-equity-exercise-condition-current-2",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="英维克：关于2024年股票期权激励计划第二个行权期行权条件达成的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-equity-exercise-condition-current-2",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-land-use-contract-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="合肥城建：关于全资子公司签订国有建设用地使用权出让合同的公告（一）",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-land-use-contract-current",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-keep-substantive-order-contract-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/keep-substantive-order-contract-current",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-equity-opinion-current-2", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-exercise-condition-current-2", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-land-use-contract-current", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-substantive-order-contract-current", direction="neutral", impact_score=99.3, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "英维克：薪酬和考核委员会关于 2024年股票期权激励计划有关事项的核查意见" not in content
+    assert "英维克：关于2024年股票期权激励计划第二个行权期行权条件达成的公告" not in content
+    assert "合肥城建：关于全资子公司签订国有建设用地使用权出让合同的公告（一）" not in content
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+
+
+def test_write_text_report_filters_current_live_buyback_and_equity_incentive_materials_without_hiding_substantive_items(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-buyback-plan-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="纳尔股份：关于回购公司股份方案的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-buyback-plan-current",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-reserved-grant-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="纳尔股份：关于向2025年限制性股票激励计划激励对象授予预留限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-reserved-grant-current",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-adjust-unvested-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="美好医疗：关于调整已授予尚未归属限制性股票数量的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-adjust-unvested-current",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-void-restricted-stock-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="光大同创：关于作废部分限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-void-restricted-stock-current",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-unlock-listing-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="京基智农：关于2023年限制性股票激励计划第二个解除限售期解除限售股份上市流通的提示性公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-unlock-listing-current",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-substantive-item-current-2",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/keep-substantive-item-current-2",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-buyback-plan-current", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-reserved-grant-current", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-adjust-unvested-current", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-void-restricted-stock-current", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-unlock-listing-current", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-substantive-item-current-2", direction="neutral", impact_score=99.3, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "纳尔股份：关于回购公司股份方案的公告" not in content
+    assert "纳尔股份：关于向2025年限制性股票激励计划激励对象授予预留限制性股票的公告" not in content
+    assert "美好医疗：关于调整已授予尚未归属限制性股票数量的公告" not in content
+    assert "光大同创：关于作废部分限制性股票的公告" not in content
+    assert "京基智农：关于2023年限制性股票激励计划第二个解除限售期解除限售股份上市流通的提示性公告" not in content
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
 
 
 def test_write_text_report_filters_exchange_template_cooperation_agreement_without_theme(tmp_path) -> None:
@@ -8092,6 +8464,89 @@ def test_write_text_report_filters_current_live_exchange_material_disclosures(tm
     assert "哈尔斯：董事会薪酬与考核委员会关于2024年股票增值权激励计划第一个行权期的行权名单的核查意见" not in content
     assert "广东建工：关于重大资产重组业绩承诺期满标的资产减值测试情况的公告" not in content
     assert "凯瑞德：关于持股5%以上股东减持期限届满未减持股份的公告" not in content
+
+
+def test_write_text_report_filters_current_live_szse_disclosure_variants_without_hiding_policy_signal(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-stock-pledge-repurchase",
+            first_seen_at="2026-04-20T00:00:00+08:00",
+            last_seen_at="2026-04-20T00:00:00+08:00",
+            canonical_title="利安隆：关于控股股东部分股份办理股票质押式回购交易业务的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-20T00:00:00+08:00",
+            url="https://example.com/szse-stock-pledge-repurchase",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-top-shareholders-buyback",
+            first_seen_at="2026-04-20T00:00:00+08:00",
+            last_seen_at="2026-04-20T00:00:00+08:00",
+            canonical_title="力源信息：关于回购股份事项前十名股东及前十名无限售条件股东持股情况的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-20T00:00:00+08:00",
+            url="https://example.com/szse-top-shareholders-buyback",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-equity-review-opinion-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="万讯自控：董事会薪酬与考核委员会关于回购注销及作废2023年限制性股票激励计划部分限制性股票的核查意见",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-equity-review-opinion-current",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-reduction-finish-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="海泰科：关于控股股东、实际控制人提前终止减持计划暨减持结果的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-reduction-finish-current",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-policy-signal-current",
+            first_seen_at="2026-04-20T20:24:07+08:00",
+            last_seen_at="2026-04-20T20:24:07+08:00",
+            canonical_title="广东：要用好产业引导基金 加大对集成电路、具身智能、算电协同等领域的投资",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-20T20:24:07+08:00",
+            url="https://example.com/keep-policy-signal-current",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-stock-pledge-repurchase", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-top-shareholders-buyback", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-review-opinion-current", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-reduction-finish-current", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-policy-signal-current", direction="bullish", impact_score=99.3, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "广东：要用好产业引导基金 加大对集成电路、具身智能、算电协同等领域的投资" in content
+    assert "利安隆：关于控股股东部分股份办理股票质押式回购交易业务的公告" not in content
+    assert "力源信息：关于回购股份事项前十名股东及前十名无限售条件股东持股情况的公告" not in content
+    assert "万讯自控：董事会薪酬与考核委员会关于回购注销及作废2023年限制性股票激励计划部分限制性股票的核查意见" not in content
+    assert "海泰科：关于控股股东、实际控制人提前终止减持计划暨减持结果的公告" not in content
 
 
 def test_write_text_report_filters_current_live_equity_incentive_variants(tmp_path) -> None:
@@ -9284,6 +9739,543 @@ def test_write_text_report_filters_irm_cninfo_generic_followup_and_no_impact_rep
     assert "长春高新：请问贵公司创新药海外授权推进进展如何？" in content
 
 
+def test_write_text_report_filters_irm_cninfo_negative_project_reply_without_hiding_substantive_project_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-negative-project-reply",
+            first_seen_at="2026-04-20T19:46:33+08:00",
+            last_seen_at="2026-04-20T19:46:33+08:00",
+            canonical_title="震裕科技：贵公司在越南的机器人零部件生产工厂目前进展如何？一期二期预计产能多少？主要生产丝杠么？",
+            summary="问题：贵公司在越南的机器人零部件生产工厂目前进展如何？一期二期预计产能多少？主要生产丝杠么？ 回复：您好，我司尚未在越南投资建设项目，感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T19:46:33+08:00",
+            url="https://example.com/irm-negative-project-reply",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-project-progress",
+            first_seen_at="2026-04-20T19:56:03+08:00",
+            last_seen_at="2026-04-20T19:56:03+08:00",
+            canonical_title="易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况",
+            summary="问题：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况 回复：您好！公司依托深厚的技术储备、丰富的施工经验和良好的属地口碑，在三峡水运新通道项目混装炸药及爆破作业服务集中采购项目第Ⅰ、Ⅱ标段场内、场外方案的中标候选人中均排第一。",
+            source="irm_cninfo",
+            published_at="2026-04-20T19:56:03+08:00",
+            url="https://example.com/irm-keep-project-progress",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-negative-project-reply", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-project-progress", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "震裕科技：贵公司在越南的机器人零部件生产工厂目前进展如何？" not in content
+    assert "易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况" in content
+
+
+def test_write_text_report_filters_irm_cninfo_weak_order_contract_and_market_move_replies_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-order-contract-fallback",
+            first_seen_at="2026-04-20T19:47:03+08:00",
+            last_seen_at="2026-04-20T19:47:03+08:00",
+            canonical_title="易普力：2026年3月，三峡招标网显示，葛洲坝中标三峡新航道施工准备试验工程（先行开挖区）， 金额：约 4.62 亿元，请问易普力是否已与葛洲坝签署分包合同？",
+            summary="问题：2026年3月，三峡招标网显示，葛洲坝中标三峡新航道施工准备试验工程（先行开挖区）， 金额：约 4.62 亿元，请问易普力是否已与葛洲坝签署分包合同？ 回复：您好！具体中标情况请查询相关平台公示信息。公司将密切关注有关后续业务的进展。感谢您对公司的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T19:47:03+08:00",
+            url="https://example.com/irm-order-contract-fallback",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-market-move-fallback",
+            first_seen_at="2026-04-20T19:59:33+08:00",
+            last_seen_at="2026-04-20T19:59:33+08:00",
+            canonical_title="易普力：2026年以来，硝酸铵价格大涨，每吨上涨800～1000元，相比广东宏大、雪峰科技，凯龙股份有自产硝酸铵的企业，对于纯外购的易普力而言，是一笔沉重的负担。一个连主要原材料都要外购，受制于成本，未构建全产业链的民爆企业，公司还认为是龙头企业吗？",
+            summary="问题：2026年以来，硝酸铵价格大涨，每吨上涨800～1000元。 回复：您好！请查阅同类问题回复。感谢您对公司的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T19:59:33+08:00",
+            url="https://example.com/irm-market-move-fallback",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-irm-keep-order-progress",
+            first_seen_at="2026-04-20T19:55:33+08:00",
+            last_seen_at="2026-04-20T19:55:33+08:00",
+            canonical_title="易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况",
+            summary="问题：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况 回复：您好！公司依托深厚的技术储备、丰富的施工经验和良好的属地口碑，在三峡水运新通道项目混装炸药及爆破作业服务集中采购项目第Ⅰ、Ⅱ标段场内、场外方案的中标候选人中均排第一。",
+            source="irm_cninfo",
+            published_at="2026-04-20T19:55:33+08:00",
+            url="https://example.com/irm-keep-order-progress",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-keep-market-move-response",
+            first_seen_at="2026-04-20T20:00:05+08:00",
+            last_seen_at="2026-04-20T20:00:05+08:00",
+            canonical_title="易普力：去年我多次建议公司，在硝酸铵价格低廉时，抓紧并购四川美丰，完善全产业链，请问面对硝酸铵价格大涨，公司如何应对？",
+            summary="问题：面对硝酸铵价格大涨，公司如何应对？ 回复：您好！公司深化集团化采购信息联动机制，实施采购渠道集中管控，健全完善价格传导与库存调节机制，有效化解原材料价格上涨带来的挑战。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:00:05+08:00",
+            url="https://example.com/irm-keep-market-move-response",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-order-contract-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-market-move-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-order-progress", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-market-move-response", direction="bearish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "易普力是否已与葛洲坝签署分包合同" not in content
+    assert "公司还认为是龙头企业吗？" not in content
+    assert "易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况" in content
+    assert "易普力：去年我多次建议公司，在硝酸铵价格低廉时，抓紧并购四川美丰" in content
+
+
+def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-humanoid-confidence-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="恒锋工具：董秘你好！1年前已经看到公司有在人形机器人用的行星减速器内齿轮刀具小批量出货的消息，公司现在还在小批量试样，还是有明显出货了?",
+            summary="问题：公司现在还在小批量试样，还是有明显出货了? 回复：你好，公司高度关注人形机器人产业发展进程，在装备投资、技术人员储备上高度重视，对人形机器人产业的发展充满信心，感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-humanoid-confidence-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-robot-investment-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="远东传动：您好，公司对于现在机器人领域有没有参与投资？比如重型机器人之类",
+            summary="问题：公司对于现在机器人领域有没有参与投资？ 回复：您好！公司将会持续关注机器人零部件领域的发展前景，向其行业内的优秀配套企业学习与合作，探索向高端装备领域传动部件转型的可能性，回报投资者的关切。谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-robot-investment-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-stock-price-image-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="华伍股份：尊敬的董秘你好，公司是否有提升公司形象提振股价的计划？",
+            summary="问题：公司是否有提升公司形象提振股价的计划？ 回复：您好！公司将继续坚持以投资者需求为导向，强化信息披露与投资者关系管理工作，通过多种渠道加强与市场的沟通交流，积极传递公司价值，努力维护公司资本市场形象。谢谢关注！",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-stock-price-image-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-report-calendar-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="ST恒信：平潭两岸融合智算中心项目一期已完工，目前是否有客户签约？算力出租率如何？",
+            summary="问题：项目一期已完工，目前是否有客户签约？算力出租率如何？ 回复：尊敬的投资者您好，相关业务情况请关注公司即将披露的《2025年年度报告》，公司将严格按照信息披露相关规定，及时履行信息披露义务。感谢您对公司的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-report-calendar-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-future-layout-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="中青宝：贵公司未来会在内蒙、新疆大规模发展算力中心吗",
+            summary="问题：贵公司未来会在内蒙、新疆大规模发展算力中心吗 回复：尊敬的投资者，感谢您对公司的关注。公司目前聚焦现有深圳、成都、乐山三大数据中心的运营与优化，密切关注国内其他地区的算力行业发展情况，未来若有相关业务布局规划，公司将严格按照法律法规履行信息披露义务，敬请以法定公告为准。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-future-layout-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-theme-progress",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-theme-progress",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-humanoid-confidence-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-robot-investment-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-stock-price-image-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["油气"], triggered=True),
+        EventAnalysis(event_id="event-irm-report-calendar-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-future-layout-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-theme-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "恒锋工具：董秘你好！1年前已经看到公司有在人形机器人用的行星减速器内齿轮刀具小批量出货的消息" not in content
+    assert "远东传动：您好，公司对于现在机器人领域有没有参与投资？比如重型机器人之类" not in content
+    assert "华伍股份：尊敬的董秘你好，公司是否有提升公司形象提振股价的计划？" not in content
+    assert "ST恒信：平潭两岸融合智算中心项目一期已完工，目前是否有客户签约？算力出租率如何？" not in content
+    assert "中青宝：贵公司未来会在内蒙、新疆大规模发展算力中心吗" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_irm_cninfo_disclosure_threshold_and_low_revenue_replies_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-disclosure-threshold-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="*ST中地：您好董秘，公司年报说中标宁夏中交云数据中心，武汉环贸数据中心，乌兰察布数据中心等运营项目，为什么没发公告呢？是公司独立中标还是中交集团联合中标？公司有运营数据中心的能力吗？",
+            summary="问题：为什么没发公告？公司有运营数据中心的能力吗？ 回复：您好，上述轻资产服务业务未达到披露标准，公司系独立中标，具备相关运营能力。谢谢关注！",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-disclosure-threshold-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-low-revenue-ratio-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="濮阳惠成：公司的联营企业是否提供商业航天火箭精密器件解决方案？",
+            summary="问题：公司的联营企业是否提供商业航天火箭精密器件解决方案？ 回复：尊敬的投资者您好，公司联营企业相关产品可用于航空航天高能燃料等领域，其高能燃料相关产品收入占其总体业务收入比重较低。感谢您对公司的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-low-revenue-ratio-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-order-progress-3",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-order-progress-3",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-disclosure-threshold-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-low-revenue-ratio-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-order-progress-3", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "*ST中地：您好董秘，公司年报说中标宁夏中交云数据中心" not in content
+    assert "濮阳惠成：公司的联营企业是否提供商业航天火箭精密器件解决方案？" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_irm_cninfo_gamble_clause_explanation_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-gamble-clause-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="*ST中地：您好董秘，公司收购中交物业时有对赌协议，3年净利润不低于2.31亿元，对赌协议是最多补偿2.31亿，不管是否亏损，还是对亏损额也要补偿？谢谢",
+            summary="问题：对赌协议是最多补偿2.31亿，不管是否亏损，还是对亏损额也要补偿？ 回复：您好，请参见已披露年报承诺事项中的计算方法，谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-gamble-clause-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-order-progress-4",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-order-progress-4",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-gamble-clause-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-order-progress-4", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "*ST中地：您好董秘，公司收购中交物业时有对赌协议" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_irm_cninfo_supply_chain_and_small_revenue_replies_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-enterprise-ssd-fallback",
+            first_seen_at="2026-04-20T21:35:33+08:00",
+            last_seen_at="2026-04-20T21:35:33+08:00",
+            canonical_title="江波龙：董秘您好，AI算力爆发带动SSD市场需求持续扩容，请问公司2026年在企业级SSD业务上的核心发展规划是什么？目前公司企业级PCIe 5.0 SSD产品在国内AI数据中心头部云计算厂商的客户导入和批量出货进展如何？",
+            summary="问题：企业级PCIe 5.0 SSD产品在头部云计算厂商的客户导入和批量出货进展如何？ 回复：尊敬的投资者，您好。公司企业级存储产品已导入头部互联网企业的供应链体系中，客户涵盖运营商、互联网企业、服务器厂商等。公司将持续深化与多个领域知名客户的研发项目合作。具体产品进展请以公司公开发布的信息为准。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T21:35:33+08:00",
+            url="https://example.com/irm-enterprise-ssd-fallback",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+        Event(
+            event_id="event-irm-domestic-substitution-fallback",
+            first_seen_at="2026-04-20T21:33:03+08:00",
+            last_seen_at="2026-04-20T21:33:03+08:00",
+            canonical_title="江波龙：董秘您好，公司核心存储颗粒100%依赖海外原厂采购，请问公司针对供应链卡脖子风险，是否制定了明确的国产替代落地计划？目前在国产存储颗粒的适配、批量采购方面有无实质性进展？谢谢",
+            summary="问题：目前在国产存储颗粒的适配、批量采购方面有无实质性进展？ 回复：尊敬的投资者，您好。您提及的信息并不符合公司实际情况。公司已与包括长江存储、长鑫存储在内的全球主要晶圆原厂达成深层次、多角度的合作关系，在晶圆供应保障上具备明显优势。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T21:33:03+08:00",
+            url="https://example.com/irm-domestic-substitution-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-small-revenue-impact-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？公司如何看待商业航天和卫星互联网未来发展前景，公司如何推进相关产品与之相配套？",
+            summary="问题：产品在商业航天和卫星互联网方面市场拓展如何？ 回复：感谢您的关注。2026年以来，公司持续关注商业航天及卫星互联网领域的行业动态，相关工作正在开展。目前，商业航天与卫星互联网行业尚处于起步阶段，公司在商业航天和卫星互联网领域的收入占整体营业收入的比例较小，对公司业绩无重大影响，请投资者注意风险，理性决策，审慎投资。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-small-revenue-impact-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-theme-progress-5",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-theme-progress-5",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-enterprise-ssd-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-domestic-substitution-fallback", direction="bearish", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-small-revenue-impact-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-theme-progress-5", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "江波龙：董秘您好，AI算力爆发带动SSD市场需求持续扩容" not in content
+    assert "江波龙：董秘您好，公司核心存储颗粒100%依赖海外原厂采购" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？公司如何看待商业航天和卫星互联网未来发展前景，公司如何推进相关产品与之相配套？" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_current_live_buyback_completion_material_without_hiding_substantive_item(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-buyback-cancel-complete-current",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="广东鸿图：关于限制性股票回购注销完成的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-buyback-cancel-complete-current",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-substantive-item-current-3",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/keep-substantive-item-current-3",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-szse-buyback-cancel-complete-current", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-substantive-item-current-3", direction="neutral", impact_score=99.3, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "广东鸿图：关于限制性股票回购注销完成的公告" not in content
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+
+
+def test_write_text_report_filters_irm_cninfo_inventory_capacity_and_registration_progress_replies_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-inventory-lta-fallback",
+            first_seen_at="2026-04-20T21:38:03+08:00",
+            last_seen_at="2026-04-20T21:38:03+08:00",
+            canonical_title="江波龙：董秘您好，当前全球存储原厂产能持续向AI专用、企业级存储倾斜，行业普遍面临晶圆/颗粒供给紧张的局面。请问公司2026全年的存储晶圆/颗粒长单锁定比例是多少？现有库存水位能否足额覆盖下游客户的交付需求？是否存在订单无法按期交付的风险？谢谢",
+            summary="问题：长单锁定比例是多少？现有库存水位能否足额覆盖交付需求？ 回复：尊敬的投资者，您好。公司已与全球主要存储晶圆原厂建立合作关系，通过签署长期供货协议（LTA）或商业合作备忘录（MOU），构建起有韧性及有保障的晶圆供应体系。公司库存水位处于健康合理区间。届时欢迎您查阅定期报告以获取更详细的存货信息。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T21:38:03+08:00",
+            url="https://example.com/irm-inventory-lta-fallback",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+        Event(
+            event_id="event-irm-vehicle-supply-chain-fallback",
+            first_seen_at="2026-04-20T21:36:33+08:00",
+            last_seen_at="2026-04-20T21:36:33+08:00",
+            canonical_title="江波龙：董秘您好，高阶智能驾驶与车载端侧AI的快速普及，带动车规级存储市场迎来确定性增长。请问目前公司车规级存储产品在国内头部新能源车企的批量出货进展如何？2026年公司在车规级存储赛道的营收占比目标分别是什么？谢谢",
+            summary="问题：车规级存储产品在国内头部新能源车企的批量出货进展如何？2026年营收占比目标分别是什么？ 回复：尊敬的投资者，您好。公司构建了UFS、eMMC、LPDDR、USB在内的车规级存储产品矩阵，已经进入北美智能汽车及自动驾驶科技巨头等知名车企的供应链体系中，并将持续深化与知名客户的研发和商业化项目合作。具体业务的业绩情况，请您以公司发布的定期报告为准。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T21:36:33+08:00",
+            url="https://example.com/irm-vehicle-supply-chain-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-capacity-report-fallback",
+            first_seen_at="2026-04-20T21:38:33+08:00",
+            last_seen_at="2026-04-20T21:38:33+08:00",
+            canonical_title="江波龙：董秘您好，当前存储行业景气度持续走高，公司下游需求旺盛。请问公司目前整体产能利用率如何，订单是否接近满产满销？谢谢。",
+            summary="问题：公司目前整体产能利用率如何，订单是否接近满产满销？ 回复：尊敬的投资者，您好。公司已经构建了全球化与国内产能并重、自主产能与委外产能并行的制造格局，能够灵活高效地满足下游客户的多样化需求。届时欢迎您查阅定期报告以获取更详细的产销情况信息。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-20T21:38:33+08:00",
+            url="https://example.com/irm-capacity-report-fallback",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-registration-progress-fallback",
+            first_seen_at="2026-04-20T20:45:33+08:00",
+            last_seen_at="2026-04-20T20:45:33+08:00",
+            canonical_title="华伍股份：董秘你好，股东大会开完一周了，注销回购股份减少注册资本的工商登记是否变更完成了？公司是否能够及时快速的落实股东大会决议？！几个月前公司就公告了拟注销回购的股份，一切手续是不是早就准备好了？",
+            summary="问题：注销回购股份减少注册资本的工商登记是否变更完成了？ 回复：您好！公司已组织人员办理回购股份注销业务。目前相关工作正在有序推进中，公司将根据业务办理进度及时履行信息披露义务。具体完成时间及进展情况请以公司后续公告为准。谢谢关注！",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:45:33+08:00",
+            url="https://example.com/irm-registration-progress-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-theme-progress-6",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-theme-progress-6",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-inventory-lta-fallback", direction="bearish", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-vehicle-supply-chain-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["新能源车"], triggered=True),
+        EventAnalysis(event_id="event-irm-capacity-report-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-registration-progress-fallback", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-theme-progress-6", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "江波龙：董秘您好，当前全球存储原厂产能持续向AI专用、企业级存储倾斜" not in content
+    assert "江波龙：董秘您好，高阶智能驾驶与车载端侧AI的快速普及" not in content
+    assert "江波龙：董秘您好，当前存储行业景气度持续走高" not in content
+    assert "华伍股份：董秘你好，股东大会开完一周了" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_overseas_single_stock_cls_acquisition_without_theme_or_entities(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-overseas-single-stock-acquisition",
+            first_seen_at="2026-04-20T21:35:53+08:00",
+            last_seen_at="2026-04-20T21:35:53+08:00",
+            canonical_title="财联社4月20日电，美国稀土集团股价上涨13%，因其将以28亿美元收购巴西的SERRA VERDE。",
+            summary="财联社4月20日电，美国稀土集团股价上涨13%，因其将以28亿美元收购巴西的SERRA VERDE。",
+            source="cls",
+            published_at="2026-04-20T21:35:53+08:00",
+            url="https://example.com/cls-overseas-single-stock-acquisition",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-keep-substantive-acquisition-current-4",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="杭可科技：拟1.79亿元增资杭可仪器获51%股权",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/keep-substantive-acquisition-current-4",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-overseas-single-stock-acquisition", direction="neutral", impact_score=74.3, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-substantive-acquisition-current-4", direction="neutral", impact_score=99.3, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "财联社4月20日电，美国稀土集团股价上涨13%，因其将以28亿美元收购巴西的SERRA VERDE。" not in content
+    assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
+
+
 def test_write_text_report_filters_sse_einteractive_investor_complaint_and_report_calendar_without_hiding_substantive_reply(
     tmp_path,
 ) -> None:
@@ -9558,6 +10550,47 @@ def test_write_text_report_keeps_cls_morning_brief_column_for_global_news_collec
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "杭可科技：拟1.79亿元增资杭可仪器获51%股权" in content
     assert "【财联社早知道】重大突破！我国最大规模科学智能计算集群投入使用" in content
+
+
+def test_write_text_report_filters_cls_morning_brief_anonymous_pick_column_without_hiding_substantive_item(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-morning-brief-anonymous-pick",
+            first_seen_at="2026-04-20T21:21:14+08:00",
+            last_seen_at="2026-04-20T21:21:14+08:00",
+            canonical_title="【财联社早知道】机构预估2026年全球AI光收发模块市场规模达260亿美元，关键零部件吃紧成扩产瓶颈，分析师称AI爆炸式增长为光模块带来了长期的增长动力，这家公司为头部客户提供CPO光互连解决方案",
+            summary="①机构预估2026年全球AI光收发模块市场规模达260亿美元；②机构称AI应用即将在2026年迎来商业化拐点，这家公司在多个业务场景深化AI应用落地；③这家公司深耕电子元器件领域60余年。",
+            source="cls",
+            published_at="2026-04-20T21:21:14+08:00",
+            url="https://example.com/cls-morning-brief-anonymous-pick",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-policy-signal-column-test",
+            first_seen_at="2026-04-20T20:24:07+08:00",
+            last_seen_at="2026-04-20T20:24:07+08:00",
+            canonical_title="广东：要用好产业引导基金 加大对集成电路、具身智能、算电协同等领域的投资",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-20T20:24:07+08:00",
+            url="https://example.com/keep-policy-signal-column-test",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-cls-morning-brief-anonymous-pick", direction="bullish", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-keep-policy-signal-column-test", direction="bullish", impact_score=99.3, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "【财联社早知道】机构预估2026年全球AI光收发模块市场规模达260亿美元" not in content
+    assert "广东：要用好产业引导基金 加大对集成电路、具身智能、算电协同等领域的投资" in content
 
 
 def test_write_text_report_keeps_cls_overseas_aviation_fuel_story_for_global_news_collection(

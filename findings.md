@@ -1,5 +1,28 @@
 # Findings & Decisions
 
+## Update 2026-04-20
+- 本轮没有继续扩源，`hkex` 继续停在 staged；主线仍是 `phase8-live-boundary`
+- 这轮最有效的刀仍是 `text_report` 最窄过滤，连续收掉：
+  - `irm_cninfo` 弱问答、模糊回复、年报导向口径
+  - `sse/szse` 的回购、股权激励、核查意见、风险管理、土地合同等低信号材料
+  - `cls` 的夜盘综述、盘前要闻、匿名拼盘栏目稿、弱财务收益股权处置稿
+  - `海外单股并购快讯 + 无题材无个股`
+- 本轮补了几条更值钱的回正：
+  - `省委财经委员会 / 产业引导基金` -> `policy_signal`
+  - `乙烯法PVC供应持续收缩` -> `industry_data`
+  - `UPC诉讼 / 仲裁裁决` -> `legal_dispute`
+  - `美股盘前要闻一览` -> `general_fast_news`
+  - `出售/转让股权 + 不构成重大资产重组` 不该继续算 `acquisition_restructuring`
+- 当前基线：
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1766 normalized_news=1766 events=468 analyses=468 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+- 当前头部已经明显从“弱问答/弱材料/栏目稿”切回更像该保留的风险公告：
+  - `*ST声迅：关于申请撤销对公司股票交易实施退市风险警示的公告`
+  - `明德生物：关于公司股票交易被实施退市风险警示暨股票停复牌安排的公告`
+- 当前判断：
+  - 这是一个适合停手的点
+  - 下一轮如果头部还是这类风险公告，不要为了更干净继续过拟合
+
 ## Update 2026-04-17（hkex staged）
 - 本轮新增确认：
   - `hkex` collector 已经能抓官方 JSON，不是采集没通；当前问题在于英文标题的 subtype 和降噪还不够。

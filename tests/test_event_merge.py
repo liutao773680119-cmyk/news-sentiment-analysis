@@ -489,6 +489,46 @@ def test_merge_news_items_classifies_patent_infringement_dispute_as_legal_disput
     assert events[0].event_subtype == "legal_dispute"
 
 
+def test_merge_news_items_classifies_upc_patent_litigation_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1upc",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-21T00:00:00+08:00",
+            captured_at="2026-04-21T00:00:30+08:00",
+            title="三诺生物：关于与雅培就EP3988471专利在UPC诉讼的公告",
+            content="公司与雅培就EP3988471专利在UPC诉讼。",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-21/0ee14919-0660-4b22-82cc-9abd1fb95e66.PDF",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
+def test_merge_news_items_classifies_arbitration_award_challenge_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1arb",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-21T00:00:00+08:00",
+            captured_at="2026-04-21T00:00:30+08:00",
+            title="德展健康：关于美林控股业绩承诺补偿履行情况进展暨美林控股申请撤销仲裁裁决的公告",
+            content="公司披露美林控股申请撤销仲裁裁决的进展。",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-21/example.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
 def test_merge_news_items_classifies_delisting_risk_notice_subtype() -> None:
     items = [
         NormalizedNews(
@@ -858,6 +898,26 @@ def test_merge_news_items_classifies_authority_statement_fast_news_as_policy_sig
     assert events[0].event_subtype == "policy_signal"
 
 
+def test_merge_news_items_classifies_local_party_committee_industry_fund_statement_as_policy_signal() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-20T20:24:07+08:00",
+            captured_at="2026-04-20T20:24:20+08:00",
+            title="广东：要用好产业引导基金 加大对集成电路、具身智能、算电协同等领域的投资",
+            content="财联社4月20日电，广东省委财经委员会20日下午召开会议。会议指出，要积极布局新质生产力项目，着眼抢占发展制高点，用好产业引导基金，加大对集成电路、具身智能、算电协同等领域的投资。",
+            url="https://www.cls.cn/detail/2349742",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "policy_signal"
+
+
 def test_merge_news_items_classifies_industry_project_release_fast_news_as_policy_signal() -> None:
     items = [
         NormalizedNews(
@@ -1198,6 +1258,26 @@ def test_merge_news_items_classifies_material_price_story_as_industry_data() -> 
     assert events[0].event_subtype == "industry_data"
 
 
+def test_merge_news_items_classifies_supply_pressure_story_as_industry_data() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-20T20:21:12+08:00",
+            captured_at="2026-04-20T20:21:20+08:00",
+            title="成本高企挤压生产利润 乙烯法PVC供应持续收缩",
+            content="财联社4月20日电，本周国内PVC乙烯法生产企业产能利用率在63.12%，高企的原油及乙烯成本下，企业亏损压力增加，预计未来三周企业负荷延续下降趋势。",
+            url="https://www.cls.cn/detail/2349741",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "industry_data"
+
+
 def test_merge_news_items_classifies_model_usage_rank_fast_news_subtype() -> None:
     items = [
         NormalizedNews(
@@ -1294,6 +1374,26 @@ def test_merge_news_items_classifies_share_acquisition_resume_trading_fast_news_
 
     assert len(events) == 1
     assert events[0].event_subtype == "acquisition_restructuring"
+
+
+def test_merge_news_items_does_not_classify_share_disposal_disclaimer_as_acquisition_restructuring() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-20T20:00:53+08:00",
+            captured_at="2026-04-20T20:01:00+08:00",
+            title="翔港科技：拟2.76亿元出售参股公司金泰克13.19%股权",
+            content="财联社4月20日电，翔港科技公告称，公司拟将持有的深圳市金泰克半导体有限公司13.1944%股权转让给南宁市和鸣启半导体合伙企业，转让价格为2.76亿元。本次交易不构成关联交易及重大资产重组。",
+            url="https://www.cls.cn/detail/2349710",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype != "acquisition_restructuring"
 
 
 def test_merge_news_items_classifies_profit_preview_with_downstream_industry_context_as_business_guidance() -> None:
@@ -1428,6 +1528,26 @@ def test_merge_news_items_classifies_cls_overnight_roundup_as_general_fast_news(
             title="周三你需要知道的隔夜全球要闻：以黎同意将启动直接谈判；特朗普称与伊朗会谈“可能未来两天内”举行；霍尔木兹海峡恢复部分通航 美军封锁伊朗港口持续；国际原油下挫 美股纳指十连涨",
             content="国际原油期货收盘下挫，WTI原油期货结算价收跌7.87%，美股三大指数集体收涨，道指涨0.66%，纳指涨1.96%。",
             url="https://www.cls.cn/detail/2344207",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "general_fast_news"
+
+
+def test_merge_news_items_classifies_cls_us_pre_market_brief_as_general_fast_news() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-04-20T20:46:57+08:00",
+            captured_at="2026-04-20T20:47:10+08:00",
+            title="美股盘前要闻一览：伊朗称暂无与美国进行第二轮谈判的计划；SK海力士量产专供英伟达下一代AI芯片的内存模组；日本央行或在4月暂缓加息",
+            content="①【伊朗称暂无与美国进行第二轮谈判的计划】伊朗外交部发言人表示，伊朗与美国尚未就任何后续谈判达成一致。②【SK海力士量产专供英伟达下一代AI芯片的内存模组】存储芯片行业正在经历结构性重组。③【日本央行或在4月暂缓加息】市场等待更多通胀与工资数据。",
+            url="https://www.cls.cn/detail/2349775",
         )
     ]
 

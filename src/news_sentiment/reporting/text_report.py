@@ -123,6 +123,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持计划完成",
     "减持计划实施完成",
     "减持计划期限届满暨实施情况",
+    "提前终止减持计划暨减持结果",
     "减持股份计划期限届满暨实施情况",
     "减持期限届满未减持股份",
     "减持股份结果",
@@ -131,11 +132,15 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "终止股份减持计划",
     "提前终止股份减持计划",
     "回购实施结果",
+    "回购公司股份方案",
     "回购股份用途并注销",
     "回购股份的用途并注销",
     "一般风险提示暨公司股票复牌",
     "变更股份回购用途",
     "回购股份用途",
+    "股票质押式回购交易业务",
+    "回购股份事项前十名股东",
+    "前十名无限售条件股东持股情况",
     "库存股减少公司注册资本",
     "注销回购股份并减少注册资本",
     "关联交易进展",
@@ -163,6 +168,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "回购股份价格上限",
     "互动易平台信息发布及回复内部审核制度",
     "风险管理制度",
+    "风险控制指标报告",
+    "洗钱和恐怖融资风险管理办法",
     "行政处罚决定书",
     "年度报告摘要",
     "年度报告",
@@ -200,20 +207,27 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "符合行权条件",
     "首次授予限制性股票",
     "向激励对象授予限制性股票",
+    "授予预留限制性股票",
     "授予登记完成",
     "归属结果暨股份上市",
+    "解除限售期解除限售股份上市流通",
     "解除限售期解锁暨限制性股票上市公告",
     "行权条件成就",
     "期权数量、行权价格并注销部分已获授但未行权的股票期权",
     "回购注销限制性股票减资暨通知债权人",
+    "回购注销完成",
+    "回购注销及作废",
     "暨通知债权人",
     "回购注销部分限制性股票",
+    "作废部分限制性股票",
     "尚未解除限售的限制性股票",
     "尚未归属的限制性股票",
+    "调整已授予尚未归属限制性股票数量",
     "归属条件未成就",
     "激励对象名单",
     "股票期权注销事项的核查意见",
     "股票期权注销完成",
+    "股票期权激励计划有关事项的核查意见",
     "股票增值权激励计划第一个行权期的行权名单的核查意见",
     "作废处理部分限制性股票的法律意见",
     "作废部分已授予尚未归属的限制性股票相关事项的核查意见",
@@ -223,6 +237,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "内幕信息知情人买卖公司股票情况的自查报告",
     "符合归属条件的公告",
     "归属条件成就",
+    "行权条件达成",
 )
 LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS = (
     "履行监督职责情况的报告",
@@ -319,6 +334,7 @@ LOW_SIGNAL_HKEX_GOVERNANCE_MATERIAL_KEYWORDS = (
 LOW_SIGNAL_EXCHANGE_OPERATIONAL_DISCLOSURE_KEYWORDS = (
     "销售情况简报",
     "获得房地产项目",
+    "投资性房地产会计政策变更",
     "关联合伙企业及相关主体开展关联交易",
     "对外提供财务资助",
     "以房抵款事项",
@@ -346,10 +362,12 @@ LOW_SIGNAL_FOREIGN_INDEX_FAST_NEWS_KEYWORDS = (
 LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS = (
     "现货白银",
     "美股光通信股走势分化",
+    "【财联社早知道】机构预估",
 )
 LOW_SIGNAL_DOMESTIC_FUTURES_MARKET_MOVE_KEYWORDS = (
     "国内期货市场夜盘收盘",
     "国内商品期货夜盘收盘",
+    "国内商品期货夜盘开盘涨跌不一",
     "国内期货夜盘收盘多数上涨",
     "国内期货夜盘收盘涨跌不一",
     "国内期市开盘多数下跌",
@@ -599,6 +617,10 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_general_fast_news_market_brief(event):
         return False
+    if _is_low_signal_cls_share_disposal_financial_gain_story(event, text):
+        return False
+    if _is_low_signal_cls_overseas_single_stock_acquisition(event, analysis):
+        return False
     if _is_low_signal_cls_science_feature_story(event, text):
         return False
     if _is_low_signal_irm_cninfo_investor_qa(event, text):
@@ -657,9 +679,15 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
         )
 
     if event.event_subtype == "order_contract":
-        return event.source in {"sse", "szse"} and any(
-            keyword in event.canonical_title
-            for keyword in LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS
+        return (
+            event.source in {"sse", "szse"}
+            and (
+                any(
+                    keyword in event.canonical_title
+                    for keyword in LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS
+                )
+                or "国有建设用地使用权出让合同" in event.canonical_title
+            )
         )
 
     if event.event_subtype == "control_change":
@@ -802,7 +830,7 @@ def _is_low_signal_foreign_index_fast_news(event: Event, text: str) -> bool:
 
 def _is_low_signal_domestic_futures_market_move(title: str, event: Event) -> bool:
     if not (
-        event.source == "stcn"
+        event.source in {"stcn", "cls"}
         and event.event_type == "fast_news"
         and event.event_subtype == "market_move"
     ):
@@ -939,6 +967,23 @@ def _is_low_signal_cls_wind_research_insight_column(event: Event) -> bool:
     return "【风口研报·洞察】" in event.canonical_title
 
 
+def _is_low_signal_cls_share_disposal_financial_gain_story(event: Event, text: str) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        any(keyword in title for keyword in ("出售", "转让"))
+        and "股权" in title
+        and "不再持有" in text
+        and "财务报表产生积极影响" in text
+    )
+
+
 def _is_low_signal_cls_after_hours_earnings_digest(event: Event) -> bool:
     if not (
         event.source == "cls"
@@ -954,7 +999,7 @@ def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
     if not (
         event.source == "cls"
         and event.event_type == "fast_news"
-        and event.event_subtype == "general_fast_news"
+        and event.event_subtype in {"general_fast_news", "company_update"}
     ):
         return False
 
@@ -962,6 +1007,19 @@ def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
         keyword in event.canonical_title
         for keyword in LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS
     )
+
+
+def _is_low_signal_cls_overseas_single_stock_acquisition(event: Event, analysis: EventAnalysis) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "acquisition_restructuring"
+        and not analysis.themes
+    ):
+        return False
+
+    title = event.canonical_title
+    return "股价上涨" in title and "收购" in title and "亿美元" in title
 
 
 def _is_low_signal_cls_science_feature_story(event: Event, text: str) -> bool:
@@ -1155,6 +1213,25 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("有什么影响" in title and "对公司业务无影响" in text)
         or ("时间表" in title and "达到信息披露标准" in text and "履行披露义务" in text)
         or ("是否有" in title and "敬请关注公司定期报告" in text)
+        or ("进展如何" in title and "尚未" in text and "投资建设项目" in text)
+        or ("签署" in title and "具体中标情况请查询相关平台公示信息" in text)
+        or ("签署" in title and "密切关注有关后续业务的进展" in text)
+        or ("价格大涨" in title and "请查阅同类问题回复" in text)
+        or ("提振股价" in title and "投资者关系管理工作" in text and "资本市场形象" in text)
+        or ("有没有参与投资" in title and "持续关注" in text and "探索" in text and "可能性" in text)
+        or ("发展算力中心" in title and "未来若有相关业务布局规划" in text and "以法定公告为准" in text)
+        or ("出租率如何" in title and "请关注公司即将披露的《2025年年度报告》" in text)
+        or ("小批量出货" in title and "高度关注" in text and "充满信心" in text)
+        or ("为什么没发公告" in title and "未达到披露标准" in text and "具备相关运营能力" in text)
+        or ("是否提供" in title and "收入占其总体业务收入比重较低" in text)
+        or ("对赌协议" in title and "请参见已披露年报承诺事项中的计算方法" in text)
+        or ("长单锁定比例" in title and "LTA" in text and "MOU" in text and "存货信息" in text)
+        or ("营收占比目标" in title and "进入" in text and "供应链体系" in text and "定期报告为准" in text)
+        or ("产能利用率如何" in title and "制造格局" in text and "产销情况信息" in text)
+        or ("工商登记是否变更完成" in title and "正在有序推进中" in text and "后续公告为准" in text)
+        or ("批量出货进展" in title and "已导入" in text and "供应链体系" in text and "公开发布的信息为准" in text)
+        or ("国产替代" in title and "并不符合公司实际情况" in text and "达成深层次、多角度的合作关系" in text)
+        or ("收入占整体营业收入的比例较小" in text and "对公司业绩无重大影响" in text)
         or ("您的建议已收悉" in text and "感谢您的关注" in text)
     )
 

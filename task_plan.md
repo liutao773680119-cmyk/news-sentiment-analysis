@@ -21,6 +21,28 @@
     - `恒瑞医药关于药物纳入突破性治疗品种名单的公告`
     - `云天化关于引入合作方投资建设新能源电池正极材料项目的公告`
 
+## Update 2026-04-20
+- 主线仍是 `phase8-live-boundary`，本轮没有继续做扩源，`hkex` 继续留在 staged
+- 本轮按 live 头部连续收掉了一批弱信号：
+  - `irm_cninfo` 弱问答、回避口径、年报导向回复
+  - `sse/szse` 回购、股权激励、核查意见、风险管理、土地合同等材料公告
+  - `cls` 夜盘/盘前综述、匿名拼盘栏目稿、弱财务收益股权处置稿
+  - `海外单股并购快讯 + 无题材无个股`
+- 同时补了几条更值钱的回正：
+  - `省委财经委员会 / 产业引导基金` -> `policy_signal`
+  - `乙烯法PVC供应持续收缩` -> `industry_data`
+  - `UPC诉讼 / 仲裁裁决` -> `legal_dispute`
+  - `美股盘前要闻一览` -> `general_fast_news`
+- 当前最新验证：
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1766 normalized_news=1766 events=468 analyses=468 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+- 当前头部已基本回到更像应保留的风险公告：
+  - `*ST声迅：关于申请撤销对公司股票交易实施退市风险警示的公告`
+  - `明德生物：关于公司股票交易被实施退市风险警示暨股票停复牌安排的公告`
+- 结论：
+  - 当前是一个适合停手的点
+  - 下一轮先重跑当天 live，再决定有没有必要继续补最窄规则
+
 ## Current Phase
 Phase 8
 
@@ -191,15 +213,18 @@ Phase 8
 2. 下一步第一条命令固定为：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 3. 如果 `live-smoke --source all` 通过，再继续：
-   - 先看当天 report 头部是否仍主要是：
-     - `华荣股份...国内首创智能化防爆高压环网柜研制成功`
-     - `云天化...引入合作方投资建设新能源电池正极材料项目`
-     - `恒瑞医药...药物纳入突破性治疗品种名单`
-   - 再判断是否需要更细的 subtype / 强度 / 展示分层，而不是继续在 `report` 层硬压
-4. 当前不要继续压：
-   - `云天化...引入合作方投资建设新能源电池正极材料项目`
-   - `恒瑞医药...药物纳入突破性治疗品种名单`
-5. 如果主线切回扩源：
+   - 先看当天 report 头部是否仍主要是 legit 风险公告：
+     - `*ST声迅...申请撤销对公司股票交易实施退市风险警示`
+     - `明德生物...被实施退市风险警示暨停复牌安排`
+   - 再判断是否真的还有新的 `irm_cninfo / equity_incentive / cls` 弱样本值得继续收
+4. 如果头部仍主要是 legit 风险公告：
+   - 先停，不继续压头部
+   - 不要为了“更干净”继续过拟合 `text_report`
+5. 如果出现新的弱样本：
+   - 先补红灯测试
+   - 再补最窄 `text_report` 过滤或必要的 `event_merge` 回正
+   - 不做大范围题材扩张，也不碰 `hkex staged`
+6. 如果主线切回扩源：
    - `hkex` 仍保持 staged
    - 先 `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
    - 再顺序跑：
@@ -208,7 +233,7 @@ Phase 8
      - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment analyze-events`
      - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report`
      - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
-6. `hkex` 下一步不要直接扩过滤面，优先补：
+7. `hkex` 下一步不要直接扩过滤面，优先补：
    - `INSIDE INFORMATION` 的更细 subtype/方向边界
    - stock code / company mapping
    - 再决定是否能进入 `--source all`
@@ -221,6 +246,7 @@ Phase 8
 - `cls` 已并入主链后，report 头部会自然出现全球快讯；不要把这类样本默认当成噪音。
 - `cls` 的研报/解读稿仍可能吃到 `order_contract` 或强催化路径，需要继续收 subtype 边界。
 - `report` 过滤和 `audit-suspicious` 是两套逻辑；不能只看其中一边。
+- 当前已经进入收益递减区；如果头部只剩 legit 风险公告，优先停止继续压头部。
 - `hkex` 当前虽然已经能留下部分真催化，但 `corporate_disclosure` 仍有 `1036` 条；现在启用到主链会明显拉低信噪比。
 - `hkex` 英文标题如果继续走通用字符重合归并，会再次出现大面积错并。
 
