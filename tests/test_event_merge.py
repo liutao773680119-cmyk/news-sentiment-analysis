@@ -469,6 +469,26 @@ def test_merge_news_items_classifies_legal_dispute_subtype() -> None:
     assert events[0].event_subtype == "legal_dispute"
 
 
+def test_merge_news_items_classifies_csrs_filing_notice_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1reg",
+            source="sse",
+            source_type="hard_event",
+            published_at="2026-04-21T00:00:00+08:00",
+            captured_at="2026-04-21T00:00:30+08:00",
+            title="上海太和水科技发展股份有限公司关于收到中国证券监督管理委员会立案告知书的公告",
+            content="公司收到中国证券监督管理委员会立案告知书。",
+            url="https://www.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-04-21/example.pdf",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
 def test_merge_news_items_classifies_patent_infringement_dispute_as_legal_dispute() -> None:
     items = [
         NormalizedNews(
@@ -1029,6 +1049,26 @@ def test_merge_news_items_treats_business_progress_with_undisclosed_order_data_a
             title="信维通信：公司商业航天业务进展顺利",
             content="人民财讯4月9日电，信维通信4月9日在互动平台表示，公司商业航天业务进展顺利，具体订单数据因涉及商业保密协议不便公开披露。",
             url="https://www.stcn.com/article/detail/3734470.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "company_update"
+
+
+def test_merge_news_items_treats_business_layout_solution_update_as_company_update() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1layout",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-04-20T23:14:19+08:00",
+            captured_at="2026-04-20T23:14:30+08:00",
+            title="迈为股份：公司针对刻蚀、薄膜沉积及先进封装领域加速布局 推出多种产品及成套解决方案",
+            content="人民财讯4月20日电，迈为股份4月20日在互动平台表示，公司坚定看好异质结钙钛矿叠层电池工艺的发展，钙钛矿/硅叠层电池依托我国成熟的晶硅光伏产业链，具备完善的产业配套，产业化落地条件完备，公司已于2025年12月签订业内首条钙钛矿/硅异质结叠层电池整线设备供应合同，标志着相关技术正式迈向产业化应用，目前项目正按计划稳步推进。在半导体领域，公司针对刻蚀、薄膜沉积及先进封装领域加速布局，推出了多种产品及成套解决方案，与头部客户建立了良好的合作关系。",
+            url="https://www.stcn.com/article/detail/3768768.html",
         )
     ]
 

@@ -739,6 +739,88 @@ def test_audit_suspicious_skips_cls_general_fast_news_with_theme(tmp_path, monke
     assert "隔夜全球要闻" not in output
 
 
+def test_audit_suspicious_skips_stcn_fund_manager_investment_opportunity_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-fund-manager-investment-opportunity",
+                first_seen_at="2026-04-21T07:37:33+08:00",
+                last_seen_at="2026-04-21T07:37:33+08:00",
+                canonical_title="景气度“光”芒四射 基金经理把握光通信投资机会",
+                summary="人民财讯4月21日电，中流击水，“光”芒四射。AI引领的科技浪潮汹涌，算力建设如火如荼，这也映射到A股市场中。从基金投资布局情况看，光通信依然是资金竞逐的方向。",
+                source="stcn",
+                published_at="2026-04-21T07:37:33+08:00",
+                url="https://example.com/stcn-fund-manager-investment-opportunity",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-fund-manager-investment-opportunity",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "基金经理把握光通信投资机会" not in output
+
+
+def test_audit_suspicious_skips_stcn_industry_prosperity_story(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-industry-prosperity",
+                first_seen_at="2026-04-21T07:42:50+08:00",
+                last_seen_at="2026-04-21T07:42:50+08:00",
+                canonical_title="一季度锂电行业高景气延续 储能成重点布局方向",
+                summary="人民财讯4月21日电，近期，锂电产业链上市公司纷纷披露一季度业绩预告或正式业绩报告。整体来看，锂电赛道维持高景气度。机构分析认为，在市场需求旺盛的背景下，锂电池产业链多个细分环节有望获益。",
+                source="stcn",
+                published_at="2026-04-21T07:42:50+08:00",
+                url="https://example.com/stcn-industry-prosperity",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-industry-prosperity",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能", "锂电池"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "一季度锂电行业高景气延续 储能成重点布局方向" not in output
+
+
 def test_audit_suspicious_skips_cls_market_roundup_and_limitup_digest(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

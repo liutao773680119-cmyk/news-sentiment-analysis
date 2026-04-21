@@ -41,6 +41,10 @@ STRUCTURED_CATALYST_SUBTYPES = {
     "delisting_risk",
 }
 LEGAL_DISPUTE_KEYWORDS = (
+    "立案告知书",
+    "被立案调查",
+    "中国证券监督管理委员会立案",
+    "中国证监会立案",
     "商标争议",
     "侵害发明专利权纠纷",
     "专利权纠纷",
@@ -288,6 +292,8 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "company_update"
         if _is_response_or_clarification_fast_news(title, text):
             return "company_update"
+        if _is_business_layout_update_fast_news(title, text):
+            return "company_update"
         if _contains_any(text, ("电话会议", "销售目标", "业绩指引", "收入", "利润", "盈利")):
             return "business_guidance"
         if _contains_any(title, ("获批上市", "获批", "上市申请", "药监局批准", "药品注册证书")):
@@ -475,6 +481,14 @@ def _is_response_or_clarification_fast_news(title: str, text: str) -> bool:
     return _contains_any(
         text,
         ("传闻", "回应记者", "框架合作协议", "框架协议", "不涉及", "不存在", "未披露"),
+    )
+
+
+def _is_business_layout_update_fast_news(title: str, text: str) -> bool:
+    return (
+        _contains_any(title, ("加速布局", "成套解决方案"))
+        and _contains_any(text, ("加速布局", "成套解决方案"))
+        and _contains_any(text, ("合作关系", "头部客户"))
     )
 
 

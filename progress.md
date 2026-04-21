@@ -6,8 +6,12 @@
 - Task-Name:
   - `live 样本边界收口 + irm 问答/股权激励材料/cls 栏目稿降噪`
 - Files Changed:
-  - `src/news_sentiment/reporting/text_report.py`
+  - `src/news_sentiment/analysis/rules.py`
+  - `src/news_sentiment/cli.py`
   - `src/news_sentiment/event_merge/core.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_analysis_scoring.py`
+  - `tests/test_audit_suspicious.py`
   - `tests/test_event_merge.py`
   - `tests/test_text_report_sorting.py`
   - `progress.md`
@@ -19,26 +23,23 @@
 - Completed This Session:
   - 主线继续沿 `phase8-live-boundary` 收 live 头部，不碰 `hkex staged`
   - `text_report` 连续补了最窄过滤，清掉：
-    - `irm_cninfo` 的弱问答、回避口径、定期报告导向回复
+    - `irm_cninfo` 的弱问答、回避口径、定期报告导向回复、算力基建/后续布局口径、营收/订单追问、股价/新项目追问
+    - `sse_einteractive` 的题材追问变体
+    - `stcn` 的券商评论稿、`【早知道】` 摘要拼盘、基金经理配置评论、行业景气综述、互动平台否定式回应
     - `sse/szse` 的回购、股权激励、风险管理、核查意见、土地合同等低信号材料
     - `cls` 的夜盘综述、盘前要闻、匿名拼盘栏目稿、弱财务收益股权处置稿
     - `海外单股并购快讯 + 无题材无个股`
-  - `event_merge` 已补当前 live 更关键的回正：
-    - `省委财经委员会 / 产业引导基金` -> `policy_signal`
-    - `乙烯法PVC供应持续收缩` -> `industry_data`
-    - `UPC诉讼 / 仲裁裁决` -> `legal_dispute`
-    - `美股盘前要闻一览` -> `general_fast_news`
-    - `出售/转让股权 + 不构成重大资产重组` 不再误打成 `acquisition_restructuring`
-  - 头部已从一串 `irm_cninfo / 股权激励 / 栏目稿 / 期货综述` 收回到更像该保留的风险公告
-  - 当前最新验证：
-    - `./.venv/bin/python -m pytest tests/test_event_merge.py -k "upc_patent_litigation or arbitration_award_challenge or legal_dispute or policy_signal or industry_data or cls_us_pre_market_brief or cls_overnight_roundup" -q` -> `19 passed`
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "irm_cninfo or cls_morning_brief or domestic_futures or risk_control_opinion or equity_incentive or order_contract or overseas_single_stock_cls_acquisition" -q` -> `20 passed`
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1766 normalized_news=1766 events=468 analyses=468 failed_sources=none`
+  - `event_merge / analysis / audit-suspicious` 也补了必要回正和巡检白名单，同步保证 report 干净时巡检仍为 `0`
+  - 当前头部已从一串 `irm_cninfo / stcn 栏目稿 / 否定式回应 / 弱材料` 收回到更像 legit 保留样本
+- 当前最新验证：
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "weak_theme_inquiry_replies_without_hiding_substantive_progress or stcn_negative_platform_reply_without_hiding_robotaxi_launch or stcn_csc_broker_macro_commentary_even_if_analysis_has_theme or stcn_early_know_roundup_without_hiding_policy_signal or stcn_fund_manager_allocation_commentary_without_hiding_real_order_news or stcn_industry_prosperity_story_without_hiding_cls_industry_signal" -q` -> `6 passed`
+    - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -k "stcn_fund_manager_investment_opportunity_story or stcn_industry_prosperity_story" -q` -> `2 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1781 normalized_news=1781 events=419 analyses=419 failed_sources=none`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
 - Open TODO:
   - 下一轮先重跑当天 `live-smoke --source all`，不要沿用今天这批头部
-  - 如果头部仍主要是 `*ST声迅 / 明德生物` 这类风险公告，先停，不继续过拟合
-  - 只有出现新的 `irm_cninfo / equity_incentive / cls` 弱口径样本，再补最窄 `text_report` 回归和规则
+  - 如果头部仍主要是 `吉利 Robotaxi / 奥特迅 / 长亮科技` 这类 legit 保留样本，先停，不继续过拟合
+  - 只有出现新的 `irm_cninfo / stcn / cls` 弱口径样本，再补最窄 `text_report` 回归和规则
 - Risks/Blockers:
   - 当前收益已经明显下降；再往下压很容易误伤真实风险或催化公告
   - `report` 过滤和 `audit-suspicious` 仍是两套逻辑；头部干净不等于巡检天然归零，仍要双跑
@@ -47,7 +48,7 @@
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 - Known Avoidances:
   - 不要沿用上一轮 live 头部清单直接继续写规则
-  - 不要把当前已经回到头部的 `退市风险警示 / 撤销风险警示` 这类公告继续当噪音硬压
+  - 不要把当前已经回到头部的 `吉利 Robotaxi / 退市风险警示 / 中标项目` 这类 legit 样本继续当噪音硬压
   - 不要把 `hkex staged` 和主线 `phase8-live-boundary` 混成一个任务
 
 ## Session: 2026-04-01

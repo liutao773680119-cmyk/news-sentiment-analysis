@@ -4353,24 +4353,36 @@ def test_write_text_report_filters_stcn_csc_broker_macro_commentary_even_if_anal
     events = [
         Event(
             event_id="event-stcn-csc-commentary",
-            first_seen_at="2026-04-12T19:16:02+08:00",
-            last_seen_at="2026-04-12T19:16:02+08:00",
+            first_seen_at="2026-04-21T19:16:02+08:00",
+            last_seen_at="2026-04-21T19:16:02+08:00",
             canonical_title="中信建投：A股迎修复行情 围绕景气行业布局",
             summary="券商观点认为当前市场正在修复，建议围绕景气行业进行资产配置。",
             source="stcn",
-            published_at="2026-04-12T19:16:02+08:00",
+            published_at="2026-04-21T19:16:02+08:00",
             url="https://example.com/stcn-csc-commentary",
             event_type="fast_news",
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-stcn-csc-ai-commentary",
+            first_seen_at="2026-04-21T07:52:19+08:00",
+            last_seen_at="2026-04-21T07:52:19+08:00",
+            canonical_title="中信建投：算力公司一季报亮眼 继续坚定看好算力产业链",
+            summary="人民财讯4月21日电，中信建投证券研报称，台积电发布一季报，中际旭创发布2026年第一季度报告。业绩映射算力需求强劲。算力板块公司一季度业绩亮眼，继续坚定看好算力产业链。",
+            source="stcn",
+            published_at="2026-04-21T07:52:19+08:00",
+            url="https://example.com/stcn-csc-ai-commentary",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-stcn-coop-keep",
-            first_seen_at="2026-04-12T19:14:50+08:00",
-            last_seen_at="2026-04-12T19:14:50+08:00",
+            first_seen_at="2026-04-21T19:14:50+08:00",
+            last_seen_at="2026-04-21T19:14:50+08:00",
             canonical_title="迅策：与深圳数据交易所签署战略合作协议",
             summary="summary",
             source="stcn",
-            published_at="2026-04-12T19:14:50+08:00",
+            published_at="2026-04-21T19:14:50+08:00",
             url="https://example.com/stcn-coop-keep",
             event_type="fast_news",
             event_subtype="cooperation_agreement",
@@ -4383,6 +4395,14 @@ def test_write_text_report_filters_stcn_csc_broker_macro_commentary_even_if_anal
             impact_score=99.0,
             reasoning="rule",
             themes=["算力", "黄金", "锂电池"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-csc-ai-commentary",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["算力"],
             triggered=True,
         ),
         EventAnalysis(
@@ -4399,6 +4419,62 @@ def test_write_text_report_filters_stcn_csc_broker_macro_commentary_even_if_anal
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "迅策：与深圳数据交易所签署战略合作协议" in content
     assert "中信建投：A股迎修复行情 围绕景气行业布局" not in content
+    assert "中信建投：算力公司一季报亮眼 继续坚定看好算力产业链" not in content
+
+
+def test_write_text_report_filters_stcn_early_know_roundup_without_hiding_policy_signal(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-early-know-roundup",
+            first_seen_at="2026-04-21T07:49:55+08:00",
+            last_seen_at="2026-04-21T07:49:55+08:00",
+            canonical_title="【早知道】特朗普称在达成“协议”前不会解除对伊朗的封锁",
+            summary="人民财讯4月21日电，【摘要】特朗普称在达成“协议”前不会解除对伊朗的封锁。伊朗议会议长：伊朗不接受在威胁阴影下的谈判。广东：要用好产业引导基金，加大对集成电路、具身智能、算电协同等领域的投资。",
+            source="stcn",
+            published_at="2026-04-21T07:49:55+08:00",
+            url="https://example.com/stcn-early-know-roundup",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-policy-signal-keep",
+            first_seen_at="2026-04-21T07:49:56+08:00",
+            last_seen_at="2026-04-21T07:49:56+08:00",
+            canonical_title="广东：要用好产业引导基金，加大对集成电路、具身智能、算电协同等领域的投资",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-21T07:49:56+08:00",
+            url="https://example.com/policy-signal-keep",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-early-know-roundup",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-policy-signal-keep",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "【早知道】特朗普称在达成“协议”前不会解除对伊朗的封锁" not in content
+    assert "广东：要用好产业引导基金，加大对集成电路、具身智能、算电协同等领域的投资" in content
 
 
 def test_write_text_report_filters_stcn_gf_broker_strategy_commentary_even_if_analysis_has_theme(tmp_path) -> None:
@@ -4461,24 +4537,36 @@ def test_write_text_report_filters_stcn_fund_manager_allocation_commentary_witho
     events = [
         Event(
             event_id="event-stcn-fund-manager-commentary",
-            first_seen_at="2026-04-13T07:20:50+08:00",
-            last_seen_at="2026-04-13T07:20:50+08:00",
+            first_seen_at="2026-04-21T07:20:50+08:00",
+            last_seen_at="2026-04-21T07:20:50+08:00",
             canonical_title="基金经理布局创新药对冲组合风险 公募对创新药配置逻辑出现新变化",
             summary="伴随各类事件催化进入密集兑现周期，不少基金经理开始切换布局创新药对冲组合风险，反映公募对创新药配置逻辑出现了新的变化。",
             source="stcn",
-            published_at="2026-04-13T07:20:50+08:00",
+            published_at="2026-04-21T07:20:50+08:00",
             url="https://example.com/stcn-fund-manager-commentary",
             event_type="fast_news",
             event_subtype="market_move",
         ),
         Event(
+            event_id="event-stcn-fund-manager-investment-opportunity",
+            first_seen_at="2026-04-21T07:37:33+08:00",
+            last_seen_at="2026-04-21T07:37:33+08:00",
+            canonical_title="景气度“光”芒四射 基金经理把握光通信投资机会",
+            summary="人民财讯4月21日电，中流击水，“光”芒四射。AI引领的科技浪潮汹涌，算力建设如火如荼，这也映射到A股市场中。从基金投资布局情况看，光通信依然是资金竞逐的方向，具体到细分方向，光模块依然闪耀，光纤乘势而起，光器件、光芯片迎风起舞。与光相关的标的，几乎都受到市场的高度关注。而在逐光前行的基金经理中，有人高歌猛进，有人复盘向新。在AI时代发展的浪潮中，与时俱进才能拥有未来。",
+            source="stcn",
+            published_at="2026-04-21T07:37:33+08:00",
+            url="https://example.com/stcn-fund-manager-investment-opportunity",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
             event_id="event-stcn-order-keep",
-            first_seen_at="2026-04-13T07:28:53+08:00",
-            last_seen_at="2026-04-13T07:28:53+08:00",
+            first_seen_at="2026-04-21T07:28:53+08:00",
+            last_seen_at="2026-04-21T07:28:53+08:00",
             canonical_title="上海电气中标人造卫星装备一体化自动项目",
             summary="summary",
             source="stcn",
-            published_at="2026-04-13T07:28:53+08:00",
+            published_at="2026-04-21T07:28:53+08:00",
             url="https://example.com/stcn-order-keep",
             event_type="fast_news",
             event_subtype="order_contract",
@@ -4491,6 +4579,14 @@ def test_write_text_report_filters_stcn_fund_manager_allocation_commentary_witho
             impact_score=99.0,
             reasoning="rule",
             themes=["创新药"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-fund-manager-investment-opportunity",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["算力"],
             triggered=True,
         ),
         EventAnalysis(
@@ -4507,6 +4603,62 @@ def test_write_text_report_filters_stcn_fund_manager_allocation_commentary_witho
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "上海电气中标人造卫星装备一体化自动项目" in content
     assert "基金经理布局创新药对冲组合风险 公募对创新药配置逻辑出现新变化" not in content
+    assert "景气度“光”芒四射 基金经理把握光通信投资机会" not in content
+
+
+def test_write_text_report_filters_stcn_industry_prosperity_story_without_hiding_cls_industry_signal(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-industry-prosperity",
+            first_seen_at="2026-04-21T07:42:50+08:00",
+            last_seen_at="2026-04-21T07:42:50+08:00",
+            canonical_title="一季度锂电行业高景气延续 储能成重点布局方向",
+            summary="人民财讯4月21日电，近期，锂电产业链上市公司纷纷披露一季度业绩预告或正式业绩报告。整体来看，锂电赛道维持高景气度，行业公司业绩纷纷“报喜”。与此同时，锂电企业在一季度的投资动作不断，从布局方向来看，储能行业成为重点领域。机构分析认为，在市场需求旺盛的背景下，锂电池产业链多个细分环节有望获益。",
+            source="stcn",
+            published_at="2026-04-21T07:42:50+08:00",
+            url="https://example.com/stcn-industry-prosperity",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-cls-industry-signal-keep",
+            first_seen_at="2026-04-21T06:34:58+08:00",
+            last_seen_at="2026-04-21T06:34:58+08:00",
+            canonical_title="AI需求强劲 PCB产业链景气度扩散",
+            summary="【AI需求强劲 PCB产业链景气度扩散】财联社4月21日电，最近一周，一批PCB（印制电路板）产业链公司披露了2026年一季度业绩大增的公告。这折射出，在AI需求强劲增长的背景下，该产业链上下游的景气度正由PCB制造环节向上游材料、关键设备等领域扩散。",
+            source="cls",
+            published_at="2026-04-21T06:34:58+08:00",
+            url="https://example.com/cls-industry-signal-keep",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-industry-prosperity",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["储能", "锂电池"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-industry-signal-keep",
+            direction="bullish",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["PCB"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "一季度锂电行业高景气延续 储能成重点布局方向" not in content
+    assert "AI需求强劲 PCB产业链景气度扩散" in content
 
 
 def test_write_text_report_filters_shareholder_reduction_threshold_and_result_disclosures(
@@ -7962,6 +8114,80 @@ def test_write_text_report_filters_exchange_equity_incentive_plan_summary_withou
     assert "顶固集创：2026年限制性股票激励计划（草案）摘要" not in content
 
 
+def test_write_text_report_filters_current_live_equity_and_order_data_disclosures(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-szse-equity-related-matters",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="中岩大地：关于公司2024年股票期权激励计划相关事项的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/szse-equity-related-matters",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-cninfo-order-data",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="豪森智能关于自愿披露2026年第一季度订单数据的公告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/cninfo-order-data",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-order-contract",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="中科曙光：签订10亿元算力订单",
+            summary="公司签订10亿元算力订单。",
+            source="stcn",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/keep-order-contract",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-szse-equity-related-matters",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cninfo-order-data",
+            direction="neutral",
+            impact_score=80.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-order-contract",
+            direction="bullish",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "中岩大地：关于公司2024年股票期权激励计划相关事项的公告" not in content
+    assert "豪森智能关于自愿披露2026年第一季度订单数据的公告" not in content
+    assert "中科曙光：签订10亿元算力订单" in content
+
+
 def test_write_text_report_filters_new_exchange_disclosure_noise_families(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -9505,6 +9731,61 @@ def test_write_text_report_filters_cls_global_market_brief_without_hiding_domest
     assert "财联社4月16日电，印度石油部表示，已敲定80万吨液化石油气进口订单，相关供应货物正在运往印度途中。" in content
 
 
+def test_write_text_report_filters_cls_notice_digest_roundup_without_hiding_single_strong_notice_digest(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-notice-digest-roundup",
+            first_seen_at="2026-04-20T22:03:01+08:00",
+            last_seen_at="2026-04-20T22:03:01+08:00",
+            canonical_title="【公告全知道】CPO+液冷+芯片+数据中心+机器人！公司1.6T光模块小批量供货",
+            summary="①CPO+液冷+芯片+数据中心+机器人！这家公司1.6T光模块小批量供货且适用于下一代高速光模块的超薄型液冷散热解决方案已小批量试产；②商业航天+算力+液冷+AI智能体+数据中心+机器人！这家公司自有算力规模已超10000P且行业内率先实现Openclaw云端部署；③光通信+芯片+量子科技！公司一季度净利同比增超500%且光通信领域收入同比增近150%。",
+            source="cls",
+            published_at="2026-04-20T22:03:01+08:00",
+            url="https://example.com/cls-notice-digest-roundup",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-cls-notice-digest-keep",
+            first_seen_at="2026-04-20T22:05:36+08:00",
+            last_seen_at="2026-04-20T22:05:36+08:00",
+            canonical_title="【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-20T22:05:36+08:00",
+            url="https://example.com/cls-notice-digest-keep",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-notice-digest-roundup",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["算力", "机器人"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-notice-digest-keep",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["算力", "储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "【公告全知道】CPO+液冷+芯片+数据中心+机器人！公司1.6T光模块小批量供货" not in content
+    assert "【公告全知道】算力+绿色电力+储能+数据中心！公司拟245亿元投建算电协同项目" in content
+
+
 def test_write_text_report_filters_cls_science_feature_story_without_hiding_company_product_progress(
     tmp_path,
 ) -> None:
@@ -9654,6 +9935,75 @@ def test_write_text_report_filters_irm_cninfo_investor_complaint_and_shareholder
     assert "TCL中环：请问截止4月10日股东人数是多少？" not in content
     assert "当前公司股价持续承压" not in content
     assert "TCL中环：董秘您好：公司拥有大量BC核心专利" in content
+
+
+def test_write_text_report_filters_irm_cninfo_theme_and_export_qa_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-future-energy",
+            first_seen_at="2026-04-20T22:42:33+08:00",
+            last_seen_at="2026-04-20T22:42:33+08:00",
+            canonical_title="迈为股份：十五五规划培育未来能源产业，公司作为新能源光伏公司领头企业，是否属于未来能源？",
+            summary="问题：十五五规划培育未来能源产业，公司作为新能源光伏公司领头企业，是否属于未来能源？ 回复：投资者您好，光伏属于未来能源产业，且在 “十五五” 规划中被明确为构建新型能源体系的核心基底与主力电源，同时其前沿技术方向被列为未来能源重点培育领域，感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-20T22:42:33+08:00",
+            url="https://example.com/irm-future-energy",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-export-rumor",
+            first_seen_at="2026-04-20T22:41:33+08:00",
+            last_seen_at="2026-04-20T22:41:33+08:00",
+            canonical_title="迈为股份：针对网络传言，光伏设备限制出口的小作文，请问公司有方面的信息吗，公司目前出口正常吗，比如出口美国设备有无被限制或者新前的订单出口设备有没有被限制暂停出口",
+            summary="问题：针对网络传言，光伏设备限制出口的小作文，请问公司有方面的信息吗，公司目前出口正常吗，比如出口美国设备有无被限制或者新前的订单出口设备有没有被限制暂停出口 回复：投资者您好，公司主营业务产品太阳能电池丝网印刷设备、太阳能异质结电池整线设备，产品出口业务严格遵守国家相关法律法规及国际通行规则，感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-20T22:41:33+08:00",
+            url="https://example.com/irm-export-rumor",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-big-order",
+            first_seen_at="2026-04-20T22:44:03+08:00",
+            last_seen_at="2026-04-20T22:44:03+08:00",
+            canonical_title="迈为股份：请问公司拟投资35亿元建设“钙钛矿叠层电池成套装备项目”。同时，控股子公司宸微设备拟投资15亿元建设“半导体装备研发制造项目”。是否2个事项都已有大订单，才实施此次投资，担忧公司投资步子跨太大，希望公司说说",
+            summary="问题：请问公司拟投资35亿元建设“钙钛矿叠层电池成套装备项目”。同时，控股子公司宸微设备拟投资15亿元建设“半导体装备研发制造项目”。是否2个事项都已有大订单，才实施此次投资，担忧公司投资步子跨太大，希望公司说说 回复：投资者您好，公司坚定看好异质结钙钛矿叠层电池工艺的发展，钙钛矿/硅叠层电池依托我国成熟的晶硅光伏产业链，具备完善的产业配套，产业化落地条件完备，公司已于2025年12月签订业内首条钙钛矿/硅异质结叠层电池整线设备供应合同，标志着相关技术正式迈向产业化应用，目前项目正按计划稳步推进。在半导体领域，公司针对刻蚀、薄膜沉积及先进封装领域加速布局，推出了多种产品及成套解决方案，与头部客户建立了良好的合作关系。感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-20T22:44:03+08:00",
+            url="https://example.com/irm-big-order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-progress",
+            first_seen_at="2026-04-20T22:40:03+08:00",
+            last_seen_at="2026-04-20T22:40:03+08:00",
+            canonical_title="某公司：产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T22:40:03+08:00",
+            url="https://example.com/irm-keep-substantive-progress",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-future-energy", direction="neutral", impact_score=100.0, reasoning="rule", themes=["电力资源"], triggered=True),
+        EventAnalysis(event_id="event-irm-export-rumor", direction="bearish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-big-order", direction="bullish", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "是否属于未来能源" not in content
+    assert "出口正常吗" not in content
+    assert "是否2个事项都已有大订单" not in content
+    assert "产品在商业航天和卫星互联网方面市场拓展如何" in content
 
 
 def test_write_text_report_filters_irm_cninfo_generic_followup_and_no_impact_reply_without_hiding_substantive_reply(
@@ -9915,6 +10265,42 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-compute-infra-fallback",
+            first_seen_at="2026-04-21T09:09:33+08:00",
+            last_seen_at="2026-04-21T09:09:33+08:00",
+            canonical_title="中亦科技：你好董秘，中亦科技是否有算力基建吗？有是哪些简单说说，如果没有，后期会布局介入吗？谢谢",
+            summary="问题：你好董秘，中亦科技是否有算力基建吗？有是哪些简单说说，如果没有，后期会布局介入吗？谢谢 回复：尊敬的投资者，感谢您的关注！公司是一家IT基础架构全栈式、全周期的“服务+产品”提供商，主营业务专注于IT基础架构层。公司面向客户数据中心，提供IT基础架构层从规划咨询、架构设计、集成实施、投产上线到运行维护的全周期服务，并以智能化的运维产品提升运维过程的自动化和智能化水平。公司密切关注与主营业务协同性强的产业机遇，围绕主营业务进行合理布局。",
+            source="irm_cninfo",
+            published_at="2026-04-21T09:09:33+08:00",
+            url="https://example.com/irm-compute-infra-fallback",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-revenue-order-fallback",
+            first_seen_at="2026-04-21T09:14:33+08:00",
+            last_seen_at="2026-04-21T09:14:33+08:00",
+            canonical_title="冰轮环境：董秘您好，公司核能业务营收大概有多少？在手订单大概有多少？",
+            summary="问题：董秘您好，公司核能业务营收大概有多少？在手订单大概有多少？ 回复：您好，公司生产经营业务情况请关注公司定期报告和临时报告。感谢关注",
+            source="irm_cninfo",
+            published_at="2026-04-21T09:14:33+08:00",
+            url="https://example.com/irm-revenue-order-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-stock-price-project-fallback",
+            first_seen_at="2026-04-21T09:13:33+08:00",
+            last_seen_at="2026-04-21T09:13:33+08:00",
+            canonical_title="中电港：美股存储公司大涨，国内龙头公司都在做加快发展，贵公司是英伟达、AMD的授权分销商之一，股价与业绩不对称，有瞄准市场机遇签订新项目么",
+            summary="问题：美股存储公司大涨，国内龙头公司都在做加快发展，贵公司是英伟达、AMD的授权分销商之一，股价与业绩不对称，有瞄准市场机遇签订新项目么 回复：公司当前经营发展趋势向好，持续深化在关键应用领域的布局。具体业务情况请以公司披露的定期报告和临时公告为准。感谢您对公司的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-21T09:13:33+08:00",
+            url="https://example.com/irm-stock-price-project-fallback",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-theme-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -9933,6 +10319,9 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
         EventAnalysis(event_id="event-irm-stock-price-image-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["油气"], triggered=True),
         EventAnalysis(event_id="event-irm-report-calendar-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-future-layout-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-compute-infra-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-revenue-order-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-stock-price-project-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-theme-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -9943,7 +10332,51 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
     assert "华伍股份：尊敬的董秘你好，公司是否有提升公司形象提振股价的计划？" not in content
     assert "ST恒信：平潭两岸融合智算中心项目一期已完工，目前是否有客户签约？算力出租率如何？" not in content
     assert "中青宝：贵公司未来会在内蒙、新疆大规模发展算力中心吗" not in content
+    assert "中亦科技：你好董秘，中亦科技是否有算力基建吗？有是哪些简单说说，如果没有，后期会布局介入吗？谢谢" not in content
+    assert "冰轮环境：董秘您好，公司核能业务营收大概有多少？在手订单大概有多少？" not in content
+    assert "中电港：美股存储公司大涨，国内龙头公司都在做加快发展，贵公司是英伟达、AMD的授权分销商之一，股价与业绩不对称，有瞄准市场机遇签订新项目么" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_stcn_negative_platform_reply_without_hiding_robotaxi_launch(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-negative-platform-reply",
+            first_seen_at="2026-04-21T08:55:09+08:00",
+            last_seen_at="2026-04-21T08:55:09+08:00",
+            canonical_title="国星光电：暂未参股CPO、存储芯片类科技公司",
+            summary="人民财讯4月21日电，国星光电(002449)4月21日在互动平台表示，目前公司暂未参股CPO、存储芯片类科技公司。",
+            source="stcn",
+            published_at="2026-04-21T08:55:09+08:00",
+            url="https://example.com/stcn-negative-platform-reply",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-cls-robotaxi-launch-keep",
+            first_seen_at="2026-04-21T08:44:12+08:00",
+            last_seen_at="2026-04-21T08:44:12+08:00",
+            canonical_title="吉利将于2026北京车展发布中国首台原生Robotaxi原型车",
+            summary="【吉利将于2026北京车展发布中国首台原生Robotaxi原型车】财联社4月21日电，吉利汽车集团宣布，4月24日将以半包馆形式亮相2026北京国际车展。核心看点在于中国首台原生Robotaxi原型车首发。该车基于吉利L4级AI数字架构开发，融合WAM世界动作模型与L4级自动驾驶技术。",
+            source="cls",
+            published_at="2026-04-21T08:44:12+08:00",
+            url="https://example.com/cls-robotaxi-launch-keep",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-stcn-negative-platform-reply", direction="neutral", impact_score=99.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-cls-robotaxi-launch-keep", direction="bullish", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国星光电：暂未参股CPO、存储芯片类科技公司" not in content
+    assert "吉利将于2026北京车展发布中国首台原生Robotaxi原型车" in content
 
 
 def test_write_text_report_filters_irm_cninfo_disclosure_threshold_and_low_revenue_replies_without_hiding_substantive_progress(
@@ -10401,6 +10834,103 @@ def test_write_text_report_filters_sse_einteractive_investor_complaint_and_repor
     assert "聚合顺：你好，我司年报中提及我司高端复合尼龙新材料应用于商业航天" in content
 
 
+def test_write_text_report_filters_sse_einteractive_theme_qa_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-einteractive-innovative-drug",
+            first_seen_at="2026-04-20T18:19:00+08:00",
+            last_seen_at="2026-04-20T18:19:00+08:00",
+            canonical_title="肯特催化：请问公司产品是否可服务于创新药制造与研发？",
+            summary="问题：请问公司产品是否可服务于创新药制造与研发？ 回复：答：尊敬的投资者，您好。公司生产的部分产品，可应用于医药领域。感谢您对公司的关注。谢谢。",
+            source="sse_einteractive",
+            published_at="2026-04-20T18:19:00+08:00",
+            url="https://example.com/sse-einteractive-innovative-drug",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-pcb",
+            first_seen_at="2026-04-20T18:19:00+08:00",
+            last_seen_at="2026-04-20T18:19:00+08:00",
+            canonical_title="肯特催化：肯特催化的部分产品可以配套于PCB（印刷线路板）的生产？作为电子化学品产业链的一员公司的产品主要应用于PCB生产的哪些过程？",
+            summary="问题：肯特催化的部分产品可以配套于PCB（印刷线路板）的生产？作为电子化学品产业链的一员公司的产品主要应用于PCB生产的哪些过程？ 回复：答：尊敬的投资者，您好！关于公司产品应用的具体信息，请查阅公司招股说明书、定期报告及相关公告。感谢您对公司的关注！谢谢！",
+            source="sse_einteractive",
+            published_at="2026-04-20T18:19:00+08:00",
+            url="https://example.com/sse-einteractive-pcb",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-solar-investment",
+            first_seen_at="2026-04-20T18:19:00+08:00",
+            last_seen_at="2026-04-20T18:19:00+08:00",
+            canonical_title="中新集团：您好，公司在光伏领域有哪些知名投资，劳请列举回复。",
+            summary="问题：您好，公司在光伏领域有哪些知名投资，劳请列举回复。 回复：尊敬的投资者，您好。公司绿色发电以旗下控股子公司中新绿能为主要平台，以国内一流绿色能源运营商为发展定位，开发风光等可再生能源，近期以分布式光伏为重点发展方向，着力开发、投资、建设、运营和管理分布式光伏发电、储能等能源项目。感谢关注。",
+            source="sse_einteractive",
+            published_at="2026-04-20T18:19:00+08:00",
+            url="https://example.com/sse-einteractive-solar-investment",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-investment-count",
+            first_seen_at="2026-04-20T18:04:00+08:00",
+            last_seen_at="2026-04-20T18:04:00+08:00",
+            canonical_title="中新集团：您好，请问公司投资的私募共计投资了大约多少家半导体公司，多少家机器人公司，多少家医药医疗器械公司？",
+            summary="问题：您好，请问公司投资的私募共计投资了大约多少家半导体公司，多少家机器人公司，多少家医药医疗器械公司？ 回复：尊敬的投资者，您好！关于产业投资情况，请关注公司相关公告和定期报告。您也可以通过国家企业信用信息公示系统等渠道进行查询。感谢关注。",
+            source="sse_einteractive",
+            published_at="2026-04-20T18:04:00+08:00",
+            url="https://example.com/sse-einteractive-investment-count",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-investment-count-variant",
+            first_seen_at="2026-04-20T18:04:00+08:00",
+            last_seen_at="2026-04-20T18:04:00+08:00",
+            canonical_title="中新集团：您好，公司投资的创新药企业大致有多少家，取得新技术新成绩有代表性的企业有那些。",
+            summary="问题：您好，公司投资的创新药企业大致有多少家，取得新技术新成绩有代表性的企业有那些。 回复：尊敬的投资者，您好！关于产业投资情况，请关注公司相关公告和定期报告。您也可以通过国家企业信用信息公示系统等渠道进行查询。感谢关注。",
+            source="sse_einteractive",
+            published_at="2026-04-20T18:04:00+08:00",
+            url="https://example.com/sse-einteractive-investment-count-variant",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-einteractive-keep-substantive-2",
+            first_seen_at="2026-04-20T18:04:00+08:00",
+            last_seen_at="2026-04-20T18:04:00+08:00",
+            canonical_title="中新集团：您好，公司50亿私募投资和科创直投有无在头显眼镜领域布局投资？",
+            summary="问题：您好，公司50亿私募投资和科创直投有无在头显眼镜领域布局投资？ 回复：尊敬的投资者，您好。公司通过参投基金间接投资布局了AR眼镜产业链，包括Micro-LED微显示屏研发、Micro-LED硅基微显示芯片研发、AR衍射光波导、衍射光栅、微纳光学元件研发、AR/VR镜片等。感谢关注。",
+            source="sse_einteractive",
+            published_at="2026-04-20T18:04:00+08:00",
+            url="https://example.com/sse-einteractive-keep-substantive-2",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-sse-einteractive-innovative-drug", direction="neutral", impact_score=99.9, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-pcb", direction="neutral", impact_score=99.9, reasoning="rule", themes=["PCB"], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-solar-investment", direction="neutral", impact_score=99.9, reasoning="rule", themes=["储能"], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-investment-count", direction="neutral", impact_score=99.9, reasoning="rule", themes=["机器人", "半导体"], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-investment-count-variant", direction="neutral", impact_score=99.9, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-sse-einteractive-keep-substantive-2", direction="neutral", impact_score=99.9, reasoning="rule", themes=["AR眼镜"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "请问公司产品是否可服务于创新药制造与研发" not in content
+    assert "产品主要应用于PCB生产的哪些过程" not in content
+    assert "公司在光伏领域有哪些知名投资" not in content
+    assert "投资的私募共计投资了大约多少家半导体公司" not in content
+    assert "公司投资的创新药企业大致有多少家" not in content
+    assert "公司50亿私募投资和科创直投有无在头显眼镜领域布局投资" in content
+
+
 def test_write_text_report_filters_current_live_restructuring_impairment_audit_report_without_hiding_revocation(
     tmp_path,
 ) -> None:
@@ -10440,6 +10970,47 @@ def test_write_text_report_filters_current_live_restructuring_impairment_audit_r
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "会计师事务所关于电投水电重大资产重组标的减值测试报告的专项审核报告" not in content
     assert "*ST荣控：荣丰控股集团关于申请撤销对公司股票交易实施退市风险警示的公告" in content
+
+
+def test_write_text_report_filters_current_live_equity_incentive_unmet_exercise_condition_notice(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-asia-tech-unmet-exercise-condition",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="亚太科技：关于第一期股票期权和限制性股票激励计划第三个行权期行权条件未成就及注销部分股票期权的公告",
+            summary="亚太科技：关于第一期股票期权和限制性股票激励计划第三个行权期行权条件未成就及注销部分股票期权的公告",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/asia-tech-unmet-exercise-condition",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-delisting-risk-asia-tech-window",
+            first_seen_at="2026-04-21T00:01:00+08:00",
+            last_seen_at="2026-04-21T00:01:00+08:00",
+            canonical_title="奥特迅：关于股票交易被实施退市风险警示暨股票停牌的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:01:00+08:00",
+            url="https://example.com/keep-delisting-risk-asia-tech-window",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-asia-tech-unmet-exercise-condition", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-delisting-risk-asia-tech-window", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "亚太科技：关于第一期股票期权和限制性股票激励计划第三个行权期行权条件未成就及注销部分股票期权的公告" not in content
+    assert "奥特迅：关于股票交易被实施退市风险警示暨股票停牌的公告" in content
 
 
 def test_write_text_report_filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk(

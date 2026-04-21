@@ -388,6 +388,27 @@ def test_score_event_marks_legal_dispute_as_bearish() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_marks_csrs_filing_notice_as_bearish() -> None:
+    event = Event(
+        event_id="event-001lr",
+        first_seen_at="2026-04-21T00:00:00+08:00",
+        last_seen_at="2026-04-21T00:00:00+08:00",
+        canonical_title="上海太和水科技发展股份有限公司关于收到中国证券监督管理委员会立案告知书的公告",
+        summary="公司收到中国证券监督管理委员会立案告知书。",
+        source="sse",
+        published_at="2026-04-21T00:00:00+08:00",
+        url="https://example.com/sse-regulatory-risk",
+        member_news_ids=["n1lr"],
+        event_type="hard_event",
+        event_subtype="legal_dispute",
+        primary_entities=[],
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bearish"
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_patent_infringement_dispute_as_bearish() -> None:
     event = Event(
         event_id="event-001lp",

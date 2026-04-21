@@ -101,6 +101,9 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "人形机器人半马",
     "文旅经济发展大会召开",
 )
+LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
+    "投资机会",
+)
 
 
 @dataclass(frozen=True)
@@ -306,6 +309,10 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             and any(keyword in title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
         ):
             return None
+        if _is_low_signal_stcn_fund_manager_commentary_candidate(event):
+            return None
+        if _is_low_signal_stcn_industry_prosperity_story_candidate(event):
+            return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
         return "general_fast_news_with_theme"
@@ -369,6 +376,31 @@ def _is_low_signal_robot_competition_story_candidate(event: Event) -> bool:
             any(keyword in text for keyword in ("人形机器人马拉松", "排位赛"))
             and any(keyword in text for keyword in ("世界纪录", "按比例计算"))
         )
+    )
+
+
+def _is_low_signal_stcn_fund_manager_commentary_candidate(event: Event) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and "基金经理" in event.canonical_title
+        and any(
+            keyword in event.canonical_title
+            for keyword in LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS
+        )
+    )
+
+
+def _is_low_signal_stcn_industry_prosperity_story_candidate(event: Event) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "高景气延续" in event.canonical_title
+        and "重点布局方向" in event.canonical_title
+        and "机构分析认为" in text
+        and "有望获益" in text
     )
 
 

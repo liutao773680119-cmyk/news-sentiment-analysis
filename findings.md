@@ -23,6 +23,26 @@
   - 这是一个适合停手的点
   - 下一轮如果头部还是这类风险公告，不要为了更干净继续过拟合
 
+## Update 2026-04-21
+- 本轮继续沿 live 头部收口，没有继续扩源，`hkex` 仍停在 staged
+- 这轮新增确认：
+  - `stcn` 的券商评论稿、`【早知道】` 摘要拼盘、基金经理配置评论、行业景气综述，应该在 `report` 层按最窄口径过滤
+  - `report` 和 `audit-suspicious` 需要同步白名单；只收 report 不补巡检，`suspicious_count` 还会报红
+  - `stcn` 的“互动平台表示 + 暂未/未参股/未投资/未布局”更像否定式回应，不该因为标题里有 `CPO / 存储芯片` 就占头部
+  - `irm_cninfo` 的“算力基建/后续布局”“营收/订单大概多少”“股价与业绩不对称/新项目么”都属于同一家族的弱问答
+  - `吉利将于2026北京车展发布中国首台原生Robotaxi原型车` 有明确主体、明确时间点、明确动作和技术进展，应保留，不该继续压
+- 当前基线：
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1781 normalized_news=1781 events=419 analyses=419 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+- 当前头部已切成更像 legit 保留样本：
+  - `吉利将于2026北京车展发布中国首台原生Robotaxi原型车`
+  - `奥特迅...退市风险警示`
+  - `国内商品期货早盘开盘 多晶硅涨超4%`
+  - `长亮科技中标某股份制银行新网贷服务平台项目`
+- 当前判断：
+  - 再往下收的收益已经明显下降
+  - 下一轮如果头部仍是这类样本，优先停手交接，不要继续过拟合
+
 ## Update 2026-04-17（hkex staged）
 - 本轮新增确认：
   - `hkex` collector 已经能抓官方 JSON，不是采集没通；当前问题在于英文标题的 subtype 和降噪还不够。

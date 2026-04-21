@@ -43,6 +43,29 @@
   - 当前是一个适合停手的点
   - 下一轮先重跑当天 live，再决定有没有必要继续补最窄规则
 
+## Update 2026-04-21
+- 主线仍是 `phase8-live-boundary`，这轮继续只按 live 样本收口，不碰 `hkex staged`
+- 本轮继续沿当天头部收掉了一批新弱样本：
+  - `stcn` 的券商评论稿、`【早知道】` 摘要拼盘、基金经理配置评论、行业景气综述
+  - `stcn` 的互动平台否定式回应，如 `暂未参股 / 未投资 / 未布局`
+  - `irm_cninfo` 的“算力基建/后续布局”“营收/订单大概多少”“股价与业绩不对称/新项目么”这类弱问答
+  - `sse_einteractive` 的题材追问变体，如 `大致有多少家`
+- 本轮确认应保留：
+  - `吉利将于2026北京车展发布中国首台原生Robotaxi原型车`
+  - `奥特迅：关于股票交易被实施退市风险警示暨股票停牌的公告`
+  - `长亮科技中标某股份制银行新网贷服务平台项目`
+- 当前最新验证：
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1781 normalized_news=1781 events=419 analyses=419 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+- 当前头部已切到更像 legit 保留样本：
+  - `吉利将于2026北京车展发布中国首台原生Robotaxi原型车`
+  - `奥特迅...退市风险警示`
+  - `国内商品期货早盘开盘 多晶硅涨超4%`
+  - `长亮科技中标某股份制银行新网贷服务平台项目`
+- 结论：
+  - 当前再次回到适合停手的点
+  - 下一轮先重跑当天 live，不要沿用这轮头部继续过拟合
+
 ## Current Phase
 Phase 8
 
@@ -172,8 +195,8 @@ Phase 8
 
 ## Current State
 - 工作分支：`mvp-foundation`
-- 当前分支状态：clean
-- 当前最新提交：`2db6b3f fix: tighten hkex staged source classification`
+- 当前分支状态：dirty
+- 当前最新推远端提交：`27886b0 fix: tighten live report boundary filters`
 - 当前已启用真实源：`cninfo`、`miit`、`stcn`、`csrc`、`sse`、`szse`、`cls`
 - 当前 staged 真实源：`hkex`
 - 当前 CLI：
@@ -213,11 +236,12 @@ Phase 8
 2. 下一步第一条命令固定为：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 3. 如果 `live-smoke --source all` 通过，再继续：
-   - 先看当天 report 头部是否仍主要是 legit 风险公告：
-     - `*ST声迅...申请撤销对公司股票交易实施退市风险警示`
-     - `明德生物...被实施退市风险警示暨停复牌安排`
-   - 再判断是否真的还有新的 `irm_cninfo / equity_incentive / cls` 弱样本值得继续收
-4. 如果头部仍主要是 legit 风险公告：
+   - 先看当天 report 头部是否仍主要是 legit 保留样本：
+     - `吉利将于2026北京车展发布中国首台原生Robotaxi原型车`
+     - `奥特迅...退市风险警示`
+     - `长亮科技中标某股份制银行新网贷服务平台项目`
+   - 再判断是否真的还有新的 `irm_cninfo / stcn / cls` 弱样本值得继续收
+4. 如果头部仍主要是 legit 保留样本：
    - 先停，不继续压头部
    - 不要为了“更干净”继续过拟合 `text_report`
 5. 如果出现新的弱样本：
