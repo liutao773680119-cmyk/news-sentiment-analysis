@@ -174,6 +174,9 @@ def _is_company_update_summary_theme_spillover(event: Event) -> bool:
     if event.event_subtype != "company_update":
         return False
 
+    if _is_foreign_relief_summary_theme_spillover(event):
+        return True
+
     if _is_expert_interview_summary_theme_spillover(event):
         return True
 
@@ -197,6 +200,9 @@ def _is_regional_industry_data_theme_spillover(event: Event) -> bool:
     if event.event_subtype != "industry_data":
         return False
 
+    if event.canonical_title.startswith("主力资金监控："):
+        return True
+
     if "：" not in event.canonical_title:
         return False
 
@@ -205,6 +211,16 @@ def _is_regional_industry_data_theme_spillover(event: Event) -> bool:
 
     summary_hits = _detect_theme_hits(event.summary)
     return len(summary_hits) >= 2
+
+
+def _is_foreign_relief_summary_theme_spillover(event: Event) -> bool:
+    if event.source != "cls":
+        return False
+
+    if not any(keyword in event.canonical_title for keyword in ("纾困计划", "应对能源价格高企")):
+        return False
+
+    return all(keyword in event.summary for keyword in ("政府", "声明", "企业"))
 
 
 def _is_expert_interview_summary_theme_spillover(event: Event) -> bool:

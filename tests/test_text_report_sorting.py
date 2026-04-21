@@ -1021,6 +1021,61 @@ def test_write_text_report_filters_stock_all_time_high_without_theme(tmp_path) -
     assert "华瑞股份股价创下历史新高" not in content
 
 
+def test_write_text_report_filters_cls_single_stock_limit_down_response_without_theme(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-limit-down-response",
+            first_seen_at="2026-04-21T11:07:08+08:00",
+            last_seen_at="2026-04-21T11:07:08+08:00",
+            canonical_title="股价“一”字跌停 英维克最新回应",
+            summary="【股价“一”字跌停 英维克最新回应】财联社4月21日电，液冷龙头股英维克开盘“一”字跌停，股价报108.97元/股，跌幅为10%。英维克方面回应称：“公司毛利率出现下滑，主要是调整了产品结构。公司部分项目周期比较长，一些应收账款回款周期也比较长，因此计提了坏账减值准备。此外，公司财务费用方面有一些汇兑损失。公司目前经营正常，以后续公告为准。”对于经营活动产生的现金流量净额恶化的原因，公司方面解释称，主要原因系报告期供应商款项到期支付与员工薪酬增加所致。",
+            source="cls",
+            published_at="2026-04-21T11:07:08+08:00",
+            url="https://example.com/cls-limit-down-response",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-themed-market-move-keep",
+            first_seen_at="2026-04-21T11:08:00+08:00",
+            last_seen_at="2026-04-21T11:08:00+08:00",
+            canonical_title="液冷服务器概念走强 达实智能等涨停",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T11:08:00+08:00",
+            url="https://example.com/themed-market-move-keep",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-limit-down-response",
+            direction="bearish",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-themed-market-move-keep",
+            direction="neutral",
+            impact_score=97.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "股价“一”字跌停 英维克最新回应" not in content
+    assert "液冷服务器概念走强 达实智能等涨停" in content
+
+
 def test_write_text_report_filters_stock_all_time_high_variant_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -1398,6 +1453,59 @@ def test_write_text_report_filters_single_ashare_index_roundup_fast_news(tmp_pat
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "收评：创业板指涨5.91% AI营销概念大涨" not in content
+
+
+def test_write_text_report_filters_cls_three_major_indices_roundup_variant(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-three-major-indices-roundup",
+            first_seen_at="2026-04-21T13:17:25+08:00",
+            last_seen_at="2026-04-21T13:17:25+08:00",
+            canonical_title="三大指数全部翻红",
+            summary="【三大指数全部翻红】财联社4月21日电，指数午后再度走强，三大指数全部翻红，创业板指、深成指早盘一度跌超1%。特种气体、PCB、算电协同等方向涨幅居前，沪深京三市上涨个股近1900只。",
+            source="cls",
+            published_at="2026-04-21T13:17:25+08:00",
+            url="https://example.com/cls-three-major-indices-roundup",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-themed-market-move-keep",
+            first_seen_at="2026-04-21T13:05:55+08:00",
+            last_seen_at="2026-04-21T13:05:55+08:00",
+            canonical_title="铜箔概念持续走强 方邦股份触及20cm涨停",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T13:05:55+08:00",
+            url="https://example.com/cls-themed-market-move-keep",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-three-major-indices-roundup",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-themed-market-move-keep",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=["覆铜板"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "三大指数全部翻红" not in content
+    assert "铜箔概念持续走强 方邦股份触及20cm涨停" in content
 
 
 def test_write_text_report_filters_domestic_futures_roundup_variant_fast_news(tmp_path) -> None:
@@ -5459,6 +5567,18 @@ def test_write_text_report_filters_stcn_robot_half_marathon_supply_chain_story_w
             event_subtype="general_fast_news",
         ),
         Event(
+            event_id="event-cls-robot-half-marathon-uwb-supply-chain",
+            first_seen_at="2026-04-21T10:39:15+08:00",
+            last_seen_at="2026-04-21T10:39:15+08:00",
+            canonical_title="荣耀夺冠机器人“空间神经末梢”由深圳纽瑞芯提供",
+            summary="北京亦庄人形机器人半程马拉松，荣耀自研的“闪电”机器人包揽赛事该组前三。令人瞩目的是，排名前三的机器人成绩均大幅超越了目前人类半程马拉松世界纪录。近日，记者独家获悉，“闪电”机器人的“神经末梢”UWB由深圳市纽瑞芯科技有限公司提供。荣耀就走在了前面，已确定在机器人中，标配纽瑞芯UWB芯片产品。",
+            source="cls",
+            published_at="2026-04-21T10:39:15+08:00",
+            url="https://example.com/cls-robot-half-marathon-uwb-supply-chain",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
             event_id="event-stcn-robot-order-2",
             first_seen_at="2026-04-19T11:05:00+08:00",
             last_seen_at="2026-04-19T11:05:00+08:00",
@@ -5481,6 +5601,14 @@ def test_write_text_report_filters_stcn_robot_half_marathon_supply_chain_story_w
             triggered=True,
         ),
         EventAnalysis(
+            event_id="event-cls-robot-half-marathon-uwb-supply-chain",
+            direction="neutral",
+            impact_score=79.3,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+        EventAnalysis(
             event_id="event-stcn-robot-order-2",
             direction="bullish",
             impact_score=99.0,
@@ -5493,6 +5621,7 @@ def test_write_text_report_filters_stcn_robot_half_marathon_supply_chain_story_w
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "荣耀机器人半马夺冠 领益智造批量交付其全套金属结构件等产品" not in content
+    assert "荣耀夺冠机器人“空间神经末梢”由深圳纽瑞芯提供" not in content
     assert "某公司获人形机器人批量订单" in content
 
 
@@ -5600,6 +5729,59 @@ def test_write_text_report_filters_stcn_operational_update_with_stable_order_wor
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "2026清明档电影片单发布" in content
     assert "宏明电子：目前生产经营正常，订单情况整体稳定" not in content
+
+
+def test_write_text_report_filters_stcn_interactive_order_plenty_update_without_hiding_substantive_order(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-interactive-order-plenty",
+            first_seen_at="2026-04-21T12:26:13+08:00",
+            last_seen_at="2026-04-21T12:26:13+08:00",
+            canonical_title="协创数据：2026年将持续加大算力业务投入 目前在手订单充裕",
+            summary="人民财讯4月21日电，协创数据(300857)4月21日在互动平台表示，公司坚定看好AI算力市场的长期发展，2026年将持续加大算力业务投入，巩固公司云算力服务的核心竞争力，目前公司在手订单充裕，交付有序进行。",
+            source="stcn",
+            published_at="2026-04-21T12:26:13+08:00",
+            url="https://example.com/stcn-interactive-order-plenty",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-stcn-substantive-order-keep",
+            first_seen_at="2026-04-21T12:20:00+08:00",
+            last_seen_at="2026-04-21T12:20:00+08:00",
+            canonical_title="某公司获人形机器人批量订单",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-21T12:20:00+08:00",
+            url="https://example.com/stcn-substantive-order-keep",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-interactive-order-plenty",
+            direction="neutral",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-substantive-order-keep",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "协创数据：2026年将持续加大算力业务投入 目前在手订单充裕" not in content
+    assert "某公司获人形机器人批量订单" in content
 
 
 def test_write_text_report_keeps_cninfo_disclosure_with_theme(tmp_path) -> None:
@@ -9155,36 +9337,48 @@ def test_write_text_report_filters_cls_wind_research_column_and_share_reduction_
     events = [
         Event(
             event_id="event-cls-wind-research",
-            first_seen_at="2026-04-16T20:15:59+08:00",
-            last_seen_at="2026-04-16T20:15:59+08:00",
+            first_seen_at="2026-04-21T10:15:59+08:00",
+            last_seen_at="2026-04-21T10:15:59+08:00",
             canonical_title="【风口研报·公司】积极拓展智算服务+数据智能，这家公司加码扩充万卡级算力、租赁服务需求可期，多路径布局AI算力和应用产品线；这家光通信芯片公司在数据中心侧芯片实现从追赶到并跑的突破",
             summary="summary",
             source="cls",
-            published_at="2026-04-16T20:15:59+08:00",
+            published_at="2026-04-21T10:15:59+08:00",
             url="https://example.com/cls-wind-research",
             event_type="fast_news",
             event_subtype="general_fast_news",
         ),
         Event(
+            event_id="event-cls-wind-research-business-guidance",
+            first_seen_at="2026-04-21T10:58:48+08:00",
+            last_seen_at="2026-04-21T10:58:48+08:00",
+            canonical_title="【风口研报·公司】造船景气周期+产能扩张共振，这家公司切入高端船舶制造及配套产业链、油轮新船市占率高达40%实现行业断层领先，高价订单陆续交付助推业绩增长",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-21T10:58:48+08:00",
+            url="https://example.com/cls-wind-research-business-guidance",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-szse-share-reduction-plan",
-            first_seen_at="2026-04-17T00:00:00+08:00",
-            last_seen_at="2026-04-17T00:00:00+08:00",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
             canonical_title="和胜股份：关于股东计划减持公司股份的预披露公告",
             summary="summary",
             source="szse",
-            published_at="2026-04-17T00:00:00+08:00",
+            published_at="2026-04-21T00:00:00+08:00",
             url="https://example.com/szse-share-reduction-plan",
             event_type="hard_event",
             event_subtype="corporate_disclosure",
         ),
         Event(
             event_id="event-keep-catalyst",
-            first_seen_at="2026-04-16T18:51:44+08:00",
-            last_seen_at="2026-04-16T18:51:44+08:00",
+            first_seen_at="2026-04-21T10:51:44+08:00",
+            last_seen_at="2026-04-21T10:51:44+08:00",
             canonical_title="云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目",
             summary="summary",
             source="cls",
-            published_at="2026-04-16T18:51:44+08:00",
+            published_at="2026-04-21T10:51:44+08:00",
             url="https://example.com/keep-catalyst",
             event_type="fast_news",
             event_subtype="acquisition_restructuring",
@@ -9192,6 +9386,7 @@ def test_write_text_report_filters_cls_wind_research_column_and_share_reduction_
     ]
     analyses = [
         EventAnalysis(event_id="event-cls-wind-research", direction="neutral", impact_score=79.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-cls-wind-research-business-guidance", direction="bullish", impact_score=74.3, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-szse-share-reduction-plan", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-keep-catalyst", direction="bullish", impact_score=99.3, reasoning="rule", themes=["锂电池"], triggered=True),
     ]
@@ -9200,6 +9395,7 @@ def test_write_text_report_filters_cls_wind_research_column_and_share_reduction_
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "云天化：引入当升科技为合作方 预计总投资约44.93亿元建设磷酸铁锂等新能源电池材料项目" in content
     assert "【风口研报·公司】积极拓展智算服务+数据智能" not in content
+    assert "【风口研报·公司】造船景气周期+产能扩张共振" not in content
     assert "和胜股份：关于股东计划减持公司股份的预披露公告" not in content
 
 
@@ -10379,6 +10575,242 @@ def test_write_text_report_filters_stcn_negative_platform_reply_without_hiding_r
     assert "吉利将于2026北京车展发布中国首台原生Robotaxi原型车" in content
 
 
+def test_write_text_report_filters_current_live_irm_question_only_titles_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-overseas-supply-question-only",
+            first_seen_at="2026-04-21T10:49:36+08:00",
+            last_seen_at="2026-04-21T10:49:36+08:00",
+            canonical_title="新雷能：董秘好，请问公司的太空数据中心电源产品供应海外吗？请及时回复，谢谢。",
+            summary="董秘好，请问公司的太空数据中心电源产品供应海外吗？请及时回复，谢谢。",
+            source="irm_cninfo",
+            published_at="2026-04-21T10:49:36+08:00",
+            url="https://example.com/irm-overseas-supply-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-robot-application-question-only",
+            first_seen_at="2026-04-21T10:49:36+08:00",
+            last_seen_at="2026-04-21T10:49:36+08:00",
+            canonical_title="山东威达：董秘你好:公司入股的知行机器人的产品具体应用在哪些行业？",
+            summary="董秘你好:公司入股的知行机器人的产品具体应用在哪些行业？",
+            source="irm_cninfo",
+            published_at="2026-04-21T10:49:36+08:00",
+            url="https://example.com/irm-robot-application-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-multi-question-shareholder-only",
+            first_seen_at="2026-04-21T11:09:50+08:00",
+            last_seen_at="2026-04-21T11:09:50+08:00",
+            canonical_title="盛视科技：董秘您好，作为公司股东，想了解以下几个问题： 1. 公司对航天物联网的投资目前是否产生了投资收益？该投资对公司未来的业务布局和业绩增长有何预期贡献？ ​ 2. 商业航天是国家重点支持的战略新兴产业，公司作为AI和物联网领域的领先企业，是否有计划利用自身技术优势切入该赛道，培育新的业绩增长点？ ​ 3. 太空算力被认为是下一代算力的重要方向，公司在算力方面的布局是否会考虑向太空领",
+            summary="董秘您好，作为公司股东，想了解以下几个问题： 1. 公司对航天物联网的投资目前是否产生了投资收益？该投资对公司未来的业务布局和业绩增长有何预期贡献？ ​ 2. 商业航天是国家重点支持的战略新兴产业，公司作为AI和物联网领域的领先企业，是否有计划利用自身技术优势切入该赛道，培育新的业绩增长点？ ​ 3. 太空算力被认为是下一代算力的重要方向，公司在算力方面的布局是否会考虑向太空领",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:09:50+08:00",
+            url="https://example.com/irm-multi-question-shareholder-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-disclosure-rule-question-only",
+            first_seen_at="2026-04-21T11:09:50+08:00",
+            last_seen_at="2026-04-21T11:09:50+08:00",
+            canonical_title="常山药业：董秘你好！贵公司1类原研创新药阿贝那肽近日被国家医保局纳入第一批参照药预沟通药品名单，公示期已过，请问贵公司是否收到国家医保局的相关通知？此信息是否应该按规则进行披露？",
+            summary="董秘你好！贵公司1类原研创新药阿贝那肽近日被国家医保局纳入第一批参照药预沟通药品名单，公示期已过，请问贵公司是否收到国家医保局的相关通知？此信息是否应该按规则进行披露？",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:09:50+08:00",
+            url="https://example.com/irm-disclosure-rule-question-only",
+            event_type="fast_news",
+            event_subtype="policy_signal",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-progress",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-theme-progress",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-overseas-supply-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-robot-application-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-multi-question-shareholder-only", direction="bullish", impact_score=100.0, reasoning="rule", themes=["算力", "商业航天"], triggered=True),
+        EventAnalysis(event_id="event-irm-disclosure-rule-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "新雷能：董秘好，请问公司的太空数据中心电源产品供应海外吗？请及时回复，谢谢。" not in content
+    assert "山东威达：董秘你好:公司入股的知行机器人的产品具体应用在哪些行业？" not in content
+    assert "盛视科技：董秘您好，作为公司股东，想了解以下几个问题" not in content
+    assert "常山药业：董秘你好！贵公司1类原研创新药阿贝那肽近日被国家医保局纳入第一批参照药预沟通药品名单" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
+def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_substantive_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-ai-subsidiary-scope-intro",
+            first_seen_at="2026-04-21T11:45:33+08:00",
+            last_seen_at="2026-04-21T11:45:33+08:00",
+            canonical_title="协创数据：看到公司资讯成立了词元智算科技公司含AI业务是公司准备做什么？",
+            summary="问题：看到公司资讯成立了词元智算科技公司含AI业务是公司准备做什么？ 回复：您好，公司新设立控股子公司天津词元智算科技有限公司，主要经营范围为数据处理服务；计算机软硬件及辅助设备零售，软件销售；信息安全设备销售，云计算设备销售，人工智能应用软件开发；网络与信息安全软件开发，软件开发等。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:33+08:00",
+            url="https://example.com/irm-ai-subsidiary-scope-intro",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-order-plenty-report-later",
+            first_seen_at="2026-04-21T11:45:33+08:00",
+            last_seen_at="2026-04-21T11:45:33+08:00",
+            canonical_title="协创数据：你好，本人非常认同协创耿总的战略眼光，多方面的布局算力中心赛道，那么协创目前在手还未交付的算力规模还有多少。谢谢",
+            summary="问题：你好，本人非常认同协创耿总的战略眼光，多方面的布局算力中心赛道，那么协创目前在手还未交付的算力规模还有多少。谢谢 回复：您好，公司坚定看好AI算力市场的长期发展，2026年将持续加大算力业务投入，巩固公司云算力服务的核心竞争力，目前公司在手订单充裕，交付有序进行。具体经营情况届时详见后续定期报告及相关公告。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:33+08:00",
+            url="https://example.com/irm-order-plenty-report-later",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-no-undisclosed-restructuring",
+            first_seen_at="2026-04-21T11:45:33+08:00",
+            last_seen_at="2026-04-21T11:45:33+08:00",
+            canonical_title="协鑫集成：董秘您好！公司2026年中标华电68亿大单、业绩扭亏，基本面全面反转 。但控股股东协鑫集团高比例质押问题仍制约估值。 请问：集团是否计划通过资产注入（优质光伏/储能/钙钛矿资产）、引入战略投资者、或重组方式降低质押、优化上市公司资产负债表？ 是否存在应披露未披露的重大资产重组、资产注入安排？请正面回应市场对价值重估、解决质押的核心关切。",
+            summary="问题：董秘您好！公司2026年中标华电68亿大单、业绩扭亏，基本面全面反转 。但控股股东协鑫集团高比例质押问题仍制约估值。 请问：集团是否计划通过资产注入（优质光伏/储能/钙钛矿资产）、引入战略投资者、或重组方式降低质押、优化上市公司资产负债表？ 是否存在应披露未披露的重大资产重组、资产注入安排？请正面回应市场对价值重估、解决质押的核心关切。 回复：尊敬的投资者您好，公司不存在应披露而未披露的事项，感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:33+08:00",
+            url="https://example.com/irm-no-undisclosed-restructuring",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-prudent-study-order-loss-risk",
+            first_seen_at="2026-04-21T11:45:03+08:00",
+            last_seen_at="2026-04-21T11:45:03+08:00",
+            canonical_title="通化金马：目前行业内在仲丁基锂连续流规模化生产上已出现明显技术领先企业，该技术直接决定高难度创新药分子的可开发性与商业化效率。请问公司是否掌握相关核心工艺？有无具体项目案例、产能规模及客户验证？若存在明显技术代差，将如何应对高端订单流失的风险？",
+            summary="问题：目前行业内在仲丁基锂连续流规模化生产上已出现明显技术领先企业，该技术直接决定高难度创新药分子的可开发性与商业化效率。请问公司是否掌握相关核心工艺？有无具体项目案例、产能规模及客户验证？若存在明显技术代差，将如何应对高端订单流失的风险？ 回复：您好，公司密切关注行业前沿技术的发展动态，根据市场需求，结合自身情况，审慎论证。",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:03+08:00",
+            url="https://example.com/irm-prudent-study-order-loss-risk",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-ma-direction-disclosure-only",
+            first_seen_at="2026-04-21T11:45:03+08:00",
+            last_seen_at="2026-04-21T11:45:03+08:00",
+            canonical_title="宏明电子：恭喜公司成功上市，请问管理层对公司未来做大做强有哪些举措？就目前公司的产品涉及各种产业链来说，贵司未来有哪些方向的并购或收购方向？目前光通信，算力，存储芯片，半导体等产业链非常火爆，期待贵司能找准这些火爆热门方向做大做强。",
+            summary="问题：恭喜公司成功上市，请问管理层对公司未来做大做强有哪些举措？就目前公司的产品涉及各种产业链来说，贵司未来有哪些方向的并购或收购方向？目前光通信，算力，存储芯片，半导体等产业链非常火爆，期待贵司能找准这些火爆热门方向做大做强。 回复：尊敬的投资者，您好！公司坚守“做电子元件先锋、铸国防工业基石”的使命，实施“一干多枝、枝繁叶茂”经营战略，聚焦高可靠电子元器件与精密零组件主业，通过技术创新、产能扩张、市场拓展与数字化升级持续做强做优、高质量发展；公司如有并购、收购等相关信息，将严格按照规定履行信息披露义务。感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:03+08:00",
+            url="https://example.com/irm-ma-direction-disclosure-only",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-irm-small-batch-low-revenue-risk-note",
+            first_seen_at="2026-04-21T11:45:03+08:00",
+            last_seen_at="2026-04-21T11:45:03+08:00",
+            canonical_title="宏明电子：请问贵公司和华为算力服务器相关产品的合作进展如何？是否有形成订单批量供货？",
+            summary="问题：请问贵公司和华为算力服务器相关产品的合作进展如何？是否有形成订单批量供货？ 回复：尊敬的投资者，您好！公司算力服务器领域结构件产品已向上述客户送样合格，开始小批量供货。但目前公司在该领域相关业务收入在公司整体营业收入中占比较小。敬请投资者理性判断，注意投资风险。感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:03+08:00",
+            url="https://example.com/irm-small-batch-low-revenue-risk-note",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-share-reduction-pre-disclosure-rule",
+            first_seen_at="2026-04-21T11:45:33+08:00",
+            last_seen_at="2026-04-21T11:45:33+08:00",
+            canonical_title="大华股份：请问中国移动所持公司股份已经解禁上市流通，因为是特定对象增发，减持是不是不需要提前发预告？",
+            summary="问题：请问中国移动所持公司股份已经解禁上市流通，因为是特定对象增发，减持是不是不需要提前发预告？ 回复：尊敬的投资者，您好！中国移动目前持股超过5%，其减持需要按照相关法律法规预披露，感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:33+08:00",
+            url="https://example.com/irm-share-reduction-pre-disclosure-rule",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-buyback-request-dividend-reply",
+            first_seen_at="2026-04-21T11:45:33+08:00",
+            last_seen_at="2026-04-21T11:45:33+08:00",
+            canonical_title="海康威视：董秘，你好，公司股价四五年低位横盘，请公司继续回购股份，谢谢",
+            summary="问题：董秘，你好，公司股价四五年低位横盘，请公司继续回购股份，谢谢 回复：您好，公司高度重视股东回报，致力于保持并提升股东回报水平，同时增加分红频次，提升股东获得感，谢谢。2025年10月，公司派发2025年半年度现金分红。2026年4月，公司披露2025年度利润分配方案。2025年9月，公司注销完成了以集中竞价交易方式回购的股份6,833万股。",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:33+08:00",
+            url="https://example.com/irm-buyback-request-dividend-reply",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-fixed-increase-normal-progress",
+            first_seen_at="2026-04-21T11:45:03+08:00",
+            last_seen_at="2026-04-21T11:45:03+08:00",
+            canonical_title="茂化实华：定增失败了嘛？定增失败了嘛？定增失败了嘛？公司是否考虑增持自家股票？",
+            summary="问题：定增失败了嘛？定增失败了嘛？定增失败了嘛？公司是否考虑增持自家股票？ 回复：尊敬的投资者：您好！目前公司定增工作正常进行中，请留意公司后续相关报告。感谢您的关注！谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-21T11:45:03+08:00",
+            url="https://example.com/irm-fixed-increase-normal-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-progress-live",
+            first_seen_at="2026-04-20T20:46:03+08:00",
+            last_seen_at="2026-04-20T20:46:03+08:00",
+            canonical_title="久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？",
+            summary="问题：公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？ 回复：您好！2026年以来，公司相关产品已完成多家商业航天客户送样验证，并取得批量订单，部分型号已进入卫星互联网配套供应链。",
+            source="irm_cninfo",
+            published_at="2026-04-20T20:46:03+08:00",
+            url="https://example.com/irm-keep-substantive-progress-live",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-ai-subsidiary-scope-intro", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-order-plenty-report-later", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-no-undisclosed-restructuring", direction="neutral", impact_score=100.0, reasoning="rule", themes=["储能"], triggered=True),
+        EventAnalysis(event_id="event-irm-prudent-study-order-loss-risk", direction="bearish", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-ma-direction-disclosure-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力", "半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-small-batch-low-revenue-risk-note", direction="bearish", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-share-reduction-pre-disclosure-rule", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-buyback-request-dividend-reply", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-fixed-increase-normal-progress", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-progress-live", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "协创数据：看到公司资讯成立了词元智算科技公司含AI业务是公司准备做什么？" not in content
+    assert "协创数据：你好，本人非常认同协创耿总的战略眼光，多方面的布局算力中心赛道，那么协创目前在手还未交付的算力规模还有多少。谢谢" not in content
+    assert "协鑫集成：董秘您好！公司2026年中标华电68亿大单、业绩扭亏，基本面全面反转" not in content
+    assert "通化金马：目前行业内在仲丁基锂连续流规模化生产上已出现明显技术领先企业" not in content
+    assert "宏明电子：恭喜公司成功上市，请问管理层对公司未来做大做强有哪些举措？" not in content
+    assert "宏明电子：请问贵公司和华为算力服务器相关产品的合作进展如何？是否有形成订单批量供货？" not in content
+    assert "大华股份：请问中国移动所持公司股份已经解禁上市流通，因为是特定对象增发，减持是不是不需要提前发预告？" not in content
+    assert "海康威视：董秘，你好，公司股价四五年低位横盘，请公司继续回购股份，谢谢" not in content
+    assert "茂化实华：定增失败了嘛？定增失败了嘛？定增失败了嘛？公司是否考虑增持自家股票？" not in content
+    assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
+
+
 def test_write_text_report_filters_irm_cninfo_disclosure_threshold_and_low_revenue_replies_without_hiding_substantive_progress(
     tmp_path,
 ) -> None:
@@ -11010,6 +11442,47 @@ def test_write_text_report_filters_current_live_equity_incentive_unmet_exercise_
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "亚太科技：关于第一期股票期权和限制性股票激励计划第三个行权期行权条件未成就及注销部分股票期权的公告" not in content
+    assert "奥特迅：关于股票交易被实施退市风险警示暨股票停牌的公告" in content
+
+
+def test_write_text_report_filters_current_live_equity_incentive_committee_verification_notice(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-gltc-equity-incentive-verification",
+            first_seen_at="2026-04-21T00:00:00+08:00",
+            last_seen_at="2026-04-21T00:00:00+08:00",
+            canonical_title="光大同创：董事会薪酬与考核委员会关于2024年限制性股票激励计划有关事项的核查意见",
+            summary="光大同创：董事会薪酬与考核委员会关于2024年限制性股票激励计划有关事项的核查意见",
+            source="szse",
+            published_at="2026-04-21T00:00:00+08:00",
+            url="https://example.com/gltc-equity-incentive-verification",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-keep-delisting-risk-gltc-window",
+            first_seen_at="2026-04-21T00:01:00+08:00",
+            last_seen_at="2026-04-21T00:01:00+08:00",
+            canonical_title="奥特迅：关于股票交易被实施退市风险警示暨股票停牌的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-21T00:01:00+08:00",
+            url="https://example.com/keep-delisting-risk-gltc-window",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-gltc-equity-incentive-verification", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-delisting-risk-gltc-window", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "光大同创：董事会薪酬与考核委员会关于2024年限制性股票激励计划有关事项的核查意见" not in content
     assert "奥特迅：关于股票交易被实施退市风险警示暨股票停牌的公告" in content
 
 

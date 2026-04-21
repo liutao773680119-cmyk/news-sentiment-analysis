@@ -43,6 +43,45 @@
   - 再往下收的收益已经明显下降
   - 下一轮如果头部仍是这类样本，优先停手交接，不要继续过拟合
 
+## Update 2026-04-21（latest）
+- 本轮继续沿 `phase8-live-boundary` 收口，但没有再扩源；`hkex` 仍停在 staged
+- 这轮新增确认：
+  - `szse` 同模板退市风险公告不能再靠标题相似度归并；`hard_event` 必须先看股票代码和结构化催化
+  - 修 `event_merge` 后如果不重跑 `merge-events`，`events.jsonl` 会继续保留旧错并结果
+  - `analysis` 层仍有少量 live spillover，需要优先修根因而不是在 `report` 硬压：
+    - `foreign relief summary` 不该误挂 `新能源车`
+    - `主力资金监控` 不该误挂 `文旅`
+  - `irm_cninfo` 当天 live 除了 question-only 外，还会有一整族“有回复但仍是弱问答”的样本：
+    - `经营范围介绍`
+    - `订单充裕 + 定期报告及相关公告`
+    - `不存在应披露而未披露的事项`
+    - `审慎论证`
+    - `并购方向泛回复`
+    - `小批量供货 + 收入占比较小 + 理性判断`
+    - `减持预披露规则追问`
+    - `继续回购诉求`
+    - `定增正常推进`
+    这类继续优先在 `text_report` helper 补最窄 title+reply 组合，不要急着改 subtype
+  - `cls` 的 `股价“一”字跌停 英维克最新回应` 根因不在 `event_merge / analysis`，而在 `report` 层的有意降噪
+  - `三大指数全部翻红` 这类 `cls market_move` 弱综述，真正把它漏回 report 的常见原因是正文里混入 `跌超1%` 之类 `market_move` 宽词；优先按“指数综述变体”过滤
+  - `stcn` 转载互动平台口径时，`持续加大业务投入 + 在手订单充裕 + 交付有序进行` 更像弱经营更新，不该直接按真订单催化保留
+  - `report` 刷新在当前环境里不总是稳定；验收不能只看命令返回，必须直接搜目标样本是否退出，必要时用 `PYTHONPATH=src` 直接调 `write_text_report()`
+- 本轮明确保留：
+  - `WTI原油期货跌破86美元/桶`：当前 global news 口径下应保留的大宗商品异动
+  - `乌克兰国防部宣布：上半年增订2.5万台机器人...`：当前更像海外主题事件，不建议顺手压掉
+  - `第二届世界人形机器人运动会将于8月在京举办`：带明确时间点和主题承接，现阶段更像 legit 保留样本
+- 当前基线：
+  - `./.venv/bin/python -m pytest tests/test_event_merge.py tests/test_analysis_rules.py tests/test_text_report_sorting.py -q` -> `318 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+- 当前头部已经回到更像该保留的样本：
+  - `乌克兰机器人扩单`
+  - `WTI跌破86`
+  - `世界人形机器人运动会`
+  - `奥特迅 / *ST声迅 / 明德生物 / ST赛为` 退市风险公告
+- 当前判断：
+  - 这轮主线已经到适合停手和提交的点
+  - 下一轮如果头部主要仍是这几类样本，不继续为了更干净过拟合
+
 ## Update 2026-04-17（hkex staged）
 - 本轮新增确认：
   - `hkex` collector 已经能抓官方 JSON，不是采集没通；当前问题在于英文标题的 subtype 和降噪还不够。

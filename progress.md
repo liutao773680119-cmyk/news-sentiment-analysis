@@ -4,51 +4,74 @@
 - Task-ID:
   - `phase8-live-boundary`
 - Task-Name:
-  - `live 样本边界收口 + irm 问答/股权激励材料/cls 栏目稿降噪`
+  - `live 样本边界收口 + 交易所同模板错并修复 + irm/equity_incentive/cls/stcn 新漏样收口`
 - Files Changed:
-  - `src/news_sentiment/analysis/rules.py`
-  - `src/news_sentiment/cli.py`
   - `src/news_sentiment/event_merge/core.py`
   - `src/news_sentiment/reporting/text_report.py`
-  - `tests/test_analysis_scoring.py`
-  - `tests/test_audit_suspicious.py`
   - `tests/test_event_merge.py`
   - `tests/test_text_report_sorting.py`
-  - `progress.md`
-  - `task_registry.md`
-  - `task_plan.md`
-  - `findings.md`
-  - `修改记录_会话备忘.md`
-  - `避坑记录.md`
 - Completed This Session:
-  - 主线继续沿 `phase8-live-boundary` 收 live 头部，不碰 `hkex staged`
-  - `text_report` 连续补了最窄过滤，清掉：
-    - `irm_cninfo` 的弱问答、回避口径、定期报告导向回复、算力基建/后续布局口径、营收/订单追问、股价/新项目追问
-    - `sse_einteractive` 的题材追问变体
-    - `stcn` 的券商评论稿、`【早知道】` 摘要拼盘、基金经理配置评论、行业景气综述、互动平台否定式回应
-    - `sse/szse` 的回购、股权激励、风险管理、核查意见、土地合同等低信号材料
-    - `cls` 的夜盘综述、盘前要闻、匿名拼盘栏目稿、弱财务收益股权处置稿
-    - `海外单股并购快讯 + 无题材无个股`
-  - `event_merge / analysis / audit-suspicious` 也补了必要回正和巡检白名单，同步保证 report 干净时巡检仍为 `0`
-  - 当前头部已从一串 `irm_cninfo / stcn 栏目稿 / 否定式回应 / 弱材料` 收回到更像 legit 保留样本
+  - 只读复跑当天基线后，先确认 `audit-suspicious --limit 10` 仍为 `0`，并发现 `szse` 同模板退市风险公告被错并成一个 event
+  - `event_merge/core.py` 已修 `hard_event` 错并：
+    - `hard_event` 先按结构化催化和股票代码判断，不再先被标题相似度短路
+    - 股票代码提取补了 `news_id` fallback，接住 `szse-002227-...` 这类真实格式
+    - `奥特迅 / *ST声迅 / 明德生物 / ST赛为` 已从一个错并 event 拆回四条独立 event
+  - 继续按新头部做最窄收口：
+    - `irm_cninfo` 两条“纯提问、无回复正文”的弱问答已在 `text_report` 按标题-only 窄口径过滤
+    - `szse equity_incentive` 的 `限制性股票激励计划有关事项的核查意见` 变体已补精确词面过滤
+    - `cls` 的 `股价“一”字跌停 英维克最新回应` 已按 `market_move + 无题材 + 回应口径` 窄规则过滤，不误伤带题材的单票异动
+    - 当天新冒头的一组 `irm_cninfo` 弱回复已继续按最窄 title+reply 组合过滤：
+      - `经营范围介绍`
+      - `订单充裕 + 定期报告及相关公告`
+      - `不存在应披露而未披露的事项`
+      - `密切关注行业前沿技术发展 + 审慎论证`
+      - `并购方向泛问答 + 按规定披露`
+      - `小批量供货 + 收入占比较小 + 理性判断`
+      - `减持预披露规则追问`
+      - `继续回购股份 + 分红回报口径`
+      - `定增正常推进 + 后续相关报告`
+    - `cls` 的 `三大指数全部翻红` 已按 A 股指数综述变体过滤，避免正文里的 `跌超1%` 宽词把指数概览重新抬回头部
+    - `stcn` 的 `协创数据：2026年将持续加大算力业务投入 目前在手订单充裕` 已按“互动平台经营口径转发”窄规则过滤，不误伤真实订单快讯
+  - 并行只读侦察后又确认两条 live 样本去留：
+    - `荣耀夺冠机器人“空间神经末梢”由深圳纽瑞芯提供` 已按机器人赛事供应链弱稿过滤
+    - `股价“一”字跌停 英维克最新回应` 应从 report 退出，且真实 `event-055` 已验证 `relevant=False`
+- 并行只读侦察已确认：
+    - `irm_cninfo` 当前这批 question-only 样本源站确实可能没有 `replyContent`
+    - `equity_incentive` 当前漏样根因是词表已有 `相关事项`，缺 `有关事项`
 - 当前最新验证：
-    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "weak_theme_inquiry_replies_without_hiding_substantive_progress or stcn_negative_platform_reply_without_hiding_robotaxi_launch or stcn_csc_broker_macro_commentary_even_if_analysis_has_theme or stcn_early_know_roundup_without_hiding_policy_signal or stcn_fund_manager_allocation_commentary_without_hiding_real_order_news or stcn_industry_prosperity_story_without_hiding_cls_industry_signal" -q` -> `6 passed`
-    - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -k "stcn_fund_manager_investment_opportunity_story or stcn_industry_prosperity_story" -q` -> `2 passed`
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1781 normalized_news=1781 events=419 analyses=419 failed_sources=none`
+    - `./.venv/bin/python -m pytest tests/test_event_merge.py -k "different_szse_delisting_risk_notices" -q` -> `1 passed`
+    - `./.venv/bin/python -m pytest tests/test_event_merge.py -k "groups_structured_cninfo_catalyst_documents or classifies_delisting_risk_notice_subtype or classifies_other_risk_warning_notice_subtype" -q` -> `3 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "question_only_titles or committee_verification_notice" -q` -> `2 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "compute_infra_fallback or disclosure_threshold_and_low_revenue_replies or exchange_equity_incentive_audit_materials_without_theme or current_live_equity_incentive_unmet_exercise_condition_notice" -q` -> `3 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_single_stock_limit_down_response_without_theme" -q` -> `1 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "keeps_cls_single_stock_market_move_for_global_news_collection or robot_half_marathon_supply_chain_story_without_hiding_robot_order or question_only_titles or committee_verification_notice" -q` -> `4 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "current_live_irm_weak_replies_without_hiding_substantive_progress" -q` -> `1 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "current_live_irm_question_only_titles_without_hiding_substantive_progress or irm_cninfo_disclosure_threshold_and_low_revenue_replies_without_hiding_substantive_progress or compute_infra_fallback or cls_single_stock_limit_down_response_without_theme" -q` -> `3 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "cls_three_major_indices_roundup_variant or stcn_interactive_order_plenty_update_without_hiding_substantive_order" -q` -> `2 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k "filters_single_ashare_index_roundup_fast_news or filters_stcn_operational_update_with_stable_order_wording or keeps_cls_single_stock_market_move_for_global_news_collection or robot_half_marathon_supply_chain_story_without_hiding_robot_order" -q` -> `4 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment merge-events` -> 重刷 `data/events/events.jsonl`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 与直接 `PYTHONPATH=src` 调 `write_text_report()` 均已用于刷新报告；`新雷能 / 山东威达 / 光大同创 / 英维克最新回应 / 协创数据 / 协鑫集成 / 宏明电子 / 通化金马 / 大华股份 / 海康威视 / 茂化实华 / 三大指数全部翻红 / 协创数据：2026年将持续加大算力业务投入 目前在手订单充裕` 已退出 `latest_report.txt`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
 - Open TODO:
-  - 下一轮先重跑当天 `live-smoke --source all`，不要沿用今天这批头部
-  - 如果头部仍主要是 `吉利 Robotaxi / 奥特迅 / 长亮科技` 这类 legit 保留样本，先停，不继续过拟合
-  - 只有出现新的 `irm_cninfo / stcn / cls` 弱口径样本，再补最窄 `text_report` 回归和规则
+  - 下一轮先重跑当天：
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  - 当前头部再往下压的优先级已经很低；只读判断后，下面这批更像 legit 保留样本：
+    - `乌克兰国防部宣布：上半年增订2.5万台机器人 计划将后勤完全自动化`
+    - `WTI原油期货跌破86美元/桶`
+    - `第二届世界人形机器人运动会将于8月在京举办`
+  - 如果下一轮头部仍主要是这类样本，优先停手，不继续为了“更干净”过拟合
 - Risks/Blockers:
-  - 当前收益已经明显下降；再往下压很容易误伤真实风险或催化公告
-  - `report` 过滤和 `audit-suspicious` 仍是两套逻辑；头部干净不等于巡检天然归零，仍要双跑
-  - `hkex` 仍是 staged 线，当前标准交接不应把它误写成主线
+  - 当前收益继续下降；再往下压 `report` 很容易误伤真实政策信号或风险公告
+  - `live-smoke --source all` 仍可能出现产物已刷新但 stdout 不回摘要，验收时要看时间戳和产物
+  - 如果只刷 `report` 不刷 `merge-events`，`events.jsonl` 可能继续保留旧错并结果，读数会误导下一轮判断
 - Next First Command:
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
 - Known Avoidances:
-  - 不要沿用上一轮 live 头部清单直接继续写规则
-  - 不要把当前已经回到头部的 `吉利 Robotaxi / 退市风险警示 / 中标项目` 这类 legit 样本继续当噪音硬压
+  - 不要只看 `latest_report.txt` 就判断错并已修；要同步看 `events.jsonl`
+  - 不要把 `irm_cninfo` 这类“无回复正文纯提问”继续按旧的“标题+回复口径”思路硬套
+  - 不要把 `cls` 的单票跌停回应全都一刀切；当前只压 `无题材 + 回应解释口径` 的弱样本
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 在当前环境里有时看起来执行成功但 report 没按最新源码重算；验收时要用 `PYTHONPATH=src` 直接调 `write_text_report()` 或至少核对目标样本是否真退出
   - 不要把 `hkex staged` 和主线 `phase8-live-boundary` 混成一个任务
 
 ## Session: 2026-04-01

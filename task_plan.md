@@ -66,6 +66,40 @@
   - 当前再次回到适合停手的点
   - 下一轮先重跑当天 live，不要沿用这轮头部继续过拟合
 
+## Update 2026-04-21（latest）
+- 主线仍是 `phase8-live-boundary`，这轮把当天剩余的 `irm/stcn/cls` 弱样本继续收口，并完成标准交接
+- 本轮新增收口：
+  - 修掉 `szse` 同模板退市风险公告错并：
+    - `hard_event` 归并先看结构化催化和股票代码
+    - 股票代码提取补了 `news_id` fallback
+    - `奥特迅 / *ST声迅 / 明德生物 / ST赛为` 已拆回四条独立 event
+  - `analysis` 补了两条 live spillover 回正：
+    - `荷兰出台纾困计划应对能源价格高企` 不再误挂 `新能源车`
+    - `主力资金监控：立讯精密净卖出超12亿` 不再误挂 `文旅`
+  - `text_report` 连续补了最窄过滤，继续收掉：
+    - `irm_cninfo` 的 question-only 弱问答
+    - `irm_cninfo` 的经营范围介绍、订单充裕、未披露事项否认、审慎论证、并购方向泛回复、小批量供货但收入占比较小、减持预披露规则追问、继续回购诉求、定增正常推进
+    - `szse equity_incentive` 的 `限制性股票激励计划有关事项的核查意见`
+    - `cls` 的 `股价“一”字跌停 英维克最新回应`
+    - `cls` 的 `三大指数全部翻红`
+    - `stcn` 的 `协创数据：2026年将持续加大算力业务投入 目前在手订单充裕`
+    - `荣耀夺冠机器人“空间神经末梢”由深圳纽瑞芯提供`
+- 本轮明确保留：
+  - `乌克兰国防部宣布：上半年增订2.5万台机器人 计划将后勤完全自动化`
+  - `WTI原油期货跌破86美元/桶`
+  - `第二届世界人形机器人运动会将于8月在京举办`
+- 当前最新验证：
+  - `./.venv/bin/python -m pytest tests/test_event_merge.py tests/test_analysis_rules.py tests/test_text_report_sorting.py -q` -> `318 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `latest_report.txt` 当前头部已回到更像 legit 保留样本：
+    - `乌克兰机器人扩单`
+    - `WTI跌破86`
+    - `世界人形机器人运动会`
+    - `奥特迅 / *ST声迅 / 明德生物 / ST赛为` 退市风险公告
+- 结论：
+  - 这轮 `phase8-live-boundary` 已到适合停手和提交的点
+  - 下一轮如果仍要继续主线，先重跑当天 live；若头部主要仍是上述样本，不再继续压 `report`
+
 ## Current Phase
 Phase 8
 
@@ -230,14 +264,17 @@ Phase 8
   - `suspicious_count=0`
 
 ## Immediate Next Steps
-1. 先重跑当天主链，不沿用上一轮头部判断：
+1. 如果下一轮继续主线，先重跑当天主链，不沿用本轮头部判断：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
 2. 下一步第一条命令固定为：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
-3. 如果 `live-smoke --source all` 通过，再继续：
-   - 先看当天 report 头部是否仍主要是 legit 保留样本：
-     - `吉利将于2026北京车展发布中国首台原生Robotaxi原型车`
+3. 如果当天头部仍主要是：
+   - `乌克兰机器人扩单`
+   - `WTI跌破86`
+   - `世界人形机器人运动会`
+   - `退市风险公告`
+   则优先停手，不继续过拟合 `text_report`
      - `奥特迅...退市风险警示`
      - `长亮科技中标某股份制银行新网贷服务平台项目`
    - 再判断是否真的还有新的 `irm_cninfo / stcn / cls` 弱样本值得继续收

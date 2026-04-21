@@ -161,6 +161,15 @@ def _should_merge(left: NormalizedNews, right: NormalizedNews) -> bool:
     if left.source in {"hkex", "fed", "ecb", "boe", "boc_press", "boj", "fedreg_sec", "fedreg_ofac", "bis", "sec_press", "cftc_press", "occ_news", "investing_news", "investing_forex", "investing_economic"} or right.source in {"hkex", "fed", "ecb", "boe", "boc_press", "boj", "fedreg_sec", "fedreg_ofac", "bis", "sec_press", "cftc_press", "occ_news", "investing_news", "investing_forex", "investing_economic"}:
         return _is_same_market_move_asset(left, right) or _is_same_structured_catalyst(left, right)
 
+    if left.source_type == "hard_event" and right.source_type == "hard_event":
+        if _is_same_structured_catalyst(left, right):
+            return True
+
+        left_stock_code = _extract_stock_code(left)
+        right_stock_code = _extract_stock_code(right)
+        if left_stock_code and right_stock_code:
+            return left_stock_code == right_stock_code and _is_similar(left.title, right.title)
+
     if _is_similar(left.title, right.title):
         return True
 
@@ -202,8 +211,8 @@ def _is_same_structured_catalyst(left: NormalizedNews, right: NormalizedNews) ->
     if left_subtype != right_subtype or left_subtype not in STRUCTURED_CATALYST_SUBTYPES:
         return False
 
-    left_stock_code = _extract_stock_code_from_url(left.url)
-    right_stock_code = _extract_stock_code_from_url(right.url)
+    left_stock_code = _extract_stock_code(left)
+    right_stock_code = _extract_stock_code(right)
     if not left_stock_code or left_stock_code != right_stock_code:
         return False
 
@@ -535,7 +544,12 @@ def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
     return any(keyword in text for keyword in keywords)
 
 
-def _extract_stock_code_from_url(url: str) -> str:
-    if "stockCode=" not in url:
-        return ""
-    return url.split("stockCode=", maxsplit=1)[1].split("&", maxsplit=1)[0]
+def _extract_stock_code(item: NormalizedNews) -> str:
+    if "stockCode=" in item.url:
+        return item.url.split("stockCode=", maxsplit=1)[1].split("&", maxsplit=1)[0]
+
+    parts = item.news_id.split("-")
+    if len(parts) >= 2 and parts[1].isdigit() and len(parts[1]) == 6:
+        return parts[1]
+
+    return ""

@@ -1646,3 +1646,36 @@ def test_merge_news_items_groups_structured_cninfo_catalyst_documents() -> None:
     assert len(events) == 1
     assert set(events[0].member_news_ids) == {"n1", "n2"}
     assert events[0].event_subtype == "financing_acceptance"
+
+
+def test_merge_news_items_does_not_merge_different_szse_delisting_risk_notices() -> None:
+    items = [
+        NormalizedNews(
+            news_id="szse-002227-2026-04-21-290",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-21T00:00:00+08:00",
+            captured_at="2026-04-21T02:46:23+00:00",
+            title="奥 特 迅：关于股票交易被实施退市风险警示暨股票停牌的公告",
+            content="奥 特 迅：关于股票交易被实施退市风险警示暨股票停牌的公告",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-21/71e02e16-51a5-488c-8acc-e8a4db8af687.PDF?stockCode=002227",
+        ),
+        NormalizedNews(
+            news_id="szse-002932-2026-04-21-876",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-21T00:00:00+08:00",
+            captured_at="2026-04-21T02:46:23+00:00",
+            title="明德生物：关于公司股票交易被实施退市风险警示暨股票停复牌安排的公告",
+            content="明德生物：关于公司股票交易被实施退市风险警示暨股票停复牌安排的公告",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-21/2bee93b1-4187-46f1-89ea-1b4c8a3defaa.PDF?stockCode=002932",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 2
+    assert {event.canonical_title for event in events} == {
+        "奥 特 迅：关于股票交易被实施退市风险警示暨股票停牌的公告",
+        "明德生物：关于公司股票交易被实施退市风险警示暨股票停复牌安排的公告",
+    }

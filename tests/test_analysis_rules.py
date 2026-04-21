@@ -195,6 +195,40 @@ def test_detect_event_themes_does_not_expand_regional_industry_data_into_multipl
     assert detect_event_themes(event) == []
 
 
+def test_detect_event_themes_does_not_treat_foreign_energy_relief_story_as_new_energy_vehicle() -> None:
+    event = Event(
+        event_id="event-foreign-energy-relief",
+        first_seen_at="2026-04-21T11:05:35+08:00",
+        last_seen_at="2026-04-21T11:05:35+08:00",
+        canonical_title="荷兰出台纾困计划应对能源价格高企",
+        summary="【荷兰出台纾困计划应对能源价格高企】财联社4月21日电，荷兰政府20日推出总额约10亿欧元的一揽子纾困计划，以缓解能源价格高企给民众和企业带来的压力。荷兰政府在一份声明中说，该计划包括6.27亿欧元财政支出措施和3.4亿欧元专项费用削减措施。声明还说，荷兰政府鼓励发展新能源汽车，号召民众搭乘公共交通工具出行，同时支持企业节能改造。",
+        source="cls",
+        published_at="2026-04-21T11:05:35+08:00",
+        url="https://www.cls.cn/detail/2350331",
+        event_type="fast_news",
+        event_subtype="company_update",
+    )
+
+    assert detect_event_themes(event) == []
+
+
+def test_detect_event_themes_does_not_treat_main_fund_monitor_story_as_cultural_tourism() -> None:
+    event = Event(
+        event_id="event-main-fund-monitor",
+        first_seen_at="2026-04-21T10:59:38+08:00",
+        last_seen_at="2026-04-21T10:59:38+08:00",
+        canonical_title="主力资金监控：立讯精密净卖出超12亿",
+        summary="【主力资金监控：立讯精密净卖出超12亿】财联社4月21日电，财联社星矿数据显示，今日早盘主力资金净流入银行、煤炭采选、影视院线等板块，净流出电子、计算机、通信等板块，其中电子板块净流出超125亿元。",
+        source="cls",
+        published_at="2026-04-21T10:59:38+08:00",
+        url="https://www.cls.cn/detail/2350314",
+        event_type="fast_news",
+        event_subtype="industry_data",
+    )
+
+    assert detect_event_themes(event) == []
+
+
 def test_detect_themes_does_not_treat_generic_energy_saving_policy_as_energy_saving_equipment() -> None:
     text = "工业节能降碳工作推进会召开，研究重点行业节能改造安排。"
     assert "节能装备" not in detect_themes(text)
