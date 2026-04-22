@@ -2,64 +2,77 @@
 
 ## Latest Handoff Snapshot
 - Task-ID:
-  - `phase9-source-expansion`
+  - `global-multisource-mainline`
 - Task-Name:
-  - `hkex staged 收口：英文材料公告/并购材料/停牌结果公告最窄过滤`
+  - `全球多源主线 + 社交 sidecar 最小接线`
 - Files Changed:
-  - `src/news_sentiment/reporting/text_report.py`
-  - `tests/test_text_report_sorting.py`
   - `progress.md`
   - `task_plan.md`
   - `findings.md`
   - `task_registry.md`
-  - `修改记录_会话备忘.md`
-  - `避坑记录.md`
+  - `README.md`
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/models.py`
+  - `src/news_sentiment/settings.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `src/news_sentiment/social_collectors.py`
+  - `tests/test_report_pipeline.py`
+  - `tests/test_text_report_sorting.py`
+  - `tests/test_social_collectors.py`
 - Completed This Session:
-  - `hkex` 仍保持 staged，没有开进 `--source all`
-  - 本轮只沿 `run-once --source hkex` 的报告头部补最窄 `text_report` 过滤，没有再改 `event_merge / analysis`
-  - 已连续补掉这些英文材料/进展口径：
-    - `performance undertaking / results update + convertible bonds accounting treatment / resumption guidance`
-    - `AGM/EGM + transaction`
-    - `delay in despatch of circular / extension of proposed completion date`
-    - `director share acquisition / supplemental announcement / revision of annual caps`
-    - `maintenance work contracts / service framework agreement / leasing and licensing framework agreement`
-    - `purchase agreements + sales agreements`
-    - `management accounts/results announcement + continued suspension of trading`
-    - `voluntary announcement acquisition of assets`
-    - `connected transaction + continuing connected transaction + lease agreement`
-  - 本轮明确保留，没有继续误伤：
-    - `CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS`
-    - `CONNECTED TRANSACTION ENTERING INTO THE CAPITAL INCREASE AGREEMENT`
-    - `DISCLOSEABLE TRANSACTION: FURTHER INVESTMENT IN PRECIOUS METALS`
-    - `DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR`
+  - 已确认当前 `--source all` 实际已不是旧的 `phase8-live-boundary` 输入集合，而是“全球多源主线”
+  - 已确认当前 enabled source 可分为 4 层：
+    - `A股硬事件`：`cninfo / sse / szse`
+    - `A股快讯`：`stcn / cls / irm_cninfo / sse_einteractive`
+    - `国内政策监管`：`miit / csrc`
+    - `全球政策/市场`：`bis / boj / boc_press / boe / ecb / fed / fedreg_sec / fedreg_ofac / sec_press / cftc_press / investing_* / eia_*`
+  - 已将主线验收标准从“头部主要是 A 股单票催化”重定标为：
+    - `audit-suspicious = 0`
+    - 头部允许全球政策/市场样本出现
+    - 低信号判断改为识别“模板材料/栏目稿/进展包”，而不是“海外样本一律压掉”
+    - 当剩余样本已是各层里的 legit 主标题时停手
+  - 已给出推荐方案：`分层总榜`
+    - `A股强催化`
+    - `国内政策与监管`
+    - `全球政策与监管`
+    - `全球市场与商品`
+  - 已新增社交 sidecar 最小链路：
+    - `SocialSignal` 数据结构
+    - `data/social/social_signals.jsonl` 写盘路径
+    - `collect-social --platform fixture|weibo`
+    - report 底部 `社交热度观察` 区块
+  - 已确认当前社交 sidecar 边界：
+    - 只做线索层，不进入主评分
+    - 不接入 `run-once` / `live-smoke`
+    - `weibo` 当前若被访客门/403 挡住，只打清晰 warning，不打断主线脚本
 - 当前最新验证：
-  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'hkex_'` -> `13 passed`
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment run-once --source hkex` -> 已多轮重刷当前 `hkex` 单源链路
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - 当前 `latest_report.txt` 头部已能稳定出现全球多源样本，不再适合按旧 `phase8` 标准验收
+  - `./.venv/bin/python -m pytest tests/test_social_collectors.py -q` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q` -> `4 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k social_signal_section_without_affecting_main_entries` -> `1 passed`
 - Open TODO:
-  - 下一轮先重跑：
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment run-once --source hkex`
-    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
-  - 当前更像应保留、不要继续顺手压掉的样本：
-    - `CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS`
-    - `CONNECTED TRANSACTION ENTERING INTO THE CAPITAL INCREASE AGREEMENT`
-    - `DISCLOSEABLE TRANSACTION: FURTHER INVESTMENT IN PRECIOUS METALS`
-  - 如果用户要收尾提交，下一步直接做：
-    - `git status --short`
-    - `git add src/news_sentiment/reporting/text_report.py tests/test_text_report_sorting.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
-    - `git commit`
-  - 只有再次出现明显材料口径族，才继续补最窄规则；否则优先停手交接
+  - 下一轮优先做报告分层，而不是继续补过滤：
+    - 先实现分层输出骨架
+    - 再看各层内部排序是否需要微调
+  - 社交 sidecar 下一步更适合做：
+    - 明确平台接入顺序和数据源可用性
+    - 继续停留在线索层，不要提前并到主评分
+  - 暂不建议先动：
+    - `event_merge / analysis`
+    - `configs/sources.yaml` 的 enabled 集合
+  - 实现前先补最小设计/计划落盘，避免下一轮又按旧 `phase8` 继续压头部
 - Risks/Blockers:
-  - 当前 `hkex` 剩余头部已越来越接近真实交易主公告；再下刀的误伤风险明显上升
-  - `run-once --source hkex` 在当前环境里经常 stdout 很安静，验收仍要看 `latest_report.txt`
-  - 单靠 `report` 头部干净，不能证明 `hkex` 已适合并入 `--source all`
-  - 当前 worktree 仍有未提交修改；本轮只做了标准交接，没有提交
+  - 如果继续沿旧 `phase8-live-boundary` 口径验收，会把全球多源主线误判成“头部失真”
+  - 如果先改 `event_merge / analysis`，会在还没定主线标准前放大系统行为变化
+  - 现在最大问题是展示与验收标准失配，不是规则不够多
+  - `weibo` 当前真实抓取仍受访客门/403 限制，现阶段不能把“能写 fixture sidecar”误判成“微博生产可用”
 - Next First Command:
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment run-once --source hkex`
+  - `sed -n '1,260p' src/news_sentiment/reporting/text_report.py`
 - Known Avoidances:
-  - 不要把 `hkex staged` 和主线 `phase8-live-boundary` 混写
-  - 不要看到 `CONNECTED / DISCLOSEABLE TRANSACTION` 就继续顺手压；先分清是不是材料尾巴
-  - 不要因为 `run-once --source hkex` 没 stdout 就误判没刷新；先看 `latest_report.txt`
+  - 不要再把当前主线按旧 `phase8-live-boundary` 的 A 股单线标准验收
+  - 不要先改 source 开关来“修头部”；当前接受的是全球多源主线
+  - 不要在分层目标没定前继续补 `text_report` 过滤
 
 ## Update 2026-04-22（hkex staged）
 - 主线仍是 `phase9-source-expansion` 的 `hkex staged` 收口，`hkex` 仍未启用到 `--source all`
@@ -79,6 +92,21 @@
 - 结论：
   - 当前再次回到适合停手的点
   - 下一轮如果头部仍主要是上述 3 类交易主标题，不继续为了更干净过拟合
+
+## Update 2026-04-22（global multisource mainline）
+- 当前主线判断已从旧的 `phase8-live-boundary` 切换为“全球多源主线”
+- 当前 enabled source 已经不是 A 股单线集合，而是 4 层混合输入：
+  - `A股硬事件`
+  - `A股快讯`
+  - `国内政策监管`
+  - `全球政策/市场`
+- 当前更稳的结论：
+  - 主线问题已经从“继续过滤弱样本”切到“报告展示与验收标准重定标”
+  - 现在最该做的是报告分层，而不是继续压头部
+- 推荐目标：
+  - 保留一个总报告
+  - 改成分层总榜，而不是单榜混排
+  - 先做展示分层，再决定是否需要继续补规则
 
 ## Session: 2026-04-01
 

@@ -1,4 +1,4 @@
-from news_sentiment.models import Event, EventAnalysis
+from news_sentiment.models import Event, EventAnalysis, SocialSignal
 from news_sentiment.reporting.text_report import write_text_report
 from news_sentiment.settings import ProjectPaths
 
@@ -12900,3 +12900,52 @@ def test_write_text_report_deprioritizes_cls_global_information_below_direct_cat
     assert delisting_risk_pos < cls_industry_data_pos
     assert delisting_risk_pos < cls_general_fast_news_pos
     assert "*ST中地：关于申请撤销公司股票退市风险警示的公告" in content
+
+
+def test_write_text_report_appends_social_signal_section_without_affecting_main_entries(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-1",
+            first_seen_at="2026-04-22T09:30:00+08:00",
+            last_seen_at="2026-04-22T09:30:00+08:00",
+            canonical_title="吉利将于2026北京车展发布中国首台原生Robotaxi原型车",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-22T09:30:00+08:00",
+            url="https://example.com/robotaxi",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-1",
+            direction="bullish",
+            impact_score=88.0,
+            reasoning="rule",
+            themes=["智能驾驶"],
+            triggered=True,
+        ),
+    ]
+    social_signals = [
+        SocialSignal(
+            event_id="event-1",
+            platform="weibo",
+            captured_at="2026-04-22T09:35:00+08:00",
+            heat_score=82.0,
+            heat_delta=18.0,
+            co_mentioned_themes=["Robotaxi", "智能驾驶"],
+            sample_posts=["北京车展 Robotaxi 关注度升温"],
+        )
+    ]
+
+    write_text_report(paths, events, analyses, social_signals=social_signals)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "[关注] 吉利将于2026北京车展发布中国首台原生Robotaxi原型车" in content
+    assert "[社交热度观察]" in content
+    assert "平台: weibo" in content
+    assert "热度: 82.0" in content
+    assert "增速: +18.0" in content
+    assert "共现题材: Robotaxi, 智能驾驶" in content

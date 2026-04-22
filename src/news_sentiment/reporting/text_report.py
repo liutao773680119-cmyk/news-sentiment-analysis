@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from news_sentiment.history.matcher import match_historical_events
 from news_sentiment.mapping.stock_mapper import map_themes_to_stocks
-from news_sentiment.models import Event, EventAnalysis
+from news_sentiment.models import Event, EventAnalysis, SocialSignal
 from news_sentiment.settings import ProjectPaths
 
 
@@ -1637,6 +1637,7 @@ def write_text_report(
     paths: ProjectPaths,
     events: list[Event],
     analyses: list[EventAnalysis],
+    social_signals: list[SocialSignal] | None = None,
 ) -> None:
     event_map = {event.event_id: event for event in events}
     lines: list[str] = []
@@ -1691,6 +1692,23 @@ def write_text_report(
                 "",
             ]
         )
+
+    if social_signals:
+        lines.append("[社交热度观察]")
+        for signal in social_signals:
+            event = event_map.get(signal.event_id)
+            if event is None:
+                continue
+            lines.extend(
+                [
+                    f"- {event.canonical_title}",
+                    f"平台: {signal.platform}",
+                    f"热度: {signal.heat_score:.1f}",
+                    f"增速: {signal.heat_delta:+.1f}",
+                    f"共现题材: {', '.join(signal.co_mentioned_themes) if signal.co_mentioned_themes else '无'}",
+                    "",
+                ]
+            )
 
     paths.latest_report_path.parent.mkdir(parents=True, exist_ok=True)
     content = "\n".join(lines).strip()

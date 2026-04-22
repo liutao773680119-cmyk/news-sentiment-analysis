@@ -13,10 +13,11 @@ from news_sentiment.collectors import (
 )
 from news_sentiment.config_loader import load_scoring_config, load_source_definitions
 from news_sentiment.event_merge import merge_news_items
-from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews
+from news_sentiment.models import Event, EventAnalysis, NormalizedNews, RawNews, SocialSignal
 from news_sentiment.normalize import normalize_news_items
 from news_sentiment.reporting import write_text_report
 from news_sentiment.settings import ProjectPaths
+from news_sentiment.social_collectors import collect_social_signals
 from news_sentiment.storage import JsonlStore
 
 
@@ -27,6 +28,7 @@ COMMANDS = (
     "analyze-events",
     "audit-suspicious",
     "live-smoke",
+    "collect-social",
     "report",
     "run-once",
 )
@@ -124,6 +126,8 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("--limit", type=int, default=10)
     live_smoke_parser = subparsers.add_parser("live-smoke")
     live_smoke_parser.add_argument("--source", default="all")
+    collect_social_parser = subparsers.add_parser("collect-social")
+    collect_social_parser.add_argument("--platform", default="fixture")
     subparsers.add_parser("report")
     run_once_parser = subparsers.add_parser("run-once")
     run_once_parser.add_argument("--source", default="fixture")
@@ -153,6 +157,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_audit_suspicious(paths, args.limit)
     if args.command == "live-smoke":
         return run_live_smoke(paths, args.source)
+    if args.command == "collect-social":
+        try:
+            return run_collect_social(paths, args.platform)
+        except CollectorError as exc:
+            print(
+                f"warning: social_platform_failed={exc.source}:{exc.kind}:{exc.message}",
+                file=sys.stderr,
+            )
+            return 0
     if args.command == "report":
         return run_report(paths)
     if args.command == "run-once":
@@ -241,7 +254,19 @@ def run_analyze_events(paths: ProjectPaths) -> int:
 def run_report(paths: ProjectPaths) -> int:
     events_store = JsonlStore(paths.events_path, Event)
     analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
-    write_text_report(paths, events_store.read_all(), analyses_store.read_all())
+    social_signals_store = JsonlStore(paths.social_signals_path, SocialSignal)
+    write_text_report(
+        paths,
+        events_store.read_all(),
+        analyses_store.read_all(),
+        social_signals=social_signals_store.read_all(),
+    )
+    return 0
+
+
+def run_collect_social(paths: ProjectPaths, platform: str) -> int:
+    social_signals_store = JsonlStore(paths.social_signals_path, SocialSignal)
+    social_signals_store.write_many(collect_social_signals(paths, platform))
     return 0
 
 

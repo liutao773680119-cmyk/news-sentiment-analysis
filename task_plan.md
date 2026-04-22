@@ -125,6 +125,59 @@
   - 当前是 `hkex staged` 一个适合停手的点
   - 下一轮若仍想继续，只在出现新的明显材料族时补最窄规则；不要直接砍剩余交易主标题
 
+## Update 2026-04-22（global multisource mainline）
+- 当前主线口径已切换为“全球多源主线”，不再沿用旧的 `phase8-live-boundary` A 股单线验收标准
+- 当前 enabled source 可分为 4 层：
+  - `A股硬事件`：`cninfo / sse / szse`
+  - `A股快讯`：`stcn / cls / irm_cninfo / sse_einteractive`
+  - `国内政策监管`：`miit / csrc`
+  - `全球政策/市场`：`bis / boj / boc_press / boe / ecb / fed / fedreg_sec / fedreg_ofac / sec_press / cftc_press / investing_* / eia_*`
+- 新的主线验收标准：
+  - `audit-suspicious = 0` 继续保留
+  - 报告头部允许出现全球政策/市场样本
+  - 低信号判断重点从“海外/宏观是否出现”改成“是不是模板材料 / 栏目稿 / 进展包”
+  - 当剩余样本已是各层里的 legit 主标题时停手
+- 推荐方案：
+  - 采用 `分层总榜`
+  - 层次顺序：
+    - `A股强催化`
+    - `国内政策与监管`
+    - `全球政策与监管`
+    - `全球市场与商品`
+- 下一步实施顺序：
+  1. 先实现 `report` 分层骨架
+  2. 再调每层内部排序
+  3. 最后才决定是否需要继续补 `text_report` 过滤
+- 暂不建议：
+  - 先改 `event_merge / analysis`
+  - 先改 `configs/sources.yaml` 的 enabled 集合
+  - 继续用旧 `phase8` 标准盯着头部继续下刀
+
+## Update 2026-04-22（social sidecar）
+- 本轮新增了最小社交 sidecar 骨架，但明确不改主评分主链路
+- 已落地：
+  - `SocialSignal` 数据结构
+  - `data/social/social_signals.jsonl` 存储
+  - `collect-social --platform fixture|weibo`
+  - report 底部 `社交热度观察` 区块
+- 当前边界：
+  - sidecar 只做线索层
+  - 不接入 `run-once` / `live-smoke`
+  - `fixture` 只用于验证写盘与展示链路
+  - `weibo` 当前只保留最小接线；若被访客门/403 挡住，CLI 输出 warning 但不打断主线
+- 当前验证：
+  - `./.venv/bin/python -m pytest tests/test_social_collectors.py -q` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q` -> `4 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k social_signal_section_without_affecting_main_entries` -> `1 passed`
+- 下一步更稳的顺序：
+  1. 先完成主报告分层
+  2. 再决定社交 sidecar 放在哪一层最合适
+  3. 最后才评估是否让社交信号参与排序或权重
+- 暂不建议：
+  - 把社交热度直接并入 `analysis/scoring`
+  - 因 `weibo` 当前 visitor gate 问题就误改主链路
+  - 在没有稳定官方/公开入口前声称微博已生产可用
+
 ## Current Phase
 Phase 8
 

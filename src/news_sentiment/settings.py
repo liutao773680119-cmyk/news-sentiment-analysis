@@ -29,6 +29,10 @@ class ProjectPaths:
         return self.data_dir / "events" / "event_analysis.jsonl"
 
     @property
+    def social_signals_path(self) -> Path:
+        return self.data_dir / "social" / "social_signals.jsonl"
+
+    @property
     def latest_report_path(self) -> Path:
         return self.data_dir / "reports" / "latest_report.txt"
 

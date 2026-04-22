@@ -75,3 +75,14 @@ class ReportRow:
     themes: List[str] = field(default_factory=list)
     stock_codes: List[str] = field(default_factory=list)
     note: str = ""
+
+
+@dataclass(frozen=True)
+class SocialSignal:
+    event_id: str
+    platform: str
+    captured_at: str
+    heat_score: float
+    heat_delta: float
+    co_mentioned_themes: List[str] = field(default_factory=list)
+    sample_posts: List[str] = field(default_factory=list)

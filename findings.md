@@ -123,6 +123,33 @@
   - 但当前也已经不适合继续为“更干净头部”去砍剩余交易主标题
   - 下一轮只有在 `run-once --source hkex` 再冒出一整族明显材料公告时，才值得继续补窄规则
 
+## Update 2026-04-22（global multisource mainline）
+- 本轮新增确认：
+  - 当前 `--source all` 已经不是旧 `phase8-live-boundary` 的 A 股单线输入，而是混合了 A 股、国内政策、全球政策和全球市场源
+  - 因此当前头部出现全球政策/港交所/商品/海外监管样本，本身不再等于“主线失真”
+  - 当前最大的失配不在 `event_merge / analysis`，而在“旧的验收标准 + 单榜混排展示”仍在套新主线
+  - 继续补 `text_report` 过滤的收益已低于“先做分层展示”的收益
+- 当前判断：
+  - 接受全球多源主线后，最合理的方向是 `分层总榜`
+  - `audit-suspicious = 0` 继续作为硬线
+  - 只有在分层之后，某一层内部仍明显被模板材料或栏目稿占位，才值得继续补最窄规则
+
+## Update 2026-04-22（social sidecar）
+- 本轮新增确认：
+  - 社交源更适合先作为 sidecar 线索层，不适合直接并入主评分
+  - 当前最小闭环已经够用：
+    - `collect-social --platform fixture|weibo`
+    - `data/social/social_signals.jsonl`
+    - report 底部 `社交热度观察`
+  - `fixture` 已能证明 sidecar 写盘和展示链路成立
+  - `weibo` 当前真实抓取仍受访客门/403 限制，现阶段只能保留最小接线和清晰失败提示
+  - 当前更稳的失败处理不是抛异常打断，而是输出：
+    - `warning: social_platform_failed=weibo:fetch_error:...`
+- 当前判断：
+  - 这一步的价值是把“社交线索层”边界先钉住，而不是追求微博已生产可用
+  - 下一轮如果继续社交扩源，优先找稳定公开入口或官方/半官方可读源
+  - 在分层报告还没完成前，不建议让社交热度参与主榜排序
+
 ## Update 2026-04-17
 - 本轮新增确认：
   - `company_update` 的题材误抬，不一定该在 `report` 层收；像 `中国电建成立绿能科技服务公司` 这类 `企查查APP显示 + 经营范围包含 + 股权穿透显示`，更稳的修法是 `analysis/rules.py` 的 summary spillover 抑制。

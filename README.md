@@ -7,6 +7,7 @@
 - 先跑通本地最小闭环
 - 输出事件、题材、候选个股和历史参考
 - 保持每一步都可追溯、可测试、可替换
+- 社交源当前只作为 sidecar 线索层，不进入主评分
 
 ## 目录结构
 
@@ -18,6 +19,7 @@
 - `data/events/`: 事件与分析结果
 - `data/reference/`: 题材、股票池、历史事件参考表
 - `data/reports/`: 文本报告
+- `data/social/`: 社交 sidecar 线索
 - `configs/`: 来源、评分、提示词配置
 
 ## 本地开发
@@ -63,6 +65,15 @@ PYTHONPATH=src .venv/bin/python -m news_sentiment live-smoke --source all
 
 `live-smoke` 会直接跑完整链路，并输出 `raw_news`、`events`、`analyses`、`failed_sources` 和报告路径。`failed_sources` 会附带错误类型，如 `fetch_error`、`parse_error`、`empty_result`，适合快速检查真实源当前是否可用。
 
+社交 sidecar：
+
+```bash
+PYTHONPATH=src .venv/bin/python -m news_sentiment collect-social --platform fixture
+PYTHONPATH=src .venv/bin/python -m news_sentiment collect-social --platform weibo
+```
+
+`collect-social` 当前只写 `data/social/social_signals.jsonl`，不会进入 `run-once` / `live-smoke` 主链路打分。`fixture` 用于验证写盘链路；`weibo` 目前先保留最小接线，若遇到访客门或 403，会输出 `warning: social_platform_failed=weibo:fetch_error:...`。
+
 当前已接入的真实源：
 
 - `cninfo`: 巨潮资讯公告
@@ -90,6 +101,7 @@ PYTHONPATH=src .venv/bin/python -m news_sentiment live-smoke --source all
 - 候选个股
 - 历史相似事件参考
 - `关注` 标记
+- `社交热度观察` sidecar 区块（如果存在 `social_signals.jsonl`）
 
 当前报告行为：
 

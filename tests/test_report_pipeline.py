@@ -1,5 +1,6 @@
 from news_sentiment.cli import main
-from news_sentiment.models import RawNews
+from news_sentiment.models import RawNews, SocialSignal
+from news_sentiment.storage import JsonlStore
 
 
 def _collector_map(**overrides):
@@ -93,3 +94,28 @@ def test_run_once_all_continues_when_one_source_fails(tmp_path, monkeypatch) -> 
     assert main(["run-once", "--source", "all"]) == 0
     content = (tmp_path / "data" / "reports" / "latest_report.txt").read_text(encoding="utf-8")
     assert "中科曙光签署算力合作协议公告" in content
+
+
+def test_report_reads_social_signals_sidecar_when_present(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    assert main(["run-once", "--source", "fixture"]) == 0
+
+    social_store = JsonlStore(tmp_path / "data" / "social" / "social_signals.jsonl", SocialSignal)
+    social_store.write_many(
+        [
+            SocialSignal(
+                event_id="event-001",
+                platform="weibo",
+                captured_at="2026-04-01T09:35:00+08:00",
+                heat_score=82.0,
+                heat_delta=18.0,
+                co_mentioned_themes=["算力"],
+                sample_posts=["算力热度升温"],
+            )
+        ]
+    )
+
+    assert main(["report"]) == 0
+    content = (tmp_path / "data" / "reports" / "latest_report.txt").read_text(encoding="utf-8")
+    assert "[社交热度观察]" in content
+    assert "平台: weibo" in content
