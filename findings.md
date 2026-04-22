@@ -106,6 +106,23 @@
   - `INSIDE INFORMATION` 仍过宽，后续需要更细上下文分流
   - `hkex` 还没有 stock code / company mapping，当前个股仍为空
 
+## Update 2026-04-22（hkex staged）
+- 本轮新增确认：
+  - `hkex` 这一轮最有效的刀仍然是 `text_report` 最窄词面过滤，不需要继续碰 `event_merge / analysis`
+  - 真正值得过滤的并不是 `CONNECTED / DISCLOSEABLE / MAJOR TRANSACTION` 主干，而是：
+    - `AGM/EGM`
+    - `delay in despatch / extension of completion date`
+    - `supplemental announcement / revision of annual caps`
+    - `service/framework/maintenance/lease agreement`
+    - `management accounts/results + continued suspension of trading`
+    - `voluntary announcement acquisition of assets`
+  - 当 `hkex` 头部收口到 `CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS`、`CAPITAL INCREASE AGREEMENT`、`FURTHER INVESTMENT IN PRECIOUS METALS` 这类标题时，继续下刀的误伤风险已经明显高于收益
+  - `run-once --source hkex` 当前经常没有可读 stdout，不能拿“终端安静”当失败；要直接看 `latest_report.txt`
+- 当前判断：
+  - `hkex staged` 仍不该直接开进 `--source all`
+  - 但当前也已经不适合继续为“更干净头部”去砍剩余交易主标题
+  - 下一轮只有在 `run-once --source hkex` 再冒出一整族明显材料公告时，才值得继续补窄规则
+
 ## Update 2026-04-17
 - 本轮新增确认：
   - `company_update` 的题材误抬，不一定该在 `report` 层收；像 `中国电建成立绿能科技服务公司` 这类 `企查查APP显示 + 经营范围包含 + 股权穿透显示`，更稳的修法是 `analysis/rules.py` 的 summary spillover 抑制。

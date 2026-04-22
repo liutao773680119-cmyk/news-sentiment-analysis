@@ -100,6 +100,31 @@
   - 这轮 `phase8-live-boundary` 已到适合停手和提交的点
   - 下一轮如果仍要继续主线，先重跑当天 live；若头部主要仍是上述样本，不再继续压 `report`
 
+## Update 2026-04-22（hkex staged）
+- 当前关注点切到 `phase9-source-expansion` 的 `hkex staged`
+- 本轮没有继续扩源，只沿 `hkex` 单源报告头部连续补最窄过滤
+- 已连续补掉：
+  - `performance undertaking / results update + convertible bonds accounting treatment / resumption guidance`
+  - `AGM/EGM + transaction`
+  - `delay in despatch of circular / extension of proposed completion date`
+  - `director share acquisition / supplemental announcement / annual caps`
+  - `maintenance work contracts / service framework agreement / leasing and licensing framework agreement`
+  - `purchase agreements + sales agreements`
+  - `results/management accounts + continued suspension of trading`
+  - `voluntary announcement acquisition of assets`
+  - `connected transaction + continuing connected transaction + lease agreement`
+- 当前最新验证：
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'hkex_'` -> `13 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment run-once --source hkex` -> 已重刷
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+- 当前头部剩余更像 legit 保留样本：
+  - `CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS`
+  - `CONNECTED TRANSACTION ENTERING INTO THE CAPITAL INCREASE AGREEMENT`
+  - `DISCLOSEABLE TRANSACTION: FURTHER INVESTMENT IN PRECIOUS METALS`
+- 结论：
+  - 当前是 `hkex staged` 一个适合停手的点
+  - 下一轮若仍想继续，只在出现新的明显材料族时补最窄规则；不要直接砍剩余交易主标题
+
 ## Current Phase
 Phase 8
 

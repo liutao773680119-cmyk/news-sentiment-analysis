@@ -6827,6 +6827,765 @@ def test_write_text_report_filters_hkex_rule_14a60_continuing_connected_transact
     assert "CONTINUING CONNECTED TRANSACTIONS PURSUANT TO RULE 14A.60" not in content
 
 
+def test_write_text_report_filters_hkex_material_disclosure_variants_without_hiding_profit_warning_or_transactions(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-performance-undertaking-material",
+            first_seen_at="2026-04-21T09:00:00+08:00",
+            last_seen_at="2026-04-21T09:00:00+08:00",
+            canonical_title="ANNOUNCEMENT ON THE RESULTS OF FULFILMENT OF THE PERFORMANCE UNDERTAKING IN RELATION TO THE ACQUISITION",
+            summary="ANNOUNCEMENT ON THE RESULTS OF FULFILMENT OF THE PERFORMANCE UNDERTAKING IN RELATION TO THE ACQUISITION",
+            source="hkex",
+            published_at="2026-04-21T09:00:00+08:00",
+            url="https://example.com/hkex-performance-undertaking-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-results-update-material",
+            first_seen_at="2026-04-21T09:01:00+08:00",
+            last_seen_at="2026-04-21T09:01:00+08:00",
+            canonical_title="INSIDE INFORMATION LATEST RESULTS UPDATE FOR THE FIRST QUARTER OF 2026 AND EXPLANATION OF THE EXPECTED IMPACT OF THE ACCOUNTING TREATMENT OF THE CONVERTIBLE BONDS ON THE FINANCIAL PERFORMANCE FOR THE FISCAL YEAR 2026",
+            summary="INSIDE INFORMATION LATEST RESULTS UPDATE FOR THE FIRST QUARTER OF 2026 AND EXPLANATION OF THE EXPECTED IMPACT OF THE ACCOUNTING TREATMENT OF THE CONVERTIBLE BONDS ON THE FINANCIAL PERFORMANCE FOR THE FISCAL YEAR 2026",
+            source="hkex",
+            published_at="2026-04-21T09:01:00+08:00",
+            url="https://example.com/hkex-results-update-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-resumption-guidance-material",
+            first_seen_at="2026-04-21T09:02:00+08:00",
+            last_seen_at="2026-04-21T09:02:00+08:00",
+            canonical_title="ADDITIONAL RESUMPTION GUIDANCE AND CONTINUED SUSPENSION OF TRADING",
+            summary="ADDITIONAL RESUMPTION GUIDANCE AND CONTINUED SUSPENSION OF TRADING",
+            source="hkex",
+            published_at="2026-04-21T09:02:00+08:00",
+            url="https://example.com/hkex-resumption-guidance-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-profit-warning-keep",
+            first_seen_at="2026-04-21T09:03:00+08:00",
+            last_seen_at="2026-04-21T09:03:00+08:00",
+            canonical_title="INSIDE INFORMATION - PROFIT WARNING",
+            summary="INSIDE INFORMATION - PROFIT WARNING",
+            source="hkex",
+            published_at="2026-04-21T09:03:00+08:00",
+            url="https://example.com/hkex-profit-warning-keep",
+            event_type="hard_event",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-hkex-transaction-keep",
+            first_seen_at="2026-04-21T09:04:00+08:00",
+            last_seen_at="2026-04-21T09:04:00+08:00",
+            canonical_title="DISCLOSEABLE TRANSACTION - PROVISION OF LOAN",
+            summary="DISCLOSEABLE TRANSACTION - PROVISION OF LOAN",
+            source="hkex",
+            published_at="2026-04-21T09:04:00+08:00",
+            url="https://example.com/hkex-transaction-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-performance-undertaking-material",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-results-update-material",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-resumption-guidance-material",
+            direction="neutral",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-profit-warning-keep",
+            direction="bearish",
+            impact_score=88.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-transaction-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "ANNOUNCEMENT ON THE RESULTS OF FULFILMENT OF THE PERFORMANCE UNDERTAKING IN RELATION TO THE ACQUISITION" not in content
+    assert "INSIDE INFORMATION LATEST RESULTS UPDATE FOR THE FIRST QUARTER OF 2026" not in content
+    assert "ADDITIONAL RESUMPTION GUIDANCE AND CONTINUED SUSPENSION OF TRADING" not in content
+    assert "INSIDE INFORMATION - PROFIT WARNING" in content
+    assert "DISCLOSEABLE TRANSACTION - PROVISION OF LOAN" in content
+
+
+def test_write_text_report_filters_hkex_transaction_material_variants_without_hiding_pure_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-agm-transaction-material",
+            first_seen_at="2026-04-21T20:13:00+08:00",
+            last_seen_at="2026-04-21T20:13:00+08:00",
+            canonical_title="NOTICE OF THE 2025 AGM AND ADDITIONAL INFORMATION ON THE CONTINUING CONNECTED TRANSACTION",
+            summary="NOTICE OF THE 2025 AGM AND ADDITIONAL INFORMATION ON THE CONTINUING CONNECTED TRANSACTION",
+            source="hkex",
+            published_at="2026-04-21T20:13:00+08:00",
+            url="https://example.com/hkex-agm-transaction-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-circular-delay-material",
+            first_seen_at="2026-04-21T19:22:00+08:00",
+            last_seen_at="2026-04-21T19:22:00+08:00",
+            canonical_title="FURTHER DELAY IN DESPATCH OF THE MAJOR AND CONNECTED TRANSACTION CIRCULAR IN RELATION TO THE PROPOSED VAX ACQUISITION UNDER THE VAX SALE AND PURCHASE AGREEMENT INVOLVING ISSUE OF CONSIDERATION CONVERTIBLE BONDS UNDER SPECIFIC MANDATE",
+            summary="FURTHER DELAY IN DESPATCH OF THE MAJOR AND CONNECTED TRANSACTION CIRCULAR IN RELATION TO THE PROPOSED VAX ACQUISITION UNDER THE VAX SALE AND PURCHASE AGREEMENT INVOLVING ISSUE OF CONSIDERATION CONVERTIBLE BONDS UNDER SPECIFIC MANDATE",
+            source="hkex",
+            published_at="2026-04-21T19:22:00+08:00",
+            url="https://example.com/hkex-circular-delay-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-egm-transaction-material",
+            first_seen_at="2026-04-21T12:00:00+08:00",
+            last_seen_at="2026-04-21T12:00:00+08:00",
+            canonical_title="I. DISCLOSEABLE TRANSACTION IN RELATION TO PROPOSED ACQUISITION OF THE SALE SHARES OF THE TARGET COMPANY INVOLVING ISSUE OF CONSIDERATION SHARES UNDER SPECIFIC MANDATE; AND II. NOTICE OF EGM",
+            summary="I. DISCLOSEABLE TRANSACTION IN RELATION TO PROPOSED ACQUISITION OF THE SALE SHARES OF THE TARGET COMPANY INVOLVING ISSUE OF CONSIDERATION SHARES UNDER SPECIFIC MANDATE; AND II. NOTICE OF EGM",
+            source="hkex",
+            published_at="2026-04-21T12:00:00+08:00",
+            url="https://example.com/hkex-egm-transaction-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-major-transaction-keep",
+            first_seen_at="2026-04-21T11:00:00+08:00",
+            last_seen_at="2026-04-21T11:00:00+08:00",
+            canonical_title="MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT",
+            summary="MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT",
+            source="hkex",
+            published_at="2026-04-21T11:00:00+08:00",
+            url="https://example.com/hkex-major-transaction-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-agm-transaction-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-circular-delay-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-egm-transaction-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-major-transaction-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "NOTICE OF THE 2025 AGM AND ADDITIONAL INFORMATION ON THE CONTINUING CONNECTED TRANSACTION" not in content
+    assert "FURTHER DELAY IN DESPATCH OF THE MAJOR AND CONNECTED TRANSACTION CIRCULAR" not in content
+    assert "I. DISCLOSEABLE TRANSACTION IN RELATION TO PROPOSED ACQUISITION OF THE SALE SHARES OF THE TARGET COMPANY INVOLVING ISSUE OF CONSIDERATION SHARES UNDER SPECIFIC MANDATE; AND II. NOTICE OF EGM" not in content
+    assert "MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT" in content
+
+
+def test_write_text_report_filters_hkex_transaction_progress_and_director_share_material_without_hiding_pure_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-director-share-acquisition-material",
+            first_seen_at="2026-04-21T19:47:00+08:00",
+            last_seen_at="2026-04-21T19:47:00+08:00",
+            canonical_title="VOLUNTARY ANNOUNCEMENT - ACQUISITION OF SHARES IN THE COMPANY BY A DIRECTOR",
+            summary="VOLUNTARY ANNOUNCEMENT - ACQUISITION OF SHARES IN THE COMPANY BY A DIRECTOR",
+            source="hkex",
+            published_at="2026-04-21T19:47:00+08:00",
+            url="https://example.com/hkex-director-share-acquisition-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-completion-delay-material",
+            first_seen_at="2026-04-21T16:59:00+08:00",
+            last_seen_at="2026-04-21T16:59:00+08:00",
+            canonical_title="EXTENSION OF PROPOSED COMPLETION DATE IN RELATION TO DISCLOSEABLE TRANSACTION REGARDING ACQUISITION OF PROPERTY",
+            summary="EXTENSION OF PROPOSED COMPLETION DATE IN RELATION TO DISCLOSEABLE TRANSACTION REGARDING ACQUISITION OF PROPERTY",
+            source="hkex",
+            published_at="2026-04-21T16:59:00+08:00",
+            url="https://example.com/hkex-completion-delay-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-discloseable-transaction-keep",
+            first_seen_at="2026-04-21T17:21:00+08:00",
+            last_seen_at="2026-04-21T17:21:00+08:00",
+            canonical_title="DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR",
+            summary="DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR",
+            source="hkex",
+            published_at="2026-04-21T17:21:00+08:00",
+            url="https://example.com/hkex-discloseable-transaction-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-director-share-acquisition-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-completion-delay-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-discloseable-transaction-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "VOLUNTARY ANNOUNCEMENT - ACQUISITION OF SHARES IN THE COMPANY BY A DIRECTOR" not in content
+    assert "EXTENSION OF PROPOSED COMPLETION DATE IN RELATION TO DISCLOSEABLE TRANSACTION REGARDING ACQUISITION OF PROPERTY" not in content
+    assert "DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR" in content
+
+
+def test_write_text_report_filters_hkex_supplemental_and_annual_caps_material_without_hiding_pure_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-supplemental-discloseable-material",
+            first_seen_at="2026-04-21T14:00:00+08:00",
+            last_seen_at="2026-04-21T14:00:00+08:00",
+            canonical_title="SUPPLEMENTAL ANNOUNCEMENT IN RELATION TO DISCLOSEABLE TRANSACTIONS: DISPOSALS OF REAL ESTATE AND ASSETS",
+            summary="SUPPLEMENTAL ANNOUNCEMENT IN RELATION TO DISCLOSEABLE TRANSACTIONS: DISPOSALS OF REAL ESTATE AND ASSETS",
+            source="hkex",
+            published_at="2026-04-21T14:00:00+08:00",
+            url="https://example.com/hkex-supplemental-discloseable-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-supplemental-connected-material",
+            first_seen_at="2026-04-21T13:00:00+08:00",
+            last_seen_at="2026-04-21T13:00:00+08:00",
+            canonical_title="SUPPLEMENTAL ANNOUNCEMENT CONTINUING CONNECTED TRANSACTIONS - PROCUREMENT OF NATURAL GAS",
+            summary="SUPPLEMENTAL ANNOUNCEMENT CONTINUING CONNECTED TRANSACTIONS - PROCUREMENT OF NATURAL GAS",
+            source="hkex",
+            published_at="2026-04-21T13:00:00+08:00",
+            url="https://example.com/hkex-supplemental-connected-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-annual-caps-material",
+            first_seen_at="2026-04-21T12:00:00+08:00",
+            last_seen_at="2026-04-21T12:00:00+08:00",
+            canonical_title="CONTINUING CONNECTED TRANSACTIONS - 2024 PROPERTY MANAGEMENT AND COMMERCIAL OPERATION AND MANAGEMENT SERVICES FRAMEWORK AGREEMENT REVISION OF ANNUAL CAPS",
+            summary="CONTINUING CONNECTED TRANSACTIONS - 2024 PROPERTY MANAGEMENT AND COMMERCIAL OPERATION AND MANAGEMENT SERVICES FRAMEWORK AGREEMENT REVISION OF ANNUAL CAPS",
+            source="hkex",
+            published_at="2026-04-21T12:00:00+08:00",
+            url="https://example.com/hkex-annual-caps-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-major-transaction-keep-2",
+            first_seen_at="2026-04-21T11:00:00+08:00",
+            last_seen_at="2026-04-21T11:00:00+08:00",
+            canonical_title="MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT",
+            summary="MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT",
+            source="hkex",
+            published_at="2026-04-21T11:00:00+08:00",
+            url="https://example.com/hkex-major-transaction-keep-2",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-supplemental-discloseable-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-supplemental-connected-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-annual-caps-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-major-transaction-keep-2",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "SUPPLEMENTAL ANNOUNCEMENT IN RELATION TO DISCLOSEABLE TRANSACTIONS: DISPOSALS OF REAL ESTATE AND ASSETS" not in content
+    assert "SUPPLEMENTAL ANNOUNCEMENT CONTINUING CONNECTED TRANSACTIONS - PROCUREMENT OF NATURAL GAS" not in content
+    assert "CONTINUING CONNECTED TRANSACTIONS - 2024 PROPERTY MANAGEMENT AND COMMERCIAL OPERATION AND MANAGEMENT SERVICES FRAMEWORK AGREEMENT REVISION OF ANNUAL CAPS" not in content
+    assert "MAJOR TRANSACTION - SALE AND LEASEBACK ARRANGEMENT" in content
+
+
+def test_write_text_report_filters_hkex_framework_and_maintenance_connected_transaction_material_without_hiding_pure_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-maintenance-contract-material",
+            first_seen_at="2026-04-21T16:55:00+08:00",
+            last_seen_at="2026-04-21T16:55:00+08:00",
+            canonical_title="ANNOUNCEMENT - CONTINUING CONNECTED TRANSACTIONS: MAINTENANCE WORK CONTRACTS",
+            summary="ANNOUNCEMENT - CONTINUING CONNECTED TRANSACTIONS: MAINTENANCE WORK CONTRACTS",
+            source="hkex",
+            published_at="2026-04-21T16:55:00+08:00",
+            url="https://example.com/hkex-maintenance-contract-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-service-framework-material",
+            first_seen_at="2026-04-20T21:32:00+08:00",
+            last_seen_at="2026-04-20T21:32:00+08:00",
+            canonical_title="CONTINUING CONNECTED TRANSACTIONS 2026 SERVICE FRAMEWORK AGREEMENT",
+            summary="CONTINUING CONNECTED TRANSACTIONS 2026 SERVICE FRAMEWORK AGREEMENT",
+            source="hkex",
+            published_at="2026-04-20T21:32:00+08:00",
+            url="https://example.com/hkex-service-framework-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-leasing-framework-material",
+            first_seen_at="2026-04-21T19:24:00+08:00",
+            last_seen_at="2026-04-21T19:24:00+08:00",
+            canonical_title="MAJOR TRANSACTION, DISCLOSEABLE TRANSACTIONS AND CONTINUING CONNECTED TRANSACTIONS IN RELATION TO NEW LEASING AND LICENSING FRAMEWORK AGREEMENT AND OTHER CONTINUING CONNECTED TRANSACTIONS",
+            summary="MAJOR TRANSACTION, DISCLOSEABLE TRANSACTIONS AND CONTINUING CONNECTED TRANSACTIONS IN RELATION TO NEW LEASING AND LICENSING FRAMEWORK AGREEMENT AND OTHER CONTINUING CONNECTED TRANSACTIONS",
+            source="hkex",
+            published_at="2026-04-21T19:24:00+08:00",
+            url="https://example.com/hkex-leasing-framework-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-discloseable-transaction-keep-2",
+            first_seen_at="2026-04-21T17:21:00+08:00",
+            last_seen_at="2026-04-21T17:21:00+08:00",
+            canonical_title="DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR",
+            summary="DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR",
+            source="hkex",
+            published_at="2026-04-21T17:21:00+08:00",
+            url="https://example.com/hkex-discloseable-transaction-keep-2",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-maintenance-contract-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-service-framework-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-leasing-framework-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-discloseable-transaction-keep-2",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "ANNOUNCEMENT - CONTINUING CONNECTED TRANSACTIONS: MAINTENANCE WORK CONTRACTS" not in content
+    assert "CONTINUING CONNECTED TRANSACTIONS 2026 SERVICE FRAMEWORK AGREEMENT" not in content
+    assert "MAJOR TRANSACTION, DISCLOSEABLE TRANSACTIONS AND CONTINUING CONNECTED TRANSACTIONS IN RELATION TO NEW LEASING AND LICENSING FRAMEWORK AGREEMENT AND OTHER CONTINUING CONNECTED TRANSACTIONS" not in content
+    assert "DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR" in content
+
+
+def test_write_text_report_filters_hkex_lng_framework_connected_transaction_without_hiding_other_connected_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-lng-framework-material",
+            first_seen_at="2026-04-20T21:20:00+08:00",
+            last_seen_at="2026-04-20T21:20:00+08:00",
+            canonical_title="CONTINUING CONNECTED TRANSACTIONS IN RELATION TO (1) THE LNG PURCHASE AGREEMENTS AND (2) THE LNG SALES AGREEMENTS",
+            summary="CONTINUING CONNECTED TRANSACTIONS IN RELATION TO (1) THE LNG PURCHASE AGREEMENTS AND (2) THE LNG SALES AGREEMENTS",
+            source="hkex",
+            published_at="2026-04-20T21:20:00+08:00",
+            url="https://example.com/hkex-lng-framework-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-connected-fund-keep",
+            first_seen_at="2026-04-20T20:39:00+08:00",
+            last_seen_at="2026-04-20T20:39:00+08:00",
+            canonical_title="CONNECTED TRANSACTION ESTABLISHMENT OF THE FUND",
+            summary="CONNECTED TRANSACTION ESTABLISHMENT OF THE FUND",
+            source="hkex",
+            published_at="2026-04-20T20:39:00+08:00",
+            url="https://example.com/hkex-connected-fund-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-discloseable-transaction-keep-3",
+            first_seen_at="2026-04-21T17:21:00+08:00",
+            last_seen_at="2026-04-21T17:21:00+08:00",
+            canonical_title="DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR",
+            summary="DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR",
+            source="hkex",
+            published_at="2026-04-21T17:21:00+08:00",
+            url="https://example.com/hkex-discloseable-transaction-keep-3",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-lng-framework-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-connected-fund-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-discloseable-transaction-keep-3",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "CONTINUING CONNECTED TRANSACTIONS IN RELATION TO (1) THE LNG PURCHASE AGREEMENTS AND (2) THE LNG SALES AGREEMENTS" not in content
+    assert "CONNECTED TRANSACTION ESTABLISHMENT OF THE FUND" in content
+    assert "DISCLOSEABLE TRANSACTION ENTERING INTO A FINANCE LEASE AS THE LESSOR" in content
+
+
+def test_write_text_report_filters_hkex_results_and_suspension_material_without_hiding_profit_warning(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-management-accounts-suspension-material",
+            first_seen_at="2026-04-22T08:11:00+08:00",
+            last_seen_at="2026-04-22T08:11:00+08:00",
+            canonical_title="(1) PUBLICATION OF UNAUDITED MANAGEMENT ACCOUNTS FOR THE THREE MONTHS ENDED 31 MARCH 2026 AND (2) CONTINUED SUSPENSION OF TRADING",
+            summary="(1) PUBLICATION OF UNAUDITED MANAGEMENT ACCOUNTS FOR THE THREE MONTHS ENDED 31 MARCH 2026 AND (2) CONTINUED SUSPENSION OF TRADING",
+            source="hkex",
+            published_at="2026-04-22T08:11:00+08:00",
+            url="https://example.com/hkex-management-accounts-suspension-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-annual-results-suspension-material",
+            first_seen_at="2026-04-21T22:46:00+08:00",
+            last_seen_at="2026-04-21T22:46:00+08:00",
+            canonical_title="ANNUAL RESULTS ANNOUNCEMENT FOR THE YEAR ENDED 31 DECEMBER 2025 AND CONTINUED SUSPENSION OF TRADING",
+            summary="ANNUAL RESULTS ANNOUNCEMENT FOR THE YEAR ENDED 31 DECEMBER 2025 AND CONTINUED SUSPENSION OF TRADING",
+            source="hkex",
+            published_at="2026-04-21T22:46:00+08:00",
+            url="https://example.com/hkex-annual-results-suspension-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-interim-results-suspension-material",
+            first_seen_at="2026-04-21T22:39:00+08:00",
+            last_seen_at="2026-04-21T22:39:00+08:00",
+            canonical_title="INTERIM RESULTS ANNOUNCEMENT FOR THE SIX MONTHS ENDED 30 JUNE 2025 AND CONTINUED SUSPENSION OF TRADING",
+            summary="INTERIM RESULTS ANNOUNCEMENT FOR THE SIX MONTHS ENDED 30 JUNE 2025 AND CONTINUED SUSPENSION OF TRADING",
+            source="hkex",
+            published_at="2026-04-21T22:39:00+08:00",
+            url="https://example.com/hkex-interim-results-suspension-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hkex-profit-warning-keep-2",
+            first_seen_at="2026-04-21T22:01:00+08:00",
+            last_seen_at="2026-04-21T22:01:00+08:00",
+            canonical_title="PROFIT WARNING",
+            summary="PROFIT WARNING",
+            source="hkex",
+            published_at="2026-04-21T22:01:00+08:00",
+            url="https://example.com/hkex-profit-warning-keep-2",
+            event_type="hard_event",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-management-accounts-suspension-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-annual-results-suspension-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-interim-results-suspension-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-profit-warning-keep-2",
+            direction="bearish",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "(1) PUBLICATION OF UNAUDITED MANAGEMENT ACCOUNTS FOR THE THREE MONTHS ENDED 31 MARCH 2026 AND (2) CONTINUED SUSPENSION OF TRADING" not in content
+    assert "ANNUAL RESULTS ANNOUNCEMENT FOR THE YEAR ENDED 31 DECEMBER 2025 AND CONTINUED SUSPENSION OF TRADING" not in content
+    assert "INTERIM RESULTS ANNOUNCEMENT FOR THE SIX MONTHS ENDED 30 JUNE 2025 AND CONTINUED SUSPENSION OF TRADING" not in content
+    assert "PROFIT WARNING" in content
+
+
+def test_write_text_report_filters_hkex_voluntary_asset_acquisition_material_without_hiding_connected_transaction(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-voluntary-asset-acquisition-material",
+            first_seen_at="2026-04-21T22:58:00+08:00",
+            last_seen_at="2026-04-21T22:58:00+08:00",
+            canonical_title="VOLUNTARY ANNOUNCEMENT ACQUISITION OF ASSETS",
+            summary="VOLUNTARY ANNOUNCEMENT ACQUISITION OF ASSETS",
+            source="hkex",
+            published_at="2026-04-21T22:58:00+08:00",
+            url="https://example.com/hkex-voluntary-asset-acquisition-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-connected-transaction-keep-2",
+            first_seen_at="2026-04-22T08:00:00+08:00",
+            last_seen_at="2026-04-22T08:00:00+08:00",
+            canonical_title="CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS",
+            summary="CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS",
+            source="hkex",
+            published_at="2026-04-22T08:00:00+08:00",
+            url="https://example.com/hkex-connected-transaction-keep-2",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-voluntary-asset-acquisition-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-connected-transaction-keep-2",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "VOLUNTARY ANNOUNCEMENT ACQUISITION OF ASSETS" not in content
+    assert "CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS" in content
+
+
+def test_write_text_report_filters_hkex_lease_agreement_material_without_hiding_connected_asset_acquisition(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-hkex-lease-agreement-material",
+            first_seen_at="2026-04-21T21:30:00+08:00",
+            last_seen_at="2026-04-21T21:30:00+08:00",
+            canonical_title="CONNECTED TRANSACTION AND CONTINUING CONNECTED TRANSACTION IN RELATION TO THE LEASE AGREEMENT",
+            summary="CONNECTED TRANSACTION AND CONTINUING CONNECTED TRANSACTION IN RELATION TO THE LEASE AGREEMENT",
+            source="hkex",
+            published_at="2026-04-21T21:30:00+08:00",
+            url="https://example.com/hkex-lease-agreement-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-hkex-connected-asset-acquisition-keep",
+            first_seen_at="2026-04-22T08:00:00+08:00",
+            last_seen_at="2026-04-22T08:00:00+08:00",
+            canonical_title="CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS",
+            summary="CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS",
+            source="hkex",
+            published_at="2026-04-22T08:00:00+08:00",
+            url="https://example.com/hkex-connected-asset-acquisition-keep",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-hkex-lease-agreement-material",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-hkex-connected-asset-acquisition-keep",
+            direction="neutral",
+            impact_score=77.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "CONNECTED TRANSACTION AND CONTINUING CONNECTED TRANSACTION IN RELATION TO THE LEASE AGREEMENT" not in content
+    assert "CONNECTED TRANSACTION - ACQUISITION OF SOFTWARE ASSETS" in content
+
+
 def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_announcements(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

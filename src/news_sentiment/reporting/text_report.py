@@ -711,6 +711,16 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             or _is_low_signal_exchange_share_purchase_agreement_material(event.canonical_title, event)
             or _is_low_signal_hkex_compound_governance_transaction_material(event.canonical_title, event)
             or _is_low_signal_hkex_rule_14a60_continuing_connected_transaction(event.canonical_title, event)
+            or _is_low_signal_hkex_transaction_meeting_notice_material(event.canonical_title, event)
+            or _is_low_signal_hkex_transaction_circular_delay_material(event.canonical_title, event)
+            or _is_low_signal_hkex_director_share_acquisition_material(event.canonical_title, event)
+            or _is_low_signal_hkex_transaction_completion_delay_material(event.canonical_title, event)
+            or _is_low_signal_hkex_supplemental_transaction_material(event.canonical_title, event)
+            or _is_low_signal_hkex_framework_agreement_annual_caps_material(event.canonical_title, event)
+            or _is_low_signal_hkex_connected_transaction_framework_material(event.canonical_title, event)
+            or _is_low_signal_hkex_purchase_sales_agreement_material(event.canonical_title, event)
+            or _is_low_signal_hkex_voluntary_asset_acquisition_material(event.canonical_title, event)
+            or _is_low_signal_hkex_lease_agreement_material(event.canonical_title, event)
         )
 
     if event.event_subtype == "order_contract":
@@ -772,7 +782,35 @@ def _is_low_signal_repeated_delisting_risk_notice(title: str) -> bool:
 
 def _is_low_signal_hkex_disclosure_title(title: str) -> bool:
     normalized_title = title.lower()
-    return any(keyword.lower() in normalized_title for keyword in LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS)
+    return any(keyword.lower() in normalized_title for keyword in LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS) or (
+        _is_low_signal_hkex_material_disclosure_variant(normalized_title)
+    )
+
+
+def _is_low_signal_hkex_material_disclosure_variant(normalized_title: str) -> bool:
+    return (
+        "results of fulfilment of the performance undertaking" in normalized_title
+        or (
+            "latest results update" in normalized_title
+            and "accounting treatment of the convertible bonds" in normalized_title
+        )
+        or "additional resumption guidance and continued suspension of trading" in normalized_title
+        or _is_low_signal_hkex_results_suspension_material(normalized_title)
+    )
+
+
+def _is_low_signal_hkex_results_suspension_material(normalized_title: str) -> bool:
+    if "continued suspension of trading" not in normalized_title:
+        return False
+
+    return any(
+        keyword in normalized_title
+        for keyword in (
+            "management accounts",
+            "annual results announcement",
+            "interim results announcement",
+        )
+    )
 
 
 def _is_low_signal_hkex_compound_governance_transaction_material(title: str, event: Event) -> bool:
@@ -797,6 +835,116 @@ def _is_low_signal_hkex_rule_14a60_continuing_connected_transaction(title: str, 
 
     normalized_title = title.lower()
     return "continuing connected transactions" in normalized_title and "rule 14a.60" in normalized_title
+
+
+def _is_low_signal_hkex_transaction_meeting_notice_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    has_transaction_context = any(
+        keyword in normalized_title
+        for keyword in (
+            "connected transaction",
+            "continuing connected transaction",
+            "major transaction",
+            "discloseable transaction",
+        )
+    )
+    has_meeting_notice = "notice of agm" in normalized_title or "notice of egm" in normalized_title or (
+        "notice of the" in normalized_title and (" agm" in normalized_title or " egm" in normalized_title)
+    )
+    return has_transaction_context and has_meeting_notice
+
+
+def _is_low_signal_hkex_transaction_circular_delay_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "delay in despatch" in normalized_title and "transaction circular" in normalized_title
+
+
+def _is_low_signal_hkex_director_share_acquisition_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "acquisition of shares in the company by a director" in normalized_title
+
+
+def _is_low_signal_hkex_transaction_completion_delay_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "extension of proposed completion date" in normalized_title and "transaction" in normalized_title
+
+
+def _is_low_signal_hkex_supplemental_transaction_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "supplemental announcement" in normalized_title and any(
+        keyword in normalized_title
+        for keyword in ("discloseable transaction", "discloseable transactions", "continuing connected transaction", "continuing connected transactions")
+    )
+
+
+def _is_low_signal_hkex_framework_agreement_annual_caps_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "framework agreement" in normalized_title and "revision of annual caps" in normalized_title
+
+
+def _is_low_signal_hkex_connected_transaction_framework_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    if "continuing connected transaction" not in normalized_title and "continuing connected transactions" not in normalized_title:
+        return False
+
+    return (
+        "maintenance work contracts" in normalized_title
+        or "service framework agreement" in normalized_title
+        or "leasing and licensing framework agreement" in normalized_title
+    )
+
+
+def _is_low_signal_hkex_purchase_sales_agreement_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return (
+        ("continuing connected transaction" in normalized_title or "continuing connected transactions" in normalized_title)
+        and "purchase agreements" in normalized_title
+        and "sales agreements" in normalized_title
+    )
+
+
+def _is_low_signal_hkex_voluntary_asset_acquisition_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return "voluntary announcement" in normalized_title and "acquisition of assets" in normalized_title
+
+
+def _is_low_signal_hkex_lease_agreement_material(title: str, event: Event) -> bool:
+    if event.source != "hkex":
+        return False
+
+    normalized_title = title.lower()
+    return (
+        "connected transaction" in normalized_title
+        and "continuing connected transaction" in normalized_title
+        and "lease agreement" in normalized_title
+    )
 
 
 def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> bool:
