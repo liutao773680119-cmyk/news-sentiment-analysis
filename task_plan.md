@@ -174,6 +174,25 @@
   2. 再决定是否补层说明或层摘要
   3. 只有层内仍被模板材料占位，才继续补最窄过滤
 
+## Update 2026-04-22（layer ordering + risk subtype fix）
+- 本轮已落地：
+  - `A股强催化` 层内排序已再微调一轮：
+    - 真催化/风险事件优先
+    - `irm_cninfo / sse_einteractive` 问答后排
+    - 交易所一般材料后排
+  - `ST岭南` 两条样本已回正为：
+    - `重大诉讼进展` -> `legal_dispute / bearish`
+    - `立案通知书` -> `legal_dispute / bearish`
+- 当前验证：
+  - `./.venv/bin/python -m pytest tests/test_event_merge.py -q -k 'major_litigation_progress_as_legal_dispute or case_filing_notice_as_legal_dispute'` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -q -k 'major_litigation_progress_as_bearish or case_filing_notice_as_bearish'` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'demotes_investor_qa_and_exchange_material_within_ashare_section or groups_entries_into_global_multisource_sections or keeps_social_section_after_mainline_sections'` -> `3 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+- 下一步更稳的顺序：
+  1. 先只读看下一批 live 头部
+  2. 若没有新的明显弱样本，优先停手
+  3. 只有新样本重新破坏层内观感，才继续补最窄规则
+
 ## Update 2026-04-22（social sidecar）
 - 本轮新增了最小社交 sidecar 骨架，但明确不改主评分主链路
 - 已落地：

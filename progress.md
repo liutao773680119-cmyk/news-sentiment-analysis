@@ -4,17 +4,18 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
-  - `全球多源主线报告分层骨架 + 社交 sidecar 保持尾部区块`
+  - `全球多源主线分层后层内排序微调 + 风险公告 subtype 回正`
 - Files Changed:
   - `progress.md`
   - `task_plan.md`
   - `findings.md`
   - `task_registry.md`
   - `README.md`
-  - `src/news_sentiment/cli.py`
-  - `src/news_sentiment/models.py`
-  - `src/news_sentiment/settings.py`
+  - `src/news_sentiment/analysis/rules.py`
+  - `src/news_sentiment/event_merge/core.py`
   - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_analysis_scoring.py`
+  - `tests/test_event_merge.py`
   - `tests/test_text_report_sorting.py`
 - Completed This Session:
   - 已确认当前 `--source all` 实际已不是旧的 `phase8-live-boundary` 输入集合，而是“全球多源主线”
@@ -38,10 +39,12 @@
     - `国内政策与监管`
     - `全球政策与监管`
     - `全球市场与商品`
-  - 已确认本轮仍只改展示层：
-    - 不改 `analysis/scoring`
-    - 不改 `event_merge`
-    - `社交热度观察` 仍留在所有主层之后
+  - 已把 `A股强催化` 层内排序再收一刀：
+    - 真催化/风险事件优先于 `irm_cninfo / sse_einteractive` 问答
+    - 交易所一般材料继续后排，不再靠高分题材词顶在最前
+  - 已将这轮新冒出的 `ST岭南` 两条风险公告回正：
+    - `关于重大诉讼的进展公告` -> `legal_dispute / bearish`
+    - `关于收到万安县住房和城乡建设局立案通知书的公告` -> `legal_dispute / bearish`
   - 已新增社交 sidecar 最小链路：
     - `SocialSignal` 数据结构
     - `data/social/social_signals.jsonl` 写盘路径
@@ -54,14 +57,14 @@
 - 当前最新验证：
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
   - 当前 `latest_report.txt` 头部已能稳定出现全球多源样本，不再适合按旧 `phase8` 标准验收
-  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'groups_entries_into_global_multisource_sections or keeps_social_section_after_mainline_sections'` -> `2 passed`
-  - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q` -> `4 passed`
-  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'social_signal_section_without_affecting_main_entries or filters_non_triggered_and_sorts_by_score or prioritizes_themed_events_when_scores_tie'` -> `3 passed`
-  - `./.venv/bin/python -m pytest tests/test_cli_smoke.py -q` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_event_merge.py -q -k 'major_litigation_progress_as_legal_dispute or case_filing_notice_as_legal_dispute'` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_analysis_scoring.py -q -k 'major_litigation_progress_as_bearish or case_filing_notice_as_bearish'` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'demotes_investor_qa_and_exchange_material_within_ashare_section or groups_entries_into_global_multisource_sections or keeps_social_section_after_mainline_sections'` -> `3 passed`
 - Open TODO:
-  - 下一轮优先看分层后的层内排序，而不是回到单榜继续补过滤：
-    - 先看各层内部排序是否需要微调
-    - 再决定是否要补层级说明或摘要
+  - 下一轮先只读看新的 live 头部，不急着继续改规则：
+    - 先跑 `run-once --source all`
+    - 再看有没有新的弱问答/材料重新冒头
+    - 如果头部仍主要是当前这些样本，优先停手
   - 社交 sidecar 下一步更适合做：
     - 明确平台接入顺序和数据源可用性
     - 继续停留在线索层，不要提前并到主评分
@@ -71,15 +74,14 @@
   - 实现前先补最小设计/计划落盘，避免下一轮又按旧 `phase8` 继续压头部
 - Risks/Blockers:
   - 如果继续沿旧 `phase8-live-boundary` 口径验收，会把全球多源主线误判成“头部失真”
-  - 如果先改 `event_merge / analysis`，会在还没定主线标准前放大系统行为变化
-  - 现在最大问题是展示与验收标准失配，不是规则不够多
+  - 当前再继续下刀的主要风险已经从“单榜失配”变成“对当天 live 过拟合”
   - `weibo` 当前真实抓取仍受访客门/403 限制，现阶段不能把“能写 fixture sidecar”误判成“微博生产可用”
 - Next First Command:
-  - `sed -n '1,260p' src/news_sentiment/reporting/text_report.py`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment run-once --source all`
 - Known Avoidances:
   - 不要再把当前主线按旧 `phase8-live-boundary` 的 A 股单线标准验收
   - 不要先改 source 开关来“修头部”；当前接受的是全球多源主线
-  - 不要在分层目标没定前继续补 `text_report` 过滤
+  - 不要在当前 `audit-suspicious=0` 的状态下继续为了更干净头部过拟合
 
 ## Update 2026-04-22（hkex staged）
 - 主线仍是 `phase9-source-expansion` 的 `hkex staged` 收口，`hkex` 仍未启用到 `--source all`
