@@ -13095,3 +13095,103 @@ def test_write_text_report_keeps_social_section_after_mainline_sections(tmp_path
     content = paths.latest_report_path.read_text(encoding="utf-8")
 
     assert content.index("[A股强催化]") < content.index("[社交热度观察]")
+
+
+def test_write_text_report_demotes_investor_qa_and_exchange_material_within_ashare_section(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-order",
+            first_seen_at="2026-04-22T09:30:00+08:00",
+            last_seen_at="2026-04-22T09:30:00+08:00",
+            canonical_title="长亮科技中标某股份制银行新网贷服务平台项目",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-22T09:30:00+08:00",
+            url="https://example.com/order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-legal",
+            first_seen_at="2026-04-22T09:31:00+08:00",
+            last_seen_at="2026-04-22T09:31:00+08:00",
+            canonical_title="ST岭南：关于重大诉讼的进展公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-22T09:31:00+08:00",
+            url="https://example.com/legal",
+            event_type="hard_event",
+            event_subtype="legal_dispute",
+        ),
+        Event(
+            event_id="event-irm",
+            first_seen_at="2026-04-22T09:32:00+08:00",
+            last_seen_at="2026-04-22T09:32:00+08:00",
+            canonical_title="快可电子：董秘您好，有看到公司在招聘网站上招聘光模块技术人员，请问公司目前有哪些光模块产品，谢谢",
+            summary="summary",
+            source="irm_cninfo",
+            published_at="2026-04-22T09:32:00+08:00",
+            url="https://example.com/irm",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-material",
+            first_seen_at="2026-04-22T09:33:00+08:00",
+            last_seen_at="2026-04-22T09:33:00+08:00",
+            canonical_title="北京市大龙伟业房地产开发股份有限公司2025年年度股东会会议资料",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-22T09:33:00+08:00",
+            url="https://example.com/material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-order",
+            direction="bullish",
+            impact_score=88.0,
+            reasoning="rule",
+            themes=["金融科技"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-legal",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-irm",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-material",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    order_pos = content.index("长亮科技中标某股份制银行新网贷服务平台项目")
+    legal_pos = content.index("ST岭南：关于重大诉讼的进展公告")
+    irm_pos = content.index("快可电子：董秘您好，有看到公司在招聘网站上招聘光模块技术人员，请问公司目前有哪些光模块产品，谢谢")
+    material_pos = content.index("北京市大龙伟业房地产开发股份有限公司2025年年度股东会会议资料")
+
+    assert order_pos < irm_pos
+    assert legal_pos < irm_pos
+    assert order_pos < material_pos

@@ -41,6 +41,8 @@ STRUCTURED_CATALYST_SUBTYPES = {
     "delisting_risk",
 }
 LEGAL_DISPUTE_KEYWORDS = (
+    "重大诉讼",
+    "立案通知书",
     "立案告知书",
     "被立案调查",
     "中国证券监督管理委员会立案",

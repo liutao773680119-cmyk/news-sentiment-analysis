@@ -549,6 +549,46 @@ def test_merge_news_items_classifies_arbitration_award_challenge_as_legal_disput
     assert events[0].event_subtype == "legal_dispute"
 
 
+def test_merge_news_items_classifies_major_litigation_progress_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1lit",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-22T00:00:00+08:00",
+            captured_at="2026-04-22T00:00:30+08:00",
+            title="ST岭南：关于重大诉讼的进展公告",
+            content="ST岭南：关于重大诉讼的进展公告",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-22/example-litigation.PDF",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
+def test_merge_news_items_classifies_case_filing_notice_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1file",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-22T00:00:00+08:00",
+            captured_at="2026-04-22T00:00:30+08:00",
+            title="ST岭南：关于收到万安县住房和城乡建设局立案通知书的公告",
+            content="ST岭南：关于收到万安县住房和城乡建设局立案通知书的公告",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-22/example-filing.PDF",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
 def test_merge_news_items_classifies_delisting_risk_notice_subtype() -> None:
     items = [
         NormalizedNews(

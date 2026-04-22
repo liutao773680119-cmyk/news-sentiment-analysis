@@ -89,6 +89,8 @@ def detect_direction(text: str) -> str:
     bearish_tokens = (
         "限制",
         "处罚",
+        "重大诉讼",
+        "立案通知书",
         "立案告知书",
         "被立案调查",
         "中国证券监督管理委员会立案",

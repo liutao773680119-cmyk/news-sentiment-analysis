@@ -1635,6 +1635,40 @@ def _report_priority(event: Event, analysis: EventAnalysis) -> int:
     return 1
 
 
+def _report_rank_within_section(event: Event, analysis: EventAnalysis) -> int:
+    if event.event_type == "hard_event" and event.event_subtype in {
+        "control_change",
+        "order_contract",
+        "cooperation_agreement",
+        "acquisition_restructuring",
+        "legal_dispute",
+        "reorganization_risk",
+        "delisting_risk",
+        "regulatory_approval",
+        "financing_acceptance",
+    }:
+        return 4
+    if event.event_type == "fast_news" and event.event_subtype in {
+        "order_contract",
+        "cooperation_agreement",
+        "regulatory_approval",
+        "policy_signal",
+        "industry_data",
+        "tech_breakthrough",
+        "market_move",
+    }:
+        return 3
+    if event.source in {"irm_cninfo", "sse_einteractive"}:
+        return 0
+    if event.event_type == "hard_event" and event.event_subtype in LOW_PRIORITY_CNINFO_SUBTYPES.union(
+        {"corporate_disclosure"}
+    ):
+        return 0
+    if event.event_subtype in {"company_update", "business_guidance", "general_fast_news"}:
+        return 1
+    return 2
+
+
 def _report_status(event: Event, analysis: EventAnalysis) -> str:
     if _is_ashare_core_index_market_move(event, analysis):
         return "温度"
@@ -1707,6 +1741,7 @@ def write_text_report(
             )
         ],
         key=lambda analysis: (
+            _report_rank_within_section(event_map[analysis.event_id], analysis),
             _report_priority(event_map[analysis.event_id], analysis),
             analysis.impact_score,
         ),

@@ -430,6 +430,48 @@ def test_score_event_marks_patent_infringement_dispute_as_bearish() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_marks_major_litigation_progress_as_bearish() -> None:
+    event = Event(
+        event_id="event-001lm",
+        first_seen_at="2026-04-22T00:00:00+08:00",
+        last_seen_at="2026-04-22T00:00:00+08:00",
+        canonical_title="ST岭南：关于重大诉讼的进展公告",
+        summary="ST岭南：关于重大诉讼的进展公告",
+        source="szse",
+        published_at="2026-04-22T00:00:00+08:00",
+        url="https://example.com/szse-major-litigation",
+        member_news_ids=["n1lm"],
+        event_type="hard_event",
+        event_subtype="legal_dispute",
+        primary_entities=[],
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bearish"
+    assert analysis.triggered is True
+
+
+def test_score_event_marks_case_filing_notice_as_bearish() -> None:
+    event = Event(
+        event_id="event-001ln",
+        first_seen_at="2026-04-22T00:00:00+08:00",
+        last_seen_at="2026-04-22T00:00:00+08:00",
+        canonical_title="ST岭南：关于收到万安县住房和城乡建设局立案通知书的公告",
+        summary="ST岭南：关于收到万安县住房和城乡建设局立案通知书的公告",
+        source="szse",
+        published_at="2026-04-22T00:00:00+08:00",
+        url="https://example.com/szse-filing-notice",
+        member_news_ids=["n1ln"],
+        event_type="hard_event",
+        event_subtype="legal_dispute",
+        primary_entities=[],
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bearish"
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_hkex_profit_warning_as_bearish() -> None:
     event = Event(
         event_id="event-hk-pw",
