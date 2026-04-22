@@ -153,6 +153,27 @@
   - 先改 `configs/sources.yaml` 的 enabled 集合
   - 继续用旧 `phase8` 标准盯着头部继续下刀
 
+## Update 2026-04-22（global multisource mainline report layering）
+- 本轮已落地：
+  - `text_report` 从单榜混排切到 4 层骨架：
+    - `A股强催化`
+    - `国内政策与监管`
+    - `全球政策与监管`
+    - `全球市场与商品`
+  - `社交热度观察` 仍保留在主报告所有层之后
+- 本轮明确没动：
+  - `analysis/scoring`
+  - `event_merge`
+  - `source enable` 集合
+- 当前验证：
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'groups_entries_into_global_multisource_sections or keeps_social_section_after_mainline_sections'` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q` -> `4 passed`
+  - `./.venv/bin/python -m pytest tests/test_cli_smoke.py -q` -> `2 passed`
+- 下一步更稳的顺序：
+  1. 先看每层内部排序是否需要微调
+  2. 再决定是否补层说明或层摘要
+  3. 只有层内仍被模板材料占位，才继续补最窄过滤
+
 ## Update 2026-04-22（social sidecar）
 - 本轮新增了最小社交 sidecar 骨架，但明确不改主评分主链路
 - 已落地：

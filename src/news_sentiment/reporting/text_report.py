@@ -92,6 +92,27 @@ EVENT_SUBTYPE_LABELS = {
     "general_fast_news": "一般快讯",
     "general": "一般事件",
 }
+REPORT_SECTION_ORDER = (
+    "A股强催化",
+    "国内政策与监管",
+    "全球政策与监管",
+    "全球市场与商品",
+)
+DOMESTIC_POLICY_SOURCES = {"miit", "csrc"}
+GLOBAL_POLICY_SOURCES = {
+    "bis",
+    "boj",
+    "boc_press",
+    "boe",
+    "ecb",
+    "fed",
+    "fedreg_sec",
+    "fedreg_ofac",
+    "sec_press",
+    "cftc_press",
+}
+GLOBAL_MARKET_SOURCE_PREFIXES = ("investing_", "eia_")
+ASHARE_FAST_NEWS_SOURCES = {"stcn", "cls", "irm_cninfo", "sse_einteractive"}
 LOW_PRIORITY_CNINFO_SUBTYPES = {
     "corporate_disclosure",
     "board_resolution",
@@ -1633,6 +1654,25 @@ def _is_ashare_core_index_market_move(event: Event, analysis: EventAnalysis) -> 
     return any(keyword in title for keyword in A_SHARE_CORE_INDEX_KEYWORDS)
 
 
+def _report_section(event: Event, analysis: EventAnalysis) -> str:
+    if event.source in DOMESTIC_POLICY_SOURCES:
+        return "国内政策与监管"
+    if event.event_subtype == "policy_signal" and event.source in ASHARE_FAST_NEWS_SOURCES:
+        return "国内政策与监管"
+    if event.source in GLOBAL_POLICY_SOURCES:
+        return "全球政策与监管"
+    if event.source.startswith(GLOBAL_MARKET_SOURCE_PREFIXES):
+        return "全球市场与商品"
+    if (
+        event.source in {"cls", "stcn"}
+        and event.event_type == "fast_news"
+        and event.event_subtype in {"industry_data", "general_fast_news", "market_move"}
+        and not _is_ashare_core_index_market_move(event, analysis)
+    ):
+        return "全球市场与商品"
+    return "A股强催化"
+
+
 def write_text_report(
     paths: ProjectPaths,
     events: list[Event],
@@ -1672,26 +1712,35 @@ def write_text_report(
         ),
         reverse=True,
     )
+    sectioned_analyses: dict[str, list[EventAnalysis]] = {section: [] for section in REPORT_SECTION_ORDER}
     for analysis in ranked_analyses:
-        event = event_map[analysis.event_id]
-        theme_matches = map_themes_to_stocks(analysis.themes)
-        historical = match_historical_events(analysis.themes)
-        status = _report_status(event, analysis)
-        lines.extend(
-            [
-                f"[{status}] {event.canonical_title}",
-                f"事件类型: {EVENT_SUBTYPE_LABELS.get(event.event_subtype, event.event_subtype)}",
-                f"来源: {event.source or '未知'}",
-                f"发布时间: {event.published_at or event.first_seen_at or '未知'}",
-                f"URL: {event.url or '无'}",
-                f"方向: {analysis.direction}",
-                f"强度: {analysis.impact_score:.1f}",
-                f"题材: {', '.join(analysis.themes) if analysis.themes else '无'}",
-                f"个股: {', '.join(match.stock_code for match in theme_matches[:3]) if theme_matches else '无'}",
-                f"历史: {historical[0]['historical_event_id'] if historical else '无'}",
-                "",
-            ]
-        )
+        sectioned_analyses[_report_section(event_map[analysis.event_id], analysis)].append(analysis)
+
+    for section in REPORT_SECTION_ORDER:
+        section_analyses = sectioned_analyses[section]
+        if not section_analyses:
+            continue
+        lines.append(f"[{section}]")
+        for analysis in section_analyses:
+            event = event_map[analysis.event_id]
+            theme_matches = map_themes_to_stocks(analysis.themes)
+            historical = match_historical_events(analysis.themes)
+            status = _report_status(event, analysis)
+            lines.extend(
+                [
+                    f"[{status}] {event.canonical_title}",
+                    f"事件类型: {EVENT_SUBTYPE_LABELS.get(event.event_subtype, event.event_subtype)}",
+                    f"来源: {event.source or '未知'}",
+                    f"发布时间: {event.published_at or event.first_seen_at or '未知'}",
+                    f"URL: {event.url or '无'}",
+                    f"方向: {analysis.direction}",
+                    f"强度: {analysis.impact_score:.1f}",
+                    f"题材: {', '.join(analysis.themes) if analysis.themes else '无'}",
+                    f"个股: {', '.join(match.stock_code for match in theme_matches[:3]) if theme_matches else '无'}",
+                    f"历史: {historical[0]['historical_event_id'] if historical else '无'}",
+                    "",
+                ]
+            )
 
     if social_signals:
         lines.append("[社交热度观察]")

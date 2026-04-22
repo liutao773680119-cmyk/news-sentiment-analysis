@@ -12949,3 +12949,149 @@ def test_write_text_report_appends_social_signal_section_without_affecting_main_
     assert "热度: 82.0" in content
     assert "增速: +18.0" in content
     assert "共现题材: Robotaxi, 智能驾驶" in content
+
+
+def test_write_text_report_groups_entries_into_global_multisource_sections(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-ashare",
+            first_seen_at="2026-04-22T09:30:00+08:00",
+            last_seen_at="2026-04-22T09:30:00+08:00",
+            canonical_title="中科曙光签署算力合作协议公告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-22T09:30:00+08:00",
+            url="https://example.com/ashare",
+            event_type="hard_event",
+            event_subtype="cooperation_agreement",
+        ),
+        Event(
+            event_id="event-domestic-policy",
+            first_seen_at="2026-04-22T09:31:00+08:00",
+            last_seen_at="2026-04-22T09:31:00+08:00",
+            canonical_title="工业和信息化部发布节能装备实施方案",
+            summary="summary",
+            source="miit",
+            published_at="2026-04-22T09:31:00+08:00",
+            url="https://example.com/domestic-policy",
+            event_type="policy",
+            event_subtype="policy_update",
+        ),
+        Event(
+            event_id="event-global-policy",
+            first_seen_at="2026-04-22T09:32:00+08:00",
+            last_seen_at="2026-04-22T09:32:00+08:00",
+            canonical_title="Federal Reserve releases supervisory update",
+            summary="summary",
+            source="fed",
+            published_at="2026-04-22T09:32:00+08:00",
+            url="https://example.com/global-policy",
+            event_type="policy",
+            event_subtype="policy_update",
+        ),
+        Event(
+            event_id="event-global-market",
+            first_seen_at="2026-04-22T09:33:00+08:00",
+            last_seen_at="2026-04-22T09:33:00+08:00",
+            canonical_title="WTI crude rises above $86 per barrel",
+            summary="summary",
+            source="investing_news",
+            published_at="2026-04-22T09:33:00+08:00",
+            url="https://example.com/global-market",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-ashare",
+            direction="bullish",
+            impact_score=92.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-domestic-policy",
+            direction="bullish",
+            impact_score=85.0,
+            reasoning="rule",
+            themes=["节能装备"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-global-policy",
+            direction="bullish",
+            impact_score=83.0,
+            reasoning="rule",
+            themes=["金融监管"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-global-market",
+            direction="bullish",
+            impact_score=81.0,
+            reasoning="rule",
+            themes=["油气"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    ashare_section = content.index("[A股强催化]")
+    domestic_section = content.index("[国内政策与监管]")
+    global_policy_section = content.index("[全球政策与监管]")
+    global_market_section = content.index("[全球市场与商品]")
+
+    assert ashare_section < domestic_section < global_policy_section < global_market_section
+    assert content.index("中科曙光签署算力合作协议公告") > ashare_section
+    assert content.index("工业和信息化部发布节能装备实施方案") > domestic_section
+    assert content.index("Federal Reserve releases supervisory update") > global_policy_section
+    assert content.index("WTI crude rises above $86 per barrel") > global_market_section
+
+
+def test_write_text_report_keeps_social_section_after_mainline_sections(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-ashare",
+            first_seen_at="2026-04-22T09:30:00+08:00",
+            last_seen_at="2026-04-22T09:30:00+08:00",
+            canonical_title="长亮科技中标某股份制银行新网贷服务平台项目",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-22T09:30:00+08:00",
+            url="https://example.com/order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-ashare",
+            direction="bullish",
+            impact_score=88.0,
+            reasoning="rule",
+            themes=["金融科技"],
+            triggered=True,
+        ),
+    ]
+    social_signals = [
+        SocialSignal(
+            event_id="event-ashare",
+            platform="weibo",
+            captured_at="2026-04-22T09:35:00+08:00",
+            heat_score=82.0,
+            heat_delta=18.0,
+            co_mentioned_themes=["金融科技"],
+            sample_posts=["银行IT项目热度升温"],
+        )
+    ]
+
+    write_text_report(paths, events, analyses, social_signals=social_signals)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert content.index("[A股强催化]") < content.index("[社交热度观察]")

@@ -4,7 +4,7 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
-  - `全球多源主线 + 社交 sidecar 最小接线`
+  - `全球多源主线报告分层骨架 + 社交 sidecar 保持尾部区块`
 - Files Changed:
   - `progress.md`
   - `task_plan.md`
@@ -15,10 +15,7 @@
   - `src/news_sentiment/models.py`
   - `src/news_sentiment/settings.py`
   - `src/news_sentiment/reporting/text_report.py`
-  - `src/news_sentiment/social_collectors.py`
-  - `tests/test_report_pipeline.py`
   - `tests/test_text_report_sorting.py`
-  - `tests/test_social_collectors.py`
 - Completed This Session:
   - 已确认当前 `--source all` 实际已不是旧的 `phase8-live-boundary` 输入集合，而是“全球多源主线”
   - 已确认当前 enabled source 可分为 4 层：
@@ -36,6 +33,15 @@
     - `国内政策与监管`
     - `全球政策与监管`
     - `全球市场与商品`
+  - 已把 report 从单榜混排改成 4 层骨架输出：
+    - `A股强催化`
+    - `国内政策与监管`
+    - `全球政策与监管`
+    - `全球市场与商品`
+  - 已确认本轮仍只改展示层：
+    - 不改 `analysis/scoring`
+    - 不改 `event_merge`
+    - `社交热度观察` 仍留在所有主层之后
   - 已新增社交 sidecar 最小链路：
     - `SocialSignal` 数据结构
     - `data/social/social_signals.jsonl` 写盘路径
@@ -48,13 +54,14 @@
 - 当前最新验证：
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
   - 当前 `latest_report.txt` 头部已能稳定出现全球多源样本，不再适合按旧 `phase8` 标准验收
-  - `./.venv/bin/python -m pytest tests/test_social_collectors.py -q` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'groups_entries_into_global_multisource_sections or keeps_social_section_after_mainline_sections'` -> `2 passed`
   - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q` -> `4 passed`
-  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k social_signal_section_without_affecting_main_entries` -> `1 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'social_signal_section_without_affecting_main_entries or filters_non_triggered_and_sorts_by_score or prioritizes_themed_events_when_scores_tie'` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_cli_smoke.py -q` -> `2 passed`
 - Open TODO:
-  - 下一轮优先做报告分层，而不是继续补过滤：
-    - 先实现分层输出骨架
-    - 再看各层内部排序是否需要微调
+  - 下一轮优先看分层后的层内排序，而不是回到单榜继续补过滤：
+    - 先看各层内部排序是否需要微调
+    - 再决定是否要补层级说明或摘要
   - 社交 sidecar 下一步更适合做：
     - 明确平台接入顺序和数据源可用性
     - 继续停留在线索层，不要提前并到主评分
