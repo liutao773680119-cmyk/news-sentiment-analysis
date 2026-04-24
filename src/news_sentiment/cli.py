@@ -49,6 +49,7 @@ HARD_EVENT_RISK_REVIEW_KEYWORDS = (
 LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函回复",
     "审核问询函之回复",
+    "问询函回复",
     "报告书（修订稿）",
     "报告书(修订稿)",
 )
@@ -56,6 +57,7 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS = (
     "发行股份购买资产",
     "关联交易",
     "重大资产重组",
+    "重大资产出售",
     "并购重组",
 )
 LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS = (
@@ -68,8 +70,10 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报问询函回复",
     "问询函有关问题的专项说明",
     "诉讼事项的进展",
+    "涉及诉讼进展",
     "诉讼进展公告",
     "提起诉讼的进展公告",
+    "进展暨公司涉及诉讼事项的公告",
     "累计诉讼",
     "重大诉讼公告",
     "重大诉讼的公告",
@@ -77,6 +81,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "失信被执行人",
     "轮候冻结",
     "解除司法冻结",
+    "强制执行完成",
 )
 FAST_NEWS_LEGAL_REVIEW_KEYWORDS = (
     "商标争议",

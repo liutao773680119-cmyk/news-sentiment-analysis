@@ -149,6 +149,45 @@ def test_audit_suspicious_skips_cninfo_restructuring_material_reply(tmp_path, mo
     assert "suspicious_count=0" in output
     assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in output
 
+def test_audit_suspicious_skips_cninfo_restructuring_revised_report(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-restructuring-revised-report",
+                first_seen_at="2026-04-23T09:00:00+08:00",
+                last_seen_at="2026-04-23T09:00:00+08:00",
+                canonical_title="中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-04-23T09:00:00+08:00",
+                url="https://example.com/cninfo-restructuring-revised-report",
+                event_type="hard_event",
+                event_subtype="acquisition_restructuring",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-restructuring-revised-report",
+                direction="bullish",
+                impact_score=100.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in output
+
 
 def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
@@ -265,6 +304,42 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
                 event_type="hard_event",
                 event_subtype="corporate_disclosure",
             ),
+            Event(
+                event_id="event-szse-guarantee-litigation-unfreeze",
+                first_seen_at="2026-04-24T00:00:00+08:00",
+                last_seen_at="2026-04-24T00:00:00+08:00",
+                canonical_title="*ST美谷：关于担保事项涉及诉讼进展暨银行账户解除冻结的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-24T00:00:00+08:00",
+                url="https://example.com/szse-guarantee-litigation-unfreeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-forced-execution-complete",
+                first_seen_at="2026-04-24T00:00:00+08:00",
+                last_seen_at="2026-04-24T00:00:00+08:00",
+                canonical_title="龙大美食：关于控股股东所持公司1000万股股份被强制执行完成暨解除冻结的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-24T00:00:00+08:00",
+                url="https://example.com/szse-forced-execution-complete",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-asset-sale-inquiry-reply",
+                first_seen_at="2026-04-24T00:00:00+08:00",
+                last_seen_at="2026-04-24T00:00:00+08:00",
+                canonical_title="泰达股份：天津泰达资源循环集团股份有限公司关于重大资产出售暨关联交易问询函回复的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-24T00:00:00+08:00",
+                url="https://example.com/szse-asset-sale-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
         ]
     )
     JsonlStore(paths.analyses_path, EventAnalysis).write_many(
@@ -301,6 +376,30 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
                 themes=[],
                 triggered=True,
             ),
+            EventAnalysis(
+                event_id="event-szse-guarantee-litigation-unfreeze",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-forced-execution-complete",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-asset-sale-inquiry-reply",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
         ]
     )
 
@@ -312,6 +411,9 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
     assert "麦趣尔：关于公司被纳入失信被执行人的公告" not in output
     assert "幸福蓝海：关于累计诉讼、仲裁案件情况的公告" not in output
     assert "ST中迪：中迪投资关于公司全资子公司重庆中美恒置业有限公司诉讼进展公告" not in output
+    assert "*ST美谷：关于担保事项涉及诉讼进展暨银行账户解除冻结的公告" not in output
+    assert "龙大美食：关于控股股东所持公司1000万股股份被强制执行完成暨解除冻结的公告" not in output
+    assert "泰达股份：天津泰达资源循环集团股份有限公司关于重大资产出售暨关联交易问询函回复的公告" not in output
 
 
 def test_audit_suspicious_skips_exchange_major_litigation_and_filing_progress_notices(
@@ -617,6 +719,48 @@ def test_audit_suspicious_skips_major_litigation_arbitration_progress_disclosure
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "中化岩土：关于重大诉讼、仲裁情况进展的公告" not in output
+
+
+def test_audit_suspicious_skips_equity_sale_progress_with_litigation_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-equity-sale-litigation-progress",
+                first_seen_at="2026-04-23T00:00:00+08:00",
+                last_seen_at="2026-04-23T00:00:00+08:00",
+                canonical_title="山东赫达：关于出售全资子公司100%股权进展暨公司涉及诉讼事项的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-23T00:00:00+08:00",
+                url="https://example.com/equity-sale-litigation-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-equity-sale-litigation-progress",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "山东赫达：关于出售全资子公司100%股权进展暨公司涉及诉讼事项的公告" not in output
 
 
 def test_audit_suspicious_skips_commodity_market_move_with_theme(tmp_path, monkeypatch, capsys) -> None:

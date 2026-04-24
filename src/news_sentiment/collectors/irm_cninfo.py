@@ -6,12 +6,13 @@ from datetime import datetime, timedelta, timezone
 from html import unescape
 from urllib.parse import urljoin
 
+import requests
+
 from news_sentiment.collectors.errors import (
     CollectorEmptyResultError,
     CollectorFetchError,
     CollectorParseError,
 )
-from news_sentiment.collectors.http import fetch_html
 from news_sentiment.config_loader import load_source_definition_map
 from news_sentiment.models import RawNews
 
@@ -19,6 +20,9 @@ from news_sentiment.models import RawNews
 IRM_CNINFO_HOME_URL = "https://irm.cninfo.com.cn/newircs/"
 IRM_CNINFO_DETAIL_URL = "https://irm.cninfo.com.cn/newircs/question/getQuestionDetail?questionId={question_id}"
 IRM_CNINFO_BASE_URL = "https://irm.cninfo.com.cn"
+IRM_CNINFO_HOME_TIMEOUT_SECONDS = 5
+IRM_CNINFO_DETAIL_TIMEOUT_SECONDS = 3
+IRM_CNINFO_MAX_DETAIL_ENRICHMENT = 10
 CHINA_TZ = timezone(timedelta(hours=8))
 
 
@@ -28,24 +32,31 @@ def current_china_time() -> datetime:
 
 def fetch_irm_cninfo_homepage(url: str = IRM_CNINFO_HOME_URL) -> str:
     source_definition = load_source_definition_map()["irm_cninfo"]
-    return fetch_html(
+    return _fetch_irm_cninfo_html(
         url,
-        timeout_seconds=source_definition.timeout_seconds,
+        timeout_seconds=min(source_definition.timeout_seconds, IRM_CNINFO_HOME_TIMEOUT_SECONDS),
         user_agent=source_definition.user_agent,
-        retry_count=source_definition.retry_count,
-        backoff_seconds=source_definition.backoff_seconds,
     )
 
 
 def fetch_irm_cninfo_question_detail(question_id: str) -> str:
     source_definition = load_source_definition_map()["irm_cninfo"]
-    return fetch_html(
+    return _fetch_irm_cninfo_html(
         IRM_CNINFO_DETAIL_URL.format(question_id=question_id),
-        timeout_seconds=source_definition.timeout_seconds,
+        timeout_seconds=min(source_definition.timeout_seconds, IRM_CNINFO_DETAIL_TIMEOUT_SECONDS),
         user_agent=source_definition.user_agent,
-        retry_count=source_definition.retry_count,
-        backoff_seconds=source_definition.backoff_seconds,
     )
+
+
+def _fetch_irm_cninfo_html(url: str, *, timeout_seconds: int, user_agent: str) -> str:
+    response = requests.get(
+        url,
+        headers={"User-Agent": user_agent},
+        timeout=(timeout_seconds, timeout_seconds),
+    )
+    response.raise_for_status()
+    response.encoding = response.encoding or "utf-8"
+    return response.text
 
 
 def _strip_tags(value: str) -> str:
@@ -192,7 +203,11 @@ def collect_irm_cninfo_news() -> list[RawNews]:
         raise CollectorParseError("irm_cninfo", "no question rows matched homepage")
 
     enriched_rows: list[RawNews] = []
-    for row in rows:
+    for index, row in enumerate(rows):
+        if index >= IRM_CNINFO_MAX_DETAIL_ENRICHMENT:
+            enriched_rows.append(row)
+            continue
+
         question_id = row.news_id.replace("irm_cninfo-", "", 1)
         try:
             detail_payload = fetch_irm_cninfo_question_detail(question_id)

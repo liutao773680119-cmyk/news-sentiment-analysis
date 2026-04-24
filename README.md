@@ -73,6 +73,7 @@ PYTHONPATH=src .venv/bin/python -m news_sentiment collect-social --platform weib
 ```
 
 `collect-social` 当前只写 `data/social/social_signals.jsonl`，不会进入 `run-once` / `live-smoke` 主链路打分。`fixture` 用于验证写盘链路；`weibo` 目前先保留最小接线，若遇到访客门或 403，会输出 `warning: social_platform_failed=weibo:fetch_error:...`。
+如需复用本机微博登录态，可在运行前临时设置 `WEIBO_COOKIE='...'`；collector 会额外带上 `Cookie` 和 `Referer` 请求头。不要把真实 cookie 写进仓库。
 
 当前已接入的真实源：
 

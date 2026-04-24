@@ -1,5 +1,40 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-04-24 (latest handoff before push)
+- 主线仍按 `phase8-live-boundary` 的节奏做 live 头部最窄收口，不扩题材库，不动 `source enable`
+- 本轮已处理：
+  - `*ST美谷` 的 `涉及诉讼进展暨银行账户解除冻结`
+  - `龙大美食` 的 `强制执行完成暨解除冻结`
+  - `泰达股份` 的 `重大资产出售暨关联交易问询函回复`
+  - `东睦股份` 的 `并购重组审核委员会...会议安排`
+- 本轮规则边界：
+  - `涉及诉讼进展`、`强制执行完成` 只作为风险披露/材料公告收口
+  - `问询函回复` 只在并购重组/重大资产出售/融资材料上下文里收口，不做裸词泛化
+  - `会议安排` 只在并购重组材料上下文里用于 report 过滤
+- 当前验证：
+  - `py_compile` 通过
+  - `PYTHONPATH=src python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `PYTHONPATH=src python -m news_sentiment report` -> 通过
+  - `latest_report.txt` 已确认不再包含本轮 4 条目标样本
+  - `live-smoke --source all` 在 Windows 下 240 秒超时；不要把它直接当成规则失败
+
+## Immediate Next Steps (2026-04-24 latest)
+1. 当前第一优先级是停手观察，而不是继续补规则。
+2. 下一轮第一条命令建议：
+   - `PYTHONPATH=src python -m news_sentiment audit-suspicious --limit 10`
+3. 然后只读查看：
+   - `Get-Content data/reports/latest_report.txt -TotalCount 80`
+4. 如果 `audit-suspicious` 仍为 0，优先不动规则。
+5. 如果继续处理 report 头部，先复核：
+   - `亚太药业：关于签署《技术开发合同补充协议》暨关联交易的公告`
+   - `万润股份：关于与烟台万海舟化工有限公司续签《业务合作协议》暨关联交易的公告`
+6. 只有确认它们是稳定低信号合同/关联交易材料族，才按“红灯测试 -> 最窄规则 -> report/audit 验证”推进。
+7. 暂不建议：
+   - 扩题材库
+   - 动 `event_merge / analysis`
+   - 打开或推进 `hkex staged`
+   - 继续为了“头部更干净”压合法风险事件或真实催化
+
 ## Goal
 把项目推进到“真实多源输入 -> 事件归并 -> 题材/个股/历史参考输出”的可运行 MVP，并把当前接力点写清楚，保证后续会话能直接继续。
 
@@ -218,6 +253,56 @@
   - 因 `weibo` 当前 visitor gate 问题就误改主链路
   - 在没有稳定官方/公开入口前声称微博已生产可用
 
+## Update 2026-04-22（A股强催化 live 小补收口）
+- 本轮继续沿最新 `A股强催化` 头部做最窄 `text_report` 收口，不改 `event_merge / analysis`
+- 本轮新增收口：
+  - `irm_cninfo / sse_einteractive` 弱问答：
+    - `为什么一直不正式公告披露`
+    - `招聘网站上招聘光模块技术人员`
+    - `样品送这么久了`
+    - `股价异动 + 收购追问`
+    - `订单被抢` 谣言核实追问
+    - `生态逻辑` 口号式互动留言
+  - 交易所/公告材料：
+    - `年度股东会会议资料`
+    - `监管工作函...评估相关问题的回复`
+    - `持续关连交易：养护工程合同`
+    - `房屋租赁合同暨关联交易`
+    - `续签日常关联交易合同`
+    - `申请综合授信 + 订单融资 + 提供担保`
+    - `框架协议 + 自愿性披露公告`
+    - `增持股份计划`
+    - `股权激励预留权益失效`
+  - 新确认用户口径：
+    - `stcn` 的 `拟...回购股份` 快讯不保留
+    - 交易所 `回购股份方案 / 回购公司股份方案 / 回购公司股份的预案` 也不保留
+- 当前最新验证：
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'filters_live_weak_investor_qa_variants_without_hiding_substantive_catalyst or filters_live_exchange_material_variants_without_hiding_substantive_events or filters_investor_qa_and_exchange_material_within_ashare_section'` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'filters_second_batch_live_investor_qa_variants_without_hiding_substantive_cls_updates or filters_second_batch_live_exchange_material_variants_without_hiding_real_risk'` -> `2 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q -k 'filters_exchange_buyback_result_purpose_and_plan_materials or filters_weak_acquisition_followup_and_low_signal_increase_plan_and_stcn_buyback_flash'` -> `2 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - 手动 `write_text_report()` 后，当前 `A股强催化` 头部只剩：
+    - `*ST和科：关于申请撤销对公司股票交易实施退市风险警示的公告`
+    - `天孚通信：1.6T光引擎...协调供应商争取更多交付`
+    - `永鼎股份：100G EML及硅光高功率芯片具备批量生产能力 启动扩产计划`
+- 当前判断：
+  - 已重新回到适合停手的点
+  - 下一轮先轻验收，不再继续压头部
+
+## Update 2026-04-22（social sidecar fixture 最小验收）
+- 本轮没有改 `social-sidecar` 代码，只做最小验收
+- 当前最新验证：
+  - `./.venv/bin/python -m pytest tests/test_social_collectors.py -q` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_report_pipeline.py -q -k 'report_reads_social_signals_sidecar_when_present'` -> `1 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect-social --platform fixture` -> 已真实写盘
+  - 手动 `write_text_report()` 后，`latest_report.txt` 已确认包含：
+    - `[社交热度观察]`
+    - `平台: fixture`
+- 当前判断：
+  - `fixture` 路径已经够证明 sidecar 写盘和展示链路成立
+  - `weibo` 仍只保留最小接线和失败可见，不应当成生产可用
+  - 下一轮如果继续 sidecar，更适合补说明或验证失败可见性，不适合直接并入主评分
+
 ## Current Phase
 Phase 8
 
@@ -382,12 +467,23 @@ Phase 8
   - `suspicious_count=0`
 
 ## Immediate Next Steps
-1. 如果下一轮继续主线，先重跑当天主链，不沿用本轮头部判断：
+1. 先不要继续改规则，先做轻验收：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+   - `PYTHONPATH=src python3 - <<'PY' ... write_text_report(...) ... PY`
+   - `sed -n '1,220p' data/reports/latest_report.txt`
+2. 如果 `A股强催化` 仍主要是：
+   - `*ST和科`
+   - `天孚通信`
+   - `永鼎股份`
+   则优先停手，不继续补规则
+3. 只有新的整族弱样本重新冒头，才继续补最窄 `text_report`
+4. 其余旧步骤只作为历史参考
+5. 如果下一轮继续主线，先重跑当天主链，不沿用本轮头部判断：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
-2. 下一步第一条命令固定为：
+6. 下一步第一条命令固定为：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all`
-3. 如果当天头部仍主要是：
+7. 如果当天头部仍主要是：
    - `乌克兰机器人扩单`
    - `WTI跌破86`
    - `世界人形机器人运动会`
@@ -396,14 +492,14 @@ Phase 8
      - `奥特迅...退市风险警示`
      - `长亮科技中标某股份制银行新网贷服务平台项目`
    - 再判断是否真的还有新的 `irm_cninfo / stcn / cls` 弱样本值得继续收
-4. 如果头部仍主要是 legit 保留样本：
+8. 如果头部仍主要是 legit 保留样本：
    - 先停，不继续压头部
    - 不要为了“更干净”继续过拟合 `text_report`
-5. 如果出现新的弱样本：
+9. 如果出现新的弱样本：
    - 先补红灯测试
    - 再补最窄 `text_report` 过滤或必要的 `event_merge` 回正
    - 不做大范围题材扩张，也不碰 `hkex staged`
-6. 如果主线切回扩源：
+10. 如果主线切回扩源：
    - `hkex` 仍保持 staged
    - 先 `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source hkex`
    - 再顺序跑：
@@ -412,7 +508,7 @@ Phase 8
      - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment analyze-events`
      - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report`
      - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
-7. `hkex` 下一步不要直接扩过滤面，优先补：
+11. `hkex` 下一步不要直接扩过滤面，优先补：
    - `INSIDE INFORMATION` 的更细 subtype/方向边界
    - stock code / company mapping
    - 再决定是否能进入 `--source all`
@@ -567,3 +663,27 @@ Phase 8
 ### Known Risks Override
 - `国内期货夜盘收盘多数上涨` 这类 round-up 变体优先按 `text_report` 标题词表收，不要误扩到上游。
 - `申请撤销对公司股票交易实施退市风险警示` 这类措辞虽带 `风险`，但语义是风险撤销申请；不要被通用 bearish 词覆盖。
+## Update 2026-04-23 (latest)
+- 主线仍是 `phase8-live-boundary`，这轮继续只按 live report 头部做最窄收口，不扩题材库，不改 `source enable`
+- 本轮已完成：
+  - `cninfo` 并购重组材料：`报告书（修订稿）`、`审核问询函回复`
+  - 融资授权/简易程序定增材料收口，并回正相关误分类
+  - `sse_einteractive / irm_cninfo` 弱回复、审批占位回复、资产注入/重组模板回复、股价抱怨型问答收口
+  - 交易所治理/制度/附件材料扩充过滤
+  - `股权激励计划相关事项的核查意见`
+  - `cls` 的 `今日投资舆情热点`
+- 本轮验证口径：
+  - 当前 Windows 会话里未直接复用 worktree `.venv`
+  - 改用 `py_compile + 直接 Python 断言 + report/audit 实跑`
+  - 最新 `audit-suspicious --limit 10` 仍为 `0`
+- 当前停点判断：
+  - 这一批最明显的材料/栏目型漏出基本已经收干净
+  - 继续向下压的收益明显下降，过拟合风险上升
+- Immediate Next Steps:
+  1. 先只读复核当前 `latest_report.txt` 头部，不先改规则
+  2. 第一优先检查：`艾迪药业关于公司收购控股子公司少数股东股权进展的公告`
+  3. 判断标准：
+     - 如果它只是新的一族“低信号并购进展/材料型公告”，先补红灯测试，再补最窄规则
+     - 如果它更像应保留催化，就停手，不继续为了头部更干净过拟合
+  4. `乐普 DBS` 当前先留；只有复核后确认回复完全落回模板口径，才考虑下一轮
+  5. `cftc_press:fetch_error` 仍单独挂起，不与主线 report 过滤混做

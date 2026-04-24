@@ -42,6 +42,8 @@ STRUCTURED_CATALYST_SUBTYPES = {
 }
 LEGAL_DISPUTE_KEYWORDS = (
     "重大诉讼",
+    "涉及诉讼",
+    "诉讼进展",
     "立案通知书",
     "立案告知书",
     "被立案调查",
@@ -242,7 +244,10 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "legal_dispute"
         if _contains_any(text, HKEX_FINANCIAL_RESULT_KEYWORDS):
             return "business_guidance"
-        if _contains_any(text, ("受理", "向特定对象发行", "定增", "发行股票申请")):
+        if _contains_any(text, ("受理", "发行股票申请", "注册申请", "审核通过")) and _contains_any(
+            text,
+            ("向特定对象发行", "定增", "发行股票"),
+        ):
             return "financing_acceptance"
         if _contains_any(text, ("H SHARE FULL CIRCULATION", "H Share Full Circulation")):
             return "capital_operation"

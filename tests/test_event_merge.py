@@ -1688,6 +1688,26 @@ def test_merge_news_items_groups_structured_cninfo_catalyst_documents() -> None:
     assert events[0].event_subtype == "financing_acceptance"
 
 
+def test_merge_news_items_classifies_financing_authorization_material_as_board_resolution() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n-financing-authorization",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-23T00:00:00+08:00",
+            captured_at="2026-04-23T00:00:05+08:00",
+            title="天府文旅：关于提请股东会授权董事会办理以简易程序向特定对象发行股票的公告",
+            content="天府文旅：关于提请股东会授权董事会办理以简易程序向特定对象发行股票的公告",
+            url="https://example.com/financing-authorization",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "board_resolution"
+
+
 def test_merge_news_items_does_not_merge_different_szse_delisting_risk_notices() -> None:
     items = [
         NormalizedNews(

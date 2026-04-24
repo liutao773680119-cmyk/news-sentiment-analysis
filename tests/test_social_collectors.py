@@ -1,7 +1,10 @@
 from news_sentiment.cli import main
 from news_sentiment.collectors.errors import CollectorFetchError
 from news_sentiment.models import Event, EventAnalysis
-from news_sentiment.social_collectors import _match_weibo_topics_to_events
+from news_sentiment.social_collectors import (
+    _fetch_weibo_hot_search_payload,
+    _match_weibo_topics_to_events,
+)
 from news_sentiment.storage import JsonlStore
 
 
@@ -75,3 +78,29 @@ def test_collect_social_weibo_reports_visitor_gate_failure(tmp_path, monkeypatch
     err = capsys.readouterr().err
     assert "warning: social_platform_failed=weibo:fetch_error" in err
     assert "visitor gate or html fallback" in err
+
+
+def test_fetch_weibo_hot_search_payload_uses_cookie_and_referer_when_configured(
+    monkeypatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_fetch_html(url: str, **kwargs: object) -> str:
+        captured["url"] = url
+        captured["kwargs"] = kwargs
+        return '{"ok":1,"data":{"realtime":[]}}'
+
+    monkeypatch.setenv("WEIBO_COOKIE", "SUB=abc; XSRF-TOKEN=xyz")
+
+    payload = _fetch_weibo_hot_search_payload(fake_fetch_html)
+
+    assert payload["ok"] == 1
+    assert captured["kwargs"] == {
+        "timeout_seconds": 10,
+        "user_agent": "Mozilla/5.0",
+        "extra_headers": {
+            "Accept": "application/json",
+            "Cookie": "SUB=abc; XSRF-TOKEN=xyz",
+            "Referer": "https://weibo.com/",
+        },
+    }

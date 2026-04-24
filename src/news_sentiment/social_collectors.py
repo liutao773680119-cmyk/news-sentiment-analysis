@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from typing import Callable
 
@@ -12,6 +13,7 @@ from news_sentiment.storage import JsonlStore
 
 
 WEIBO_HOT_SEARCH_URL = "https://weibo.com/ajax/side/hotSearch"
+WEIBO_REFERER_URL = "https://weibo.com/"
 WEIBO_USER_AGENT = "Mozilla/5.0"
 
 
@@ -60,7 +62,7 @@ def _fetch_weibo_hot_search_payload(fetch_html_func: Callable[..., str]) -> dict
             WEIBO_HOT_SEARCH_URL,
             timeout_seconds=10,
             user_agent=WEIBO_USER_AGENT,
-            extra_headers={"Accept": "application/json"},
+            extra_headers=_build_weibo_request_headers(),
         )
     except Exception as exc:  # pragma: no cover - network path
         raise CollectorFetchError("weibo", str(exc) or exc.__class__.__name__) from exc
@@ -76,6 +78,17 @@ def _fetch_weibo_hot_search_payload(fetch_html_func: Callable[..., str]) -> dict
     if not isinstance(payload, dict):
         raise CollectorParseError("weibo", "unexpected hot search payload shape")
     return payload
+
+
+def _build_weibo_request_headers() -> dict[str, str]:
+    headers = {
+        "Accept": "application/json",
+        "Referer": WEIBO_REFERER_URL,
+    }
+    cookie = os.getenv("WEIBO_COOKIE", "").strip()
+    if cookie:
+        headers["Cookie"] = cookie
+    return headers
 
 
 def _match_weibo_topics_to_events(
