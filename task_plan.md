@@ -1,5 +1,26 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-04-27 (latest handoff before push)
+- 当前真实主线仍是 `global-multisource-mainline`，重点是 `--source all` 下 report 尾噪收口，不扩题材库，不动 `event_merge / analysis`
+- 本轮已继续压掉：
+  - `补充协议/续签业务合作协议暨关联交易`
+  - `投资性房地产管理办法 / 房地产业务专项自查报告`
+  - `股权激励归属核查意见 / 回购注销限制性股票的减资公告`
+  - `购买土地使用权 + 投资合作意向书`
+  - `摊薄即期回报风险提示及填补回报措施`
+  - `关联存款风险处置预案`
+  - `stcn` 的 `围绕战略合作等交流座谈`
+  - `国内商品期市夜盘收盘` 变体
+- 当前验证：
+  - `PYTHONPATH=src python -m news_sentiment report` -> 通过
+  - `PYTHONPATH=src python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `latest_report.txt` 已确认不再包含本轮新增处理样本
+  - `华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告` 仍保留
+- 环境注意：
+  - 当前 Windows Python 3.10 仍未装上 `pytest`
+  - 已尝试 `pip install pytest`、`--trusted-host`、`--isolated`，均被坏掉的 proxy 链路阻塞
+  - 后续若要补原样测试，先处理代理/镜像问题
+
 ## Update 2026-04-24 (latest handoff before push)
 - 主线仍按 `phase8-live-boundary` 的节奏做 live 头部最窄收口，不扩题材库，不动 `source enable`
 - 本轮已处理：
@@ -30,10 +51,23 @@
    - `万润股份：关于与烟台万海舟化工有限公司续签《业务合作协议》暨关联交易的公告`
 6. 只有确认它们是稳定低信号合同/关联交易材料族，才按“红灯测试 -> 最窄规则 -> report/audit 验证”推进。
 7. 暂不建议：
-   - 扩题材库
-   - 动 `event_merge / analysis`
-   - 打开或推进 `hkex staged`
-   - 继续为了“头部更干净”压合法风险事件或真实催化
+  - 扩题材库
+  - 动 `event_merge / analysis`
+  - 打开或推进 `hkex staged`
+  - 继续为了“头部更干净”压合法风险事件或真实催化
+
+## Immediate Next Steps (2026-04-27 latest)
+1. 当前优先级仍是停手观察，不继续沿当天样本向下过拟合。
+2. 下一轮固定第一条命令：
+   - `PYTHONPATH=src python -m news_sentiment audit-suspicious --limit 10`
+3. 然后只读查看：
+   - `Get-Content data/reports/latest_report.txt -TotalCount 120`
+4. 如果 `audit-suspicious` 仍为 0，且头部主要剩真实风险/并购样本，优先不动规则。
+5. 如果后续要恢复原样 `pytest` 验证，先处理当前 Windows Python 的代理/镜像问题，再补跑定向测试。
+6. 暂不建议：
+   - 再压当前头部里的真实风险公告
+   - 继续机械扩充 `LOW_SIGNAL_*` 词表
+   - 提前把 `hkex staged` 开进 `--source all`
 
 ## Goal
 把项目推进到“真实多源输入 -> 事件归并 -> 题材/个股/历史参考输出”的可运行 MVP，并把当前接力点写清楚，保证后续会话能直接继续。

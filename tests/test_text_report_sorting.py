@@ -14426,3 +14426,323 @@ def test_write_text_report_filters_cninfo_minority_shareholder_acquisition_progr
 
     assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的公告" in content
     assert "艾迪药业关于公司收购控股子公司少数股东股权进展的公告" not in content
+
+
+def test_write_text_report_filters_related_party_contract_renewal_and_supplement_material_without_hiding_real_acquisition(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告",
+            summary="公司披露收购目标公司100%股权。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-supplement-contract",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="亚太药业：关于签署《技术开发合同补充协议》暨关联交易的公告",
+            summary="公司披露签署技术开发合同补充协议暨关联交易事项。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/supplement-contract",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-renew-business-cooperation",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="万润股份：关于与烟台万海舟化工有限公司续签《业务合作协议》暨关联交易的公告",
+            summary="公司披露续签业务合作协议暨关联交易事项。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/renew-business-cooperation",
+            event_type="hard_event",
+            event_subtype="cooperation_agreement",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-keep-acquisition",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-supplement-contract",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-renew-business-cooperation",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告" in content
+    assert "亚太药业：关于签署《技术开发合同补充协议》暨关联交易的公告" not in content
+    assert "万润股份：关于与烟台万海舟化工有限公司续签《业务合作协议》暨关联交易的公告" not in content
+
+
+def test_write_text_report_filters_exchange_governance_and_equity_material_variants_without_hiding_real_acquisition(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告",
+            summary="公司披露收购目标公司100%股权。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/keep-acquisition-2",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-governance-rule",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="英飞特：《投资性房地产管理办法》（2026年4月修订）",
+            summary="公司披露制度修订文件。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/governance-rule",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-real-estate-self-check",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="川润股份：关于2026年度向特定对象发行A股股票之房地产业务专项自查报告",
+            summary="公司披露房地产业务专项自查报告。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/real-estate-self-check",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-equity-review-opinion",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="奥尼电子：董事会薪酬与考核委员会关于公司2025年限制性股票激励计划第一个解除限售期解除限售及第一个归属期归属相关事项的核查意见",
+            summary="公司披露股权激励归属核查意见。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/equity-review-opinion",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-equity-capital-reduction",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="明阳电路：关于回购注销限制性股票的减资公告",
+            summary="公司披露回购注销限制性股票减资事项。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/equity-capital-reduction",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-keep-acquisition",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-governance-rule",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-real-estate-self-check",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-equity-review-opinion",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-equity-capital-reduction",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告" in content
+    assert "英飞特：《投资性房地产管理办法》（2026年4月修订）" not in content
+    assert "川润股份：关于2026年度向特定对象发行A股股票之房地产业务专项自查报告" not in content
+    assert "奥尼电子：董事会薪酬与考核委员会关于公司2025年限制性股票激励计划第一个解除限售期解除限售及第一个归属期归属相关事项的核查意见" not in content
+    assert "明阳电路：关于回购注销限制性股票的减资公告" not in content
+
+
+def test_write_text_report_filters_disclosure_and_cooperation_exchange_variants_without_hiding_real_acquisition(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告",
+            summary="公司披露收购目标公司100%股权。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/keep-acquisition-3",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-land-intention",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="强瑞技术：关于拟购买土地使用权并建设人工智能产业研发智造总部并签署投资合作意向书的公告",
+            summary="公司披露购买土地使用权并签署投资合作意向书事项。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/land-intention",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-dilution-risk",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="川润股份：关于2026年度向特定对象发行股票摊薄即期回报的风险提示及填补回报措施和相关主体承诺的公告",
+            summary="公司披露摊薄即期回报的风险提示及填补回报措施和相关主体承诺。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/dilution-risk",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-related-deposit-plan",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="荃银高科：安徽荃银高科种业股份有限公司在中化集团财务有限责任公司关联存款风险处置预案",
+            summary="公司披露关联存款风险处置预案。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/related-deposit-plan",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-cooperation-exchange",
+            first_seen_at="2026-04-24T22:58:34+08:00",
+            last_seen_at="2026-04-24T22:58:34+08:00",
+            canonical_title="内蒙古能源集团与华润电力围绕战略合作等交流座谈",
+            summary="双方围绕战略合作、管理提升、人才交流、科技协同等进行了深入交流，并表示在重大项目合作、项目共建等领域深化务实合作。",
+            source="stcn",
+            published_at="2026-04-24T22:58:34+08:00",
+            url="https://example.com/cooperation-exchange",
+            event_type="fast_news",
+            event_subtype="cooperation_agreement",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-land-intention", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-dilution-risk", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-related-deposit-plan", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-cooperation-exchange", direction="neutral", impact_score=74.0, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告" in content
+    assert "强瑞技术：关于拟购买土地使用权并建设人工智能产业研发智造总部并签署投资合作意向书的公告" not in content
+    assert "川润股份：关于2026年度向特定对象发行股票摊薄即期回报的风险提示及填补回报措施和相关主体承诺的公告" not in content
+    assert "荃银高科：安徽荃银高科种业股份有限公司在中化集团财务有限责任公司关联存款风险处置预案" not in content
+    assert "内蒙古能源集团与华润电力围绕战略合作等交流座谈" not in content
+
+
+def test_write_text_report_filters_domestic_commodity_night_session_variant(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-night-session-roundup",
+            first_seen_at="2026-04-24T23:05:21+08:00",
+            last_seen_at="2026-04-24T23:05:21+08:00",
+            canonical_title="国内商品期市夜盘收盘 合成橡胶跌超1%",
+            summary="人民财讯4月24日电，国内商品期市夜盘收盘，合成橡胶跌超1%。",
+            source="stcn",
+            published_at="2026-04-24T23:05:21+08:00",
+            url="https://example.com/night-session-roundup",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-25T00:00:00+08:00",
+            last_seen_at="2026-04-25T00:00:00+08:00",
+            canonical_title="华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告",
+            summary="公司披露收购目标公司100%股权。",
+            source="szse",
+            published_at="2026-04-25T00:00:00+08:00",
+            url="https://example.com/keep-acquisition-4",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-night-session-roundup", direction="neutral", impact_score=74.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "国内商品期市夜盘收盘 合成橡胶跌超1%" not in content
+    assert "华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告" in content

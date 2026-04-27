@@ -1,5 +1,53 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-04-27)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `live report 头部尾噪收口 + 标准交接 + 推送前整理`
+- Files Changed:
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_text_report_sorting.py`
+- Completed This Session:
+  - 继续按“红灯测试 -> 最窄规则 -> report/audit 验证”只收 report 头部尾噪，不扩题材库，不动 `event_merge / analysis / source enable`
+  - 连续补齐并压掉了这几批当前 live 低信号样本：
+    - `亚太药业：技术开发合同补充协议暨关联交易`
+    - `万润股份：续签业务合作协议暨关联交易`
+    - `投资性房地产管理办法 / 房地产业务专项自查报告`
+    - `股权激励归属/解除限售相关事项的核查意见`
+    - `回购注销限制性股票的减资公告`
+    - `购买土地使用权 + 投资合作意向书`
+    - `摊薄即期回报风险提示及填补回报措施 + 相关主体承诺`
+    - `关联存款风险处置预案`
+    - `stcn` 的 `围绕战略合作等交流座谈`
+    - `国内商品期市夜盘收盘` 变体
+  - 同步补了对应的 `text_report` 回归测试，保护真实并购/收购公告不被误伤
+  - 尝试在当前 Windows Python 3.10 环境安装 `pytest`，但安装被代理链路阻塞，未能补跑原样定向测试
+- Current Verification:
+  - `PYTHONPATH=src python -m news_sentiment report`：通过
+  - `PYTHONPATH=src python -m news_sentiment audit-suspicious --limit 10`：`suspicious_count=0`
+  - `latest_report.txt` 已确认不再包含本轮新增处理的上述样本
+  - `华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告` 仍保留在头部
+  - `python -m pip install pytest` / `--trusted-host` / `--isolated`：均失败，错误指向坏掉的 proxy 链路
+- Current Report Head After Refresh:
+  - `棒杰股份：关于公司股票将被实施退市风险警示和其他风险警示暨停牌的公告`
+  - `东北制药：诉讼进展公告`
+  - `棕榈股份：关于公司股票被实施其他风险警示暨停复牌公告`
+  - `华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告`
+  - `透景生命：关于收购控股子公司部分股权暨关联交易的公告`
+- Open TODO:
+  - 当前 `audit-suspicious=0` 且 report 头部已主要剩真实风险/并购样本，优先停手，不继续过拟合
+  - 下一轮如要继续，先只读复核当天 `latest_report.txt`，确认是否又出现新的整族材料公告漏出
+  - 若要恢复原样 `pytest` 验证，先解决当前 Windows Python 的代理/网络问题，或提供可用镜像源
+- Known Avoidances:
+  - 不要再把旧 `phase8-live-boundary` 当当前主线
+  - 不要为了“头部更少”继续压真实风险公告或真实并购催化
+  - 不要在 `pytest` 安装失败时误判为代码未验证；当前失败点在环境代理，不在代码逻辑
+
 ## Latest Handoff Snapshot (2026-04-24)
 - Task-ID:
   - `phase8-live-boundary`

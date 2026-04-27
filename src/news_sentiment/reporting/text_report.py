@@ -189,13 +189,17 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "受让协议",
     "未弥补的亏损达实收股本总额三分之一",
     "募集资金存放、管理与实际使用情况的专项报告",
+    "房地产业务专项自查报告",
     "年度薪酬方案",
     "提质增效重回报",
     "回购股份价格上限",
+    "摊薄即期回报的风险提示及填补回报措施",
+    "相关主体承诺",
     "互动易平台信息发布及回复内部审核制度",
     "风险管理制度",
     "风险控制指标报告",
     "风险评估说明",
+    "关联存款风险处置预案",
     "洗钱和恐怖融资风险管理办法",
     "行政处罚决定书",
     "年度报告摘要",
@@ -244,6 +248,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "行权条件成就",
     "期权数量、行权价格并注销部分已获授但未行权的股票期权",
     "回购注销限制性股票减资暨通知债权人",
+    "回购注销限制性股票的减资公告",
     "回购注销完成",
     "回购注销及作废",
     "暨通知债权人",
@@ -264,6 +269,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "限制性股票相关事项的核查意见",
     "限制性股票激励计划相关事项的核查意见",
     "股权激励计划相关事项的核查意见",
+    "归属相关事项的核查意见",
     "股票期权激励计划相关事项的公告",
     "激励对象买卖公司股票情况的自查报告",
     "内幕信息知情人买卖公司股票情况的自查报告",
@@ -406,6 +412,7 @@ LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS = (
 LOW_SIGNAL_DOMESTIC_FUTURES_MARKET_MOVE_KEYWORDS = (
     "国内期货市场夜盘收盘",
     "国内商品期货夜盘收盘",
+    "国内商品期市夜盘收盘",
     "国内商品期货夜盘开盘涨跌不一",
     "国内期货夜盘收盘多数上涨",
     "国内期货夜盘收盘涨跌不一",
@@ -651,6 +658,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_public_affairs_story(event):
         return False
+    if _is_low_signal_stcn_cooperation_exchange_story(event, text):
+        return False
     if _is_low_signal_robot_competition_story(event, text):
         return False
     if _is_low_signal_stcn_buyback_flash(event):
@@ -784,6 +793,10 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
                 or ("房屋租赁合同" in event.canonical_title and "关联交易" in event.canonical_title)
                 or "续签日常关联交易合同" in event.canonical_title
                 or (
+                    "技术开发合同补充协议" in event.canonical_title
+                    and "关联交易" in event.canonical_title
+                )
+                or (
                     "申请综合授信" in event.canonical_title
                     and "订单融资" in event.canonical_title
                     and "提供担保" in event.canonical_title
@@ -860,6 +873,7 @@ def _is_low_signal_exchange_governance_material(title: str) -> bool:
         "监事会议事规则",
         "投资者关系管理制度",
         "关联交易管理办法",
+        "投资性房地产管理办法",
         "信息披露暂缓与豁免业务管理制度",
         "董事和高级管理人员所持本公司股份及其变动管理制度",
     )
@@ -1072,6 +1086,8 @@ def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> 
         "交易商协会披露" in title and "本息偿付安排" in title
     ) or (
         "框架协议" in title and "自愿性披露公告" in title
+    ) or (
+        "购买土地使用权" in title and "投资合作意向书" in title
     )
 
 
@@ -1121,7 +1137,7 @@ def _is_low_signal_exchange_template_cooperation_agreement(event: Event, analysi
 
     title = event.canonical_title
     if not any(keyword in title for keyword in ("签订", "签署")):
-        return False
+        return "续签" in title and "业务合作协议" in title and "关联交易" in title
 
     if "框架协议" in title:
         return True
@@ -1566,6 +1582,20 @@ def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
         return False
 
     return any(keyword in event.canonical_title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
+
+
+def _is_low_signal_stcn_cooperation_exchange_story(event: Event, text: str) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "cooperation_agreement"
+    ):
+        return False
+
+    return (
+        "交流座谈" in event.canonical_title
+        and any(keyword in text for keyword in ("深化战略合作", "重大项目合作", "项目共建", "科技协同", "人才交流"))
+    )
 
 
 def _is_low_signal_robot_competition_story(event: Event, text: str) -> bool:
