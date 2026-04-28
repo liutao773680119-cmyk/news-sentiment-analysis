@@ -211,9 +211,9 @@ sources:
     type: policy
     enabled: true
     priority: 90
-    timeout_seconds: 3
+    timeout_seconds: 20
     user_agent: news-sentiment-mvp/0.1
-    retry_count: 0
+    retry_count: 3
     backoff_seconds: 1.0
   - id: occ_news
     name: OCC新闻稿
