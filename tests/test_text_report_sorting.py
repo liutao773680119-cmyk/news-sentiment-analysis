@@ -1817,6 +1817,298 @@ def test_write_text_report_downgrades_ashare_index_fast_news_below_themed_events
     assert content.index("液冷服务器概念走强 达实智能等涨停") < content.index("创业板指涨超4%")
 
 
+def test_write_text_report_keeps_themed_foreign_single_stock_market_move_in_global_section(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-foreign-themed-market-move",
+            first_seen_at="2026-04-24T22:33:25+08:00",
+            last_seen_at="2026-04-24T22:33:25+08:00",
+            canonical_title="礼来新一代口服减肥药Foundayo开局遇冷股价跌超4% 诺和诺德涨6%",
+            summary="礼来股价跌超4%，诺和诺德涨6%。",
+            source="cls",
+            published_at="2026-04-24T22:33:25+08:00",
+            url="https://example.com/foreign-themed-market-move",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-foreign-themed-market-move",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["创新药"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert content.index("[全球市场与商品]") < content.index("礼来新一代口服减肥药Foundayo开局遇冷")
+
+
+def test_write_text_report_filters_current_live_irm_question_only_tail_noise(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-stock-price-ma",
+            first_seen_at="2026-04-28T20:45:42+08:00",
+            last_seen_at="2026-04-28T20:45:42+08:00",
+            canonical_title="证通电子：公司的涨幅远远落后市场上其它算力股，主要原因除了业绩，可能跟公司在智算投入太小有关。最近安诺其收购算力公司大涨，公司有没有并购计划？",
+            summary="问题：公司的涨幅远远落后市场上其它算力股，公司有没有并购计划？",
+            source="irm_cninfo",
+            published_at="2026-04-28T20:45:42+08:00",
+            url="https://example.com/irm-stock-price-ma",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-irm-robot-liquid-cooling-plan",
+            first_seen_at="2026-04-28T20:45:34+08:00",
+            last_seen_at="2026-04-28T20:45:34+08:00",
+            canonical_title="高澜股份：你好，人形机器人未来市场巨大，公司是否计划开发在人形机器人领域应用的液冷方案?",
+            summary="问题：人形机器人未来市场巨大，公司是否计划开发在人形机器人领域应用的液冷方案? 回复：尊敬的投资者，您好！公司产品暂未应用于人形机器人领域。公司将依托现有液冷技术储备，持续跟踪新兴领域应用需求，适时探索相关技术与产品布局。感谢您的关注！",
+            source="irm_cninfo",
+            published_at="2026-04-28T20:45:34+08:00",
+            url="https://example.com/irm-robot-liquid-cooling-plan",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-gross-margin-complaint",
+            first_seen_at="2026-04-28T20:45:42+08:00",
+            last_seen_at="2026-04-28T20:45:42+08:00",
+            canonical_title="东山精密：公司2026年年报显示电子电路产品的毛利率为17.59%，而2026年深南电路PCB业务的毛利率36.91%、沪电股份PCB业务的毛利率29.73%，公司PCB的毛利率处于消费电子PCB毛利率水平，并没有体现AI服务器PCB高毛利率水平，这是为什么？公司后续有什么改善计划？",
+            summary="问题：公司PCB毛利率为什么没有体现AI服务器PCB高毛利率水平？公司后续有什么改善计划？",
+            source="irm_cninfo",
+            published_at="2026-04-28T20:45:42+08:00",
+            url="https://example.com/irm-gross-margin-complaint",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-reduction-reason",
+            first_seen_at="2026-04-28T20:45:34+08:00",
+            last_seen_at="2026-04-28T20:45:34+08:00",
+            canonical_title="博深股份：大股东及高管持续减持的原因？",
+            summary="问题：大股东及高管持续减持的原因？ 回复：您好，公司控股股东和高级管理人员近期未减持公司股份，公司将严格按照相关规定履行信息披露义务，谢谢。",
+            source="irm_cninfo",
+            published_at="2026-04-28T20:45:34+08:00",
+            url="https://example.com/irm-reduction-reason",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-substantive-order",
+            first_seen_at="2026-04-28T20:46:42+08:00",
+            last_seen_at="2026-04-28T20:46:42+08:00",
+            canonical_title="易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况",
+            summary="问题：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况 回复：您好！公司在三峡水运新通道项目混装炸药及爆破作业服务集中采购项目第Ⅰ、Ⅱ标段场内、场外方案的中标候选人中均排第一。",
+            source="irm_cninfo",
+            published_at="2026-04-28T20:46:42+08:00",
+            url="https://example.com/irm-keep-substantive-order",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-stock-price-ma", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-robot-liquid-cooling-plan", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-gross-margin-complaint", direction="neutral", impact_score=100.0, reasoning="rule", themes=["PCB"], triggered=True),
+        EventAnalysis(event_id="event-irm-reduction-reason", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-substantive-order", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "公司的涨幅远远落后市场上其它算力股" not in content
+    assert "公司是否计划开发在人形机器人领域应用的液冷方案" not in content
+    assert "公司PCB的毛利率处于消费电子PCB毛利率水平" not in content
+    assert "大股东及高管持续减持的原因？" not in content
+    assert "易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况" in content
+
+
+def test_write_text_report_filters_current_live_exchange_annual_material_cluster_with_themes(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-board-resolution",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：第十届董事会第二次会议决议公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/board-resolution",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-board-resolution-without-meeting",
+            first_seen_at="2026-04-28T00:00:00+08:00",
+            last_seen_at="2026-04-28T00:00:00+08:00",
+            canonical_title="保利发展控股集团股份有限公司2026年第4次临时董事会决议公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-28T00:00:00+08:00",
+            url="https://example.com/board-resolution-without-meeting",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-accounting-policy",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：关于会计政策变更的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/accounting-policy",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-impairment",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：关于计提减值准备的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/impairment",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-buyback-cancel-result",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：关于回购公司股份用于注销的结果暨股份变动公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/buyback-cancel-result",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-fund-use-report",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：2025年度募集资金存放、管理与使用情况的专项报告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/fund-use-report",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-buyback-report",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="新宝股份：关于回购公司部分社会公众股份的报告书",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/buyback-report",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sell-buyback-plan",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="桂发祥：关于出售已回购股份计划的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/sell-buyback-plan",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-equity-incentive-buyback-cancel",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="*ST新研：关于回购注销2023年限制性股票激励计划授予的部分限制性股票的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/equity-incentive-buyback-cancel",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-esg-en",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：XCMGConstructionMachineryCo., Ltd.2025Environmental,Social,andGovernance(ESG)Report",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/esg-en",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-esg-cn",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="徐工机械：2025年度环境、社会与治理（ESG）报告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/esg-cn",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-acquisition",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/keep-acquisition",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-board-resolution", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-board-resolution-without-meeting", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-accounting-policy", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-impairment", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-buyback-cancel-result", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-fund-use-report", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-buyback-report", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sell-buyback-plan", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-equity-incentive-buyback-cancel", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-esg-en", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-esg-cn", direction="neutral", impact_score=100.0, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "第十届董事会第二次会议决议公告" not in content
+    assert "保利发展控股集团股份有限公司2026年第4次临时董事会决议公告" not in content
+    assert "关于会计政策变更的公告" not in content
+    assert "关于计提减值准备的公告" not in content
+    assert "关于回购公司股份用于注销的结果暨股份变动公告" not in content
+    assert "募集资金存放、管理与使用情况的专项报告" not in content
+    assert "关于回购公司部分社会公众股份的报告书" not in content
+    assert "关于出售已回购股份计划的公告" not in content
+    assert "回购注销2023年限制性股票激励计划授予的部分限制性股票" not in content
+    assert "Environmental,Social,andGovernance(ESG)Report" not in content
+    assert "2025年度环境、社会与治理（ESG）报告" not in content
+    assert "华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告" in content
+
+
 def test_write_text_report_filters_foreign_market_move_even_if_analysis_has_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

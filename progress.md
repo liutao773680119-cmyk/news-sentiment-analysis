@@ -1,5 +1,67 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-04-28)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `live-smoke 后 report 头部尾噪收口 + 标准交接`
+- Files Changed:
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_text_report_sorting.py`
+- Completed This Session:
+  - 按交接先跑 `live-smoke --source all`，没有先扩题材库，也没有动 `event_merge / analysis / source enable`
+  - 修复 `.venv` 缺 `requests` 导致 `audit-suspicious` 无法启动的问题；`pyproject.toml` 已声明该依赖，本轮只补齐本地环境
+  - 修复 `text_report` 两个边界：
+    - A股主题市场异动应压过 A股指数温度新闻，但海外单股主题异动仍应留在 `全球市场与商品`
+    - report 时间窗应以已通过市场相关性过滤的事件计算，避免低信号新材料把旧正例全部过期
+  - 基于 2026-04-28 live 样本继续按“红灯测试 -> 最窄规则 -> report/audit 验证”收掉：
+    - `irm_cninfo` 弱问答：股价落后/并购计划、人形机器人液冷方案但暂未应用、毛利率抱怨和改善计划、减持原因但回复为未减持/按规披露
+    - `sse/szse` 年报季材料：董事会决议、会计政策变更、计提减值、募集资金专项报告、ESG 报告、审计委员会履职、回购报告书、出售已回购股份计划、回购注销限制性股票材料
+  - 保留当前头部真实/相对更强样本：
+    - `中远海能` 全资子公司收购并吸收合并
+    - `*ST新研` 撤销退市风险警示申请
+    - `*ST西发 / ST长方` 风险警示进展
+    - `ST长方` 庭外重组提示
+    - `惠天热电` 重大诉讼进展
+    - `诚迈科技` 签署合作协议
+- Current Verification:
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1473 normalized_news=1473 events=760 analyses=760 failed_sources=miit:fetch_error`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `231 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` -> 通过
+  - `latest_report.txt` 已确认不再包含本轮新增处理样本关键词
+  - 上述 CLI 命令仍有 `urllib3 NotOpenSSLWarning`，但退出码为 0
+- Current Report Head After Refresh:
+  - `中远海能关于全资子公司收购中远海运大连投资有限公司100%股权并实施吸收合并暨关联交易的公告`
+  - `*ST新研：关于申请撤销公司股票退市风险警示的公告`
+  - `*ST西发：关于资金占用事项被实施其他风险警示的进展公告`
+  - `ST长方：关于公司股票交易被实施其他风险警示相关事项的进展公告`
+  - `ST长方：关于申请庭外重组的提示性公告`
+  - `惠天热电：关于子公司重大诉讼事项进展的公告`
+  - `诚迈科技旗下讯天信达与武汉水务环境签署合作协议 基于开源鸿蒙重构智慧水务底座`
+- Open TODO:
+  - 当前 `audit-suspicious=0` 且 report 头部已回到真实并购/风险/诉讼/合作样本，优先停手，不继续压头部
+  - 下一轮第一步先只读查看 `latest_report.txt`，如果没有新的整族弱样本，不补规则
+  - 单独排查 `miit:fetch_error`；不要把它混成 report 规则问题
+  - 若准备收尾，先跑定向验证后提交当前 8 个文件
+- Risks/Blockers:
+  - `miit` 当前抓取失败：`failed_sources=miit:fetch_error`
+  - Python 3.9.6 的 SSL 后端是 LibreSSL，`urllib3` 会提示 `NotOpenSSLWarning`
+  - 继续向下压当前头部收益低，过拟合风险高
+- Next First Command:
+  - `sed -n '1,160p' data/reports/latest_report.txt`
+- Known Avoidances:
+  - 不要再按旧 `phase8-live-boundary` A股单线标准验收当前 `--source all`
+  - 不要因为 `audit-suspicious=0` 就默认 report 头部无噪音；report 仍要直接看
+  - 不要把 `miit:fetch_error` 写成规则失败
+  - 不要把所有带题材的 `cls/stcn market_move` 都拉回 A股层；海外单股主题异动仍留 `全球市场与商品`
+
 ## Latest Handoff Snapshot (2026-04-27)
 - Task-ID:
   - `global-multisource-mainline`

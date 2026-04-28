@@ -1,5 +1,57 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-04-28 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮从交接指定验收继续推进：
+  - 补齐本地 `.venv` 缺失的 `requests`
+  - 跑 `live-smoke --source all`
+  - 按当前 live report 头部做最窄 `text_report` 收口
+- 本轮已处理：
+  - report 时间窗按已通过市场相关性过滤的事件计算，避免低信号新材料把旧正例整体挤掉
+  - A股主题市场异动回 `A股强催化`，海外单股主题异动留 `全球市场与商品`
+  - `irm_cninfo` 弱问答变体：
+    - 股价落后 + 并购计划
+    - 人形机器人液冷方案但暂未应用
+    - 毛利率抱怨 + 改善计划
+    - 减持原因但回复为未减持/按规披露
+  - `sse/szse` 年报季材料：
+    - 董事会决议
+    - 会计政策变更
+    - 计提减值准备
+    - 募集资金存放/管理/使用专项报告
+    - ESG 报告
+    - 审计委员会履职报告
+    - 回购报告书/出售已回购股份计划/回购注销限制性股票材料
+- 当前验证：
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=1473 normalized_news=1473 events=760 analyses=760 failed_sources=miit:fetch_error`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `231 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` -> 通过
+  - `latest_report.txt` 已确认本轮新增处理关键词不再出现
+- 当前结论：
+  - report 头部已回到并购、退市/风险、诉讼、合作协议等应先保留样本
+  - 当前适合停手交接，不建议继续为了“更短头部”补词
+- 当前风险：
+  - `miit:fetch_error` 是采集源问题，需单独排查
+  - `urllib3 NotOpenSSLWarning` 仍会出现，但当前命令退出码为 0
+
+## Immediate Next Steps (2026-04-28 latest)
+1. 先只读查看：
+   - `sed -n '1,160p' data/reports/latest_report.txt`
+2. 如果头部仍是本轮记录的并购/退市风险/诉讼/合作协议样本，优先停手或提交。
+3. 如果要继续规则收口，必须先确认新样本属于“整族弱样本”，再按：
+   - 红灯测试
+   - 最窄规则
+   - `tests/test_text_report_sorting.py`
+   - `audit-suspicious --limit 10`
+   - `report` + 目标关键词搜索
+4. `miit:fetch_error` 单独排查，不和 report 收口混线。
+5. 暂不建议：
+   - 扩题材库
+   - 动 `event_merge / analysis / source enable`
+   - 继续压真实风险公告、真实并购、真实诉讼进展
+   - 把 `hkex staged` 开进 `--source all`
+
 ## Update 2026-04-27 (latest handoff before push)
 - 当前真实主线仍是 `global-multisource-mainline`，重点是 `--source all` 下 report 尾噪收口，不扩题材库，不动 `event_merge / analysis`
 - 本轮已继续压掉：

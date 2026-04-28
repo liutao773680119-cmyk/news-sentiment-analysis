@@ -1,5 +1,33 @@
 # Findings & Decisions
 
+## Update 2026-04-28 (latest)
+- 当前最有价值动作仍是 `text_report` 层的最窄尾噪收口，不是改 `event_merge / analysis`
+- 本轮新增确认：
+  - `audit-suspicious=0` 不代表 report 头部一定干净；本轮 `audit=0` 后仍在 report 头部看到整族年报季材料和弱问答
+  - report 时间窗不能用全部事件直接计算；低信号新材料也会抬高 `latest_batch_time`，导致测试里的旧正例被整体过滤
+  - 带题材的 `cls/stcn market_move` 不能一刀切进 A股强催化；A股板块/概念/涨停类可回 A股层，海外单股主题异动应留 `全球市场与商品`
+  - 当前 `irm_cninfo` 弱问答仍会同时出现 question-only 和带回复两类，必须分开按最窄 title/reply 组合处理
+  - 年报季 `sse/szse` 材料会被题材映射抬高，例如工程机械、房地产；材料口径仍应在 report 层过滤
+- 本轮已收掉的低信号家族：
+  - `irm_cninfo`：股价落后/并购计划、人形机器人液冷方案但暂未应用、毛利率抱怨和改善计划、减持原因但回复为未减持
+  - `sse/szse`：董事会决议、会计政策变更、计提减值、募集资金专项报告、ESG 报告、审计委员会履职、回购报告书、出售已回购股份计划、回购注销限制性股票材料
+- 本轮明确保留：
+  - `中远海能` 子公司收购并吸收合并
+  - `*ST新研` 撤销退市风险警示申请
+  - `*ST西发 / ST长方` 风险警示相关公告
+  - `ST长方` 庭外重组提示
+  - `惠天热电` 重大诉讼进展
+  - `诚迈科技` 签署合作协议
+- 当前验证结论：
+  - `live-smoke --source all` 已跑完，但 `miit:fetch_error`
+  - `tests/test_text_report_sorting.py` -> `231 passed`
+  - `audit-suspicious=0`
+  - 本轮目标关键词已从 `latest_report.txt` 退出
+- 下一步判断：
+  - 当前适合停手交接或提交
+  - 下一轮不要沿当前头部继续下刀；先只读看是否出现新的整族弱样本
+  - `miit:fetch_error` 需要单独作为 collector/source 问题排查
+
 ## Update 2026-04-27 (latest)
 - 当前最有价值的动作仍是 `text_report` 层的最窄尾噪收口，而不是继续改 `event_merge / analysis`
 - 本轮新确认并已收掉的低信号家族：

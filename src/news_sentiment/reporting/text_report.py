@@ -169,6 +169,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "前十名无限售条件股东持股情况",
     "库存股减少公司注册资本",
     "注销回购股份并减少注册资本",
+    "回购公司股份用于注销的结果",
     "关联交易进展",
     "考核管理办法",
     "回购报告书",
@@ -189,13 +190,18 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "受让协议",
     "未弥补的亏损达实收股本总额三分之一",
     "募集资金存放、管理与实际使用情况的专项报告",
+    "募集资金存放、管理与使用情况的专项报告",
     "房地产业务专项自查报告",
     "年度薪酬方案",
     "提质增效重回报",
     "回购股份价格上限",
+    "回购公司部分社会公众股份的报告书",
+    "出售已回购股份计划",
     "摊薄即期回报的风险提示及填补回报措施",
     "相关主体承诺",
     "互动易平台信息发布及回复内部审核制度",
+    "会计政策变更",
+    "计提减值准备",
     "风险管理制度",
     "风险控制指标报告",
     "风险评估说明",
@@ -204,10 +210,13 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "行政处罚决定书",
     "年度报告摘要",
     "年度报告",
+    "年度环境、社会与治理（ESG）报告",
+    "Environmental,Social,andGovernance(ESG)Report",
     "独立董事候选人声明与承诺",
     "独立董事提名人声明与承诺",
     "内部控制审计报告",
     "年度审计报告",
+    "审计委员会履职情况报告",
     "监管措施或处罚及整改情况",
     "上市投资风险特别公告",
     "风险提示公告",
@@ -251,6 +260,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "回购注销限制性股票的减资公告",
     "回购注销完成",
     "回购注销及作废",
+    "回购注销2023年限制性股票激励计划",
     "暨通知债权人",
     "回购注销部分限制性股票",
     "作废部分限制性股票",
@@ -281,6 +291,8 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "预留权益失效",
 )
 LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS = (
+    "会议决议公告",
+    "董事会决议公告",
     "履行监督职责情况的报告",
     "审计与风险管理委员会",
     "审计与风险委员会",
@@ -1692,6 +1704,11 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("有什么差异化优势" in title and "海外合作机会" in title)
             or ("送样" in title and "小批量订单" in title and "放量节奏" in title)
             or ("批量供货是否持续" in title and "占比是否超过90%" in title)
+            or ("涨幅远远落后" in title and "有没有并购计划" in title)
+            or ("是否计划开发" in title and "人形机器人" in title and "液冷方案" in title)
+            or ("毛利率" in title and "改善计划" in title)
+            or ("股价跌跌不休" in title and "资产注入" in title)
+            or ("大股东及高管持续减持的原因" in title)
         )
 
     return (
@@ -1720,6 +1737,8 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("小批量出货" in title and "高度关注" in text and "充满信心" in text)
         or ("为什么没发公告" in title and "未达到披露标准" in text and "具备相关运营能力" in text)
         or ("是否提供" in title and "收入占其总体业务收入比重较低" in text)
+        or ("是否计划开发" in title and "人形机器人" in title and "暂未应用于人形机器人领域" in text)
+        or ("大股东及高管持续减持的原因" in title and "近期未减持公司股份" in text)
         or ("对赌协议" in title and "请参见已披露年报承诺事项中的计算方法" in text)
         or ("长单锁定比例" in title and "LTA" in text and "MOU" in text and "存货信息" in text)
         or ("营收占比目标" in title and "进入" in text and "供应链体系" in text and "定期报告为准" in text)
@@ -1878,11 +1897,26 @@ def _is_ashare_core_index_market_move(event: Event, analysis: EventAnalysis) -> 
     return any(keyword in title for keyword in A_SHARE_CORE_INDEX_KEYWORDS)
 
 
+def _is_ashare_themed_market_move(event: Event, analysis: EventAnalysis) -> bool:
+    if not (
+        event.source in ASHARE_FAST_NEWS_SOURCES
+        and event.event_type == "fast_news"
+        and event.event_subtype == "market_move"
+        and analysis.themes
+    ):
+        return False
+
+    title = event.canonical_title
+    return any(keyword in title for keyword in ("概念", "板块", "涨停", "20cm"))
+
+
 def _report_section(event: Event, analysis: EventAnalysis) -> str:
     if event.source in DOMESTIC_POLICY_SOURCES:
         return "国内政策与监管"
     if event.event_subtype == "policy_signal" and event.source in ASHARE_FAST_NEWS_SOURCES:
         return "国内政策与监管"
+    if _is_ashare_themed_market_move(event, analysis):
+        return "A股强催化"
     if event.source in GLOBAL_POLICY_SOURCES:
         return "全球政策与监管"
     if event.source.startswith(GLOBAL_MARKET_SOURCE_PREFIXES):
@@ -1905,9 +1939,17 @@ def write_text_report(
 ) -> None:
     event_map = {event.event_id: event for event in events}
     lines: list[str] = []
+    market_relevant_analyses = [
+        analysis
+        for analysis in analyses
+        if analysis.triggered
+        and analysis.event_id in event_map
+        and _is_market_relevant(event_map[analysis.event_id], analysis)
+    ]
     event_times = {
         event.event_id: parsed
-        for event in events
+        for analysis in market_relevant_analyses
+        for event in [event_map[analysis.event_id]]
         for parsed in [_parse_event_timestamp(event)]
         if parsed is not None
     }
@@ -1920,11 +1962,8 @@ def write_text_report(
     ranked_analyses = sorted(
         [
             analysis
-            for analysis in analyses
-            if analysis.triggered
-            and analysis.event_id in event_map
-            and _is_market_relevant(event_map[analysis.event_id], analysis)
-            and (
+            for analysis in market_relevant_analyses
+            if (
                 cutoff_time is None
                 or analysis.event_id not in event_times
                 or event_times[analysis.event_id] >= cutoff_time
