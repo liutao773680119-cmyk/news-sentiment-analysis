@@ -143,13 +143,16 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "股东计划减持公司股份的预披露公告",
     "减持股份计划公告",
     "减持计划的预披露公告",
+    "减持计划期限届满",
     "减持计划完成",
     "减持计划实施完成",
     "减持计划期限届满暨实施情况",
     "提前终止减持计划暨减持结果",
+    "减持股份计划期限届满",
     "减持股份计划期限届满暨实施情况",
     "减持期限届满未减持股份",
     "减持股份结果",
+    "股份减持计划实施结果",
     "股份减持完成",
     "减持公司股份比例触及",
     "减持股份触及",
@@ -182,6 +185,10 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "金融保险服务框架协议",
     "履职情况评估报告",
     "利润分配预案",
+    "利润分配方案公告",
+    "股东会决议公告",
+    "股东大会决议公告",
+    "股票增值权",
     "营业收入扣除事项的专项核查意见",
     "股票交易异常波动公告",
     "股票交易风险提示暨停牌核查",
@@ -267,6 +274,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "回购注销限制性股票的减资公告",
     "回购注销完成",
     "回购注销及作废",
+    "回购注销2022年限制性股票激励计划",
     "回购注销2023年限制性股票激励计划",
     "暨通知债权人",
     "回购注销部分限制性股票",
@@ -1468,7 +1476,7 @@ def _is_low_signal_cls_single_stock_limit_down_response(
 
 def _is_low_signal_cls_overseas_single_stock_acquisition(event: Event, analysis: EventAnalysis) -> bool:
     if not (
-        event.source == "cls"
+        event.source in {"cls", "stcn"}
         and event.event_type == "fast_news"
         and event.event_subtype == "acquisition_restructuring"
         and not analysis.themes
@@ -1476,7 +1484,11 @@ def _is_low_signal_cls_overseas_single_stock_acquisition(event: Event, analysis:
         return False
 
     title = event.canonical_title
-    return "股价上涨" in title and "收购" in title and "亿美元" in title
+    return (
+        ("股价上涨" in title and "收购" in title and "亿美元" in title)
+        or ("意大利" in title and "美国上市公司" in title and "亿美元收购" in title)
+        or ("耀才证券" in title and "蚂蚁控股收购交易完成" in title and "香港客户" in title)
+    )
 
 
 def _is_low_signal_cls_science_feature_story(event: Event, text: str) -> bool:
@@ -1791,6 +1803,8 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("储能电站项目资产化" in title and "提前回笼资金" in title and "高负债" in title)
             or ("半导体系统" in title and "多少nm以下" in title and "多少层以上" in title)
             or ("中科宇航完成IPO辅导" in title and "参股的计划" in title)
+            or ("是否参股" in title and "机器人" in title)
+            or ("股价跌" in title and "为什么不回购股份" in title and "市值管理" in title)
         )
 
     return (
@@ -1855,6 +1869,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("注册上市进行到了什么阶段" in title and "预计何时获批上市" in title and "目前该产品处于审评审批中" in text)
         or ("高端订单流失的风险" in title and "暂无项目涉及" in text and "相关技术储备及项目进展请以公司公开披露信息为准" in text)
         or ("资产注入" in title and "重组" in title and "满足披露条件" in text and "相关公告" in text)
+        or ("存储行业" in title and "涨价周期" in title and "订单能见度" in title and "定期报告为准" in text)
     )
 
 
@@ -1875,6 +1890,9 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
         ("尾矿" in title and "开发提取" in title)
         or ("尾矿处理技术" in title and "哪些尾矿" in title)
         or ("千帆星座" in title and "订单或合作进展" in title)
+        or ("服务器电源测试领域" in title and "客户导入和订单预期" in title)
+        or ("高管" in title and "股价大跌" in title and "增持或增资计划" in title)
+        or ("订单总额是否可公开" in title and "扩产计划" in title)
     ):
         return True
     if all(marker not in text for marker in ("回复：", "回复:")):
