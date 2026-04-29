@@ -175,9 +175,11 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "考核管理办法",
     "回购报告书",
     "信用评级报告",
+    "临时受托管理事务报告",
     "股东质询建议函",
     "金融服务协议及相关风险控制措施执行情况的核查意见",
     "金融服务协议",
+    "金融保险服务框架协议",
     "履职情况评估报告",
     "利润分配预案",
     "营业收入扣除事项的专项核查意见",
@@ -662,6 +664,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_stcn_industry_prosperity_story(event, text):
         return False
     if _is_low_signal_stcn_operational_update(event, text):
+        return False
+    if _is_low_signal_stcn_business_registration_story(event, text):
         return False
     if _is_low_signal_stcn_interactive_order_plenty_update(event, text):
         return False
@@ -1433,14 +1437,16 @@ def _is_low_signal_cls_overseas_themed_market_move(event: Event) -> bool:
 
 def _is_low_signal_cls_world_bank_energy_forecast(event: Event) -> bool:
     if not (
-        event.source == "cls"
+        event.source in {"cls", "stcn"}
         and event.event_type == "fast_news"
         and event.event_subtype == "company_update"
     ):
         return False
 
     title = event.canonical_title
-    return title.startswith("世界银行：") and "能源价格" in title and "预计" in title
+    return title.startswith("世界银行：") and "能源价格" in title and any(
+        keyword in title for keyword in ("预计", "或上涨")
+    )
 
 
 def _is_low_signal_cls_single_stock_limit_down_response(
@@ -1543,6 +1549,23 @@ def _is_low_signal_stcn_operational_update(event: Event, text: str) -> bool:
         return False
 
     return any(keyword in text for keyword in LOW_SIGNAL_STCN_OPERATIONAL_UPDATE_KEYWORDS)
+
+
+def _is_low_signal_stcn_business_registration_story(event: Event, text: str) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "成立" in title
+        and "科技公司" in title
+        and "机器人业务" in title
+        and any(keyword in text for keyword in ("企查查APP显示", "经营范围"))
+    )
 
 
 def _is_low_signal_stcn_interactive_order_plenty_update(event: Event, text: str) -> bool:
@@ -1764,6 +1787,10 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("毛利率" in title and "改善计划" in title)
             or ("股价跌跌不休" in title and "资产注入" in title)
             or ("大股东及高管持续减持的原因" in title)
+            or ("碳酸锂价格" in title and "扩大产能利用率" in title and "产能利用率达到了多少" in title)
+            or ("储能电站项目资产化" in title and "提前回笼资金" in title and "高负债" in title)
+            or ("半导体系统" in title and "多少nm以下" in title and "多少层以上" in title)
+            or ("中科宇航完成IPO辅导" in title and "参股的计划" in title)
         )
 
     return (
@@ -1843,6 +1870,12 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
     if "自律监管指引第7号-回购股份" in text and "您的意见我们已收悉" in text:
         return True
     if "回购的股份进行注销" in text and "您的意见我们已收悉" in text:
+        return True
+    if (
+        ("尾矿" in title and "开发提取" in title)
+        or ("尾矿处理技术" in title and "哪些尾矿" in title)
+        or ("千帆星座" in title and "订单或合作进展" in title)
+    ):
         return True
     if all(marker not in text for marker in ("回复：", "回复:")):
         return (
