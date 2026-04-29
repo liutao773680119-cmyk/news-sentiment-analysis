@@ -1,5 +1,62 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-04-29)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `live report 头部弱样本收口 + audit 同步 + 提交`
+- Files Changed:
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+- Completed This Session:
+  - 按接手规则先只读复核 `task_plan.md / progress.md / findings.md / README.md` 和 worktree 状态
+  - 先看 `data/reports/latest_report.txt`，确认 2026-04-29 report 头部已有新一批弱样本回流，不能直接停手
+  - 按红灯测试 -> 最窄规则 -> 验证推进，收掉：
+    - `cls`：美股光通信板块开盘普跌、世界银行能源价格预测、`【财联社早知道】我国最大规模科学智能集群...` 匿名拼盘稿
+    - `irm_cninfo`：中工国际算电协同出海泛问答
+    - `sse/szse/cninfo`：股票期权注销/授予价格调整、减持股份触及比例、董事会风险控制委员会工作细则、股权转让进展及补充协议、累计新增诉讼/仲裁材料
+    - `stcn`：擎天租 Pre-A 融资机器人应用交付能力泛稿
+  - `audit-suspicious` 同步补齐累计新增诉讼材料与私营机器人融资泛稿豁免，避免 report 和 audit 两套口径漂移
+  - 已提交代码修复：
+    - `1fe1a12 fix: filter latest live report noise`
+- Current Verification:
+  - `PYTHONPATH=src ./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `232 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m pytest tests/test_audit_suspicious.py -q` -> `24 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m py_compile src/news_sentiment/cli.py src/news_sentiment/reporting/text_report.py tests/test_audit_suspicious.py tests/test_text_report_sorting.py` -> 通过
+  - `git diff --check` -> 通过
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=2003 normalized_news=2003 events=966 analyses=966 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` -> 通过
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `latest_report.txt` 目标弱样本搜索 -> 无命中
+- Current Report Head After Refresh:
+  - 头部主要为退市风险/其他风险警示公告
+  - `凯撒旅业：关于全资子公司收购福建省凯撒寰球旅游有限公司股权的进展暨关联交易公告`
+  - 当前不建议继续压这些真实风险/并购样本
+- Open TODO:
+  - 当前适合停手交接，不继续为了更短头部补词
+  - 下一轮先只读查看 `latest_report.txt`，确认是否出现新的整族弱样本
+  - 如继续收口，必须同步补 `text_report` 和 `audit-suspicious` 的红灯测试
+  - 若用户要推远端，再执行 `git status --short`、确认分支和远端后 push
+- Risks/Blockers:
+  - `urllib3 NotOpenSSLWarning` 仍会出现，但本轮命令退出码均为 0
+  - live 样本会随时间滚动；不要复用本轮头部样本直接下规则
+  - 继续向下压退市风险公告/真实并购进展，过拟合风险高
+- Next First Command:
+  - `sed -n '1,180p' data/reports/latest_report.txt`
+- Known Avoidances:
+  - 不要把 `audit-suspicious=0` 当成 report 头部已干净；必须直接看 report
+  - 不要只改 report 过滤而忘记 audit 豁免；两套逻辑要同步
+  - 不要继续压当前退市风险/真实并购样本
+  - 不要扩题材库或动 `event_merge / analysis / source enable`
+
 ## Latest Handoff Snapshot (2026-04-28)
 - Task-ID:
   - `global-multisource-mainline`

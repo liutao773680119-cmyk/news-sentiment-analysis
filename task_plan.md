@@ -1,5 +1,62 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-04-29 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮从 2026-04-28 交接继续，只读复核后发现：
+  - `audit-suspicious=0`
+  - 但 `latest_report.txt` 头部又出现新一批弱样本，不能直接停手
+- 本轮已处理：
+  - `cls` 海外/栏目弱样本：
+    - 美股光通信板块开盘普跌
+    - 世界银行能源价格预测
+    - `【财联社早知道】我国最大规模科学智能集群...` 匿名拼盘稿
+  - `irm_cninfo` 弱问答：
+    - 中工国际算电协同出海泛问答
+  - 交易所/巨潮材料：
+    - 股票期权注销/授予价格调整
+    - 减持股份触及比例
+    - 董事会风险控制委员会工作细则
+    - 股权转让交易进展及签署补充协议
+    - 累计新增诉讼/仲裁材料
+  - `stcn` 泛稿：
+    - 擎天租 Pre-A 融资机器人应用交付能力
+  - 同步补了 `text_report` 与 `audit-suspicious` 测试，避免两套口径漂移
+- 当前验证：
+  - `tests/test_text_report_sorting.py -q` -> `232 passed`
+  - `tests/test_audit_suspicious.py -q` -> `24 passed`
+  - `py_compile` -> 通过
+  - `git diff --check` -> 通过
+  - `live-smoke --source all` -> `raw_news=2003 normalized_news=2003 events=966 analyses=966 failed_sources=none`
+  - `report` -> 通过
+  - `audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `latest_report.txt` 目标弱样本搜索 -> 无命中
+- 当前提交：
+  - `1fe1a12 fix: filter latest live report noise`
+- 当前结论：
+  - report 头部已回到退市风险/其他风险警示及少量真实并购进展
+  - 当前适合停手交接，不建议继续为了“更短头部”补词
+- 当前风险：
+  - `urllib3 NotOpenSSLWarning` 仍会出现，但命令退出码为 0
+  - live 样本滚动很快，下一轮不能复用本轮头部直接补规则
+
+## Immediate Next Steps (2026-04-29 latest)
+1. 先只读查看：
+   - `sed -n '1,180p' data/reports/latest_report.txt`
+2. 再跑：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+3. 如果 report 头部仍是退市风险/真实并购进展，优先停手，不继续压头部。
+4. 如果出现新弱样本，必须按：
+   - 红灯测试
+   - 最窄规则
+   - `tests/test_text_report_sorting.py`
+   - 如涉及巡检，同步 `tests/test_audit_suspicious.py`
+   - `report` + `audit-suspicious`
+   - 必要时 `live-smoke --source all`
+5. 暂不建议：
+   - 扩题材库
+   - 动 `event_merge / analysis / source enable`
+   - 继续压真实风险公告、真实并购、真实诉讼/风险警示进展
+
 ## Update 2026-04-28 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮从交接指定验收继续推进：

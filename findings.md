@@ -1,5 +1,31 @@
 # Findings & Decisions
 
+## Update 2026-04-29 (latest)
+- 当前最有价值动作仍是 `text_report` 层最窄尾噪收口；本轮没有动 `event_merge / analysis / source enable`
+- 本轮新增确认：
+  - `audit-suspicious=0` 后仍可能有 report 头部弱样本；先看 report 仍是必要步骤
+  - `live-smoke --source all` 会刷新当天样本，刷新后还可能出现新的 audit 命中；不能只看第一次 report 刷新
+  - report 过滤和 `audit-suspicious` 是两套逻辑；像 `累计新增诉讼`、`Pre-A 融资机器人泛稿` 必须同步处理
+  - `【财联社早知道】` 仍不能一刀切；本轮只压 `机构/分析师/这家公司` 这类匿名拼盘口径
+  - 退市风险/其他风险警示头部目前属于可保留样本，不建议继续为了头部更短继续压
+- 本轮已收掉的低信号家族：
+  - `cls`：海外板块开盘普跌、世界银行能源预测、匿名拼盘型 `财联社早知道`
+  - `irm_cninfo`：算电协同出海泛问答
+  - `sse/szse/cninfo`：股权激励材料、减持触及比例、治理制度、股权转让补充协议、累计新增诉讼/仲裁材料
+  - `stcn`：私营平台 Pre-A 融资 + 机器人应用交付能力泛稿
+- 本轮明确保留：
+  - 退市风险/其他风险警示公告
+  - `凯撒旅业` 全资子公司收购股权进展暨关联交易
+- 当前验证结论：
+  - `tests/test_text_report_sorting.py` -> `232 passed`
+  - `tests/test_audit_suspicious.py` -> `24 passed`
+  - `live-smoke --source all` -> `failed_sources=none`
+  - `audit-suspicious=0`
+  - 本轮目标关键词已从 `latest_report.txt` 退出
+- 下一步判断：
+  - 当前适合停手交接
+  - 下一轮先只读复核 report 头部和 audit；不要沿本轮样本继续过拟合
+
 ## Update 2026-04-28 (latest)
 - 当前最有价值动作仍是 `text_report` 层的最窄尾噪收口，不是改 `event_merge / analysis`
 - 本轮新增确认：
