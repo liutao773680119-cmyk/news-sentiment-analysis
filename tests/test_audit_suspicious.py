@@ -721,6 +721,48 @@ def test_audit_suspicious_skips_major_litigation_arbitration_progress_disclosure
     assert "中化岩土：关于重大诉讼、仲裁情况进展的公告" not in output
 
 
+def test_audit_suspicious_skips_cumulative_new_litigation_arbitration_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cumulative-new-litigation",
+                first_seen_at="2026-04-29T00:00:00+08:00",
+                last_seen_at="2026-04-29T00:00:00+08:00",
+                canonical_title="雅博股份：关于累计新增诉讼、仲裁情况的公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-29T00:00:00+08:00",
+                url="https://example.com/cumulative-new-litigation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cumulative-new-litigation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "雅博股份：关于累计新增诉讼、仲裁情况的公告" not in output
+
+
 def test_audit_suspicious_skips_equity_sale_progress_with_litigation_disclosure(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -881,6 +923,48 @@ def test_audit_suspicious_skips_cls_general_fast_news_with_theme(tmp_path, monke
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "隔夜全球要闻" not in output
+
+
+def test_audit_suspicious_skips_private_robot_financing_general_fast_news(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-private-robot-financing",
+                first_seen_at="2026-04-29T09:24:51+08:00",
+                last_seen_at="2026-04-29T09:24:51+08:00",
+                canonical_title="擎天租完成数亿元Pre-A轮融资 提升平台在多城市、多场景、多品类机器人应用中的交付能力",
+                summary="擎天租完成数亿元Pre-A轮融资。",
+                source="stcn",
+                published_at="2026-04-29T09:24:51+08:00",
+                url="https://example.com/private-robot-financing",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-private-robot-financing",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "擎天租完成数亿元Pre-A轮融资" not in output
 
 
 def test_audit_suspicious_skips_stcn_fund_manager_investment_opportunity_story(

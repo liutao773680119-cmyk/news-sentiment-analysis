@@ -152,6 +152,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持股份结果",
     "股份减持完成",
     "减持公司股份比例触及",
+    "减持股份触及",
     "终止股份减持计划",
     "提前终止股份减持计划",
     "回购实施结果",
@@ -231,9 +232,11 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "涉及诉讼进展",
     "重大诉讼、仲裁情况进展",
     "累计诉讼",
+    "累计新增诉讼",
     "失信被执行人",
     "轮候冻结",
     "强制执行完成",
+    "交易进展及签署补充协议",
 )
 LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "考核管理办法",
@@ -244,6 +247,8 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "草案摘要",
     "注销首期股票期权激励计划部分股票期权",
     "注销2024年股票期权激励计划部分股票期权",
+    "部分已授予的股票期权",
+    "调整2023年限制性股票激励计划授予价格",
     "解锁条件成就",
     "解除限售条件",
     "符合行权条件",
@@ -296,6 +301,7 @@ LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS = (
     "履行监督职责情况的报告",
     "审计与风险管理委员会",
     "审计与风险委员会",
+    "董事会风险控制委员会工作细则",
     "独立性情况的专项意见",
     "授权董事会审议股份回购事项",
     "股票价格波动情况的说明",
@@ -420,6 +426,7 @@ LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS = (
     "现货白银",
     "美股光通信股走势分化",
     "【财联社早知道】机构预估",
+    "【财联社早知道】我国最大规模科学智能集群",
 )
 LOW_SIGNAL_DOMESTIC_FUTURES_MARKET_MOVE_KEYWORDS = (
     "国内期货市场夜盘收盘",
@@ -674,6 +681,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_robot_competition_story(event, text):
         return False
+    if _is_low_signal_stcn_private_robot_financing_story(event):
+        return False
     if _is_low_signal_stcn_buyback_flash(event):
         return False
     if _is_low_signal_miit_policy_meeting(event, analysis, text):
@@ -707,6 +716,10 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_cls_investment_sentiment_roundup(event, text):
         return False
     if _is_low_signal_cls_general_fast_news_market_brief(event):
+        return False
+    if _is_low_signal_cls_overseas_themed_market_move(event):
+        return False
+    if _is_low_signal_cls_world_bank_energy_forecast(event):
         return False
     if _is_low_signal_cls_single_stock_limit_down_response(event, analysis, text):
         return False
@@ -1394,7 +1407,7 @@ def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
     if not (
         event.source == "cls"
         and event.event_type == "fast_news"
-        and event.event_subtype in {"general_fast_news", "company_update"}
+        and event.event_subtype in {"general_fast_news", "company_update", "business_guidance"}
     ):
         return False
 
@@ -1402,6 +1415,32 @@ def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
         keyword in event.canonical_title
         for keyword in LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS
     )
+
+
+def _is_low_signal_cls_overseas_themed_market_move(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "market_move"
+    ):
+        return False
+
+    title = event.canonical_title
+    return "美股" in title and "板块" in title and "开盘" in title and any(
+        keyword in title for keyword in ("普跌", "普涨")
+    )
+
+
+def _is_low_signal_cls_world_bank_energy_forecast(event: Event) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+    ):
+        return False
+
+    title = event.canonical_title
+    return title.startswith("世界银行：") and "能源价格" in title and "预计" in title
 
 
 def _is_low_signal_cls_single_stock_limit_down_response(
@@ -1634,6 +1673,22 @@ def _is_low_signal_robot_competition_story(event: Event, text: str) -> bool:
     )
 
 
+def _is_low_signal_stcn_private_robot_financing_story(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "Pre-A轮融资" in title
+        and "机器人应用" in title
+        and "交付能力" in title
+    )
+
+
 def _is_low_signal_miit_policy_meeting(event: Event, analysis: EventAnalysis, text: str) -> bool:
     if not (
         event.source == "miit"
@@ -1767,6 +1822,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("继续回购股份" in title and "高度重视股东回报" in text and "增加分红频次" in text and "注销完成了以集中竞价交易方式回购的股份" in text)
         or ("定增失败了嘛" in title and "定增工作正常进行中" in text and "后续相关报告" in text)
         or ("进展如何" in title and "后续发布的定期报告或临时公告为准" in text)
+        or ("算电协同出海" in title and "如何落实落地" in title and "感谢您的关注" in text)
         or ("主要应用于机器人的哪个部分" in title and "请详见公司同类问题的回复" in text)
         or ("您的建议已收悉" in text and "感谢您的关注" in text)
         or ("注册上市进行到了什么阶段" in title and "预计何时获批上市" in title and "目前该产品处于审评审批中" in text)

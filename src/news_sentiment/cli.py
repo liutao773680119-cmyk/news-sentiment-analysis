@@ -75,6 +75,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "提起诉讼的进展公告",
     "进展暨公司涉及诉讼事项的公告",
     "累计诉讼",
+    "累计新增诉讼",
     "重大诉讼公告",
     "重大诉讼的公告",
     "重大诉讼、仲裁情况进展",
@@ -345,6 +346,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
+        if _is_low_signal_private_robot_financing_story_candidate(event):
+            return None
         return "general_fast_news_with_theme"
     if (
         event.event_type == "fast_news"
@@ -406,6 +409,22 @@ def _is_low_signal_robot_competition_story_candidate(event: Event) -> bool:
             any(keyword in text for keyword in ("人形机器人马拉松", "排位赛"))
             and any(keyword in text for keyword in ("世界纪录", "按比例计算"))
         )
+    )
+
+
+def _is_low_signal_private_robot_financing_story_candidate(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "Pre-A轮融资" in title
+        and "机器人应用" in title
+        and "交付能力" in title
     )
 
 

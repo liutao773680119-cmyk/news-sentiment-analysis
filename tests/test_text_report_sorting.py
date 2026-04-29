@@ -15038,3 +15038,183 @@ def test_write_text_report_filters_domestic_commodity_night_session_variant(tmp_
 
     assert "国内商品期市夜盘收盘 合成橡胶跌超1%" not in content
     assert "华大基因：关于收购重庆新一产生命科技有限公司100%股权暨关联交易的公告" in content
+
+
+def test_write_text_report_filters_latest_low_signal_live_head_noise(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-keep-delisting-risk",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="*ST新研：关于申请撤销公司股票退市风险警示的公告",
+            summary="公司申请撤销公司股票退市风险警示。",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/keep-delisting-risk",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+        Event(
+            event_id="event-cls-overseas-optical-market-move",
+            first_seen_at="2026-04-28T21:37:28+08:00",
+            last_seen_at="2026-04-28T21:37:28+08:00",
+            canonical_title="美股光通信板块开盘普跌 Coherent跌超4%",
+            summary="财联社4月28日电，美股光通信板块开盘普跌，Coherent跌超4%。",
+            source="cls",
+            published_at="2026-04-28T21:37:28+08:00",
+            url="https://example.com/cls-overseas-optical-market-move",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+        Event(
+            event_id="event-cls-world-bank-energy-forecast",
+            first_seen_at="2026-04-28T21:34:02+08:00",
+            last_seen_at="2026-04-28T21:34:02+08:00",
+            canonical_title="世界银行：如果中东战争的最严重干扰在五月结束 预计2026年能源价格将上涨24%",
+            summary="财联社4月28日电，世界银行发布能源价格预测。",
+            source="cls",
+            published_at="2026-04-28T21:34:02+08:00",
+            url="https://example.com/cls-world-bank-energy-forecast",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-cls-morning-brief-anonymous-pick",
+            first_seen_at="2026-04-28T21:30:30+08:00",
+            last_seen_at="2026-04-28T21:30:30+08:00",
+            canonical_title="【财联社早知道】我国最大规模科学智能集群接入全国一体化算力网，分析师称AI算力仍将是科技巨头竞相争抢的战略性稀缺资源，这家公司的算力网调度与市场运营平台已实现东数西算枢纽等供给方的标准化接入",
+            summary="①我国最大规模科学智能集群接入全国一体化算力网；②分析师称AI算力仍是战略性稀缺资源；③这家公司算力网调度与市场运营平台已实现供给方标准化接入。",
+            source="cls",
+            published_at="2026-04-28T21:30:30+08:00",
+            url="https://example.com/cls-morning-brief-anonymous-pick-latest",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-cninfo-investor-qa",
+            first_seen_at="2026-04-28T21:31:33+08:00",
+            last_seen_at="2026-04-28T21:31:33+08:00",
+            canonical_title="中工国际：您好、国机集团领导来公司调研、其中提出算电协同出海、麻烦请解答：公司对于算电协同出海有哪些理解与认识？如何落实落地？公司在算电协同有哪些先发优势？",
+            summary="问题：公司对于算电协同出海有哪些理解与认识？ 回复：感谢您的关注，公司将围绕主营业务推进相关工作。",
+            source="irm_cninfo",
+            published_at="2026-04-28T21:31:33+08:00",
+            url="https://example.com/irm-cninfo-investor-qa",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-szse-option-cancel",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="直真科技：关于注销2023年股票期权激励计划部分已授予的股票期权的公告",
+            summary="公司注销2023年股票期权激励计划部分已授予的股票期权。",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/szse-option-cancel",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-szse-shareholder-reduction",
+            first_seen_at="2026-04-28T00:00:00+08:00",
+            last_seen_at="2026-04-28T00:00:00+08:00",
+            canonical_title="视觉中国：关于实际控制人减持股份触及1%及5%整数倍的公告",
+            summary="公司披露实际控制人减持股份触及1%及5%整数倍。",
+            source="szse",
+            published_at="2026-04-28T00:00:00+08:00",
+            url="https://example.com/szse-shareholder-reduction",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-risk-control-rules",
+            first_seen_at="2026-04-28T00:00:00+08:00",
+            last_seen_at="2026-04-28T00:00:00+08:00",
+            canonical_title="宁波华翔：董事会风险控制委员会工作细则",
+            summary="公司披露董事会风险控制委员会工作细则。",
+            source="szse",
+            published_at="2026-04-28T00:00:00+08:00",
+            url="https://example.com/szse-risk-control-rules",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-szse-transfer-progress-supplement",
+            first_seen_at="2026-04-28T00:00:00+08:00",
+            last_seen_at="2026-04-28T00:00:00+08:00",
+            canonical_title="祖名股份：关于与北京市香香唯一食品厂及其一致行动人签署股权转让协议的交易进展及签署补充协议的公告",
+            summary="公司披露股权转让协议交易进展及签署补充协议。",
+            source="szse",
+            published_at="2026-04-28T00:00:00+08:00",
+            url="https://example.com/szse-transfer-progress-supplement",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-cninfo-equity-incentive-price-adjustment",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="江苏微导纳米科技股份有限公司关于调整2023年限制性股票激励计划授予价格的公告",
+            summary="公司调整2023年限制性股票激励计划授予价格。",
+            source="cninfo",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/cninfo-equity-incentive-price-adjustment",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-stcn-private-robot-financing",
+            first_seen_at="2026-04-29T09:24:51+08:00",
+            last_seen_at="2026-04-29T09:24:51+08:00",
+            canonical_title="擎天租完成数亿元Pre-A轮融资 提升平台在多城市、多场景、多品类机器人应用中的交付能力",
+            summary="擎天租完成数亿元Pre-A轮融资，提升平台在多城市、多场景、多品类机器人应用中的交付能力。",
+            source="stcn",
+            published_at="2026-04-29T09:24:51+08:00",
+            url="https://example.com/stcn-private-robot-financing",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-szse-cumulative-litigation",
+            first_seen_at="2026-04-29T00:00:00+08:00",
+            last_seen_at="2026-04-29T00:00:00+08:00",
+            canonical_title="雅博股份：关于累计新增诉讼、仲裁情况的公告",
+            summary="公司披露累计新增诉讼、仲裁情况。",
+            source="szse",
+            published_at="2026-04-29T00:00:00+08:00",
+            url="https://example.com/szse-cumulative-litigation",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-keep-delisting-risk", direction="bullish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-cls-overseas-optical-market-move", direction="neutral", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-cls-world-bank-energy-forecast", direction="neutral", impact_score=99.3, reasoning="rule", themes=["油气"], triggered=True),
+        EventAnalysis(event_id="event-cls-morning-brief-anonymous-pick", direction="bullish", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-cninfo-investor-qa", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-szse-option-cancel", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-shareholder-reduction", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-risk-control-rules", direction="bearish", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-transfer-progress-supplement", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-cninfo-equity-incentive-price-adjustment", direction="bearish", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-stcn-private-robot-financing", direction="neutral", impact_score=79.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-szse-cumulative-litigation", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "*ST新研：关于申请撤销公司股票退市风险警示的公告" in content
+    assert "美股光通信板块开盘普跌 Coherent跌超4%" not in content
+    assert "世界银行：如果中东战争的最严重干扰在五月结束" not in content
+    assert "【财联社早知道】我国最大规模科学智能集群接入全国一体化算力网" not in content
+    assert "中工国际：您好、国机集团领导来公司调研" not in content
+    assert "直真科技：关于注销2023年股票期权激励计划部分已授予的股票期权的公告" not in content
+    assert "视觉中国：关于实际控制人减持股份触及1%及5%整数倍的公告" not in content
+    assert "宁波华翔：董事会风险控制委员会工作细则" not in content
+    assert "祖名股份：关于与北京市香香唯一食品厂及其一致行动人签署股权转让协议的交易进展及签署补充协议的公告" not in content
+    assert "江苏微导纳米科技股份有限公司关于调整2023年限制性股票激励计划授予价格的公告" not in content
+    assert "擎天租完成数亿元Pre-A轮融资" not in content
+    assert "雅博股份：关于累计新增诉讼、仲裁情况的公告" not in content
