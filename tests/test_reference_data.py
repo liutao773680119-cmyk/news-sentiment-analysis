@@ -15,3 +15,4 @@ def test_load_source_definitions_include_http_runtime_settings() -> None:
     assert sources["cninfo"].user_agent
     assert sources["cninfo"].retry_count == 2
     assert sources["cninfo"].backoff_seconds == 1.0
+    assert sources["cls"].no_proxy_hosts == ("www.cls.cn", "cls.cn")

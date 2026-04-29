@@ -39,6 +39,7 @@ class SourceDefinition:
     priority: int
     timeout_seconds: int
     user_agent: str
+    no_proxy_hosts: tuple[str, ...]
     retry_count: int
     backoff_seconds: float
 
@@ -89,6 +90,7 @@ def load_source_definitions() -> list[SourceDefinition]:
             priority=int(item.get("priority", 0)),
             timeout_seconds=int(item.get("timeout_seconds", 10)),
             user_agent=str(item.get("user_agent", "news-sentiment-mvp/0.1")),
+            no_proxy_hosts=tuple(str(host) for host in item.get("no_proxy_hosts", [])),
             retry_count=int(item.get("retry_count", 0)),
             backoff_seconds=float(item.get("backoff_seconds", 0.0)),
         )

@@ -79,3 +79,31 @@ def test_fetch_html_merges_extra_headers() -> None:
     assert captured["request"].headers["User-agent"] == "news-sentiment-test/1.0"
     assert captured["request"].headers["X-requested-with"] == "XMLHttpRequest"
     assert captured["request"].headers["Referer"] == "https://example.com/page"
+
+
+def test_fetch_html_uses_proxyless_opener_for_matching_no_proxy_host(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    class DummyOpener:
+        def open(self, request, timeout):
+            captured["request"] = request
+            captured["timeout"] = timeout
+            return DummyResponse()
+
+    def fake_build_opener(handler):
+        captured["handler"] = handler
+        return DummyOpener()
+
+    monkeypatch.setattr("news_sentiment.collectors.http.build_opener", fake_build_opener)
+
+    html = fetch_html(
+        "https://www.cls.cn/telegraph",
+        timeout_seconds=7,
+        user_agent="news-sentiment-test/1.0",
+        no_proxy_hosts=("www.cls.cn", "cls.cn"),
+    )
+
+    assert html == "<html>ok</html>"
+    assert captured["timeout"] == 7
+    assert captured["request"].headers["User-agent"] == "news-sentiment-test/1.0"
+    assert captured["handler"].proxies == {}

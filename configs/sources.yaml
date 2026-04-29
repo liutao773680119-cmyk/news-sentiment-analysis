@@ -42,6 +42,9 @@ sources:
     priority: 81
     timeout_seconds: 10
     user_agent: news-sentiment-mvp/0.1
+    no_proxy_hosts:
+      - www.cls.cn
+      - cls.cn
     retry_count: 2
     backoff_seconds: 1.0
   - id: cftc_press

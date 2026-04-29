@@ -6,12 +6,32 @@ from news_sentiment.models import RawNews
 def _collector_map(**overrides):
     collectors = {
         "fixture": lambda: [],
+        "bis": lambda: [],
+        "boj": lambda: [],
+        "boc_press": lambda: [],
+        "boe": lambda: [],
+        "cftc_press": lambda: [],
         "cls": lambda: [],
         "csrc": lambda: [],
         "cninfo": lambda: [],
+        "ecb": lambda: [],
+        "eia_gasdiesel": lambda: [],
+        "eia_wpsr": lambda: [],
+        "fed": lambda: [],
+        "fedreg_ofac": lambda: [],
+        "fedreg_sec": lambda: [],
+        "hkex": lambda: [],
+        "investing_economic": lambda: [],
+        "investing_forex": lambda: [],
+        "irm_cninfo": lambda: [],
+        "investing_news": lambda: [],
         "miit": lambda: [],
+        "occ_news": lambda: [],
+        "sec_press": lambda: [],
         "sse": lambda: [],
+        "sse_einteractive": lambda: [],
         "stcn": lambda: [],
+        "szse": lambda: [],
     }
     collectors.update(overrides)
     return collectors

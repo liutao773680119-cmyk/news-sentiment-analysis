@@ -30,6 +30,7 @@ def fetch_cls_telegraph_html(url: str = CLS_TELEGRAPH_URL) -> str:
         url,
         timeout_seconds=source_definition.timeout_seconds,
         user_agent=source_definition.user_agent,
+        no_proxy_hosts=source_definition.no_proxy_hosts,
         retry_count=source_definition.retry_count,
         backoff_seconds=source_definition.backoff_seconds,
     )
