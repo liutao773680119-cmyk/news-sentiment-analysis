@@ -219,6 +219,18 @@ def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(t
                 event_type="hard_event",
                 event_subtype="corporate_disclosure",
             ),
+            Event(
+                event_id="event-szse-audit-inquiry-special-explanation",
+                first_seen_at="2026-04-30T00:00:00+08:00",
+                last_seen_at="2026-04-30T00:00:00+08:00",
+                canonical_title="ST炼石：年度审计机构对公司2025年年报的问询函相关事项的专项说明",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-30T00:00:00+08:00",
+                url="https://example.com/szse-audit-inquiry-special-explanation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
         ]
     )
     JsonlStore(paths.analyses_path, EventAnalysis).write_many(
@@ -239,6 +251,14 @@ def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(t
                 themes=[],
                 triggered=True,
             ),
+            EventAnalysis(
+                event_id="event-szse-audit-inquiry-special-explanation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
         ]
     )
 
@@ -248,6 +268,7 @@ def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(t
     assert "suspicious_count=0" in output
     assert "*ST仁东：关于对深圳证券交易所2025年年报问询函回复的公告" not in output
     assert "*ST仁东：评估机构关于仁东控股年报问询函有关问题的专项说明" not in output
+    assert "ST炼石：年度审计机构对公司2025年年报的问询函相关事项的专项说明" not in output
 
 
 def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_person_notices(tmp_path, monkeypatch, capsys) -> None:
@@ -577,12 +598,52 @@ def test_audit_suspicious_skips_financing_inquiry_reply_material(tmp_path, monke
                 event_type="hard_event",
                 event_subtype="corporate_disclosure",
             ),
+            Event(
+                event_id="event-directed-offering-inquiry-update",
+                first_seen_at="2026-04-30T00:00:00+08:00",
+                last_seen_at="2026-04-30T00:00:00+08:00",
+                canonical_title="盈趣科技：关于向特定对象发行股票的审核问询函回复等文件更新的提示性公告",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-30T00:00:00+08:00",
+                url="https://example.com/directed-offering-inquiry-update",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-directed-offering-accounting-explanation",
+                first_seen_at="2026-04-30T00:00:00+08:00",
+                last_seen_at="2026-04-30T00:00:00+08:00",
+                canonical_title="盈趣科技：容诚会计师事务所（特殊普通合伙）关于厦门盈趣科技股份有限公司申请向特定对象发行股票的审核问询函中有关财务会计问题的专项说明（修订稿）（豁免版）",
+                summary="summary",
+                source="szse",
+                published_at="2026-04-30T00:00:00+08:00",
+                url="https://example.com/directed-offering-accounting-explanation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
         ]
     )
     JsonlStore(paths.analyses_path, EventAnalysis).write_many(
         [
             EventAnalysis(
                 event_id="event-financing-inquiry-reply",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-directed-offering-inquiry-update",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-directed-offering-accounting-explanation",
                 direction="neutral",
                 impact_score=78.2,
                 reasoning="rule",
@@ -597,6 +658,8 @@ def test_audit_suspicious_skips_financing_inquiry_reply_material(tmp_path, monke
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "亿道信息：深圳市亿道信息股份有限公司关于深圳证券交易所" not in output
+    assert "盈趣科技：关于向特定对象发行股票的审核问询函回复等文件更新的提示性公告" not in output
+    assert "盈趣科技：容诚会计师事务所" not in output
 
 
 def test_audit_suspicious_skips_judicial_unfreeze_disclosure(tmp_path, monkeypatch, capsys) -> None:

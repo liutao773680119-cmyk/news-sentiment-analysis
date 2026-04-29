@@ -150,6 +150,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "提前终止减持计划暨减持结果",
     "减持股份计划期限届满",
     "减持股份计划期限届满暨实施情况",
+    "减持股份计划实施完成",
     "减持期限届满未减持股份",
     "减持股份结果",
     "股份减持计划实施结果",
@@ -167,6 +168,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "一般风险提示暨公司股票复牌",
     "变更股份回购用途",
     "回购股份用途",
+    "回购股份注销完成",
     "股票质押式回购交易业务",
     "股票质押式回购交易提前购回",
     "回购股份事项前十名股东",
@@ -198,6 +200,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "中短期低风险金融理财产品",
     "申请综合授信额度",
     "受让协议",
+    "公开挂牌转让",
     "未弥补的亏损达实收股本总额三分之一",
     "募集资金存放、管理与实际使用情况的专项报告",
     "募集资金存放、管理与使用情况的专项报告",
@@ -218,6 +221,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "关联存款风险处置预案",
     "洗钱和恐怖融资风险管理办法",
     "行政处罚决定书",
+    "一季度报告",
+    "季度报告",
     "年度报告摘要",
     "年度报告",
     "年度环境、社会与治理（ESG）报告",
@@ -236,6 +241,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "相关规定的核查意见",
     "重整投资协议",
     "问询函回复",
+    "审核问询函中有关财务会计问题的专项说明",
+    "年报的问询函相关事项的专项说明",
     "专项说明",
     "诉讼事项的进展",
     "涉及诉讼进展",
@@ -261,6 +268,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "解锁条件成就",
     "解除限售条件",
     "符合行权条件",
+    "采用自主行权",
     "首次授予限制性股票",
     "向激励对象授予限制性股票",
     "授予预留限制性股票",
@@ -1803,6 +1811,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("储能电站项目资产化" in title and "提前回笼资金" in title and "高负债" in title)
             or ("半导体系统" in title and "多少nm以下" in title and "多少层以上" in title)
             or ("中科宇航完成IPO辅导" in title and "参股的计划" in title)
+            or ("存储行业" in title and "涨价周期" in title and "订单能见度" in title)
             or ("是否参股" in title and "机器人" in title)
             or ("股价跌" in title and "为什么不回购股份" in title and "市值管理" in title)
         )
@@ -1864,6 +1873,9 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("定增失败了嘛" in title and "定增工作正常进行中" in text and "后续相关报告" in text)
         or ("进展如何" in title and "后续发布的定期报告或临时公告为准" in text)
         or ("算电协同出海" in title and "如何落实落地" in title and "感谢您的关注" in text)
+        or ("DeepSeek" in title and "适配" in title and "常态化沟通" in text)
+        or ("算力方面发展前景如何" in title and "年度报告" in text)
+        or ("最新消息" in title and "正在准备中" in text)
         or ("主要应用于机器人的哪个部分" in title and "请详见公司同类问题的回复" in text)
         or ("您的建议已收悉" in text and "感谢您的关注" in text)
         or ("注册上市进行到了什么阶段" in title and "预计何时获批上市" in title and "目前该产品处于审评审批中" in text)

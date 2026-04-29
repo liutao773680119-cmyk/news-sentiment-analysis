@@ -50,6 +50,7 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函回复",
     "审核问询函之回复",
     "问询函回复",
+    "审核问询函中有关财务会计问题的专项说明",
     "报告书（修订稿）",
     "报告书(修订稿)",
 )
@@ -65,10 +66,13 @@ LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS = (
     "发行可转换公司债券",
     "可转换公司债券",
     "募集配套资金",
+    "向特定对象发行股票",
+    "申请向特定对象发行股票",
 )
 LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报问询函回复",
     "问询函有关问题的专项说明",
+    "年报的问询函相关事项的专项说明",
     "诉讼事项的进展",
     "涉及诉讼进展",
     "诉讼进展公告",

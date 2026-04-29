@@ -15568,3 +15568,155 @@ def test_write_text_report_filters_latest_low_signal_live_head_noise(tmp_path) -
     assert "尾矿中剩余其它金属是否计划进行开发提取" not in content
     assert "尾矿处理技术除了可用于钛铁尾矿还可以用于哪些尾矿" not in content
     assert "千帆星座" not in content
+
+
+def test_write_text_report_filters_latest_interactive_ai_and_exchange_material_noise(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-keep-real-guidance",
+            first_seen_at="2026-04-29T20:10:05+08:00",
+            last_seen_at="2026-04-29T20:10:05+08:00",
+            canonical_title="林洋能源：2026年储能力争开发不少于10GWh独立储能项目 拟中期分红不低于50%",
+            summary="林洋能源披露储能开发规划。",
+            source="cls",
+            published_at="2026-04-29T20:10:05+08:00",
+            url="https://example.com/keep-real-guidance",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-ai-fit",
+            first_seen_at="2026-04-29T20:15:33+08:00",
+            last_seen_at="2026-04-29T20:15:33+08:00",
+            canonical_title="紫光股份：公司在Ai算力方面与DeepSeek-V4适配吗？",
+            summary="问题：公司在Ai算力方面与DeepSeek-V4适配吗？ 回复：您好，公司控股子公司新华三与DeepSeek在大模型训练、推理优化、解决方案及一体机部署等领域保持持续深度的常态化沟通和技术合作，目前在政府、企业、运营商、电力能源、教育、医疗等多个重点行业落地了可复制的解决方案。",
+            source="irm_cninfo",
+            published_at="2026-04-29T20:15:33+08:00",
+            url="https://example.com/irm-ai-fit",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-ai-outlook",
+            first_seen_at="2026-04-29T20:13:34+08:00",
+            last_seen_at="2026-04-29T20:13:34+08:00",
+            canonical_title="紫光股份：贵公司在算力方面发展前景如何，是否有加大力度，谢谢",
+            summary="问题：贵公司在算力方面发展前景如何，是否有加大力度，谢谢 回复：您好，具体情况请您关注公司已披露的《2025年年度报告》。",
+            source="irm_cninfo",
+            published_at="2026-04-29T20:13:34+08:00",
+            url="https://example.com/irm-ai-outlook",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-optical-latest",
+            first_seen_at="2026-04-29T20:11:33+08:00",
+            last_seen_at="2026-04-29T20:11:33+08:00",
+            canonical_title="紫光股份：在光交换机方面的最新消息",
+            summary="问题：在光交换机方面的最新消息 回复：您好，公司紧跟行业向800G或1.6T可插拔光模块以及OCI、CPX等新兴技术发展趋势，对应产品及全生态连接解决方案正在准备中。",
+            source="irm_cninfo",
+            published_at="2026-04-29T20:11:33+08:00",
+            url="https://example.com/irm-optical-latest",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-quarterly-report",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="万科A：2026年一季度报告",
+            summary="万科A：2026年一季度报告",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/quarterly-report",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-reduction-complete",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="大族激光：关于控股股东减持股份计划实施完成的公告",
+            summary="大族激光：关于控股股东减持股份计划实施完成的公告",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/reduction-complete",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-listed-transfer",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="万科A：关于公开挂牌转让环山集团股份有限公司股权的公告",
+            summary="万科A：关于公开挂牌转让环山集团股份有限公司股权的公告",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/listed-transfer",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-buyback-cancel-complete",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="科伦药业：关于部分回购股份注销完成暨股份变动的公告",
+            summary="科伦药业：关于部分回购股份注销完成暨股份变动的公告",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/buyback-cancel-complete",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-option-exercise",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="希荻微关于2024年股票期权激励计划首次授予部分第二个行权期采用自主行权的提示性公告",
+            summary="希荻微关于2024年股票期权激励计划首次授予部分第二个行权期采用自主行权的提示性公告",
+            source="cninfo",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/option-exercise",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+        Event(
+            event_id="event-irm-memory-order-visibility-question-only",
+            first_seen_at="2026-04-29T19:39:04+08:00",
+            last_seen_at="2026-04-29T19:39:04+08:00",
+            canonical_title="江波龙：董秘你好：1. 当前存储行业整体处于涨价周期，公司近期的业绩高增长主要来自出货量的提升，还是产品价格的上涨？两者对增长的贡献比例大致如何？ 2. 目前公司的订单能见度大概能看到几个月（比如是否已排到2026年下半年）？蔡总对不同产品线（嵌入式、消费级、企业级等）的未来价格走势，公司内部有怎样的预判？ 3. 在下游客户普遍预期涨价的背景下，是否存在渠道过度囤货的现象？公司目前的渠道库存周转天数是多少",
+            summary="董秘你好：1. 当前存储行业整体处于涨价周期，公司近期的业绩高增长主要来自出货量的提升，还是产品价格的上涨？两者对增长的贡献比例大致如何？ 2. 目前公司的订单能见度大概能看到几个月？",
+            source="irm_cninfo",
+            published_at="2026-04-29T19:39:04+08:00",
+            url="https://example.com/irm-memory-order-visibility-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-keep-real-guidance", direction="bullish", impact_score=99.3, reasoning="rule", themes=["储能"], triggered=True),
+        EventAnalysis(event_id="event-irm-ai-fit", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-ai-outlook", direction="bullish", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-optical-latest", direction="bullish", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-quarterly-report", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-reduction-complete", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-listed-transfer", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-buyback-cancel-complete", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-option-exercise", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-memory-order-visibility-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "林洋能源：2026年储能力争开发不少于10GWh独立储能项目" in content
+    assert "公司在Ai算力方面与DeepSeek-V4适配吗" not in content
+    assert "贵公司在算力方面发展前景如何" not in content
+    assert "在光交换机方面的最新消息" not in content
+    assert "万科A：2026年一季度报告" not in content
+    assert "大族激光：关于控股股东减持股份计划实施完成的公告" not in content
+    assert "万科A：关于公开挂牌转让环山集团股份有限公司股权的公告" not in content
+    assert "科伦药业：关于部分回购股份注销完成暨股份变动的公告" not in content
+    assert "第二个行权期采用自主行权" not in content
+    assert "当前存储行业整体处于涨价周期" not in content
