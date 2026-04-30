@@ -12024,6 +12024,66 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-mna-question-only",
+            first_seen_at="2026-04-30T20:46:32+08:00",
+            last_seen_at="2026-04-30T20:46:32+08:00",
+            canonical_title="优宁维：请问，贵公司一直宣称要并购重组抗体上下游应用公司？请问具体包括哪些行业范围？包括有创新药管线储备的公司吗？包含细胞免疫治疗，也就是CGT产业的公司吗？请耐心回答，谢谢！",
+            summary="请问，贵公司一直宣称要并购重组抗体上下游应用公司？请问具体包括哪些行业范围？包括有创新药管线储备的公司吗？包含细胞免疫治疗，也就是CGT产业的公司吗？请耐心回答，谢谢！",
+            source="irm_cninfo",
+            published_at="2026-04-30T20:46:32+08:00",
+            url="https://example.com/irm-mna-question-only",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-irm-robot-feature-question-only",
+            first_seen_at="2026-04-30T20:46:32+08:00",
+            last_seen_at="2026-04-30T20:46:32+08:00",
+            canonical_title="华自科技：尊敬的董秘，请问公司得电力巡检机器人有哪些优势？可以实现什么样的功能",
+            summary="尊敬的董秘，请问公司得电力巡检机器人有哪些优势？可以实现什么样的功能",
+            source="irm_cninfo",
+            published_at="2026-04-30T20:46:32+08:00",
+            url="https://example.com/irm-robot-feature-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-robot-falsify-question-only",
+            first_seen_at="2026-04-30T20:46:32+08:00",
+            last_seen_at="2026-04-30T20:46:32+08:00",
+            canonical_title="英力股份：市场对人形机器人业务多持观望态度。请公司给出一个明确的‘证伪指标’：未来12个月内，若机器人业务营收占比未达到5%，是否意味着本次转型失败，公司将回归传统制造主业？",
+            summary="市场对人形机器人业务多持观望态度。请公司给出一个明确的‘证伪指标’：未来12个月内，若机器人业务营收占比未达到5%，是否意味着本次转型失败，公司将回归传统制造主业？",
+            source="irm_cninfo",
+            published_at="2026-04-30T20:46:32+08:00",
+            url="https://example.com/irm-robot-falsify-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-earnings-multi-question-only",
+            first_seen_at="2026-04-30T20:46:32+08:00",
+            last_seen_at="2026-04-30T20:46:32+08:00",
+            canonical_title="佐力药业：1. 新收资产组2026年一季度应收及净利润情况如何？是否符合公司收购前的预期？2. 公司一季度应收账款进一步增加，明显快于营收，是什么原因，影响如何？3. 乌灵胶囊增速明显放缓，什么原因？后三季度是否有改善预期？是否已到业务瓶颈期？4. 对26年全年的预期如何？能否维持25年的增速？",
+            summary="1. 新收资产组2026年一季度应收及净利润情况如何？是否符合公司收购前的预期？2. 公司一季度应收账款进一步增加，明显快于营收，是什么原因，影响如何？3. 乌灵胶囊增速明显放缓，什么原因？后三季度是否有改善预期？是否已到业务瓶颈期？4. 对26年全年的预期如何？能否维持25年的增速？",
+            source="irm_cninfo",
+            published_at="2026-04-30T20:46:32+08:00",
+            url="https://example.com/irm-earnings-multi-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-new-management-suggestion-only",
+            first_seen_at="2026-04-30T20:46:32+08:00",
+            last_seen_at="2026-04-30T20:46:32+08:00",
+            canonical_title="思创智联：新领导层到位了.应该有新动作如回购股份、购买新资产以提高公司盈利模式",
+            summary="新领导层到位了.应该有新动作如回购股份、购买新资产以提高公司盈利模式",
+            source="irm_cninfo",
+            published_at="2026-04-30T20:46:32+08:00",
+            url="https://example.com/irm-new-management-suggestion-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-profit-placeholder-reply",
             first_seen_at="2026-04-30T19:31:33+08:00",
             last_seen_at="2026-04-30T19:31:33+08:00",
@@ -12057,6 +12117,11 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-overseas-order-speed-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-capacity-order-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-legal-disclosure-question-only", direction="bearish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-mna-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-robot-feature-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-robot-falsify-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-earnings-multi-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-new-management-suggestion-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-profit-placeholder-reply", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
@@ -12071,6 +12136,11 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "华工科技：根据公开资料，2025年12月华工正源胡长飞经理表示26年国内订单有望翻倍" not in content
     assert "华工科技：董秘你好，公司春节宣传“订单排至Q4、满产”" not in content
     assert "山石网科：董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？" not in content
+    assert "优宁维：请问，贵公司一直宣称要并购重组抗体上下游应用公司？" not in content
+    assert "华自科技：尊敬的董秘，请问公司得电力巡检机器人有哪些优势？" not in content
+    assert "英力股份：市场对人形机器人业务多持观望态度。请公司给出一个明确的‘证伪指标’" not in content
+    assert "佐力药业：1. 新收资产组2026年一季度应收及净利润情况如何？" not in content
+    assert "思创智联：新领导层到位了.应该有新动作如回购股份、购买新资产以提高公司盈利模式" not in content
     assert "华工科技：华工作为光模块最先进的公司，订单排满了全年，请问今年净利润能否到25亿？谢谢。" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
@@ -15864,6 +15934,54 @@ def test_write_text_report_filters_latest_interactive_ai_and_exchange_material_n
             event_subtype="equity_incentive",
         ),
         Event(
+            event_id="event-share-increase-legal-opinion",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="北京市君致律师事务所关于漳州片仔癀药业股份有限公司控股股东增持公司股份的法律意见书",
+            summary="片仔癀披露控股股东增持公司股份法律意见书。",
+            source="cninfo",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/share-increase-legal-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-no-penalty-cert",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="关于最近五年未被证券监管部门和证券交易所采取监管措施或处罚情况的公告",
+            summary="公司披露最近五年未被证券监管部门和证券交易所采取监管措施或处罚情况。",
+            source="cninfo",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/no-penalty-cert",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-hk-ipo-tabled",
+            first_seen_at="2026-04-30T20:53:32+08:00",
+            last_seen_at="2026-04-30T20:53:32+08:00",
+            canonical_title="港股IPO：山推工程机械股份有限公司表港交所",
+            summary="利弗莫尔证券显示，山推工程机械股份有限公司向港交所提交上市申请书，独家保荐人为中金公司。",
+            source="cls",
+            published_at="2026-04-30T20:53:32+08:00",
+            url="https://example.com/hk-ipo-tabled",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-overseas-robot-acquisition",
+            first_seen_at="2026-04-30T21:10:54+08:00",
+            last_seen_at="2026-04-30T21:10:54+08:00",
+            canonical_title="财联社4月30日电，谷歌合作伙伴NovaCore Labs与Aibotics推进收购事宜，并扩大机器人在牙买加全境的部署。",
+            summary="财联社4月30日电，谷歌合作伙伴NovaCore Labs与Aibotics推进收购事宜，并扩大机器人在牙买加全境的部署。",
+            source="cls",
+            published_at="2026-04-30T21:10:54+08:00",
+            url="https://example.com/overseas-robot-acquisition",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
             event_id="event-irm-memory-order-visibility-question-only",
             first_seen_at="2026-04-29T19:39:04+08:00",
             last_seen_at="2026-04-29T19:39:04+08:00",
@@ -15886,6 +16004,10 @@ def test_write_text_report_filters_latest_interactive_ai_and_exchange_material_n
         EventAnalysis(event_id="event-listed-transfer", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
         EventAnalysis(event_id="event-buyback-cancel-complete", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-option-exercise", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-share-increase-legal-opinion", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-no-penalty-cert", direction="bearish", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-hk-ipo-tabled", direction="neutral", impact_score=99.3, reasoning="rule", themes=["工程机械"], triggered=True),
+        EventAnalysis(event_id="event-overseas-robot-acquisition", direction="bullish", impact_score=99.3, reasoning="rule", themes=["机器人"], triggered=True),
         EventAnalysis(event_id="event-irm-memory-order-visibility-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
     ]
 
@@ -15901,4 +16023,8 @@ def test_write_text_report_filters_latest_interactive_ai_and_exchange_material_n
     assert "万科A：关于公开挂牌转让环山集团股份有限公司股权的公告" not in content
     assert "科伦药业：关于部分回购股份注销完成暨股份变动的公告" not in content
     assert "第二个行权期采用自主行权" not in content
+    assert "北京市君致律师事务所关于漳州片仔癀药业股份有限公司控股股东增持公司股份的法律意见书" not in content
+    assert "关于最近五年未被证券监管部门和证券交易所采取监管措施或处罚情况的公告" not in content
+    assert "港股IPO：山推工程机械股份有限公司表港交所" not in content
+    assert "财联社4月30日电，谷歌合作伙伴NovaCore Labs与Aibotics推进收购事宜" not in content
     assert "当前存储行业整体处于涨价周期" not in content

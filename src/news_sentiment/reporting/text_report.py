@@ -136,6 +136,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "增持公司股份结果公告",
     "增持股份结果",
     "增持股份之法律意见书",
+    "增持公司股份的法律意见书",
     "增持公司股份计划",
     "增持股份计划",
     "增持计划实施完成",
@@ -185,6 +186,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "回购报告书",
     "信用评级报告",
     "临时受托管理事务报告",
+    "未被证券监管部门和证券交易所采取监管措施或处罚情况",
     "股东质询建议函",
     "金融服务协议及相关风险控制措施执行情况的核查意见",
     "金融服务协议",
@@ -494,6 +496,7 @@ LOW_SIGNAL_HK_LISTING_APPLICATION_KEYWORDS = (
     "向港交所递交上市申请",
     "港交所提交上市申请书",
     "港交所上市申请书",
+    "表港交所",
 )
 LOW_SIGNAL_SHAREHOLDER_REDUCTION_FAST_NEWS_KEYWORDS = (
     "拟合计减持",
@@ -1494,7 +1497,6 @@ def _is_low_signal_cls_overseas_single_stock_acquisition(event: Event, analysis:
         event.source in {"cls", "stcn"}
         and event.event_type == "fast_news"
         and event.event_subtype == "acquisition_restructuring"
-        and not analysis.themes
     ):
         return False
 
@@ -1503,6 +1505,7 @@ def _is_low_signal_cls_overseas_single_stock_acquisition(event: Event, analysis:
         ("股价上涨" in title and "收购" in title and "亿美元" in title)
         or ("意大利" in title and "美国上市公司" in title and "亿美元收购" in title)
         or ("耀才证券" in title and "蚂蚁控股收购交易完成" in title and "香港客户" in title)
+        or ("NovaCore Labs" in title and "Aibotics" in title and "牙买加" in title and "推进收购事宜" in title)
     )
 
 
@@ -1825,6 +1828,11 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("订单有望翻倍" in title and "订单超预期" in title and "海外订单" in title)
             or ("订单排至Q4" in title and "产能利用率" in title and "扩产必要性" in title)
             or ("未决诉讼事项" in title and "会计处理政策" in title and "披露义务" in title)
+            or ("一直宣称要并购重组" in title and "抗体上下游应用公司" in title and "CGT产业" in title)
+            or ("电力巡检机器人有哪些优势" in title and "实现什么样的功能" in title)
+            or ("证伪指标" in title and "营收占比未达到5%" in title and "回归传统制造主业" in title)
+            or ("新收资产组2026年一季度应收及净利润情况" in title and "乌灵胶囊增速明显放缓" in title and "能否维持25年的增速" in title)
+            or ("新领导层到位了" in title and "回购股份" in title and "购买新资产" in title)
         )
 
     return (
