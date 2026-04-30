@@ -472,6 +472,27 @@ def test_score_event_marks_case_filing_notice_as_bearish() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_marks_asset_seizure_notice_as_bearish() -> None:
+    event = Event(
+        event_id="event-001ls",
+        first_seen_at="2026-04-30T00:00:00+08:00",
+        last_seen_at="2026-04-30T00:00:00+08:00",
+        canonical_title="ST泉为：关于部分资产被查封的公告",
+        summary="ST泉为：关于部分资产被查封的公告",
+        source="szse",
+        published_at="2026-04-30T00:00:00+08:00",
+        url="https://example.com/szse-asset-seizure",
+        member_news_ids=["n1ls"],
+        event_type="hard_event",
+        event_subtype="legal_dispute",
+        primary_entities=[],
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.direction == "bearish"
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_hkex_profit_warning_as_bearish() -> None:
     event = Event(
         event_id="event-hk-pw",
