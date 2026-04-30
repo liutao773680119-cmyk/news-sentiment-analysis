@@ -315,6 +315,7 @@ def run_audit_suspicious(paths: ProjectPaths, limit: int) -> int:
 
 def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
     if _is_cls_editorial_roundup_column(event):
         return None
     if _is_low_signal_market_roundup_candidate(event):
@@ -358,6 +359,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         and event.event_subtype == "company_update"
         and _contains_any(title, FAST_NEWS_LEGAL_REVIEW_KEYWORDS)
     ):
+        if _is_low_signal_irm_cninfo_legal_question_only(event, text):
+            return None
         return "company_update_legal_keyword"
     if (
         event.event_type == "fast_news"
@@ -473,6 +476,21 @@ def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
 
 def _is_low_signal_hard_event_risk_disclosure(title: str) -> bool:
     return _contains_any(title, LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS)
+
+
+def _is_low_signal_irm_cninfo_legal_question_only(event: Event, text: str) -> bool:
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and "未决诉讼事项" in event.canonical_title
+        and "会计处理政策" in event.canonical_title
+        and (
+            (
+                "披露义务" in event.canonical_title
+                and all(marker not in text for marker in ("回复：", "回复:"))
+            )
+            or "履行信息披露义务" in text
+        )
+    )
 
 
 def run_live_smoke(paths: ProjectPaths, source: str) -> int:

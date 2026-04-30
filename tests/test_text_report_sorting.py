@@ -10054,6 +10054,18 @@ def test_write_text_report_filters_current_live_exchange_material_disclosures(tm
             event_subtype="acquisition_restructuring",
         ),
         Event(
+            event_id="event-szse-restructuring-impairment-test-jman",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="维业股份：关于重大资产重组业绩承诺期届满标的资产减值测试情况的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/szse-restructuring-impairment-test-jman",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
             event_id="event-szse-reduction-expire-no-sale",
             first_seen_at="2026-04-15T00:00:00+08:00",
             last_seen_at="2026-04-15T00:00:00+08:00",
@@ -10064,6 +10076,90 @@ def test_write_text_report_filters_current_live_exchange_material_disclosures(tm
             url="https://example.com/szse-reduction-expire-no-sale",
             event_type="hard_event",
             event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sse-real-estate-brief",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="中国国贸2026年第一季度房地产行业经营性信息简报",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/sse-real-estate-brief",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sse-real-estate-appraisal",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="房地产估价报告-沪城估（2025）(咨)字第00973号",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/sse-real-estate-appraisal",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sse-bank-risk-rule",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="华夏银行董事会风险合规与消费者权益保护委员会工作规则",
+            summary="summary",
+            source="sse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/sse-bank-risk-rule",
+            event_type="hard_event",
+            event_subtype="board_resolution",
+        ),
+        Event(
+            event_id="event-szse-share-change-one-percent",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="达刚控股：关于股东减持股份变动比例触及1%整数倍的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/szse-share-change-one-percent",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-below-five-percent",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="华大九天：关于持股5%以上股东减持至5%以下暨权益变动的提示性公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/szse-below-five-percent",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-share-change-plan-complete",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="泰和科技：关于控股股东、实际控制人及其一致行动人权益变动触及1%整数倍暨减持计划实施完毕的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/szse-share-change-plan-complete",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-equity-adjustment",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="ST迪威迅：关于调整2026年限制性股票激励计划相关事项的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/szse-equity-adjustment",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
         ),
         Event(
             event_id="event-keep-acquisition",
@@ -10082,7 +10178,15 @@ def test_write_text_report_filters_current_live_exchange_material_disclosures(tm
         EventAnalysis(event_id="event-sse-audit-duty-report", direction="bearish", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-szse-stock-appreciation-opinion", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-szse-restructuring-impairment-test", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-restructuring-impairment-test-jman", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-szse-reduction-expire-no-sale", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-real-estate-brief", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-sse-real-estate-appraisal", direction="neutral", impact_score=100.0, reasoning="rule", themes=["房地产"], triggered=True),
+        EventAnalysis(event_id="event-sse-bank-risk-rule", direction="bearish", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-share-change-one-percent", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-below-five-percent", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-share-change-plan-complete", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-szse-equity-adjustment", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-keep-acquisition", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
     ]
 
@@ -10092,7 +10196,15 @@ def test_write_text_report_filters_current_live_exchange_material_disclosures(tm
     assert "上海电力股份有限公司董事会审计与风险委员会2025年度履职情况报告" not in content
     assert "哈尔斯：董事会薪酬与考核委员会关于2024年股票增值权激励计划第一个行权期的行权名单的核查意见" not in content
     assert "广东建工：关于重大资产重组业绩承诺期满标的资产减值测试情况的公告" not in content
+    assert "维业股份：关于重大资产重组业绩承诺期届满标的资产减值测试情况的公告" not in content
     assert "凯瑞德：关于持股5%以上股东减持期限届满未减持股份的公告" not in content
+    assert "中国国贸2026年第一季度房地产行业经营性信息简报" not in content
+    assert "房地产估价报告-沪城估（2025）(咨)字第00973号" not in content
+    assert "华夏银行董事会风险合规与消费者权益保护委员会工作规则" not in content
+    assert "达刚控股：关于股东减持股份变动比例触及1%整数倍的公告" not in content
+    assert "华大九天：关于持股5%以上股东减持至5%以下暨权益变动的提示性公告" not in content
+    assert "泰和科技：关于控股股东、实际控制人及其一致行动人权益变动触及1%整数倍暨减持计划实施完毕的公告" not in content
+    assert "ST迪威迅：关于调整2026年限制性股票激励计划相关事项的公告" not in content
 
 
 def test_write_text_report_filters_current_live_szse_disclosure_variants_without_hiding_policy_signal(
@@ -11864,6 +11976,66 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="policy_signal",
         ),
         Event(
+            event_id="event-irm-order-cut-question-only",
+            first_seen_at="2026-04-30T19:19:29+08:00",
+            last_seen_at="2026-04-30T19:19:29+08:00",
+            canonical_title="华工科技：北美大客户（微软/Meta/英伟达）有没有砍单、转移订单？",
+            summary="北美大客户（微软/Meta/英伟达）有没有砍单、转移订单？",
+            source="irm_cninfo",
+            published_at="2026-04-30T19:19:29+08:00",
+            url="https://example.com/irm-order-cut-question-only",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-overseas-order-speed-question-only",
+            first_seen_at="2026-04-30T19:17:29+08:00",
+            last_seen_at="2026-04-30T19:17:29+08:00",
+            canonical_title="华工科技：根据公开资料，2025年12月华工正源胡长飞经理表示26年国内订单有望翻倍，海外订单5-10倍增速，今年3月，胡长飞经理表示订单超预期，海外订单量是预期的两三倍，是否可以理解为，今年海外订单有望10-20倍增速？",
+            summary="根据公开资料，2025年12月华工正源胡长飞经理表示26年国内订单有望翻倍，海外订单5-10倍增速，今年3月，胡长飞经理表示订单超预期，海外订单量是预期的两三倍，是否可以理解为，今年海外订单有望10-20倍增速？",
+            source="irm_cninfo",
+            published_at="2026-04-30T19:17:29+08:00",
+            url="https://example.com/irm-overseas-order-speed-question-only",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-capacity-order-question-only",
+            first_seen_at="2026-04-30T19:16:29+08:00",
+            last_seen_at="2026-04-30T19:16:29+08:00",
+            canonical_title="华工科技：董秘你好，公司春节宣传“订单排至Q4、满产”，与投资者关会数据产能利用数据矛盾。“订单排至Q4”是正式合同还是意向？当前真实产能利用率、交付率是多少？当前产能与在手订单缺口巨大，仍计划大幅扩产。请说明扩产必要性、资金来源、回报周期及产能消化计划，是否存在误导性宣传？",
+            summary="董秘你好，公司春节宣传“订单排至Q4、满产”，与投资者关会数据产能利用数据矛盾。“订单排至Q4”是正式合同还是意向？当前真实产能利用率、交付率是多少？当前产能与在手订单缺口巨大，仍计划大幅扩产。请说明扩产必要性、资金来源、回报周期及产能消化计划，是否存在误导性宣传？",
+            source="irm_cninfo",
+            published_at="2026-04-30T19:16:29+08:00",
+            url="https://example.com/irm-capacity-order-question-only",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-legal-disclosure-question-only",
+            first_seen_at="2026-04-30T18:30:00+08:00",
+            last_seen_at="2026-04-30T18:30:00+08:00",
+            canonical_title="山石网科：董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？对于已发生的劳动争议类案件，公司是否会按照监管规则履行相应的披露义务？",
+            summary="董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？对于已发生的劳动争议类案件，公司是否会按照监管规则履行相应的披露义务？",
+            source="irm_cninfo",
+            published_at="2026-04-30T18:30:00+08:00",
+            url="https://example.com/irm-legal-disclosure-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-profit-placeholder-reply",
+            first_seen_at="2026-04-30T19:31:33+08:00",
+            last_seen_at="2026-04-30T19:31:33+08:00",
+            canonical_title="华工科技：华工作为光模块最先进的公司，订单排满了全年，请问今年净利润能否到25亿？谢谢。",
+            summary="问题：华工作为光模块最先进的公司，订单排满了全年，请问今年净利润能否到25亿？谢谢。 回复：投资者您好，公司业绩情况请以定期报告及相关公告为准，感谢您对公司的关注。",
+            source="irm_cninfo",
+            published_at="2026-04-30T19:31:33+08:00",
+            url="https://example.com/irm-profit-placeholder-reply",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -11881,6 +12053,11 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-robot-application-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
         EventAnalysis(event_id="event-irm-multi-question-shareholder-only", direction="bullish", impact_score=100.0, reasoning="rule", themes=["算力", "商业航天"], triggered=True),
         EventAnalysis(event_id="event-irm-disclosure-rule-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-order-cut-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-overseas-order-speed-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-capacity-order-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-legal-disclosure-question-only", direction="bearish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-profit-placeholder-reply", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -11890,6 +12067,11 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "山东威达：董秘你好:公司入股的知行机器人的产品具体应用在哪些行业？" not in content
     assert "盛视科技：董秘您好，作为公司股东，想了解以下几个问题" not in content
     assert "常山药业：董秘你好！贵公司1类原研创新药阿贝那肽近日被国家医保局纳入第一批参照药预沟通药品名单" not in content
+    assert "华工科技：北美大客户（微软/Meta/英伟达）有没有砍单、转移订单？" not in content
+    assert "华工科技：根据公开资料，2025年12月华工正源胡长飞经理表示26年国内订单有望翻倍" not in content
+    assert "华工科技：董秘你好，公司春节宣传“订单排至Q4、满产”" not in content
+    assert "山石网科：董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？" not in content
+    assert "华工科技：华工作为光模块最先进的公司，订单排满了全年，请问今年净利润能否到25亿？谢谢。" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 

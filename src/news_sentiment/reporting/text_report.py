@@ -131,6 +131,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "环境、社会与公司治理（ESG）报告",
     "鉴证报告",
     "资产评估报告",
+    "房地产估价报告",
+    "经营性信息简报",
     "增持公司股份结果公告",
     "增持股份结果",
     "增持股份之法律意见书",
@@ -151,12 +153,14 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持股份计划期限届满",
     "减持股份计划期限届满暨实施情况",
     "减持股份计划实施完成",
+    "减持至5%以下",
     "减持期限届满未减持股份",
     "减持股份结果",
     "股份减持计划实施结果",
     "股份减持完成",
     "减持公司股份比例触及",
     "减持股份触及",
+    "触及1%整数倍",
     "终止股份减持计划",
     "提前终止股份减持计划",
     "回购实施结果",
@@ -300,6 +304,7 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "作废处理部分限制性股票的法律意见",
     "作废部分已授予尚未归属的限制性股票相关事项的核查意见",
     "限制性股票相关事项的核查意见",
+    "限制性股票激励计划相关事项",
     "限制性股票激励计划相关事项的核查意见",
     "股权激励计划相关事项的核查意见",
     "归属相关事项的核查意见",
@@ -328,6 +333,7 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "实施情况之法律意见书",
     "重大资产重组实施情况之法律意见书",
     "重大资产重组业绩承诺期满标的资产减值测试情况",
+    "重大资产重组业绩承诺期届满标的资产减值测试情况",
     "减值测试报告",
     "重大资产重组业绩承诺实现情况说明专项审核报告",
     "持续督导意见",
@@ -905,6 +911,7 @@ def _is_low_signal_exchange_governance_material(title: str) -> bool:
         "独立董事独立性评估的专项意见",
         "董事会对独立董事独立性情况的专项意见",
         "董事会对独立董事独立性自查情况的专项报告",
+        "消费者权益保护委员会工作规则",
         "内控控制审计报告书",
         "内部控制审计报告",
         "支持创新创业管理办法",
@@ -1814,6 +1821,10 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("存储行业" in title and "涨价周期" in title and "订单能见度" in title)
             or ("是否参股" in title and "机器人" in title)
             or ("股价跌" in title and "为什么不回购股份" in title and "市值管理" in title)
+            or ("北美大客户" in title and "有没有砍单" in title and "转移订单" in title)
+            or ("订单有望翻倍" in title and "订单超预期" in title and "海外订单" in title)
+            or ("订单排至Q4" in title and "产能利用率" in title and "扩产必要性" in title)
+            or ("未决诉讼事项" in title and "会计处理政策" in title and "披露义务" in title)
         )
 
     return (
@@ -1882,6 +1893,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("高端订单流失的风险" in title and "暂无项目涉及" in text and "相关技术储备及项目进展请以公司公开披露信息为准" in text)
         or ("资产注入" in title and "重组" in title and "满足披露条件" in text and "相关公告" in text)
         or ("存储行业" in title and "涨价周期" in title and "订单能见度" in title and "定期报告为准" in text)
+        or ("净利润能否到" in title and "业绩情况请以定期报告及相关公告为准" in text)
     )
 
 
@@ -1929,6 +1941,7 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
         or ("哪些知名投资" in title and "以国内一流绿色能源运营商为发展定位" in text)
         or ("定增" in title and any(keyword in title for keyword in ("今年内可以完成吗", "可以完成吗", "加快进度")) and "相关进展情况请查询定增公司公告" in text)
         or (any(keyword in title for keyword in ("订单如何", "订单和发展势头如何", "产能是否已满产", "满产满销")) and "请关注公司披露的定期报告及相关公告" in text)
+        or ("未决诉讼事项" in title and "会计处理政策" in title and "履行信息披露义务" in text)
         or (
             any(keyword in title for keyword in ("大跌的原因是什么", "给个解释", "分红还没分呢", "优等生"))
             and "公司股价走势受行业周期、市场资金偏好、市场风格切换等多重因素综合影响" in text

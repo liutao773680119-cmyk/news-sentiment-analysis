@@ -45,6 +45,7 @@ LEGAL_DISPUTE_KEYWORDS = (
     "涉及诉讼",
     "诉讼进展",
     "资产被查封",
+    "被司法冻结",
     "立案通知书",
     "立案告知书",
     "被立案调查",
@@ -69,6 +70,9 @@ FAST_NEWS_FINANCIAL_RESULT_KEYWORDS = (
     "业绩",
     "扭亏为盈",
     "亏损",
+    "annual forecast",
+    "annual forecasts",
+    "annual profit forecast",
 )
 HKEX_FINANCIAL_RESULT_KEYWORDS = (
     "PROFIT WARNING",

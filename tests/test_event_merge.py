@@ -609,6 +609,26 @@ def test_merge_news_items_classifies_asset_seizure_notice_as_legal_dispute() -> 
     assert events[0].event_subtype == "legal_dispute"
 
 
+def test_merge_news_items_classifies_share_judicial_freeze_notice_as_legal_dispute() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1freeze",
+            source="szse",
+            source_type="hard_event",
+            published_at="2026-04-30T00:00:00+08:00",
+            captured_at="2026-04-30T00:00:30+08:00",
+            title="元道通信：关于控股股东部分股份被司法冻结的公告",
+            content="元道通信：关于控股股东部分股份被司法冻结的公告",
+            url="https://www.szse.cn/disc/disk03/finalpage/2026-04-30/example-freeze.PDF",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "legal_dispute"
+
+
 def test_merge_news_items_classifies_delisting_risk_notice_subtype() -> None:
     items = [
         NormalizedNews(
@@ -1447,6 +1467,26 @@ def test_merge_news_items_classifies_business_guidance_fast_news_subtype() -> No
             title="安科生物：2026年曲妥珠单抗销售目标仍是收入及利润大幅增长",
             content="公司在电话会议上表示，2026年销售目标仍是收入、利润双双大幅增长。此前产品已获批上市。",
             url="https://www.stcn.com/article/detail/3722993.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "business_guidance"
+
+
+def test_merge_news_items_classifies_english_forecast_raise_fast_news_as_business_guidance() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1-eli-forecast",
+            source="investing_news",
+            source_type="fast_news",
+            published_at="2026-04-30T11:30:52+00:00",
+            captured_at="2026-04-30T11:31:10+00:00",
+            title="Eli Lilly raises annual forecasts as GLP-1 drugs fuel growth",
+            content="Eli Lilly raises annual forecasts as GLP-1 drugs fuel growth.",
+            url="https://www.investing.com/news/stock-market-news/eli-lilly-raises-annual-profit-forecast-on-sustained-weightloss-drug-demand-4648662",
         )
     ]
 

@@ -988,6 +988,88 @@ def test_audit_suspicious_skips_cls_general_fast_news_with_theme(tmp_path, monke
     assert "隔夜全球要闻" not in output
 
 
+def test_audit_suspicious_skips_irm_legal_question_only_company_update(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-irm-legal-question-only",
+                first_seen_at="2026-04-30T18:30:00+08:00",
+                last_seen_at="2026-04-30T18:30:00+08:00",
+                canonical_title="山石网科：董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？对于已发生的劳动争议类案件，公司是否会按照监管规则履行相应的披露义务？",
+                summary="董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？对于已发生的劳动争议类案件，公司是否会按照监管规则履行相应的披露义务？",
+                source="irm_cninfo",
+                published_at="2026-04-30T18:30:00+08:00",
+                url="https://example.com/irm-legal-question-only",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-irm-legal-question-only",
+                direction="bearish",
+                impact_score=74.9,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "未决诉讼事项的信息披露标准" not in output
+
+
+def test_audit_suspicious_skips_sse_einteractive_legal_disclosure_policy_reply(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-legal-disclosure-policy-reply",
+                first_seen_at="2026-04-20T11:37:00+08:00",
+                last_seen_at="2026-04-20T11:37:00+08:00",
+                canonical_title="山石网科：董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？对于已发生的劳动争议类案件，公司是否会按照监管规则履行相应的披露义务？",
+                summary="问题：董秘您好，请问公司对于未决诉讼事项的信息披露标准及会计处理政策是怎样的？对于已发生的劳动争议类案件，公司是否会按照监管规则履行相应的披露义务？ 回复：尊敬的投资者您好，感谢对公司的关注。关于诉讼、纠纷等事项，公司严格按照《上海证券交易所科创板股票上市规则》等监管制度履行信息披露义务，内部建立法律风险常态化排查、动态跟踪评估与台账管理机制，持续完善内控体系，以规范透明的治理运作维护全体股东利益。谢谢。",
+                source="sse_einteractive",
+                published_at="2026-04-20T11:37:00+08:00",
+                url="https://example.com/sse-legal-disclosure-policy-reply",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-legal-disclosure-policy-reply",
+                direction="bearish",
+                impact_score=74.9,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "未决诉讼事项的信息披露标准" not in output
+
+
 def test_audit_suspicious_skips_private_robot_financing_general_fast_news(
     tmp_path, monkeypatch, capsys
 ) -> None:
