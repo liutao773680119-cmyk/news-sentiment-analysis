@@ -712,6 +712,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_nonlisted_ai_finance_story(event, text):
         return False
+    if _is_low_signal_stcn_institution_research_roundup(event, text):
+        return False
     if _is_low_signal_stcn_cooperation_exchange_story(event, text):
         return False
     if _is_low_signal_robot_competition_story(event, text):
@@ -1671,8 +1673,13 @@ def _is_low_signal_stcn_negative_platform_reply(event: Event, text: str) -> bool
     title = event.canonical_title
     return (
         "互动平台表示" in text
-        and any(keyword in title for keyword in ("暂未", "未参股", "未投资", "未布局"))
-        and any(keyword in title for keyword in ("参股", "投资", "布局"))
+        and (
+            (
+                any(keyword in title for keyword in ("暂未", "未参股", "未投资", "未布局"))
+                and any(keyword in title for keyword in ("参股", "投资", "布局"))
+            )
+            or ("未单独提取" in title and "钒产品" in title and "技术储备" in text)
+        )
     )
 
 
@@ -1737,6 +1744,22 @@ def _is_low_signal_stcn_nonlisted_ai_finance_story(event: Event, text: str) -> b
         and "年报显示" in text
         and "AI算力规模同比提升" in text
         and "日均Token消耗" in text
+    )
+
+
+def _is_low_signal_stcn_institution_research_roundup(event: Event, text: str) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "business_guidance"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "近一周机构调研个股超" in title
+        and "调研机构数最多" in title
+        and "机构调研股平均上涨" in text
     )
 
 
@@ -1897,6 +1920,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("液冷服务器领域有什么产品布局" in title and "已经在液冷服务器方面有所应用" in title)
             or ("通过重整引入有实力的半导体行业产业投资者" in title and "半导体业务产生协同效应" in title)
             or ("咨询三个公司运营情况" in title and "林业碳汇推进多年" in title and "建议放弃" in title)
+            or ("资本市场仍把贵公司传统归类为小金属题材" in title and "专项路演" in title and "价值宣讲" in title and "修复公司合理市值估值" in title)
         )
 
     return (

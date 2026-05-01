@@ -12091,6 +12091,18 @@ def test_write_text_report_filters_stcn_negative_platform_reply_without_hiding_r
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-stcn-negative-platform-vanadium-reply",
+            first_seen_at="2026-05-01T21:12:17+08:00",
+            last_seen_at="2026-05-01T21:12:17+08:00",
+            canonical_title="安宁股份：目前公司未单独提取钒产品",
+            summary="人民财讯5月1日电，安宁股份(002978)5月1日在互动平台表示，公司一直致力于钒钛磁铁矿的综合利用，在钒清洁提取以及钒电解液制备方面有一定的技术储备，但目前公司未单独提取钒产品。",
+            source="stcn",
+            published_at="2026-05-01T21:12:17+08:00",
+            url="https://example.com/stcn-negative-platform-vanadium-reply",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-cls-robotaxi-launch-keep",
             first_seen_at="2026-04-21T08:44:12+08:00",
             last_seen_at="2026-04-21T08:44:12+08:00",
@@ -12105,12 +12117,14 @@ def test_write_text_report_filters_stcn_negative_platform_reply_without_hiding_r
     ]
     analyses = [
         EventAnalysis(event_id="event-stcn-negative-platform-reply", direction="neutral", impact_score=99.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-stcn-negative-platform-vanadium-reply", direction="neutral", impact_score=99.0, reasoning="rule", themes=["锂电池"], triggered=True),
         EventAnalysis(event_id="event-cls-robotaxi-launch-keep", direction="bullish", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "国星光电：暂未参股CPO、存储芯片类科技公司" not in content
+    assert "安宁股份：目前公司未单独提取钒产品" not in content
     assert "吉利将于2026北京车展发布中国首台原生Robotaxi原型车" in content
 
 
@@ -12432,6 +12446,18 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-dongfangta-valuation-roadshow-question-only",
+            first_seen_at="2026-05-01T20:24:34+08:00",
+            last_seen_at="2026-05-01T20:24:34+08:00",
+            canonical_title="东方钽业：目前资本市场仍把贵公司传统归类为小金属题材，并未充分认知公司在AI光模块、薄膜铌酸锂上游的核心龙头价值。公司后续是否计划举办专项路演、机构调研、价值宣讲，向市场充分介绍5N/6N高纯铌在TFLN、AI算力产业链的稀缺地位与成长前景，修复公司合理市值估值？",
+            summary="目前资本市场仍把贵公司传统归类为小金属题材，并未充分认知公司在AI光模块、薄膜铌酸锂上游的核心龙头价值。公司后续是否计划举办专项路演、机构调研、价值宣讲，向市场充分介绍5N/6N高纯铌在TFLN、AI算力产业链的稀缺地位与成长前景，修复公司合理市值估值？",
+            source="irm_cninfo",
+            published_at="2026-05-01T20:24:34+08:00",
+            url="https://example.com/irm-dongfangta-valuation-roadshow-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12471,6 +12497,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-jinshi-liquid-cooling-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-sthuangting-reorg-semiconductor-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
         EventAnalysis(event_id="event-irm-fujianjinsen-three-operations-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-dongfangta-valuation-roadshow-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12502,6 +12529,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "金时科技：董秘您好，作为股东，时刻关注着公司的成长与发展，请问公司在液冷服务器领域有什么产品布局？" not in content
     assert "*ST皇庭：公司有没可能通过重整引入有实力的半导体行业产业投资者" not in content
     assert "福建金森：董秘好； 咨询三个公司运营情况，第一，公司林业碳汇推进多年" not in content
+    assert "东方钽业：目前资本市场仍把贵公司传统归类为小金属题材" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
@@ -16538,6 +16566,18 @@ def test_write_text_report_filters_latest_live_head_noise_cluster_without_hiding
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-stcn-institution-research-roundup",
+            first_seen_at="2026-05-01T20:19:51+08:00",
+            last_seen_at="2026-05-01T20:19:51+08:00",
+            canonical_title="近一周机构调研个股超700只 迈瑞医疗和金盘科技调研机构数最多",
+            summary="人民财讯5月1日电，近一周机构调研个股有700多只，迈瑞医疗和金盘科技调研机构数最多。迈瑞医疗有219家机构调研。金盘科技数据中心领域实现销售订单17.35亿元，同比增长278.45%。从市场表现来看，近一周机构调研股平均上涨1.16%。",
+            source="stcn",
+            published_at="2026-05-01T20:19:51+08:00",
+            url="https://example.com/stcn-institution-research-roundup",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-keep-risk",
             first_seen_at="2026-05-01T00:00:00+08:00",
             last_seen_at="2026-05-01T00:00:00+08:00",
@@ -16568,6 +16608,7 @@ def test_write_text_report_filters_latest_live_head_noise_cluster_without_hiding
         EventAnalysis(event_id="event-ruihuatai-supply-chain-question", direction="neutral", impact_score=99.9, reasoning="rule", themes=["PCB"], triggered=True),
         EventAnalysis(event_id="event-lianhua-progress", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-em-best-month", direction="bearish", impact_score=74.3, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-stcn-institution-research-roundup", direction="bullish", impact_score=99.0, reasoning="rule", themes=["算力", "保险"], triggered=True),
         EventAnalysis(event_id="event-keep-risk", direction="bearish", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-keep-cooperation", direction="neutral", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
     ]
@@ -16580,5 +16621,6 @@ def test_write_text_report_filters_latest_live_head_noise_cluster_without_hiding
     assert "是否已经进入生益科技这些头部企业的供应链" not in content
     assert "莲花控股股份有限公司关于转型算力业务相关进展情况的公告" not in content
     assert "新兴市场股市录得2022年以来最佳单月表现" not in content
+    assert "近一周机构调研个股超700只 迈瑞医疗和金盘科技调研机构数最多" not in content
     assert "佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告" in content
     assert "腾云智算与华为达成深度合作 共筑福建智算新生态" in content
