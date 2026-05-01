@@ -1,5 +1,54 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-01 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮从后台 loop 巡检继续：
+  - `news-sentiment-watch` 正常运行
+  - `failed_sources=none`
+  - `audit-suspicious=0`
+  - 但 `latest_report.txt` 头部持续滚入新一批 `stcn / irm_cninfo` 尾噪，所以继续按最窄规则收口
+- 本轮已处理：
+  - `stcn public affairs`：
+    - `刘小明在海南商业航天发射场看望慰问...`
+  - `irm_cninfo` question-only 弱问答：
+    - `福建金森`
+    - `东方钽业`
+  - `stcn` 榜单/综述：
+    - `近一周机构调研个股超700只`
+  - `stcn negative platform reply`：
+    - `安宁股份：目前公司未单独提取钒产品`
+- 当前验证：
+  - `tests/test_text_report_sorting.py -q` -> `236 passed`
+  - `audit-suspicious --limit 10` -> `suspicious_count=0`
+  - 串行重写后的 `latest_report.txt` 已确认本轮目标样本退出
+- 当前提交：
+  - `881c5d6 fix: trim latest public affairs and irm complaint noise`
+  - `772fa56 fix: trim latest survey roundup and platform qa noise`
+- 当前结论：
+  - A股头部已基本回到风险/订单合同样本
+  - 当前更值得观察的是全球分区边界，不是继续压 A 股问答尾噪
+- 当前风险：
+  - loop 最新自动落盘块仍是 `2026-05-01_20:52:50`，早于最后一批规则提交
+  - `HF Sinclair` 和 `AIG` 目前属于边界样本，继续下刀的过拟合风险开始升高
+
+## Immediate Next Steps (2026-05-01 latest)
+1. 先只读查看：
+   - `tail -n 120 /tmp/news-sentiment-watch.log`
+   - `sed -n '1,170p' data/reports/latest_report.txt`
+2. 确认下一轮 loop 已经吃到 `772fa56`。
+3. 只盯两个全球分区边界：
+   - `HF Sinclair` 二季度原油加工量指引
+   - `AIG` 软件风险敞口
+4. 只有它们连续多轮稳定占头部，才按：
+   - 红灯测试
+   - 最窄规则
+   - `tests/test_text_report_sorting.py`
+   - `report` + `audit-suspicious`
+5. 暂不建议：
+   - 扩题材库
+   - 动 `event_merge / analysis / source enable`
+   - 为了更短头部继续压当前真实风险公告
+
 ## Update 2026-04-29 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮从 2026-04-28 交接继续，只读复核后发现：

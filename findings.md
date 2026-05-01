@@ -1,5 +1,29 @@
 # Findings & Decisions
 
+## Update 2026-05-01 (latest)
+- 当前最有效的动作仍是 `text_report` 层的最窄 live 样本收口，不是回头改 `event_merge / analysis`
+- 本轮新增确认：
+  - 后台 `news-sentiment-watch` 正常运行，但 log 最新块可能早于最新 commit；判断规则是否生效时必须等下一轮 loop
+  - `audit-suspicious=0` 之后，report 头部仍可能继续滚入新的 `stcn / irm_cninfo` 尾噪，不能只看 audit
+  - `report` 重写和读取必须串行；并行时很容易误读成“规则没生效”
+  - `stcn public affairs` 会继续以“领导调研/看望慰问/活动进展”变体回流，即使带主题也优先按尾噪处理
+  - `irm_cninfo` 还会继续出现“估值修复/专项路演/机构调研/价值宣讲”这类 title-only 问答，优先在 question-only helper 里收最窄口径
+  - `stcn` 还会出现“近一周机构调研个股超X只”这类榜单型综述，优先在 report 层收，不动上游 subtype
+- 本轮已收掉的低信号家族：
+  - `stcn`：领导调研慰问活动、机构调研榜单、负面互动平台回复变体
+  - `irm_cninfo`：`福建金森`、`东方钽业` 这类纯提问标题弱问答
+- 当前明确保留：
+  - A股风险公告主头部
+  - `奇瑞集团4月销量超25万辆`
+  - 全球分区边界暂时保留：`HF Sinclair`、`AIG`
+- 当前验证结论：
+  - `tests/test_text_report_sorting.py` -> `236 passed`
+  - `audit-suspicious=0`
+  - 串行强制刷新后的 `latest_report.txt` 中，本轮目标弱样本已全部退出
+- 下一步判断：
+  - 现在更适合等下一轮 loop，而不是继续补词
+  - 若 `HF Sinclair / AIG` 连续多轮稳定占头部，再单独决定是否处理
+
 ## Update 2026-04-29 (latest)
 - 当前最有价值动作仍是 `text_report` 层最窄尾噪收口；本轮没有动 `event_merge / analysis / source enable`
 - 本轮新增确认：

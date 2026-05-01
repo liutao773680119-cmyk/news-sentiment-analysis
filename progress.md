@@ -1,5 +1,69 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-01)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `live report 尾噪收口 + 后台 loop 巡检 + 标准交接`
+- Files Changed:
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+- Completed This Session:
+  - 持续只读看 `news-sentiment-watch` 后台 loop、`latest_report.txt` 头部和 `audit-suspicious`，没有先扩题材库，也没有动 `event_merge / analysis / source enable`
+  - 已确认后台 loop 正常滚动，最近自动落盘到 `2026-05-01_20:52:50`，`failed_sources=none`
+  - 基于当天 live 样本，按“红灯测试 -> 最窄规则 -> 验证”连续收掉：
+    - `stcn public affairs` 领导调研/慰问活动口径
+    - `irm_cninfo` 纯提问标题：`福建金森`、`东方钽业`
+    - `stcn` 榜单/综述：`近一周机构调研个股超700只`
+    - `stcn negative platform reply`：`安宁股份：目前公司未单独提取钒产品`
+  - 已推送最近两批代码提交：
+    - `881c5d6 fix: trim latest public affairs and irm complaint noise`
+    - `772fa56 fix: trim latest survey roundup and platform qa noise`
+- Current Verification:
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `236 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - 串行强制重写 report 后读取 `latest_report.txt` -> 本轮目标弱样本均无命中
+  - `tmux ls | rg news-sentiment-watch` -> session 仍在
+  - `tail -n 120 /tmp/news-sentiment-watch.log` -> 最新自动落盘块为 `2026-05-01_20:52:50`
+- Current Report Head After Refresh:
+  - A股头部主要剩：
+    - `皖维高新`
+    - `佳通轮胎`
+    - `美克家居`
+    - `潜能恒信`
+    - `元道通信`
+  - 当前边界样本主要剩：
+    - `HF Sinclair` 二季度原油加工量指引
+    - `AIG` 软件风险敞口
+    - `奇瑞集团4月销量超25万辆`
+- Open TODO:
+  - 等下一轮 `news-sentiment-watch` 自动吃到 `772fa56`
+  - 下一轮先只读复核：
+    - `tail -n 120 /tmp/news-sentiment-watch.log`
+    - `sed -n '1,170p' data/reports/latest_report.txt`
+  - 只盯两个全球分区边界：
+    - `HF Sinclair`
+    - `AIG`
+  - 如果它们连续多轮稳定占头部，再补最窄规则；否则停手，不继续过拟合
+- Risks/Blockers:
+  - `audit-suspicious=0` 仍不代表 report 头部一定合理，必须直接看 report
+  - 后台 loop 的最新 log 块可能早于刚推送的 commit；不能拿上一轮 log 判断“新规则没生效”
+  - `urllib3 NotOpenSSLWarning` 仍会出现，但当前命令退出码为 0
+- Next First Command:
+  - `tail -n 120 /tmp/news-sentiment-watch.log`
+- Known Avoidances:
+  - 不要把 `report` 重写和 `sed latest_report.txt` 并行执行；要先写后读
+  - 不要用上一轮 log 块直接判断新提交未生效；必须等下一轮 loop
+  - 不要在 A 股头部已基本干净时继续为了更短头部机械扩词
+
 ## Latest Handoff Snapshot (2026-04-29)
 - Task-ID:
   - `global-multisource-mainline`
