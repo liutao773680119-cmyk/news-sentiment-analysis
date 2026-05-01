@@ -112,6 +112,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "调研先进制造业发展",
     "人形机器人半马",
     "文旅经济发展大会召开",
+    "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
 )
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",

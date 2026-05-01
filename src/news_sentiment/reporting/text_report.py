@@ -589,6 +589,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "文旅消费周活动",
     "以旧换新国补扩品",
     "“数据跨境”主题交流活动",
+    "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -1895,6 +1896,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("机器人领域的发展嘛" in title and "行星滚柱丝杠" in title and "灵巧手" in title)
             or ("液冷服务器领域有什么产品布局" in title and "已经在液冷服务器方面有所应用" in title)
             or ("通过重整引入有实力的半导体行业产业投资者" in title and "半导体业务产生协同效应" in title)
+            or ("咨询三个公司运营情况" in title and "林业碳汇推进多年" in title and "建议放弃" in title)
         )
 
     return (

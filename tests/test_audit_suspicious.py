@@ -1373,3 +1373,43 @@ def test_audit_suspicious_skips_stcn_public_affairs_conference_story(tmp_path, m
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "2026年福建省文旅经济发展大会召开" not in output
+
+
+def test_audit_suspicious_skips_stcn_public_affairs_leader_visit_story(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-hainan-spaceport-public-affairs",
+                first_seen_at="2026-05-01T18:12:30+08:00",
+                last_seen_at="2026-05-01T18:12:30+08:00",
+                canonical_title="刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
+                summary="人民财讯5月1日电，据海南日报，5月1日上午，海南省省长刘小明在海南商业航天发射场，看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况。",
+                source="stcn",
+                published_at="2026-05-01T18:12:30+08:00",
+                url="https://example.com/stcn-hainan-spaceport-public-affairs",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-hainan-spaceport-public-affairs",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["商业航天"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况" not in output

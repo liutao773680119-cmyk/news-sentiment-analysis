@@ -5692,6 +5692,18 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
             event_type="fast_news",
             event_subtype="company_update",
         ),
+        Event(
+            event_id="event-stcn-hainan-spaceport-public-affairs",
+            first_seen_at="2026-05-01T18:12:30+08:00",
+            last_seen_at="2026-05-01T18:12:30+08:00",
+            canonical_title="刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
+            summary="人民财讯5月1日电，据海南日报，5月1日上午，海南省省长刘小明在海南商业航天发射场，看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况。",
+            source="stcn",
+            published_at="2026-05-01T18:12:30+08:00",
+            url="https://example.com/stcn-hainan-spaceport-public-affairs",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
     ]
     analyses = [
         EventAnalysis(
@@ -5766,6 +5778,14 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
             themes=["数据安全"],
             triggered=True,
         ),
+        EventAnalysis(
+            event_id="event-stcn-hainan-spaceport-public-affairs",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["商业航天"],
+            triggered=True,
+        ),
     ]
 
     write_text_report(paths, events, analyses)
@@ -5773,6 +5793,7 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
     assert "千问3.6Plus大模型登顶全球模型调用排行榜首，日调用量破万亿" in content
     assert "5月1日正式启动 湖北以旧换新国补扩品" not in content
     assert "第九届数字中国建设峰会“数据跨境”主题交流活动在福州成功举办" not in content
+    assert "刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况" not in content
     assert "能源供应趋紧 韩国鼓励非高峰使用公共交通" not in content
     assert "南非新政延长签证宽限期 将刺激旅游市场" not in content
     assert "清明假期第一天 全社会跨区域人员流动量预计约2.96亿人次" not in content
@@ -12399,6 +12420,18 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-fujianjinsen-three-operations-question-only",
+            first_seen_at="2026-05-01T19:51:40+08:00",
+            last_seen_at="2026-05-01T19:51:40+08:00",
+            canonical_title="福建金森：董秘好； 咨询三个公司运营情况，第一，公司林业碳汇推进多年，为何不见营收？是政策问题还是公司推进问题？第二，生物质燃料投产了没？与申能的战略合作是否稳步推进。第三，转接收金湖电力股份一事是否作罢？ 另外提供一个建议，林下经济难成规模，并且容易“林下黑”，建议放弃！ 祝好。",
+            summary="董秘好； 咨询三个公司运营情况，第一，公司林业碳汇推进多年，为何不见营收？是政策问题还是公司推进问题？第二，生物质燃料投产了没？与申能的战略合作是否稳步推进。第三，转接收金湖电力股份一事是否作罢？ 另外提供一个建议，林下经济难成规模，并且容易“林下黑”，建议放弃！ 祝好。",
+            source="irm_cninfo",
+            published_at="2026-05-01T19:51:40+08:00",
+            url="https://example.com/irm-fujianjinsen-three-operations-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12437,6 +12470,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-genesis-robot-parts-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
         EventAnalysis(event_id="event-irm-jinshi-liquid-cooling-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-sthuangting-reorg-semiconductor-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-fujianjinsen-three-operations-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12467,6 +12501,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "创世纪：公司领导层重视机器人领域的发展嘛？" not in content
     assert "金时科技：董秘您好，作为股东，时刻关注着公司的成长与发展，请问公司在液冷服务器领域有什么产品布局？" not in content
     assert "*ST皇庭：公司有没可能通过重整引入有实力的半导体行业产业投资者" not in content
+    assert "福建金森：董秘好； 咨询三个公司运营情况，第一，公司林业碳汇推进多年" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
