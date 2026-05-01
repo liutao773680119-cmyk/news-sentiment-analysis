@@ -13278,17 +13278,45 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
             event_type="fast_news",
             event_subtype="order_contract",
         ),
+        Event(
+            event_id="event-sse-stock-price-complaint-csb-1",
+            first_seen_at="2026-04-30T18:36:00+08:00",
+            last_seen_at="2026-04-30T18:36:00+08:00",
+            canonical_title="中国船舶：公司提出所谓 “长期、稳定、可持续” 的股东回报,真是令人啼笑皆非。贵公司在二级市场融资千亿，然分红寥寥。好不容易盼到船市转好，公司旗下半数船厂效率低下，净利率远低于市场水平。以至于被二级市场厌弃，公司能否拿出实际行动出来增持公司股份，做好市值管理，给二级市场信心？",
+            summary="问题：公司提出所谓 “长期、稳定、可持续” 的股东回报,真是令人啼笑皆非。贵公司在二级市场融资千亿，然分红寥寥。好不容易盼到船市转好，公司旗下半数船厂效率低下，净利率远低于市场水平。以至于被二级市场厌弃，公司能否拿出实际行动出来增持公司股份，做好市值管理，给二级市场信心？ 回复：您好，感谢您的关注和建议。公司已披露2025年年度报告及2026年第一季度报告。2025年，公司实现归母净利润78.48亿元，同比增长86.00%。2026年一季度，公司实现归母净利润48.32亿元，同比增长251.64%。有关分红方面，2025年，公司每10股派发现金红利3.65元（含税），即派发红利总额2,746,851,770.12元（含税），占公司当年度实现归属于母公司股东净利润的比例达到35.00%，现金分红金额较上年增长145.71%。此外，公司拟综合考虑盈利状况、经营发展、合理回报股东等情况，制定2026年中期现金分红方案，中期现金分红总额预计不低于2026年上半年实现的归属于上市公司股东的净利润的35%，以实际行动切实提升投资者获得感与回报水平，与投资者共享高质量发展成果。谢谢！",
+            source="sse_einteractive",
+            published_at="2026-04-30T18:36:00+08:00",
+            url="https://example.com/sse-stock-price-complaint-csb-1",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-stock-price-complaint-csb-2",
+            first_seen_at="2026-04-30T18:35:00+08:00",
+            last_seen_at="2026-04-30T18:35:00+08:00",
+            canonical_title="中国船舶：尊敬的董秘您好，贵司市值被低估相信贵集团领导也感同身受，当前几乎所有卖方及机构投资者都用订单市值比来对公司进行估值，但这种估值方法似乎只统计公司民船资产的价值，即P/O法估值的分母仅包括民船，所以现在市场对公司军工资产估值似乎为零，投资者理解公司有些信息不能披露，但公司这十几年来涨幅落后于其他军工集团及航运企业，分红和回购力度亦不及其余央企，希望公司不仅要有强军担当，亦要在资本市场做好表率。",
+            summary="问题：尊敬的董秘您好，贵司市值被低估相信贵集团领导也感同身受，当前几乎所有卖方及机构投资者都用订单市值比来对公司进行估值，但这种估值方法似乎只统计公司民船资产的价值，即P/O法估值的分母仅包括民船，所以现在市场对公司军工资产估值似乎为零，投资者理解公司有些信息不能披露，但公司这十几年来涨幅落后于其他军工集团及航运企业，分红和回购力度亦不及其余央企，希望公司不仅要有强军担当，亦要在资本市场做好表率。 回复：您好，感谢您的关注和理解。股价涨跌受诸多方面影响，公司高度关注二级市场股价走势，历来重视价值创造、价值经营和价值实现的相关工作，持续强化经营管理，提升核心技术和核心竞争力。我们结合船舶行业景气度上升周期，组织开展了业绩说明会、中小股东开放日活动、“走出去”和“请进来”的路演与反路演、积极开展分红等措施，全力向市场阐述好公司经济价值、功能价值和战略价值，努力推动上市公司市场价值与内在价值相匹配。2025年，公司每10股派发现金红利3.65元（含税），即派发红利总额2,746,851,770.12元（含税），占公司当年度实现归属于母公司股东净利润的比例达到35.00%，现金分红金额较上年增长145.71%。此外，公司拟综合考虑盈利状况、经营发展、合理回报股东等情况，制定2026年中期现金分红方案，中期现金分红总额预计不低于2026年上半年实现的归属于上市公司股东的净利润的35%，以实际行动切实提升投资者获得感与回报水平，与投资者共享高质量发展成果。谢谢！",
+            source="sse_einteractive",
+            published_at="2026-04-30T18:35:00+08:00",
+            url="https://example.com/sse-stock-price-complaint-csb-2",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
     ]
     analyses = [
         EventAnalysis(event_id="event-sse-stock-price-complaint-1", direction="neutral", impact_score=99.9, reasoning="rule", themes=["绿电"], triggered=True),
         EventAnalysis(event_id="event-sse-stock-price-complaint-2", direction="neutral", impact_score=99.9, reasoning="rule", themes=["电力"], triggered=True),
         EventAnalysis(event_id="event-sse-keep-substantive-reply", direction="bullish", impact_score=99.9, reasoning="rule", themes=["光通信"], triggered=True),
+        EventAnalysis(event_id="event-sse-stock-price-complaint-csb-1", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-stock-price-complaint-csb-2", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "大跌的原因是什么" not in content
     assert "请董秘给个解释" not in content
+    assert "二级市场融资千亿" not in content
+    assert "贵司市值被低估" not in content
     assert "硅光集成产线预计2026年底通线" in content
 
 

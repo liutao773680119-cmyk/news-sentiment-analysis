@@ -1964,6 +1964,10 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
             and "请理性看待" in text
         )
         or (
+            any(keyword in title for keyword in ("市值被低估", "二级市场融资千亿"))
+            and any(keyword in text for keyword in ("价值创造、价值经营和价值实现", "中期现金分红方案", "投资者获得感与回报水平"))
+        )
+        or (
             "获得行业知名客户订单" in title
             and "这个客户是近日上市的" in title
             and "AI芯片先进封装的关键材料之一" in text
