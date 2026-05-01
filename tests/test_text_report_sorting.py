@@ -5680,6 +5680,18 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
             event_type="fast_news",
             event_subtype="company_update",
         ),
+        Event(
+            event_id="event-stcn-data-cross-border-forum",
+            first_seen_at="2026-05-01T14:24:38+08:00",
+            last_seen_at="2026-05-01T14:24:38+08:00",
+            canonical_title="第九届数字中国建设峰会“数据跨境”主题交流活动在福州成功举办",
+            summary="第九届数字中国建设峰会“数据跨境”主题交流活动在福州成功举办，发布跨境流动与数据安全相关成果并举行签约。",
+            source="stcn",
+            published_at="2026-05-01T14:24:38+08:00",
+            url="https://example.com/stcn-data-cross-border-forum",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
     ]
     analyses = [
         EventAnalysis(
@@ -5746,12 +5758,21 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
             themes=["机器人"],
             triggered=True,
         ),
+        EventAnalysis(
+            event_id="event-stcn-data-cross-border-forum",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["数据安全"],
+            triggered=True,
+        ),
     ]
 
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "千问3.6Plus大模型登顶全球模型调用排行榜首，日调用量破万亿" in content
     assert "5月1日正式启动 湖北以旧换新国补扩品" not in content
+    assert "第九届数字中国建设峰会“数据跨境”主题交流活动在福州成功举办" not in content
     assert "能源供应趋紧 韩国鼓励非高峰使用公共交通" not in content
     assert "南非新政延长签证宽限期 将刺激旅游市场" not in content
     assert "清明假期第一天 全社会跨区域人员流动量预计约2.96亿人次" not in content
@@ -12306,6 +12327,42 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-stnengte-major-holder-increase-question-only",
+            first_seen_at="2026-05-01T14:41:13+08:00",
+            last_seen_at="2026-05-01T14:41:13+08:00",
+            canonical_title="ST能特：大股东怎么不发增持消息。",
+            summary="大股东怎么不发增持消息。",
+            source="irm_cninfo",
+            published_at="2026-05-01T14:41:13+08:00",
+            url="https://example.com/irm-stnengte-major-holder-increase-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-stjingji-reduction-disclosure-question-only",
+            first_seen_at="2026-05-01T14:41:13+08:00",
+            last_seen_at="2026-05-01T14:41:13+08:00",
+            canonical_title="ST京机：为什么第一季度京山京源持股数量减少，却没有发布减持公告",
+            summary="为什么第一季度京山京源持股数量减少，却没有发布减持公告",
+            source="irm_cninfo",
+            published_at="2026-05-01T14:41:13+08:00",
+            url="https://example.com/irm-stjingji-reduction-disclosure-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-yanhu-buyback-dividend-pressure-question-only",
+            first_seen_at="2026-05-01T14:41:13+08:00",
+            last_seen_at="2026-05-01T14:41:13+08:00",
+            canonical_title="盐湖股份：优质公司普遍珍惜股权，通过回购增持、高分红回馈股东。反观公司，尽管业绩向好，却历史上面临银行，中化等股东持续减持，且连续多年未现金分红，令中小投资者对股权价值产生疑虑。请问公司：后续是否有具体计划（如加大回购注销力度、恢复分红政策）来对冲陕煤减持压力，并实质性提升股东回报？而非仅停留在“口头重视”层面。期待明确的时间表与量化目标。",
+            summary="优质公司普遍珍惜股权，通过回购增持、高分红回馈股东。反观公司，尽管业绩向好，却历史上面临银行，中化等股东持续减持，且连续多年未现金分红，令中小投资者对股权价值产生疑虑。请问公司：后续是否有具体计划（如加大回购注销力度、恢复分红政策）来对冲陕煤减持压力，并实质性提升股东回报？而非仅停留在“口头重视”层面。期待明确的时间表与量化目标。",
+            source="irm_cninfo",
+            published_at="2026-05-01T14:41:13+08:00",
+            url="https://example.com/irm-yanhu-buyback-dividend-pressure-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12338,6 +12395,9 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-zhongmi-revenue-drop-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-wordgame-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-target-gap-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-stnengte-major-holder-increase-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-stjingji-reduction-disclosure-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-yanhu-buyback-dividend-pressure-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12362,6 +12422,9 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "中密控股：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？" not in content
     assert "中密控股：打公司投资者电话回复25年股权激励达标" not in content
     assert "中密控股：你好，2025年年报中公司未来展望" not in content
+    assert "ST能特：大股东怎么不发增持消息。" not in content
+    assert "ST京机：为什么第一季度京山京源持股数量减少，却没有发布减持公告" not in content
+    assert "盐湖股份：优质公司普遍珍惜股权，通过回购增持、高分红回馈股东。" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 

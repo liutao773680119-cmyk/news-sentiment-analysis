@@ -588,6 +588,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "文旅经济发展大会召开",
     "文旅消费周活动",
     "以旧换新国补扩品",
+    "“数据跨境”主题交流活动",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -1888,6 +1889,9 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("在手订单充足" in title and "26年1季度" in title and "营收同比下降是什么原因" in title)
             or ("股权激励达标" in title and "玩文字游戏" in title and "股权激励草案可没说" in title)
             or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "2026年的净利润会低于" in title)
+            or ("大股东怎么不发增持消息" in title)
+            or ("持股数量减少" in title and "没有发布减持公告" in title)
+            or ("回购增持" in title and "高分红回馈股东" in title and "恢复分红政策" in title and "时间表与量化目标" in title)
         )
 
     return (
