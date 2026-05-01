@@ -889,6 +889,9 @@ def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
         "监管工作函" in title
         and "评估相关问题的回复" in title
         and any(keyword in title for keyword in context_keywords + ("股权收购",))
+    ) or (
+        "专项核查意见" in title
+        and any(keyword in title for keyword in ("重大资产重组前发生业绩异常", "拟置出资产情形"))
     )
 
 
@@ -1143,6 +1146,8 @@ def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> 
         "框架协议" in title and "自愿性披露公告" in title
     ) or (
         "购买土地使用权" in title and "投资合作意向书" in title
+    ) or (
+        "转型算力业务相关进展情况" in title
     )
 
 
@@ -1444,6 +1449,9 @@ def _is_low_signal_cls_general_fast_news_market_brief(event: Event) -> bool:
     return any(
         keyword in event.canonical_title
         for keyword in LOW_SIGNAL_CLS_GENERAL_FAST_NEWS_MARKET_BRIEF_KEYWORDS
+    ) or (
+        "新兴市场股市" in event.canonical_title
+        and "最佳单月表现" in event.canonical_title
     )
 
 
@@ -1954,6 +1962,18 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
             any(keyword in title for keyword in ("大跌的原因是什么", "给个解释", "分红还没分呢", "优等生"))
             and "公司股价走势受行业周期、市场资金偏好、市场风格切换等多重因素综合影响" in text
             and "请理性看待" in text
+        )
+        or (
+            "获得行业知名客户订单" in title
+            and "这个客户是近日上市的" in title
+            and "AI芯片先进封装的关键材料之一" in text
+            and "国产替代潜力巨大" in text
+        )
+        or (
+            "是否已经进入" in title
+            and "供应链" in title
+            and "已进入" in text
+            and "知名厂商的供应体系" in text
         )
         or any(keyword in text for keyword in LOW_SIGNAL_SSE_EINTERACTIVE_INVESTOR_QA_COMPLAINT_KEYWORDS[:4])
         and "股价" in text

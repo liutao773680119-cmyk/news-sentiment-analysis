@@ -16028,3 +16028,113 @@ def test_write_text_report_filters_latest_interactive_ai_and_exchange_material_n
     assert "港股IPO：山推工程机械股份有限公司表港交所" not in content
     assert "财联社4月30日电，谷歌合作伙伴NovaCore Labs与Aibotics推进收购事宜" not in content
     assert "当前存储行业整体处于涨价周期" not in content
+
+
+def test_write_text_report_filters_latest_live_head_noise_cluster_without_hiding_real_catalysts(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-yingtang-material",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="英唐智控：中审众环关于公司重大资产重组前发生业绩异常或存在拟置出资产情形的专项核查意见",
+            summary="英唐智控披露重大资产重组专项核查意见。",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/yingtang-material",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-aisen-order-question",
+            first_seen_at="2026-04-30T18:35:00+08:00",
+            last_seen_at="2026-04-30T18:35:00+08:00",
+            canonical_title="艾森股份：第二个问题，据媒体报道，贵司官微今日4.22发布消息，自研低温PSPI获得行业知名客户订单。请再详细介绍一下有关情况。这个客户是近日上市的盛合晶微吗？感谢！",
+            summary="问题：第二个问题，据媒体报道，贵司官微今日4.22发布消息，自研低温PSPI获得行业知名客户订单。请再详细介绍一下有关情况。这个客户是近日上市的盛合晶微吗？感谢！ 回复：尊敬的投资者您好，公司低温PSPI可作为核心绝缘和介电材料，应用于扇出型晶圆级封装、2.5D/3D封装等，作为RDL绝缘层、TSV侧壁钝化与填充、晶圆级封装(WLP)中的钝化层、缓冲层和保护膜。低温PSPI是AI芯片先进封装的关键材料之一，目前仍由美日企业高度垄断，国产替代潜力巨大。感谢您的关注与支持！",
+            source="sse_einteractive",
+            published_at="2026-04-30T18:35:00+08:00",
+            url="https://example.com/aisen-order-question",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-ruihuatai-supply-chain-question",
+            first_seen_at="2026-04-30T18:37:00+08:00",
+            last_seen_at="2026-04-30T18:37:00+08:00",
+            canonical_title="瑞华泰：PI膜作为PCB、FPC的核心材料，目前国产替代的比例还很少，瑞华泰作为国产PI的龙头，是否已经进入生益科技这些头部企业的供应链？谢谢！",
+            summary="问题：PI膜作为PCB、FPC的核心材料，目前国产替代的比例还很少，瑞华泰作为国产PI的龙头，是否已经进入生益科技这些头部企业的供应链？谢谢！ 回复：尊敬的投资者您好！公司生产的电子基材用PI薄膜，具备良好的介电性能及尺寸稳定性，可广泛应用于消费电子、5G通信、汽车电子等领域，适配折叠屏手机、可穿戴设备等产品的高精密柔性电路需求，产品已进入生益科技、联茂等知名厂商的供应体系。感谢您对公司的关注。",
+            source="sse_einteractive",
+            published_at="2026-04-30T18:37:00+08:00",
+            url="https://example.com/ruihuatai-supply-chain-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-lianhua-progress",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="莲花控股股份有限公司关于转型算力业务相关进展情况的公告",
+            summary="莲花控股股份有限公司关于转型算力业务相关进展情况的公告",
+            source="sse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/lianhua-progress",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-em-best-month",
+            first_seen_at="2026-05-01T06:51:56+08:00",
+            last_seen_at="2026-05-01T06:51:56+08:00",
+            canonical_title="新兴市场股市录得2022年以来最佳单月表现 AI热潮与油价风险交织",
+            summary="【新兴市场股市录得2022年以来最佳单月表现 AI热潮与油价风险交织】财联社5月1日电，新兴市场股市录得自2022年以来最佳单月表现，得益于亚洲科技股因人工智能需求前景乐观而大涨，尽管美伊围绕霍尔木兹海峡对峙之际，石油供应冲击仍在持续。MSCI新兴市场指数4月上涨14.5%，收复战争爆发后出现的跌幅。",
+            source="cls",
+            published_at="2026-05-01T06:51:56+08:00",
+            url="https://example.com/em-best-month",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-keep-risk",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告",
+            summary="佳通轮胎披露收到中国证监会立案告知书。",
+            source="sse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/keep-risk",
+            event_type="hard_event",
+            event_subtype="legal_dispute",
+        ),
+        Event(
+            event_id="event-keep-cooperation",
+            first_seen_at="2026-05-01T07:42:21+08:00",
+            last_seen_at="2026-05-01T07:42:21+08:00",
+            canonical_title="腾云智算与华为达成深度合作 共筑福建智算新生态",
+            summary="财联社5月1日电，腾云智算与华为达成深度合作，共筑福建智算新生态。",
+            source="cls",
+            published_at="2026-05-01T07:42:21+08:00",
+            url="https://example.com/keep-cooperation",
+            event_type="fast_news",
+            event_subtype="cooperation_agreement",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-yingtang-material", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-aisen-order-question", direction="bullish", impact_score=99.9, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-ruihuatai-supply-chain-question", direction="neutral", impact_score=99.9, reasoning="rule", themes=["PCB"], triggered=True),
+        EventAnalysis(event_id="event-lianhua-progress", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-em-best-month", direction="bearish", impact_score=74.3, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-risk", direction="bearish", impact_score=78.5, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-cooperation", direction="neutral", impact_score=99.3, reasoning="rule", themes=["算力"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "重大资产重组前发生业绩异常或存在拟置出资产情形的专项核查意见" not in content
+    assert "自研低温PSPI获得行业知名客户订单" not in content
+    assert "是否已经进入生益科技这些头部企业的供应链" not in content
+    assert "莲花控股股份有限公司关于转型算力业务相关进展情况的公告" not in content
+    assert "新兴市场股市录得2022年以来最佳单月表现" not in content
+    assert "佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告" in content
+    assert "腾云智算与华为达成深度合作 共筑福建智算新生态" in content
