@@ -12129,6 +12129,42 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-fensheng-valuation-question-only",
+            first_seen_at="2026-05-01T00:36:19+08:00",
+            last_seen_at="2026-05-01T00:36:19+08:00",
+            canonical_title="分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？盘中大资金持续卖出，请公司详细介绍一下近期的经营情况？收购新潮是否会影响盈利？拉低公司的估值？还造成巨大的商誉？请董秘详细说明！",
+            summary="最近二级市场连创新低，请问是公司出线了大问题还是什么原因？盘中大资金持续卖出，请公司详细介绍一下近期的经营情况？收购新潮是否会影响盈利？拉低公司的估值？还造成巨大的商誉？请董秘详细说明！",
+            source="irm_cninfo",
+            published_at="2026-05-01T00:36:19+08:00",
+            url="https://example.com/irm-fensheng-valuation-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-zhongmi-revenue-drop-question-only",
+            first_seen_at="2026-04-30T23:36:19+08:00",
+            last_seen_at="2026-04-30T23:36:19+08:00",
+            canonical_title="中密控股：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？",
+            summary="公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？",
+            source="irm_cninfo",
+            published_at="2026-04-30T23:36:19+08:00",
+            url="https://example.com/irm-zhongmi-revenue-drop-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-zhongmi-wordgame-question-only",
+            first_seen_at="2026-04-30T23:36:19+08:00",
+            last_seen_at="2026-04-30T23:36:19+08:00",
+            canonical_title="中密控股：打公司投资者电话回复25年股权激励达标，这是不是在和投资者玩文字游戏，公司年报的扣非净利润是3.661亿，按照这个数股权激励没有达标，而董秘和投资者电话中说已达标，扣非需要加上摊销费用，咱们股权激励草案可没说扣非加上摊销费用，如果已达标就请公司修改年报的扣非净利润，如果不修改就是糊弄投资者。变相给公司高管等人谋福利",
+            summary="打公司投资者电话回复25年股权激励达标，这是不是在和投资者玩文字游戏，公司年报的扣非净利润是3.661亿，按照这个数股权激励没有达标，而董秘和投资者电话中说已达标，扣非需要加上摊销费用，咱们股权激励草案可没说扣非加上摊销费用，如果已达标就请公司修改年报的扣非净利润，如果不修改就是糊弄投资者。变相给公司高管等人谋福利",
+            source="irm_cninfo",
+            published_at="2026-04-30T23:36:19+08:00",
+            url="https://example.com/irm-zhongmi-wordgame-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12157,6 +12193,9 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-new-management-suggestion-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-profit-placeholder-reply", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-fullkun-finance-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-fensheng-valuation-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongmi-revenue-drop-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongmi-wordgame-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12177,6 +12216,9 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "思创智联：新领导层到位了.应该有新动作如回购股份、购买新资产以提高公司盈利模式" not in content
     assert "华工科技：华工作为光模块最先进的公司，订单排满了全年，请问今年净利润能否到25亿？谢谢。" not in content
     assert "满坤科技：请问2025年净利增长12%但经营现金流减半" not in content
+    assert "分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？" not in content
+    assert "中密控股：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？" not in content
+    assert "中密控股：打公司投资者电话回复25年股权激励达标" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
