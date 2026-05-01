@@ -12363,6 +12363,42 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-genesis-robot-parts-question-only",
+            first_seen_at="2026-05-01T15:43:17+08:00",
+            last_seen_at="2026-05-01T15:43:17+08:00",
+            canonical_title="创世纪：公司领导层重视机器人领域的发展嘛？在AI智能机床的深化改革发展中，机器人所需的减速器、行星滚柱丝杠、灵巧手等机器人产品零部件，公司后续是否会逐步投入研发和销售？",
+            summary="公司领导层重视机器人领域的发展嘛？在AI智能机床的深化改革发展中，机器人所需的减速器、行星滚柱丝杠、灵巧手等机器人产品零部件，公司后续是否会逐步投入研发和销售？",
+            source="irm_cninfo",
+            published_at="2026-05-01T15:43:17+08:00",
+            url="https://example.com/irm-genesis-robot-parts-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-jinshi-liquid-cooling-question-only",
+            first_seen_at="2026-05-01T15:43:17+08:00",
+            last_seen_at="2026-05-01T15:43:17+08:00",
+            canonical_title="金时科技：董秘您好，作为股东，时刻关注着公司的成长与发展，请问公司在液冷服务器领域有什么产品布局？公司产品是否已经在液冷服务器方面有所应用？谢谢。",
+            summary="董秘您好，作为股东，时刻关注着公司的成长与发展，请问公司在液冷服务器领域有什么产品布局？公司产品是否已经在液冷服务器方面有所应用？谢谢。",
+            source="irm_cninfo",
+            published_at="2026-05-01T15:43:17+08:00",
+            url="https://example.com/irm-jinshi-liquid-cooling-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-sthuangting-reorg-semiconductor-question-only",
+            first_seen_at="2026-05-01T15:43:17+08:00",
+            last_seen_at="2026-05-01T15:43:17+08:00",
+            canonical_title="*ST皇庭：公司有没可能通过重整引入有实力的半导体行业产业投资者和公司现有的半导体业务产生协同效应",
+            summary="公司有没可能通过重整引入有实力的半导体行业产业投资者和公司现有的半导体业务产生协同效应",
+            source="irm_cninfo",
+            published_at="2026-05-01T15:43:17+08:00",
+            url="https://example.com/irm-sthuangting-reorg-semiconductor-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12398,6 +12434,9 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-stnengte-major-holder-increase-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-stjingji-reduction-disclosure-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-yanhu-buyback-dividend-pressure-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-genesis-robot-parts-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-jinshi-liquid-cooling-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-sthuangting-reorg-semiconductor-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12425,6 +12464,9 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "ST能特：大股东怎么不发增持消息。" not in content
     assert "ST京机：为什么第一季度京山京源持股数量减少，却没有发布减持公告" not in content
     assert "盐湖股份：优质公司普遍珍惜股权，通过回购增持、高分红回馈股东。" not in content
+    assert "创世纪：公司领导层重视机器人领域的发展嘛？" not in content
+    assert "金时科技：董秘您好，作为股东，时刻关注着公司的成长与发展，请问公司在液冷服务器领域有什么产品布局？" not in content
+    assert "*ST皇庭：公司有没可能通过重整引入有实力的半导体行业产业投资者" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 

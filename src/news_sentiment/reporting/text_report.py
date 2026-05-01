@@ -1892,6 +1892,9 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("大股东怎么不发增持消息" in title)
             or ("持股数量减少" in title and "没有发布减持公告" in title)
             or ("回购增持" in title and "高分红回馈股东" in title and "恢复分红政策" in title and "时间表与量化目标" in title)
+            or ("机器人领域的发展嘛" in title and "行星滚柱丝杠" in title and "灵巧手" in title)
+            or ("液冷服务器领域有什么产品布局" in title and "已经在液冷服务器方面有所应用" in title)
+            or ("通过重整引入有实力的半导体行业产业投资者" in title and "半导体业务产生协同效应" in title)
         )
 
     return (
