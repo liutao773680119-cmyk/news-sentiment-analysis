@@ -5988,6 +5988,18 @@ def test_write_text_report_filters_stcn_public_affairs_conference_story_even_if_
             event_subtype="general_fast_news",
         ),
         Event(
+            event_id="event-stcn-heilongjiang-consumption-week",
+            first_seen_at="2026-05-01T08:31:17+08:00",
+            last_seen_at="2026-05-01T08:31:17+08:00",
+            canonical_title="黑龙江省启动“五一”文旅消费周活动",
+            summary="据黑龙江发布，为贯彻落实文化和旅游部2026年全国“五一”文化和旅游消费周工作部署，“五一”假期，黑龙江省围绕“北国好风光 惠聚黑龙江”主题，发放文旅消费券5000万元，统筹推出百条精品线路、百场特色活动、百项惠民政策。",
+            source="stcn",
+            published_at="2026-05-01T08:31:17+08:00",
+            url="https://example.com/stcn-heilongjiang-consumption-week",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-stcn-keep-cultural-tourism-order",
             first_seen_at="2026-04-19T10:20:00+08:00",
             last_seen_at="2026-04-19T10:20:00+08:00",
@@ -6010,6 +6022,14 @@ def test_write_text_report_filters_stcn_public_affairs_conference_story_even_if_
             triggered=True,
         ),
         EventAnalysis(
+            event_id="event-stcn-heilongjiang-consumption-week",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["文旅"],
+            triggered=True,
+        ),
+        EventAnalysis(
             event_id="event-stcn-keep-cultural-tourism-order",
             direction="bullish",
             impact_score=99.0,
@@ -6022,6 +6042,7 @@ def test_write_text_report_filters_stcn_public_affairs_conference_story_even_if_
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "2026年福建省文旅经济发展大会召开" not in content
+    assert "黑龙江省启动“五一”文旅消费周活动" not in content
     assert "某公司签约大型文旅项目建设协议" in content
 
 
@@ -12096,6 +12117,18 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-fullkun-finance-question-only",
+            first_seen_at="2026-04-30T22:59:30+08:00",
+            last_seen_at="2026-04-30T22:59:30+08:00",
+            canonical_title="满坤科技：请问2025年净利增长12%但经营现金流减半，存货库存量大增78%，是否预示销售受阻？募投项目达产后效益为负，为何仍计划发行7.6亿可转债？此外，股权激励费用冲回854万对当期利润影响多大？盼复，谢谢。",
+            summary="请问2025年净利增长12%但经营现金流减半，存货库存量大增78%，是否预示销售受阻？募投项目达产后效益为负，为何仍计划发行7.6亿可转债？此外，股权激励费用冲回854万对当期利润影响多大？盼复，谢谢。",
+            source="irm_cninfo",
+            published_at="2026-04-30T22:59:30+08:00",
+            url="https://example.com/irm-fullkun-finance-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12123,6 +12156,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-earnings-multi-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-new-management-suggestion-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-profit-placeholder-reply", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-fullkun-finance-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12142,6 +12176,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "佐力药业：1. 新收资产组2026年一季度应收及净利润情况如何？" not in content
     assert "思创智联：新领导层到位了.应该有新动作如回购股份、购买新资产以提高公司盈利模式" not in content
     assert "华工科技：华工作为光模块最先进的公司，订单排满了全年，请问今年净利润能否到25亿？谢谢。" not in content
+    assert "满坤科技：请问2025年净利增长12%但经营现金流减半" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
@@ -12259,6 +12294,42 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-focus-media-report-fallback",
+            first_seen_at="2026-05-01T00:03:33+08:00",
+            last_seen_at="2026-05-01T00:03:33+08:00",
+            canonical_title="分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？盘中大资金持续卖出，请公司详细介绍一下近期的经营情况？收购新潮是否会影响盈利？拉低公司的估值？还造成巨大的商誉？请董秘详细说明！",
+            summary="问题：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？盘中大资金持续卖出，请公司详细介绍一下近期的经营情况？收购新潮是否会影响盈利？拉低公司的估值？还造成巨大的商誉？请董秘详细说明！ 回复：您好，公司最新的经营情况烦请参考公司于4月29日披露的定期报告，感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-05-01T00:03:33+08:00",
+            url="https://example.com/irm-focus-media-report-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-zhongmi-target-gap-fallback",
+            first_seen_at="2026-04-30T23:00:33+08:00",
+            last_seen_at="2026-04-30T23:00:33+08:00",
+            canonical_title="中密控股：你好，2025年年报中公司未来展望：2026年实现营收约18.2亿元，归属上市公司股东净利润约4.14亿元，剔除2024年限制性股票激励计划的股份支付摊销后，归属上市公司股东净利润4.43亿元。而2024年限制性股权激励方案，对归母净利润的考核是2021-2023年平均净利润3.15亿基数，增长45%即4.56亿元。为什么公司对未来的展望，2026年的净利润会低于股权激励的考核指标呢？",
+            summary="问题：你好，2025年年报中公司未来展望：2026年实现营收约18.2亿元，归属上市公司股东净利润约4.14亿元，剔除2024年限制性股票激励计划的股份支付摊销后，归属上市公司股东净利润4.43亿元。而2024年限制性股权激励方案，对归母净利润的考核是2021-2023年平均净利润3.15亿基数，增长45%即4.56亿元。为什么公司对未来的展望，2026年的净利润会低于股权激励的考核指标呢？ 回复：投资者你好，公司《2024年限制性股票激励计划（草案）》（以下简称“《草案》”）中规定考核的“净利润”指归属于母公司扣除非经常性损益后的净利润（以下简称“归母扣非净利润”），该内容在《草案》是明确写出的，具体请查阅公司披露在巨潮资讯网的《草案》。 根据《草案》的规定，第三个解除限售期解除限售的归母扣非净利润考核目标为：以 2021年-2023 年三年归母扣非净利润的平均值为基数，2026 年归母扣非净利润的增长率不低于 45%（约41,435万元）。考核期内，前述归母扣非净利润计算时需剔除有效期内正在实施的所有股权激励计划和员工持股计划所涉股份支付费用影响的数值。 另外，公司2025年度报告中未来展望章节所述经营目标提到的是归母净利润，并非归母扣非净利润，年报中的经营目标不能与《草案》中的考核目标直接比较。",
+            source="irm_cninfo",
+            published_at="2026-04-30T23:00:33+08:00",
+            url="https://example.com/irm-zhongmi-target-gap-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-zhongmi-incentive-wordgame-fallback",
+            first_seen_at="2026-04-30T22:58:33+08:00",
+            last_seen_at="2026-04-30T22:58:33+08:00",
+            canonical_title="中密控股：打公司投资者电话回复25年股权激励达标，这是不是在和投资者玩文字游戏，公司年报的扣非净利润是3.661亿，按照这个数股权激励没有达标，而董秘和投资者电话中说已达标，扣非需要加上摊销费用，咱们股权激励草案可没说扣非加上摊销费用，如果已达标就请公司修改年报的扣非净利润，如果不修改就是糊弄投资者。变相给公司高管等人谋福利",
+            summary="问题：打公司投资者电话回复25年股权激励达标，这是不是在和投资者玩文字游戏，公司年报的扣非净利润是3.661亿，按照这个数股权激励没有达标，而董秘和投资者电话中说已达标，扣非需要加上摊销费用，咱们股权激励草案可没说扣非加上摊销费用，如果已达标就请公司修改年报的扣非净利润，如果不修改就是糊弄投资者。变相给公司高管等人谋福利 回复：投资者你好，公司《2024年限制性股票激励计划（草案）》（以下简称“《草案》”）中明确写出“考核期内，以上扣非归母净利润计算时需剔除有效期内正在实施的所有股权激励计划和员 工持股计划所涉股份支付费用影响的数值。”具体请查阅公司披露在巨潮资讯网的《草案》。",
+            source="irm_cninfo",
+            published_at="2026-04-30T22:58:33+08:00",
+            url="https://example.com/irm-zhongmi-incentive-wordgame-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress-live",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12281,6 +12352,9 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
         EventAnalysis(event_id="event-irm-share-reduction-pre-disclosure-rule", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-buyback-request-dividend-reply", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-fixed-increase-normal-progress", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-focus-media-report-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongmi-target-gap-fallback", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongmi-incentive-wordgame-fallback", direction="bearish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress-live", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12295,6 +12369,9 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
     assert "大华股份：请问中国移动所持公司股份已经解禁上市流通，因为是特定对象增发，减持是不是不需要提前发预告？" not in content
     assert "海康威视：董秘，你好，公司股价四五年低位横盘，请公司继续回购股份，谢谢" not in content
     assert "茂化实华：定增失败了嘛？定增失败了嘛？定增失败了嘛？公司是否考虑增持自家股票？" not in content
+    assert "分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？" not in content
+    assert "中密控股：你好，2025年年报中公司未来展望" not in content
+    assert "中密控股：打公司投资者电话回复25年股权激励达标" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 

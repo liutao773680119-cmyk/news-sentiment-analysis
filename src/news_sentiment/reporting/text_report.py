@@ -586,6 +586,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "调研先进制造业发展",
     "人形机器人半马",
     "文旅经济发展大会召开",
+    "文旅消费周活动",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -1841,6 +1842,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("证伪指标" in title and "营收占比未达到5%" in title and "回归传统制造主业" in title)
             or ("新收资产组2026年一季度应收及净利润情况" in title and "乌灵胶囊增速明显放缓" in title and "能否维持25年的增速" in title)
             or ("新领导层到位了" in title and "回购股份" in title and "购买新资产" in title)
+            or ("净利增长12%" in title and "经营现金流减半" in title and "发行7.6亿可转债" in title)
         )
 
     return (
@@ -1910,6 +1912,9 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("资产注入" in title and "重组" in title and "满足披露条件" in text and "相关公告" in text)
         or ("存储行业" in title and "涨价周期" in title and "订单能见度" in title and "定期报告为准" in text)
         or ("净利润能否到" in title and "业绩情况请以定期报告及相关公告为准" in text)
+        or ("最近二级市场连创新低" in title and "收购新潮" in title and "烦请参考公司于4月29日披露的定期报告" in text)
+        or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "《2024年限制性股票激励计划（草案）》" in text and "不能与《草案》中的考核目标直接比较" in text)
+        or ("股权激励达标" in title and "玩文字游戏" in title and "《2024年限制性股票激励计划（草案）》" in text and "具体请查阅公司披露在巨潮资讯网的《草案》" in text)
     )
 
 
