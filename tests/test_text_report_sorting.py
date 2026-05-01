@@ -10625,6 +10625,61 @@ def test_write_text_report_filters_central_bank_gold_reserve_brief_without_hidin
     assert "国际标准黄金储备增加5.77吨" not in content
 
 
+def test_write_text_report_filters_cls_retail_gold_price_commentary_without_hiding_gold_market_move(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cls-retail-gold-price-commentary",
+            first_seen_at="2026-05-01T12:32:12+08:00",
+            last_seen_at="2026-05-01T12:32:12+08:00",
+            canonical_title="品牌金饰克价超1400元 贵金属分析师：预计价格中心年内将逐步上移",
+            summary="【品牌金饰克价超1400元 贵金属分析师：预计价格中心年内将逐步上移】财联社5月1日电，国内品牌金饰价格已纷纷来到1400元/克上方。今日周生生足金饰品报价1415元/克、周大福足金饰品价格更达到1419元/克，老凤祥报价也在1410元/克。上海钢联铅锌资讯部贵金属分析师黄廷分析称，预计价格中心年内将逐步上移。",
+            source="cls",
+            published_at="2026-05-01T12:32:12+08:00",
+            url="https://example.com/cls-retail-gold-price-commentary",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-cls-gold-market-move-keep",
+            first_seen_at="2026-04-03T09:15:00+08:00",
+            last_seen_at="2026-04-03T09:15:00+08:00",
+            canonical_title="现货黄金跌破4600美元/盎司",
+            summary="summary",
+            source="cls",
+            published_at="2026-04-03T09:15:00+08:00",
+            url="https://example.com/cls-gold-market-move-keep",
+            event_type="fast_news",
+            event_subtype="market_move",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cls-retail-gold-price-commentary",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["黄金"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cls-gold-market-move-keep",
+            direction="neutral",
+            impact_score=74.3,
+            reasoning="rule",
+            themes=["黄金"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "品牌金饰克价超1400元 贵金属分析师：预计价格中心年内将逐步上移" not in content
+    assert "现货黄金跌破4600美元/盎司" in content
+
+
 def test_write_text_report_filters_local_leader_manufacturing_visit_and_repeated_delisting_risk_notice(
     tmp_path,
 ) -> None:

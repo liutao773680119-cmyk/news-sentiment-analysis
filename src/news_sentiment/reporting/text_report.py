@@ -762,6 +762,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_cls_science_feature_story(event, text):
         return False
+    if _is_low_signal_cls_retail_gold_price_commentary(event, text):
+        return False
     if _is_low_signal_irm_cninfo_investor_qa(event, text):
         return False
     if _is_low_signal_sse_einteractive_investor_qa(event, text):
@@ -1399,6 +1401,24 @@ def _is_low_signal_cls_share_disposal_financial_gain_story(event: Event, text: s
         and "股权" in title
         and "不再持有" in text
         and "财务报表产生积极影响" in text
+    )
+
+
+def _is_low_signal_cls_retail_gold_price_commentary(event: Event, text: str) -> bool:
+    if not (
+        event.source == "cls"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "品牌金饰克价超" in title
+        and "贵金属分析师" in title
+        and "周生生" in text
+        and "周大福" in text
+        and "价格中心年内将逐步上移" in text
     )
 
 
