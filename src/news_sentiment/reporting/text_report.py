@@ -1915,6 +1915,12 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("最近二级市场连创新低" in title and "收购新潮" in title and "烦请参考公司于4月29日披露的定期报告" in text)
         or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "《2024年限制性股票激励计划（草案）》" in text and "不能与《草案》中的考核目标直接比较" in text)
         or ("股权激励达标" in title and "玩文字游戏" in title and "《2024年限制性股票激励计划（草案）》" in text and "具体请查阅公司披露在巨潮资讯网的《草案》" in text)
+        or (
+            "在手订单充足" in title
+            and "营收同比下降是什么原因" in title
+            and "行业竞争加剧" in text
+            and "毛利率较低的增量业务占比同比提升" in text
+        )
     )
 
 

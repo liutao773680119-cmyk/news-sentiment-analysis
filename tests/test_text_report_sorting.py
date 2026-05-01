@@ -12330,6 +12330,18 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-zhongmi-revenue-drop-fallback",
+            first_seen_at="2026-04-30T23:01:33+08:00",
+            last_seen_at="2026-04-30T23:01:33+08:00",
+            canonical_title="中密控股：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？",
+            summary="问题：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？ 回复：投资者你好，2026年一季度，公司实现营业收入39,797万元，较去年同期下降3.05%，略有减少。主要受行业竞争加剧与毛利率较低的增量业务占比同比提升双重影响。",
+            source="irm_cninfo",
+            published_at="2026-04-30T23:01:33+08:00",
+            url="https://example.com/irm-zhongmi-revenue-drop-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress-live",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12355,6 +12367,7 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
         EventAnalysis(event_id="event-irm-focus-media-report-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-target-gap-fallback", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-incentive-wordgame-fallback", direction="bearish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongmi-revenue-drop-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress-live", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12372,6 +12385,7 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
     assert "分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？" not in content
     assert "中密控股：你好，2025年年报中公司未来展望" not in content
     assert "中密控股：打公司投资者电话回复25年股权激励达标" not in content
+    assert "中密控股：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
