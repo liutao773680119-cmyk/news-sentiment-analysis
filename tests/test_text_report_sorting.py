@@ -5668,6 +5668,18 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
             event_type="fast_news",
             event_subtype="industry_data",
         ),
+        Event(
+            event_id="event-stcn-hubei-trade-in-subsidy",
+            first_seen_at="2026-05-01T11:08:24+08:00",
+            last_seen_at="2026-05-01T11:08:24+08:00",
+            canonical_title="5月1日正式启动 湖北以旧换新国补扩品",
+            summary="湖北省商务厅发布2026年消费品以旧换新新增品类补贴政策的公告，对个人消费者购买智能服务机器人等10个品类产品给予补贴。",
+            source="stcn",
+            published_at="2026-05-01T11:08:24+08:00",
+            url="https://example.com/stcn-hubei-trade-in-subsidy",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
     ]
     analyses = [
         EventAnalysis(
@@ -5726,11 +5738,20 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
             themes=["AI应用"],
             triggered=True,
         ),
+        EventAnalysis(
+            event_id="event-stcn-hubei-trade-in-subsidy",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["机器人"],
+            triggered=True,
+        ),
     ]
 
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "千问3.6Plus大模型登顶全球模型调用排行榜首，日调用量破万亿" in content
+    assert "5月1日正式启动 湖北以旧换新国补扩品" not in content
     assert "能源供应趋紧 韩国鼓励非高峰使用公共交通" not in content
     assert "南非新政延长签证宽限期 将刺激旅游市场" not in content
     assert "清明假期第一天 全社会跨区域人员流动量预计约2.96亿人次" not in content
@@ -5790,6 +5811,59 @@ def test_write_text_report_filters_stcn_robot_half_marathon_story_even_if_analys
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "“闪电”完成2026人形机器人半马" not in content
     assert "某公司获人形机器人批量订单" in content
+
+
+def test_write_text_report_filters_current_live_stcn_nonlisted_ai_finance_story(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-webank-ai-finance-story",
+            first_seen_at="2026-05-01T11:03:17+08:00",
+            last_seen_at="2026-05-01T11:03:17+08:00",
+            canonical_title="微众银行总资产超7600亿元 管理资产规模超3.7万亿元",
+            summary="人民财讯5月1日电，微众银行披露2025年年报显示，截至2025年末，该行资产总额达7662.9亿元。年报显示，该行加速AI原生能力建设进程，截至2025年末，全行AI算力规模同比提升3.5倍，日均调用量从4.1万次大幅增长至240万次，日均Token消耗从2亿提升至超50亿。",
+            source="stcn",
+            published_at="2026-05-01T11:03:17+08:00",
+            url="https://example.com/stcn-webank-ai-finance-story",
+            event_type="fast_news",
+            event_subtype="industry_data",
+        ),
+        Event(
+            event_id="event-stcn-ai-keep-nonlisted-finance-contrast",
+            first_seen_at="2026-04-04T10:44:37+08:00",
+            last_seen_at="2026-04-04T10:44:37+08:00",
+            canonical_title="千问3.6Plus大模型登顶全球模型调用排行榜首，日调用量破万亿",
+            summary="发布仅1天的千问新模型Qwen3.6-Plus，冲上全球知名大模型API调用平台OpenRouter的日榜榜首。",
+            source="stcn",
+            published_at="2026-04-04T10:44:37+08:00",
+            url="https://example.com/stcn-ai-keep-nonlisted-finance-contrast",
+            event_type="fast_news",
+            event_subtype="industry_data",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-webank-ai-finance-story",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-ai-keep-nonlisted-finance-contrast",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["AI应用"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "微众银行总资产超7600亿元 管理资产规模超3.7万亿元" not in content
+    assert "千问3.6Plus大模型登顶全球模型调用排行榜首，日调用量破万亿" in content
 
 
 def test_write_text_report_filters_cls_robot_half_marathon_story_without_hiding_robot_order(tmp_path) -> None:

@@ -587,6 +587,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "人形机器人半马",
     "文旅经济发展大会召开",
     "文旅消费周活动",
+    "以旧换新国补扩品",
 )
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
@@ -706,6 +707,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_stcn_overseas_aviation_fuel_story(event, text):
         return False
     if _is_low_signal_stcn_public_affairs_story(event):
+        return False
+    if _is_low_signal_stcn_nonlisted_ai_finance_story(event, text):
         return False
     if _is_low_signal_stcn_cooperation_exchange_story(event, text):
         return False
@@ -1695,6 +1698,24 @@ def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
         return False
 
     return any(keyword in event.canonical_title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
+
+
+def _is_low_signal_stcn_nonlisted_ai_finance_story(event: Event, text: str) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "industry_data"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        "微众银行" in title
+        and "管理资产规模" in title
+        and "年报显示" in text
+        and "AI算力规模同比提升" in text
+        and "日均Token消耗" in text
+    )
 
 
 def _is_low_signal_stcn_cooperation_exchange_story(event: Event, text: str) -> bool:
