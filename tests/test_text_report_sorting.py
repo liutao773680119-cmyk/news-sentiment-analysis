@@ -12239,6 +12239,18 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-zhongmi-target-gap-question-only",
+            first_seen_at="2026-04-30T23:07:42+08:00",
+            last_seen_at="2026-04-30T23:07:42+08:00",
+            canonical_title="中密控股：你好，2025年年报中公司未来展望：2026年实现营收约18.2亿元，归属上市公司股东净利润约4.14亿元，剔除2024年限制性股票激励计划的股份支付摊销后，归属上市公司股东净利润4.43亿元。而2024年限制性股权激励方案，对归母净利润的考核是2021-2023年平均净利润3.15亿基数，增长45%即4.56亿元。为什么公司对未来的展望，2026年的净利润会低于股权激励的考核指标呢？",
+            summary="你好，2025年年报中公司未来展望：2026年实现营收约18.2亿元，归属上市公司股东净利润约4.14亿元，剔除2024年限制性股票激励计划的股份支付摊销后，归属上市公司股东净利润4.43亿元。而2024年限制性股权激励方案，对归母净利润的考核是2021-2023年平均净利润3.15亿基数，增长45%即4.56亿元。为什么公司对未来的展望，2026年的净利润会低于股权激励的考核指标呢？",
+            source="irm_cninfo",
+            published_at="2026-04-30T23:07:42+08:00",
+            url="https://example.com/irm-zhongmi-target-gap-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12270,6 +12282,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-fensheng-valuation-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-revenue-drop-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-wordgame-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongmi-target-gap-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12293,6 +12306,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？" not in content
     assert "中密控股：公司一直说在手订单充足，但是26年1季度，营收同比下降是什么原因？" not in content
     assert "中密控股：打公司投资者电话回复25年股权激励达标" not in content
+    assert "中密控股：你好，2025年年报中公司未来展望" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 

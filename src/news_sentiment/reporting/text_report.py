@@ -1867,6 +1867,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("最近二级市场连创新低" in title and "收购新潮是否会影响盈利" in title and "巨大的商誉" in title)
             or ("在手订单充足" in title and "26年1季度" in title and "营收同比下降是什么原因" in title)
             or ("股权激励达标" in title and "玩文字游戏" in title and "股权激励草案可没说" in title)
+            or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "2026年的净利润会低于" in title)
         )
 
     return (
