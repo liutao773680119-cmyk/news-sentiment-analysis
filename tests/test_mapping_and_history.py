@@ -47,6 +47,17 @@ def test_match_historical_events_supports_company_theme_seed_themes() -> None:
     assert {"户外经济", "锂电池"} <= matched_themes
 
 
+def test_map_themes_to_stocks_supports_tire_and_home_seed_themes() -> None:
+    rows = map_themes_to_stocks(["轮胎", "家居"])
+    assert {row.theme_name for row in rows} >= {"轮胎", "家居"}
+
+
+def test_match_historical_events_supports_tire_and_home_seed_themes() -> None:
+    matches = match_historical_events(["轮胎", "家居"])
+    matched_themes = {theme for row in matches for theme in row["themes"]}
+    assert {"轮胎", "家居"} <= matched_themes
+
+
 def test_map_themes_to_stocks_supports_semiconductor_theme() -> None:
     rows = map_themes_to_stocks(["半导体"])
     assert {row.theme_name for row in rows} >= {"半导体"}

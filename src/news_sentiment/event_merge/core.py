@@ -40,6 +40,31 @@ STRUCTURED_CATALYST_SUBTYPES = {
     "reorganization_risk",
     "delisting_risk",
 }
+STRUCTURED_CATALYST_SUBTYPE_PRIORITY = {
+    "financing_acceptance": 90,
+    "control_change": 85,
+    "equity_incentive": 70,
+    "order_contract": 80,
+    "cooperation_agreement": 80,
+    "acquisition_restructuring": 88,
+    "reorganization_risk": 86,
+    "delisting_risk": 86,
+    "legal_dispute": 84,
+    "corporate_disclosure": 10,
+}
+FINANCING_ACCEPTANCE_CONTEXT_KEYWORDS = (
+    "向特定对象发行A股股票",
+    "向特定对象发行股票",
+    "发行股票申请",
+    "注册申请",
+)
+FINANCING_ACCEPTANCE_MATERIAL_KEYWORDS = (
+    "法律意见",
+    "保荐工作报告",
+    "募集说明书",
+    "证券发行保荐书",
+    "发行保荐书",
+)
 LEGAL_DISPUTE_KEYWORDS = (
     "重大诉讼",
     "涉及诉讼",
@@ -112,7 +137,7 @@ def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
     for item in items:
         target_group = None
         for group in groups:
-            if _should_merge(item, group[0]):
+            if _should_merge_existing_group(item, group):
                 target_group = group
                 break
         if target_group is None:
@@ -128,6 +153,14 @@ def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
             group,
             key=lambda item: (
                 source_priorities.get(item.source, 0),
+                STRUCTURED_CATALYST_SUBTYPE_PRIORITY.get(
+                    _classify_event_subtype(
+                        item.source_type,
+                        item.title,
+                        item.content,
+                    ),
+                    0,
+                ),
                 item.published_at,
             ),
         )
@@ -154,6 +187,13 @@ def merge_news_items(items: list[NormalizedNews]) -> list[Event]:
             )
         )
     return events
+
+
+def _should_merge_existing_group(item: NormalizedNews, group: list[NormalizedNews]) -> bool:
+    if _should_merge(item, group[0]):
+        return True
+
+    return any(_is_same_structured_catalyst(item, member) for member in group[1:])
 
 
 def _is_similar(left: str, right: str) -> bool:
@@ -215,9 +255,9 @@ def _is_same_structured_catalyst(left: NormalizedNews, right: NormalizedNews) ->
     if left.source_type != "hard_event" or right.source_type != "hard_event":
         return False
 
-    left_subtype = _classify_event_subtype(left.source_type, left.title, left.content)
-    right_subtype = _classify_event_subtype(right.source_type, right.title, right.content)
-    if left_subtype != right_subtype or left_subtype not in STRUCTURED_CATALYST_SUBTYPES:
+    left_family = _structured_catalyst_family(left)
+    right_family = _structured_catalyst_family(right)
+    if not left_family or left_family != right_family:
         return False
 
     left_stock_code = _extract_stock_code(left)
@@ -228,6 +268,21 @@ def _is_same_structured_catalyst(left: NormalizedNews, right: NormalizedNews) ->
     left_time = datetime.fromisoformat(left.published_at)
     right_time = datetime.fromisoformat(right.published_at)
     return abs((left_time - right_time).total_seconds()) <= STRUCTURED_CATALYST_WINDOW_SECONDS
+
+
+def _structured_catalyst_family(item: NormalizedNews) -> str:
+    subtype = _classify_event_subtype(item.source_type, item.title, item.content)
+    if subtype in STRUCTURED_CATALYST_SUBTYPES:
+        return subtype
+
+    text = f"{item.title} {item.content}"
+    if _contains_any(text, FINANCING_ACCEPTANCE_CONTEXT_KEYWORDS) and _contains_any(
+        text,
+        FINANCING_ACCEPTANCE_MATERIAL_KEYWORDS,
+    ):
+        return "financing_acceptance"
+
+    return ""
 
 
 def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
@@ -409,7 +464,9 @@ def _is_policy_measure_fast_news(title: str, text: str) -> bool:
             "卫健委",
             "药监局",
         ),
-    ) or _contains_any(title, ("高质量发展措施",))
+    ) or _contains_any(title, ("高质量发展措施",)) or (
+        "住建" in text and "公积金贷款" in text and "若干措施" in text
+    )
 
 
 def _is_industry_project_release_fast_news(text: str) -> bool:

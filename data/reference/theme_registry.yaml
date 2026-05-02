@@ -30,6 +30,14 @@ themes:
       - 露营
       - 景区消费
     status: active
+  - name: 轮胎
+    aliases: []
+    match_name: false
+    status: active
+  - name: 家居
+    aliases: []
+    match_name: false
+    status: active
   - name: 文旅
     aliases:
       - 清明档

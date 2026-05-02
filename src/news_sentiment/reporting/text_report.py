@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from urllib.parse import parse_qs, urlparse
 
 from news_sentiment.history.matcher import match_historical_events
 from news_sentiment.mapping.stock_mapper import map_themes_to_stocks
@@ -576,6 +577,18 @@ LOW_SIGNAL_STCN_OVERSEAS_AVIATION_FUEL_BODY_KEYWORDS = (
     "航空业承压",
     "削减航班",
 )
+LOW_SIGNAL_GLOBAL_LOGISTICS_DISRUPTION_TITLE_KEYWORDS = (
+    "联合国难民署：",
+)
+LOW_SIGNAL_GLOBAL_LOGISTICS_DISRUPTION_BODY_KEYWORDS = (
+    "运输成本上升",
+    "交付被推迟",
+)
+LOW_SIGNAL_GLOBAL_LOGISTICS_DISRUPTION_CONTEXT_KEYWORDS = (
+    "霍尔木兹海峡",
+    "战争风险保险费",
+    "援助物资",
+)
 LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "鼓励非高峰使用公共交通",
     "延长签证宽限期",
@@ -708,6 +721,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_overseas_aviation_fuel_story(event, text):
         return False
+    if _is_low_signal_global_logistics_disruption_story(event, text):
+        return False
     if _is_low_signal_stcn_public_affairs_story(event):
         return False
     if _is_low_signal_stcn_nonlisted_ai_finance_story(event, text):
@@ -729,6 +744,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_miit_policy_supervision_feedback(event, analysis, text):
         return False
     if _is_low_signal_cninfo_hard_event(event, text):
+        return False
+    if _is_low_signal_contract_area_progress_notice(event, analysis):
         return False
     if _is_low_signal_exchange_template_cooperation_agreement(event, analysis):
         return False
@@ -877,6 +894,16 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
         return _is_low_signal_repeated_delisting_risk_notice(event.canonical_title)
 
     return False
+
+
+def _is_low_signal_contract_area_progress_notice(event: Event, analysis: EventAnalysis) -> bool:
+    return (
+        event.source in {"sse", "szse"}
+        and event.event_type == "hard_event"
+        and event.event_subtype == "order_contract"
+        and not analysis.themes
+        and "合同区进展公告" in event.canonical_title
+    )
 
 
 def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
@@ -1718,6 +1745,24 @@ def _is_low_signal_stcn_overseas_aviation_fuel_story(event: Event, text: str) ->
         any(keyword in title for keyword in LOW_SIGNAL_STCN_OVERSEAS_AVIATION_FUEL_TITLE_KEYWORDS)
         and any(keyword in text for keyword in LOW_SIGNAL_STCN_OVERSEAS_AVIATION_FUEL_BODY_KEYWORDS)
     )
+
+
+def _is_low_signal_global_logistics_disruption_story(event: Event, text: str) -> bool:
+    if not (
+        event.source in {"cls", "stcn"}
+        and event.event_type == "fast_news"
+        and event.event_subtype in {"company_update", "general_fast_news"}
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        any(keyword in title for keyword in LOW_SIGNAL_GLOBAL_LOGISTICS_DISRUPTION_TITLE_KEYWORDS)
+        and all(keyword in text for keyword in LOW_SIGNAL_GLOBAL_LOGISTICS_DISRUPTION_BODY_KEYWORDS)
+        and any(keyword in text for keyword in LOW_SIGNAL_GLOBAL_LOGISTICS_DISRUPTION_CONTEXT_KEYWORDS)
+    )
+
+
 def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
     if not (
         event.source == "stcn"
@@ -2184,6 +2229,52 @@ def _report_section(event: Event, analysis: EventAnalysis) -> str:
     return "A股强催化"
 
 
+def _report_stock_codes(event: Event, analysis: EventAnalysis) -> list[str]:
+    theme_matches = map_themes_to_stocks(analysis.themes)
+    event_stock_code = _extract_stock_code_from_event(event)
+    if theme_matches:
+        stock_codes = [match.stock_code for match in theme_matches]
+        if event_stock_code and event_stock_code not in stock_codes:
+            stock_codes.insert(0, event_stock_code)
+        return stock_codes[:3]
+
+    if event_stock_code:
+        return [event_stock_code]
+
+    return []
+
+
+def _extract_stock_code_from_event(event: Event) -> str:
+    stock_code = _extract_stock_code_from_url(event.url)
+    if stock_code:
+        return stock_code
+
+    if event.url:
+        filename = event.url.rsplit("/", maxsplit=1)[-1]
+        prefix = filename.split("_", maxsplit=1)[0]
+        if prefix.isdigit() and len(prefix) == 6:
+            return prefix
+
+    for news_id in event.member_news_ids:
+        parts = news_id.split("-")
+        if len(parts) >= 2 and parts[1].isdigit() and len(parts[1]) == 6:
+            return parts[1]
+
+    for entity in event.primary_entities:
+        if entity.isdigit() and len(entity) == 6:
+            return entity
+
+    return ""
+
+
+def _extract_stock_code_from_url(url: str) -> str:
+    if not url:
+        return ""
+
+    query = parse_qs(urlparse(url).query)
+    return query.get("stockCode", [""])[0]
+
+
 def write_text_report(
     paths: ProjectPaths,
     events: list[Event],
@@ -2240,7 +2331,7 @@ def write_text_report(
         lines.append(f"[{section}]")
         for analysis in section_analyses:
             event = event_map[analysis.event_id]
-            theme_matches = map_themes_to_stocks(analysis.themes)
+            stock_codes = _report_stock_codes(event, analysis)
             historical = match_historical_events(analysis.themes)
             status = _report_status(event, analysis)
             lines.extend(
@@ -2253,7 +2344,7 @@ def write_text_report(
                     f"方向: {analysis.direction}",
                     f"强度: {analysis.impact_score:.1f}",
                     f"题材: {', '.join(analysis.themes) if analysis.themes else '无'}",
-                    f"个股: {', '.join(match.stock_code for match in theme_matches[:3]) if theme_matches else '无'}",
+                    f"个股: {', '.join(stock_codes) if stock_codes else '无'}",
                     f"历史: {historical[0]['historical_event_id'] if historical else '无'}",
                     "",
                 ]

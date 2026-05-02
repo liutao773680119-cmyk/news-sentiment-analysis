@@ -1058,6 +1058,26 @@ def test_merge_news_items_classifies_policy_measure_fast_news_as_policy_signal()
     assert events[0].event_subtype == "policy_signal"
 
 
+def test_merge_news_items_classifies_city_housing_fund_measure_fast_news_as_policy_signal() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="cls",
+            source_type="fast_news",
+            published_at="2026-05-02T16:31:03+08:00",
+            captured_at="2026-05-02T16:31:10+08:00",
+            title="苏州：提高公积金贷款最高限额 个人公积金最高贷款额度调整为150万元",
+            content="财联社5月2日电，苏州近日出台进一步促进房地产市场平稳健康发展若干措施。其中提到，优化公积金贷款次数和套数认定标准，提高公积金贷款最高限额，个人公积金最高贷款额度调整为150万元。购买现房销售的新建商品住房项目的，公积金贷款额度上浮50%。(苏州住建)",
+            url="https://www.cls.cn/detail/2362112",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "policy_signal"
+
+
 def test_merge_news_items_does_not_treat_breach_notice_as_policy_signal() -> None:
     items = [
         NormalizedNews(
@@ -1746,6 +1766,63 @@ def test_merge_news_items_groups_structured_cninfo_catalyst_documents() -> None:
     assert len(events) == 1
     assert set(events[0].member_news_ids) == {"n1", "n2"}
     assert events[0].event_subtype == "financing_acceptance"
+    assert events[0].canonical_title == "关于2025年度向特定对象发行A股股票申请获得深圳证券交易所受理的公告"
+
+
+def test_merge_news_items_merges_reorganization_risk_notice_into_existing_structured_group() -> None:
+    items = [
+        NormalizedNews(
+            news_id="sse-600337-2026-05-01-62",
+            source="sse",
+            source_type="hard_event",
+            published_at="2026-05-01T00:00:00+08:00",
+            captured_at="2026-05-02T08:42:14.780128+00:00",
+            title="美克国际家居用品股份有限公司关于公开招募和遴选重整投资人的公告",
+            content="美克国际家居用品股份有限公司关于公开招募和遴选重整投资人的公告",
+            url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600337_20260501_X3TI.pdf",
+        ),
+        NormalizedNews(
+            news_id="sse-600337-2026-05-01-63",
+            source="sse",
+            source_type="hard_event",
+            published_at="2026-05-01T00:00:00+08:00",
+            captured_at="2026-05-02T08:42:14.780128+00:00",
+            title="美克国际家居用品股份有限公司关于法院受理控股股东重整的公告",
+            content="美克国际家居用品股份有限公司关于法院受理控股股东重整的公告",
+            url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600337_20260501_CF9B.pdf",
+        ),
+        NormalizedNews(
+            news_id="sse-600337-2026-05-01-64",
+            source="sse",
+            source_type="hard_event",
+            published_at="2026-05-01T00:00:00+08:00",
+            captured_at="2026-05-02T08:42:14.780128+00:00",
+            title="美克国际家居用品股份有限公司关于公司预重整期间债权申报的公告",
+            content="美克国际家居用品股份有限公司关于公司预重整期间债权申报的公告",
+            url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600337_20260501_QKTV.pdf",
+        ),
+        NormalizedNews(
+            news_id="sse-600337-2026-05-01-65",
+            source="sse",
+            source_type="hard_event",
+            published_at="2026-05-01T00:00:00+08:00",
+            captured_at="2026-05-02T08:42:14.780128+00:00",
+            title="美克国际家居用品股份有限公司关于法院对预重整申请备案登记及确定预重整辅助机构的公告",
+            content="美克国际家居用品股份有限公司关于法院对预重整申请备案登记及确定预重整辅助机构的公告",
+            url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600337_20260501_8HPX.pdf",
+        ),
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert set(events[0].member_news_ids) == {
+        "sse-600337-2026-05-01-62",
+        "sse-600337-2026-05-01-63",
+        "sse-600337-2026-05-01-64",
+        "sse-600337-2026-05-01-65",
+    }
+    assert events[0].event_subtype == "reorganization_risk"
 
 
 def test_merge_news_items_classifies_financing_authorization_material_as_board_resolution() -> None:

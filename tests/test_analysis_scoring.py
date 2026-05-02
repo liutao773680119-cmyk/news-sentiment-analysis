@@ -737,6 +737,86 @@ def test_score_event_uses_company_theme_map_for_cninfo_hard_event() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_uses_company_theme_map_for_sse_hard_event_static_pdf_url() -> None:
+    event = Event(
+        event_id="event-004a",
+        first_seen_at="2026-04-02T11:44:27+08:00",
+        last_seen_at="2026-04-02T11:44:27+08:00",
+        canonical_title="石大胜华关于签署合作协议的公告",
+        summary="石大胜华关于签署合作协议的公告",
+        source="sse",
+        published_at="2026-04-02T11:44:27+08:00",
+        url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-04-02/603026_20260402_ABCD.pdf",
+        member_news_ids=["sse-603026-2026-04-02-1"],
+        event_type="hard_event",
+        event_subtype="cooperation_agreement",
+        source_authority_score=1.0,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "锂电池" in analysis.themes
+    assert analysis.triggered is True
+
+
+def test_score_event_uses_company_theme_map_for_sse_financing_acceptance_seed_stock() -> None:
+    event = Event(
+        event_id="event-004b",
+        first_seen_at="2026-05-01T00:00:00+08:00",
+        last_seen_at="2026-05-01T00:00:00+08:00",
+        canonical_title="皖维高新关于向特定对象发行A股股票申请获得上海证券交易所受理的公告",
+        summary="皖维高新关于向特定对象发行A股股票申请获得上海证券交易所受理的公告",
+        source="sse",
+        published_at="2026-05-01T00:00:00+08:00",
+        url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600063_20260501_NCRC.pdf",
+        member_news_ids=["sse-600063-2026-05-01-9"],
+        event_type="hard_event",
+        event_subtype="financing_acceptance",
+        source_authority_score=0.95,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "新材料" in analysis.themes
+    assert analysis.triggered is True
+
+
+def test_score_event_uses_company_theme_map_for_sse_legal_dispute_seed_stock() -> None:
+    event = Event(
+        event_id="event-004c",
+        first_seen_at="2026-05-01T00:00:00+08:00",
+        last_seen_at="2026-05-01T00:00:00+08:00",
+        canonical_title="佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告",
+        summary="佳通轮胎披露收到中国证监会立案告知书。",
+        source="sse",
+        published_at="2026-05-01T00:00:00+08:00",
+        url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600182_20260501_7RFV.pdf",
+        member_news_ids=["sse-600182-2026-05-01-37"],
+        event_type="hard_event",
+        event_subtype="legal_dispute",
+        source_authority_score=0.95,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "轮胎" in analysis.themes
+    assert analysis.triggered is True
+
+
+def test_score_event_uses_company_theme_map_for_sse_reorganization_risk_seed_stock() -> None:
+    event = Event(
+        event_id="event-004d",
+        first_seen_at="2026-05-01T00:00:00+08:00",
+        last_seen_at="2026-05-01T00:00:00+08:00",
+        canonical_title="美克国际家居用品股份有限公司关于公司预重整期间债权申报的公告",
+        summary="美克国际家居用品股份有限公司关于公司预重整期间债权申报的公告",
+        source="sse",
+        published_at="2026-05-01T00:00:00+08:00",
+        url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600337_20260501_QKTV.pdf",
+        member_news_ids=["sse-600337-2026-05-01-64"],
+        event_type="hard_event",
+        event_subtype="reorganization_risk",
+        source_authority_score=0.95,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert "家居" in analysis.themes
+    assert analysis.triggered is True
+
+
 def test_score_event_does_not_use_company_theme_map_for_generic_disclosure() -> None:
     event = Event(
         event_id="event-005",

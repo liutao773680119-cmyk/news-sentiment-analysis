@@ -119,6 +119,74 @@ def test_write_text_report_filters_stale_events_relative_to_latest_batch_time(tm
     assert "过旧事件" not in content
 
 
+def test_write_text_report_falls_back_to_event_stock_code_for_sse_hard_event_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-fallback",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="皖维高新关于向特定对象发行A股股票申请获得上海证券交易所受理的公告",
+            summary="皖维高新关于向特定对象发行A股股票申请获得上海证券交易所受理的公告",
+            source="sse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600063_20260501_NCRC.pdf",
+            event_type="hard_event",
+            event_subtype="financing_acceptance",
+        )
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-fallback",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        )
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "个股: 600063" in content
+
+
+def test_write_text_report_prioritizes_event_stock_code_before_theme_peer_stocks(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-theme-priority",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="皖维高新关于向特定对象发行A股股票申请获得上海证券交易所受理的公告",
+            summary="皖维高新关于向特定对象发行A股股票申请获得上海证券交易所受理的公告",
+            source="sse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://static.sse.com.cn/disclosure/listedinfo/announcement/c/new/2026-05-01/600063_20260501_NCRC.pdf",
+            event_type="hard_event",
+            event_subtype="financing_acceptance",
+        )
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-theme-priority",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=["新材料"],
+            triggered=True,
+        )
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "题材: 新材料" in content
+    assert "个股: 600063, 300285, 600206" in content
+    assert "历史: hist-017" in content
+
+
 def test_write_text_report_prioritizes_themed_events_when_scores_tie(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -16624,3 +16692,111 @@ def test_write_text_report_filters_latest_live_head_noise_cluster_without_hiding
     assert "近一周机构调研个股超700只 迈瑞医疗和金盘科技调研机构数最多" not in content
     assert "佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告" in content
     assert "腾云智算与华为达成深度合作 共筑福建智算新生态" in content
+
+
+def test_write_text_report_filters_unhcr_logistics_disruption_story_from_live_head(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-unhcr-logistics",
+            first_seen_at="2026-05-02T14:53:15+08:00",
+            last_seen_at="2026-05-02T14:56:10+08:00",
+            canonical_title="联合国难民署：中东局势致物资运输成本上升 交付推迟",
+            summary="【联合国难民署：中东局势致物资运输成本上升 交付推迟】财联社5月2日电，联合国难民署5月1日表示，受中东局势影响，包括霍尔木兹海峡通行受阻，部分援助物资的运输成本上升，援助物资的交付被推迟。相关路线的援助物资运输成本翻了一番多。联合国难民署还表示，包括沙特阿拉伯吉达在内的主要港口因拥堵问题，以及大幅上涨的战争风险保险费等因素，都加剧了运输压力，阻碍援助物资的及时交付。",
+            source="cls",
+            published_at="2026-05-02T14:53:15+08:00",
+            url="https://example.com/unhcr-logistics",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-risk",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告",
+            summary="佳通轮胎披露收到中国证监会立案告知书。",
+            source="sse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/keep-risk",
+            event_type="hard_event",
+            event_subtype="legal_dispute",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-unhcr-logistics",
+            direction="bearish",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["保险"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-risk",
+            direction="bearish",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "联合国难民署：中东局势致物资运输成本上升 交付推迟" not in content
+    assert "佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告" in content
+
+
+def test_write_text_report_filters_contract_area_progress_notice_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-contract-area-progress",
+            first_seen_at="2026-04-30T00:00:00+08:00",
+            last_seen_at="2026-04-30T00:00:00+08:00",
+            canonical_title="潜能恒信：渤海0917合同区进展公告",
+            summary="潜能恒信：渤海0917合同区进展公告",
+            source="szse",
+            published_at="2026-04-30T00:00:00+08:00",
+            url="https://example.com/contract-area-progress",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-keep-risk",
+            first_seen_at="2026-05-01T00:00:00+08:00",
+            last_seen_at="2026-05-01T00:00:00+08:00",
+            canonical_title="佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告",
+            summary="佳通轮胎披露收到中国证监会立案告知书。",
+            source="sse",
+            published_at="2026-05-01T00:00:00+08:00",
+            url="https://example.com/keep-risk",
+            event_type="hard_event",
+            event_subtype="legal_dispute",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-contract-area-progress",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-risk",
+            direction="bearish",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "潜能恒信：渤海0917合同区进展公告" not in content
+    assert "佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告" in content

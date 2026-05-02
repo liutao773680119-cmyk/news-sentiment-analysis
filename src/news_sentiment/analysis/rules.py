@@ -16,6 +16,8 @@ COMPANY_THEME_EVENT_SUBTYPES = {
     "order_contract",
     "cooperation_agreement",
     "acquisition_restructuring",
+    "legal_dispute",
+    "reorganization_risk",
 }
 FAST_NEWS_FINANCIAL_RESULT_KEYWORDS = (
     "净利润",
@@ -78,7 +80,7 @@ def detect_event_themes(event: Event) -> list[str]:
             matches = detect_themes(f"{event.canonical_title} {event.summary}")
     else:
         matches = detect_themes(f"{event.canonical_title} {event.summary}")
-    stock_code = _extract_stock_code_from_url(event.url)
+    stock_code = _extract_stock_code_from_event(event)
     if stock_code and event.event_subtype in COMPANY_THEME_EVENT_SUBTYPES:
         matches.extend(_load_company_theme_map().get(stock_code, []))
     return list(dict.fromkeys(matches))
@@ -149,6 +151,29 @@ def _is_bullish_control_change(text: str) -> bool:
         return False
 
     return any(keyword in text for keyword in ("收购", "取得", "获得"))
+
+
+def _extract_stock_code_from_event(event: Event) -> str:
+    stock_code = _extract_stock_code_from_url(event.url)
+    if stock_code:
+        return stock_code
+
+    if event.url:
+        filename = event.url.rsplit("/", maxsplit=1)[-1]
+        prefix = filename.split("_", maxsplit=1)[0]
+        if prefix.isdigit() and len(prefix) == 6:
+            return prefix
+
+    for news_id in event.member_news_ids:
+        parts = news_id.split("-")
+        if len(parts) >= 2 and parts[1].isdigit() and len(parts[1]) == 6:
+            return parts[1]
+
+    for entity in event.primary_entities:
+        if entity.isdigit() and len(entity) == 6:
+            return entity
+
+    return ""
 
 
 def _extract_stock_code_from_url(url: str) -> str:
