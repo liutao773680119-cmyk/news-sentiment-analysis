@@ -114,6 +114,9 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "文旅经济发展大会召开",
     "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
 )
+LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS = (
+    "广汽自营充电桩突破",
+)
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
 )
@@ -346,6 +349,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             and any(keyword in title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
         ):
             return None
+        if _is_low_signal_stcn_charging_infrastructure_candidate(event):
+            return None
         if _is_low_signal_stcn_fund_manager_commentary_candidate(event):
             return None
         if _is_low_signal_stcn_industry_prosperity_story_candidate(event):
@@ -433,6 +438,20 @@ def _is_low_signal_private_robot_financing_story_candidate(event: Event) -> bool
         "Pre-A轮融资" in title
         and "机器人应用" in title
         and "交付能力" in title
+    )
+
+
+def _is_low_signal_stcn_charging_infrastructure_candidate(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return any(
+        keyword in event.canonical_title
+        for keyword in LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS
     )
 
 

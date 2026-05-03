@@ -5870,6 +5870,61 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
     assert "迪拜甲骨文大楼外立面遭防空系统拦截碎片击中 无人员伤亡" not in content
 
 
+def test_write_text_report_filters_stcn_charging_infra_general_fast_news_even_if_analysis_gets_theme(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-charging-infra-fast-news",
+            first_seen_at="2026-05-03T18:13:11+08:00",
+            last_seen_at="2026-05-03T18:13:11+08:00",
+            canonical_title="广汽自营充电桩突破2.5万根，覆盖全国31省213市",
+            summary="广汽自营充电桩规模持续扩容。",
+            source="stcn",
+            published_at="2026-05-03T18:13:11+08:00",
+            url="https://example.com/stcn-charging-infra",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-order-keep",
+            first_seen_at="2026-05-03T18:14:00+08:00",
+            last_seen_at="2026-05-03T18:14:00+08:00",
+            canonical_title="新势能源：与广汽签署战略合作协议",
+            summary="双方签署合作协议，推进共建新能源生态。",
+            source="stcn",
+            published_at="2026-05-03T18:14:00+08:00",
+            url="https://example.com/stcn-order-keep",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-charging-infra-fast-news",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["充电桩"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-order-keep",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["新能源车"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "新势能源：与广汽签署战略合作协议" in content
+    assert "广汽自营充电桩突破2.5万根，覆盖全国31省213市" not in content
+
+
 def test_write_text_report_filters_stcn_robot_half_marathon_story_even_if_analysis_gets_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

@@ -604,6 +604,9 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "“数据跨境”主题交流活动",
     "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
 )
+LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS = (
+    "广汽自营充电桩突破",
+)
 LOW_SIGNAL_MIIT_POLICY_MEETING_TITLE_KEYWORDS = (
     "座谈会",
     "行业会议",
@@ -728,6 +731,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_stcn_nonlisted_ai_finance_story(event, text):
         return False
     if _is_low_signal_stcn_institution_research_roundup(event, text):
+        return False
+    if _is_low_signal_stcn_charging_infrastructure_story(event):
         return False
     if _is_low_signal_stcn_cooperation_exchange_story(event, text):
         return False
@@ -1772,6 +1777,20 @@ def _is_low_signal_stcn_public_affairs_story(event: Event) -> bool:
         return False
 
     return any(keyword in event.canonical_title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
+
+
+def _is_low_signal_stcn_charging_infrastructure_story(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    return any(
+        keyword in event.canonical_title
+        for keyword in LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS
+    )
 
 
 def _is_low_signal_stcn_nonlisted_ai_finance_story(event: Event, text: str) -> bool:

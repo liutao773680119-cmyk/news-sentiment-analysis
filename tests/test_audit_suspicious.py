@@ -1154,6 +1154,48 @@ def test_audit_suspicious_skips_stcn_fund_manager_investment_opportunity_story(
     assert "基金经理把握光通信投资机会" not in output
 
 
+def test_audit_suspicious_skips_stcn_charging_infra_fast_news_with_theme(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-charging-infra-fast",
+                first_seen_at="2026-05-03T18:13:11+08:00",
+                last_seen_at="2026-05-03T18:13:11+08:00",
+                canonical_title="广汽自营充电桩突破2.5万根，覆盖全国31省213市",
+                summary="2026年5月，广汽集团自营充电桩网点突破2.5万根。",
+                source="stcn",
+                published_at="2026-05-03T18:13:11+08:00",
+                url="https://example.com/stcn-charging-infra-fast",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            )
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-charging-infra-fast",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["充电桩"],
+                triggered=True,
+            )
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "广汽自营充电桩突破2.5万根，覆盖全国31省213市" not in output
+
+
 def test_audit_suspicious_skips_stcn_industry_prosperity_story(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
