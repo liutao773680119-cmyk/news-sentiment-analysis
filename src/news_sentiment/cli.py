@@ -120,6 +120,9 @@ LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS = (
 LOW_SIGNAL_STCN_WTI_GENERAL_FAST_NEWS_TITLE_PREFIX = (
     "国际油价持续回落 WTI原油期货价格涨幅收窄至"
 )
+LOW_SIGNAL_STCN_BRENT_UPWARD_VOLATILITY_FAST_NEWS_TITLE_PREFIX = (
+    "国际原油短线快速拉升 布伦特原油期货涨逾"
+)
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
 )
@@ -349,6 +352,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     ):
         if _is_low_signal_stcn_wti_general_fast_news_candidate(event):
             return None
+        if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
+            return None
         if (
             event.source == "stcn"
             and any(keyword in title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
@@ -479,6 +484,19 @@ def _is_low_signal_stcn_wti_general_fast_news_candidate(event: Event) -> bool:
         and event.event_subtype == "general_fast_news"
         and event.canonical_title.startswith(
             LOW_SIGNAL_STCN_WTI_GENERAL_FAST_NEWS_TITLE_PREFIX
+        )
+    )
+
+
+def _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(
+    event: Event,
+) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and event.canonical_title.startswith(
+            LOW_SIGNAL_STCN_BRENT_UPWARD_VOLATILITY_FAST_NEWS_TITLE_PREFIX
         )
     )
 

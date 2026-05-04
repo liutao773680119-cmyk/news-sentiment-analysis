@@ -1238,6 +1238,48 @@ def test_audit_suspicious_skips_stcn_wti_general_fast_news_with_theme(
     assert "国际油价持续回落 WTI原油期货价格涨幅收窄至1.1%" not in output
 
 
+def test_audit_suspicious_skips_stcn_brent_fast_news_with_theme(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-brent-fast",
+                first_seen_at="2026-05-05T08:57:22+08:00",
+                last_seen_at="2026-05-05T08:57:22+08:00",
+                canonical_title="国际原油短线快速拉升 布伦特原油期货涨逾5%",
+                summary="财联社5月5日电，国际原油短线快速拉升，布伦特原油期货涨逾5%，市场震荡回升。",
+                source="stcn",
+                published_at="2026-05-05T08:57:22+08:00",
+                url="https://example.com/stcn-brent-fast",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-brent-fast",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "国际原油短线快速拉升 布伦特原油期货涨逾5%" not in output
+
+
 def test_audit_suspicious_skips_stcn_industry_prosperity_story(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
