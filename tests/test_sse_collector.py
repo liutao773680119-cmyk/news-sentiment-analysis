@@ -67,6 +67,16 @@ def test_collect_sse_news_raises_fetch_error_on_network_failure(monkeypatch) -> 
         raise AssertionError("Expected CollectorFetchError")
 
 
+def test_collect_sse_news_returns_empty_rows_on_empty_payload(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "news_sentiment.collectors.sse.fetch_sse_news_payload",
+        lambda: "jsonpCallbackNewsSentiment({\"result\": []})",
+    )
+
+    rows = collect_sse_news()
+    assert rows == []
+
+
 def test_sse_source_definition_is_registered() -> None:
     source = load_source_definition_map()["sse"]
     assert source.source_type == "hard_event"

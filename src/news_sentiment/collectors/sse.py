@@ -76,8 +76,13 @@ def fetch_sse_news_payload(url: str = SSE_BULLETIN_QUERY_URL) -> str:
 def parse_sse_news_payload(payload: str) -> list[RawNews]:
     parsed = json.loads(_jsonp_payload_to_json(payload))
     captured_at = datetime.now(timezone.utc).isoformat()
-    rows: list[RawNews] = []
     raw_result = parsed.get("result", [])
+    if not isinstance(raw_result, list):
+        return []
+    if not raw_result:
+        return []
+
+    rows: list[RawNews] = []
     flattened_items = []
     for item in raw_result:
         if isinstance(item, list):
@@ -117,6 +122,4 @@ def collect_sse_news() -> list[RawNews]:
         raise CollectorEmptyResultError("sse", "empty response body")
 
     rows = parse_sse_news_payload(payload)
-    if not rows:
-        raise CollectorParseError("sse", "no announcement rows matched response")
     return rows
