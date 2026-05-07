@@ -6955,6 +6955,64 @@ def test_write_text_report_filters_cninfo_restructuring_revised_report_with_them
     assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in content
 
 
+def test_write_text_report_filters_cninfo_restructuring_special_audit_verification_opinion_without_theme(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-restructuring-special-audit-verification-opinion",
+            first_seen_at="2026-05-05T18:45:00+08:00",
+            last_seen_at="2026-05-05T18:45:00+08:00",
+            canonical_title="欧菲光：中兴华会计师事务所（特殊普通合伙）关于欧菲光集团股份有限公司发行股份购买资产的审核问询函的专项核查意见",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-05-05T18:45:00+08:00",
+            url="https://example.com/cninfo-restructuring-verification-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-semiconductor-progress",
+            first_seen_at="2026-05-05T18:46:00+08:00",
+            last_seen_at="2026-05-05T18:46:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-05-05T18:46:00+08:00",
+            url="https://example.com/keep-semiconductor-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-restructuring-special-audit-verification-opinion",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-semiconductor-progress",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert (
+        "欧菲光：中兴华会计师事务所（特殊普通合伙）关于欧菲光集团股份有限公司发行股份购买资产的审核问询函的专项核查意见"
+        not in content
+    )
+
+
 def test_write_text_report_filters_exchange_inquiry_reply_and_special_explanation_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

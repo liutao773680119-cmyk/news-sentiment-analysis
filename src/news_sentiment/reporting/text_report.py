@@ -377,6 +377,7 @@ LOW_SIGNAL_EXCHANGE_TEMPLATE_COOPERATION_STRONG_KEYWORDS = (
 LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函回复",
     "问询函回复",
+    "审核问询函的专项核查意见",
     "报告书（修订稿）",
     "报告书(修订稿)",
     "会议安排",

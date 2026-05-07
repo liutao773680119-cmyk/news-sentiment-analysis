@@ -48,6 +48,7 @@ HARD_EVENT_RISK_REVIEW_KEYWORDS = (
 )
 LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函回复",
+    "审核问询函的专项核查意见",
     "审核问询函之回复",
     "问询函回复",
     "审核问询函中有关财务会计问题的专项说明",
