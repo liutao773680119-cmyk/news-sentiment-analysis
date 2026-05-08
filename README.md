@@ -77,7 +77,7 @@ scripts/run_news_sentiment_watchdog_loop.sh
 可选环境变量：
 
 - `NEWS_SENTIMENT_WATCH_LOG`: 日志路径，默认 `/tmp/news-sentiment-watch.log`
-- `NEWS_SENTIMENT_WATCH_INTERVAL_SECONDS`: 轮询间隔，默认 `1800`
+- `NEWS_SENTIMENT_WATCH_INTERVAL_SECONDS`: 轮询间隔，默认 `600`
 - `NEWS_SENTIMENT_WATCH_LIMIT`: 巡检输出上限，默认 `10`
 
 社交 sidecar：
