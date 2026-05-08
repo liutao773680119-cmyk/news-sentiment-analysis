@@ -1992,6 +1992,8 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("华羿微电" in title and "安森美" in title and "意法半导体" in title)
             or ("自有算力" in title and "在建算力" in title and "可调度算力" in title)
             or ("是否生产销售" in title and "人形机器人" in title and "减速器" in title)
+            or ("网传中标" in title and "是真的吗" in title)
+            or ("光伏储能" in title and "相关业务吗" in title)
         )
 
     return (
@@ -2133,6 +2135,25 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
         or (
             any(keyword in title for keyword in ("市值被低估", "二级市场融资千亿"))
             and any(keyword in text for keyword in ("价值创造、价值经营和价值实现", "中期现金分红方案", "投资者获得感与回报水平"))
+        )
+        or (
+            any(keyword in title for keyword in ("股价连跌", "长期横盘死水", "二级市场"))
+            and any(keyword in title for keyword in ("回购", "降薪", "增持", "不作为", "领导层"))
+            and "公司股价受到宏观经济环境、行业周期以及二级市场波动等诸多因素的综合影响" in text
+            and "公司管理层也始终重视投资者的利益" in text
+            and "将继续专注主业，增强业务优势" in text
+        )
+        or (
+            "财务虚报" in title
+            and "压价增持" in title
+            and "公司的经营管理情况一切正常" in text
+            and "公司股价受到宏观经济环境、行业周期以及二级市场波动等诸多因素的综合影响" in text
+            and "有关公司的经营业绩，请关注公司发布的定期报告" in text
+        )
+        or (
+            any(keyword in title for keyword in ("十年千亿产值", "知行合一在哪里", "客观事实的反馈"))
+            and "公司始终尊重并重视投资者的反馈" in text
+            and "感谢您的关注" in text
         )
         or (
             "获得行业知名客户订单" in title

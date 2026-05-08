@@ -7,36 +7,32 @@
   - `audit` 尾噪单拆
   - 不要混成一轮大修
 - 本轮新增确认：
-  - `eia_wpsr` 真根因是页面日期格式漂移：
-    - live 页面用了 `May 1, 2026`
-    - 旧 parser 只吃 `Apr. 10, 2026`
-  - `audit-suspicious=0` 和 report 头部干净仍是两回事；本轮先把 `audit` 归零，再继续清 `保利定转付息公告`
+  - `sse_einteractive` 头部边界里，最稳的刀还是 `title + canned reply` 的最窄组合；不要先碰 subtype
+  - `irm_cninfo` 当天 live 里会出现 `summary=title-only` 的 question-only 样本，旧的 `title+reply` 规则天然覆盖不到
+  - `网传中标...是真的吗`、`光伏储能相关业务吗` 这类 question-only 题目，适合只在 `no-reply` 分支做 title-only 窄收口
   - 当前 analyses 真路径是 `data/events/event_analysis.jsonl`，不是 `data/analysis/analyses.jsonl`
-  - live 重跑后同簇 `irm_cninfo` 样本会重新归并，`event_id` 可能漂移；调试不要硬绑旧 `event_id`
+  - live 重跑后同簇样本会重新归并，`event_id` 可能漂移；调试不要硬绑旧 `event_id`
   - `live-smoke --source all` 有时会先写完产物、后回 stdout；判断现场时要以最终 stdout 和产物时间戳一起看
 - 本轮已收掉的低信号家族：
-  - `eia_wpsr` 页面元数据解析失败
-  - `cninfo`：`关于全资子公司仲裁事项的进展公告`
-  - `irm_cninfo`：`新余国科`、`华天科技` 华羿微电两条弱问答、`协创数据`、`东利机械`
-  - `sse corporate_disclosure`：`保利发展...保利定转2026年付息公告`
-  - `stcn general_fast_news`：`现货白银震荡走高，涨近1%`
+  - `sse_einteractive`：`安通控股` 两条投资者抱怨型问答
+  - `sse_einteractive`：`精工钢构` 空回复抱怨问答
+  - `irm_cninfo`：`中超控股` question-only 中标传闻问答
+  - `irm_cninfo`：`青鸟智控` question-only 主题关联问答
 - 当前明确保留：
   - 诉讼/仲裁进展公告
   - 并购/股权收购/中标主样本
-  - `大容量电芯迭代速度远超行业预期...`
+  - `cls` 的 `AI应用 / CPO / 机器人 / PCB` 市场异动
+  - `精工钢构：业务是否涉及数据中心及火箭发射厂...`
 - 当前剩余边界：
-  - `精工钢构` 头部问答
-  - `安通控股` 投资者抱怨型问答
+  - 目前没有新的同族 `irm_cninfo / sse_einteractive` 弱问答停在头部
 - 当前验证结论：
-  - `tests/test_eia_wpsr_collector.py` -> `6 passed`
   - `tests/test_text_report_sorting.py` -> `242 passed`
-  - `tests/test_audit_suspicious.py` -> `33 passed`
-  - `live-smoke --source all` -> `failed_sources=none`
+  - `live-smoke --source all` -> `raw_news=449 normalized_news=449 events=395 analyses=395 failed_sources=none`
   - `audit-suspicious=0`
-  - 后台最新 3 个完整块连续 `failed_sources=none`、`suspicious_count=0`
+  - `latest_report.txt` 头部已确认 `安通控股 / 中超控股 / 青鸟智控` 退出
 - 下一步判断：
   - 现在更适合停手提交
-  - 若继续，只单拆 `sse_einteractive` 头部问答，不重开已处理家族
+  - 若下一轮继续，优先只读看有没有新的 question-only live 样本再决定是否补词
 
 ## Update 2026-05-01 (latest)
 - 当前最有效的动作仍是 `text_report` 层的最窄 live 样本收口，不是回头改 `event_merge / analysis`

@@ -2,53 +2,48 @@
 
 ## Update 2026-05-08 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
-- 本轮从后台 loop 巡检继续：
-  - `news-sentiment-watch` 连续 3 个完整块稳定
+- 本轮从 `sse_einteractive / irm_cninfo` 头部尾噪继续：
+  - `news-sentiment-watch` 口径仍稳定
   - `failed_sources=none`
   - `suspicious_count=0`
-  - 但 `latest_report.txt` 头部仍有 `sse_einteractive` 边界问答，所以当前适合停在“已清掉本轮目标尾噪”，不要继续泛化
+  - `latest_report.txt` 里本轮目标尾噪已退出
 - 本轮已处理：
-  - `eia_wpsr`：
-    - 页面日期从 `Apr.` / `%b.` 扩到同时支持 `May 1, 2026`
-  - `audit-suspicious`：
-    - `关于全资子公司仲裁事项的进展公告`
-    - `现货白银震荡走高，涨近1%`
   - `text_report`：
-    - `新余国科`
-    - `华天科技` 华羿微电两条弱问答
-    - `协创数据`
-    - `东利机械`
-    - `保利发展...保利定转2026年付息公告`
+    - `安通控股` 两条投资者抱怨型 `sse_einteractive` 问答
+    - `精工钢构` 空回复抱怨问答
+    - `中超控股` question-only `网传中标...是真的吗`
+    - `青鸟智控` question-only `光伏储能相关业务吗`
 - 当前验证：
-  - `tests/test_eia_wpsr_collector.py -q` -> `6 passed`
   - `tests/test_text_report_sorting.py -q` -> `242 passed`
-  - `tests/test_audit_suspicious.py -q` -> `33 passed`
-  - `live-smoke --source all` -> `raw_news=459 normalized_news=459 events=402 analyses=402 failed_sources=none`
+  - `live-smoke --source all` -> `raw_news=449 normalized_news=449 events=395 analyses=395 failed_sources=none`
   - `audit-suspicious --limit 10` -> `suspicious_count=0`
-  - 后台最新完整块 `2026-05-08_08:56:33` -> `failed_sources=none`、`suspicious_count=0`
 - 当前结论：
   - 本轮目标尾噪已经清掉
-  - 当前更值得继续观察的是 `sse_einteractive` 头部问答边界，不是重开已处理家族
+  - 当前只剩 `精工钢构` 的实质算力问答保留在头部，这条按现口径应保留
+  - 现在更适合收尾推送，不适合继续泛化
 - 当前风险：
   - `audit=0` 不等于 report 头部完全没有边界样本
   - live 重跑后同簇 `event_id` 可能变化，排障要按当前标题/正文对齐
   - `data/events/event_analysis.jsonl` 才是当前 analyses 路径
+  - `irm_cninfo` 当前会有 `summary=title-only` 的 question-only live 样本，旧 reply 规则不覆盖
 
 ## Immediate Next Steps (2026-05-08 latest)
-1. 先只读查看：
-   - `tail -n 120 /tmp/news-sentiment-watch.log`
+1. 直接收尾：
+   - `git status --short`
+   - `git add ...`
+   - `git commit`
+   - `git push`
+2. 下一轮如果继续，只先只读查看：
    - `sed -n '1,180p' data/reports/latest_report.txt`
-2. 如果 `精工钢构 / 安通控股` 继续稳定停在头部，再单独拆 `sse_einteractive` 问答家族。
-3. 处理顺序仍是：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+3. 如果再出现新的 `irm_cninfo` question-only 弱问答，继续按：
    - 红灯测试
-   - 最窄规则
-   - 对应定向测试
+   - 最窄 title-only 规则
+   - 定向测试
    - `live-smoke --source all`
-   - `audit-suspicious --limit 10`
 4. 暂不建议：
-   - 重开 `eia_wpsr`
-   - 重开 `华羿微电 / 协创数据 / 新余国科 / 东利机械`
-   - 重开 `保利定转付息公告`
+   - 为了更短头部继续压当前 `cls/stcn` 真样本
+   - 重开已处理家族
    - 混修 source 问题和 report/audit 尾噪
 
 ## Update 2026-05-01 (latest handoff)

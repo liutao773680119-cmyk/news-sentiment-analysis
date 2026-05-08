@@ -4,44 +4,33 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
-  - `eia_wpsr 修复 + live report/audit 尾噪收口 + 收尾交接`
+  - `sse_einteractive / irm_cninfo live 尾噪补收口 + 收尾待推送`
 - Files Changed:
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_text_report_sorting.py`
   - `progress.md`
   - `task_plan.md`
   - `findings.md`
   - `task_registry.md`
   - `修改记录_会话备忘.md`
   - `避坑记录.md`
-  - `src/news_sentiment/cli.py`
-  - `src/news_sentiment/collectors/eia_wpsr.py`
-  - `src/news_sentiment/reporting/text_report.py`
-  - `tests/test_audit_suspicious.py`
-  - `tests/test_eia_wpsr_collector.py`
-  - `tests/test_text_report_sorting.py`
 - Completed This Session:
-  - 持续只读看 `news-sentiment-watch`、`latest_report.txt` 头部和 `audit-suspicious`，没有扩题材库，也没有动 `event_merge / analysis / source enable`
-  - 已确认后台 loop 连续稳定，最新 3 个完整块：
-    - `2026-05-08_07:54:40`
-    - `2026-05-08_08:25:42`
-    - `2026-05-08_08:56:33`
-    - 均为 `failed_sources=none`、`suspicious_count=0`
-  - 修复 `eia_wpsr` 页面日期解析，兼容有点/无点月份格式
-  - 基于 live 样本，按“红灯测试 -> 最窄规则 -> 验证”连续收掉：
-    - `audit`：`关于全资子公司仲裁事项的进展公告`
-    - `irm_cninfo`：`新余国科`
-    - `irm_cninfo`：`华天科技` 华羿微电两条弱问答
-    - `irm_cninfo`：`协创数据`
-    - `irm_cninfo`：`东利机械`
-    - `sse corporate_disclosure`：`保利发展...保利定转2026年付息公告`
-    - `audit`：`现货白银震荡走高，涨近1%`
+  - 在 `sse_einteractive` 收掉：
+    - `安通控股：强烈质疑公司管理层不作为...`
+    - `安通控股：公司如此二级市场存在财务虚报配合股东压价增持...`
+    - `精工钢构：2020年高调提出的“十年千亿产值”...知行合一在哪里`
+  - 在 `irm_cninfo` 收掉：
+    - `中超控股：网传中标国家管网集团2026年度电缆集约化采购项目8.79个亿是真的吗`
+    - `青鸟智控：公司有涉及光伏储能相关业务吗`
+  - 保留了当前应留的实质问答：
+    - `精工钢构：业务是否涉及数据中心及火箭发射厂...`
+  - 没有扩题材库，也没有动 `event_merge / analysis / source enable`
 - Current Verification:
-  - `./.venv/bin/python -m pytest tests/test_eia_wpsr_collector.py -q` -> `6 passed`
   - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `242 passed`
-  - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -q` -> `33 passed`
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=459 normalized_news=459 events=402 analyses=402 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=449 normalized_news=449 events=395 analyses=395 failed_sources=none`
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
-  - 串行刷新后的 `latest_report.txt` 已确认：
-    - `华天科技 / 协创数据 / 新余国科 / 东利机械 / 保利发展付息公告`
+  - `latest_report.txt` 已确认：
+    - `安通控股 / 中超控股 / 青鸟智控`
     - 均不在 report 头部
 - Current Report Head After Refresh:
   - 当前头部主要是：
@@ -50,28 +39,24 @@
     - `新疆天业...筹划股权收购的关联交易公告`
     - `好上好...收购鼎瑞芯100%股权`
     - `长高电新 / 运机集团` 中标
-    - `大容量电芯迭代速度远超行业预期...`
-    - `众生药业...IIb期临床试验初步结果`
+    - `cls` 的 `AI应用 / CPO / 机器人 / PCB` 市场异动
+    - `stcn` 的 `国民技术` 光模块合作、`每日互动` AI 业务收入
   - 当前剩余边界样本主要是：
-    - `精工钢构` 两条 `sse_einteractive` 问答
-    - `安通控股` 投资者抱怨型问答
+    - `精工钢构：业务是否涉及数据中心及火箭发射厂...`
 - Open TODO:
-  - 如继续收口，下一刀优先单拆 `sse_einteractive` 头部问答家族：
-    - `精工钢构`
-    - `安通控股`
-  - 下一轮仍先只读复核：
-    - `tail -n 120 /tmp/news-sentiment-watch.log`
+  - 当前适合直接提交并推远端
+  - 如下一轮继续，只先只读复核：
     - `sed -n '1,180p' data/reports/latest_report.txt`
-  - 不要回头重开已处理家族：
-    - `eia_wpsr`
-    - `华羿微电弱问答`
-    - `保利定转付息公告`
-    - `现货白银 audit`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  - 若再出现新的 `irm_cninfo` question-only 弱问答，继续走：
+    - 红灯测试
+    - 最窄 title-only 规则
+    - 定向测试
 - Risks/Blockers:
   - `audit-suspicious=0` 仍不代表 report 头部一定合理，必须直接看 report
   - live 重跑后同一簇样本的 `event_id` 可能变化，排障时不要硬绑旧 `event_id`
   - analyses 真路径是 `data/events/event_analysis.jsonl`，不是 `data/analysis/analyses.jsonl`
-  - 后台 loop 的最新 log 块可能早于最新 commit；不能拿上一轮 log 判断“新规则没生效”
+  - `irm_cninfo` 当前 live 里会出现 `summary=title-only` 的 question-only 样本，旧的 title+reply 规则天然吃不到
   - `urllib3 NotOpenSSLWarning` 仍会出现，但当前命令退出码为 0
 - Next First Command:
   - `sed -n '1,180p' data/reports/latest_report.txt`
@@ -79,7 +64,7 @@
   - 不要把 `report` 重写和 `sed latest_report.txt` 并行执行；要先写后读
   - 不要查错 analyses 路径；当前用 `data/events/event_analysis.jsonl`
   - 不要硬绑旧 `event_id` 排 live 问题；先按当前标题和正文对齐
-  - 不要用上一轮 log 块直接判断新提交未生效；必须等下一轮 loop
+  - 不要把 `irm_cninfo` question-only 样本继续套进旧的 title+reply 规则；先看它是否根本没有回复正文
   - 不要把 source 问题、report 尾噪、audit 尾噪混成一刀一起修
 
 ## Latest Handoff Snapshot (2026-04-29)

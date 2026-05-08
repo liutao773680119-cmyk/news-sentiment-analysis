@@ -12120,18 +12120,32 @@ def test_write_text_report_filters_irm_cninfo_weak_order_contract_and_market_mov
             event_type="fast_news",
             event_subtype="market_move",
         ),
+        Event(
+            event_id="event-irm-order-contract-rumor-no-reply-current",
+            first_seen_at="2026-05-08T09:33:38+08:00",
+            last_seen_at="2026-05-08T09:33:38+08:00",
+            canonical_title="中超控股：董秘您好，请问网传中标国家管网集团2026年度电缆集约化采购项目8.79个亿是真的吗",
+            summary="董秘您好，请问网传中标国家管网集团2026年度电缆集约化采购项目8.79个亿是真的吗",
+            source="irm_cninfo",
+            published_at="2026-05-08T09:33:38+08:00",
+            url="https://example.com/irm-order-contract-rumor-no-reply-current",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
     ]
     analyses = [
         EventAnalysis(event_id="event-irm-order-contract-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-market-move-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-order-progress", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-market-move-response", direction="bearish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-order-contract-rumor-no-reply-current", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "易普力是否已与葛洲坝签署分包合同" not in content
     assert "公司还认为是龙头企业吗？" not in content
+    assert "网传中标国家管网集团2026年度电缆集约化采购项目8.79个亿是真的吗" not in content
     assert "易普力：据三峡集团招标网公示，你公司是中标三峡水运新通道项目了吗？请介绍一下具体情况" in content
     assert "易普力：去年我多次建议公司，在硝酸铵价格低廉时，抓紧并购四川美丰" in content
 
@@ -12249,6 +12263,18 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
             event_type="fast_news",
             event_subtype="business_guidance",
         ),
+        Event(
+            event_id="event-irm-generic-storage-theme-no-reply-current",
+            first_seen_at="2026-05-08T10:01:50+08:00",
+            last_seen_at="2026-05-08T10:01:50+08:00",
+            canonical_title="青鸟智控：您好董秘，公司有涉及光伏储能相关业务吗？",
+            summary="您好董秘，公司有涉及光伏储能相关业务吗？",
+            source="irm_cninfo",
+            published_at="2026-05-08T10:01:50+08:00",
+            url="https://example.com/irm-generic-storage-theme-no-reply-current",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
     ]
     analyses = [
         EventAnalysis(event_id="event-irm-humanoid-confidence-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
@@ -12260,6 +12286,7 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
         EventAnalysis(event_id="event-irm-revenue-order-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-stock-price-project-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-theme-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+        EventAnalysis(event_id="event-irm-generic-storage-theme-no-reply-current", direction="neutral", impact_score=100.0, reasoning="rule", themes=["储能"], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
@@ -12272,6 +12299,7 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
     assert "中亦科技：你好董秘，中亦科技是否有算力基建吗？有是哪些简单说说，如果没有，后期会布局介入吗？谢谢" not in content
     assert "冰轮环境：董秘您好，公司核能业务营收大概有多少？在手订单大概有多少？" not in content
     assert "中电港：美股存储公司大涨，国内龙头公司都在做加快发展，贵公司是英伟达、AMD的授权分销商之一，股价与业绩不对称，有瞄准市场机遇签订新项目么" not in content
+    assert "青鸟智控：您好董秘，公司有涉及光伏储能相关业务吗？" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
@@ -14018,6 +14046,54 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
             event_type="fast_news",
             event_subtype="business_guidance",
         ),
+        Event(
+            event_id="event-sse-stock-price-complaint-antong-1",
+            first_seen_at="2026-05-07T18:22:00+08:00",
+            last_seen_at="2026-05-07T18:22:00+08:00",
+            canonical_title="安通控股：强烈质疑公司管理层不作为：股价连跌，投资者要求回购、降薪、增持，公司只说“二级市场多重因素”，无实质行动",
+            summary="问题：强烈质疑公司管理层不作为：股价连跌，投资者要求回购、降薪、增持，公司只说“二级市场多重因素”，无实质行动 回复：尊敬的投资者，您好！公司股价受到宏观经济环境、行业周期以及二级市场波动等诸多因素的综合影响，存在不确定性，公司提醒广大投资者理性投资，注意投资风险！同时，公司管理层也始终重视投资者的利益，将继续专注主业，增强业务优势，坚持以提升公司经营业绩和企业价值作为长期工作重点，力争以优良的业绩回报广大投资者。感谢您的关注！",
+            source="sse_einteractive",
+            published_at="2026-05-07T18:22:00+08:00",
+            url="https://example.com/sse-stock-price-complaint-antong-1",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-stock-price-complaint-antong-2",
+            first_seen_at="2026-05-07T18:22:00+08:00",
+            last_seen_at="2026-05-07T18:22:00+08:00",
+            canonical_title="安通控股：公司如此二级市场存在财务虚报配合股东压价增持让无信息资源小散投资者接盘？安通控股一季度营业收入约21.20亿元，同比增长3.83%；净利润约2.54亿元，同比增长5.12%。",
+            summary="问题：公司如此二级市场存在财务虚报配合股东压价增持让无信息资源小散投资者接盘？安通控股一季度营业收入约21.20亿元，同比增长3.83%；净利润约2.54亿元，同比增长5.12%。 回复：尊敬的投资者，您好！公司的经营管理情况一切正常，公司股价受到宏观经济环境、行业周期以及二级市场波动等诸多因素的综合影响，存在不确定性。有关公司的经营业绩，请关注公司发布的定期报告。感谢您的关注！",
+            source="sse_einteractive",
+            published_at="2026-05-07T18:22:00+08:00",
+            url="https://example.com/sse-stock-price-complaint-antong-2",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-stock-price-complaint-jinggong-1",
+            first_seen_at="2026-05-07T18:22:00+08:00",
+            last_seen_at="2026-05-07T18:22:00+08:00",
+            canonical_title="精工钢构：2020年高调提出的“十年千亿产值”按时间节点严重不及预期；“大力拓展EPc营收占比”严重不达预期；“努力提升公司估值”效果更加不达预期；2023年至今连续3年扣非净利润下滑，“业绩向好”从何说起；2022年每股净资产较目前低许多，公司能以均价4.39元回购1亿元，如今4元以下却无动于衷，管理层知行合一在哪里？……请问：这里面哪一个不是基于客观事实的反馈？",
+            summary="问题：2020年高调提出的“十年千亿产值”按时间节点严重不及预期；“大力拓展EPc营收占比”严重不达预期；“努力提升公司估值”效果更加不达预期；2023年至今连续3年扣非净利润下滑，“业绩向好”从何说起；2022年每股净资产较目前低许多，公司能以均价4.39元回购1亿元，如今4元以下却无动于衷，管理层知行合一在哪里？……请问：这里面哪一个不是基于客观事实的反馈？ 回复：尊敬的投资者您好，公司始终尊重并重视投资者的反馈，感谢您的关注。",
+            source="sse_einteractive",
+            published_at="2026-05-07T18:22:00+08:00",
+            url="https://example.com/sse-stock-price-complaint-jinggong-1",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-keep-substantive-jinggong-1",
+            first_seen_at="2026-05-07T18:22:00+08:00",
+            last_seen_at="2026-05-07T18:22:00+08:00",
+            canonical_title="精工钢构：您好，请问贵公司的业务是否涉及数据中心及火箭发射厂的基础设施建设，业务体量如何，目前国内低空经济，算力设施，深空深海深地等建设均离不开基础设施，贵公司是如何把握机会的",
+            summary="问题：您好，请问贵公司的业务是否涉及数据中心及火箭发射厂的基础设施建设，业务体量如何，目前国内低空经济，算力设施，深空深海深地等建设均离不开基础设施，贵公司是如何把握机会的 回复：尊敬的投资者，您好。公司业务已覆盖数据中心、火箭发射厂等基础设施建设，主要负责钢结构相关业务，属于公司主营业务范畴。后续公司将持续关注国家政策导向，积极关注新兴赛道建设需求，依托钢结构主业技术优势与工程经验，主动挖掘业务合作机会，培育新的业绩增长点。",
+            source="sse_einteractive",
+            published_at="2026-05-07T18:22:00+08:00",
+            url="https://example.com/sse-keep-substantive-jinggong-1",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
     ]
     analyses = [
         EventAnalysis(event_id="event-sse-stock-price-complaint-1", direction="neutral", impact_score=99.9, reasoning="rule", themes=["绿电"], triggered=True),
@@ -14025,6 +14101,10 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
         EventAnalysis(event_id="event-sse-keep-substantive-reply", direction="bullish", impact_score=99.9, reasoning="rule", themes=["光通信"], triggered=True),
         EventAnalysis(event_id="event-sse-stock-price-complaint-csb-1", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-sse-stock-price-complaint-csb-2", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-stock-price-complaint-antong-1", direction="bearish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-stock-price-complaint-antong-2", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-stock-price-complaint-jinggong-1", direction="bearish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-keep-substantive-jinggong-1", direction="bullish", impact_score=99.9, reasoning="rule", themes=["算力"], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
@@ -14033,7 +14113,10 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
     assert "请董秘给个解释" not in content
     assert "二级市场融资千亿" not in content
     assert "贵司市值被低估" not in content
-    assert "硅光集成产线预计2026年底通线" in content
+    assert "强烈质疑公司管理层不作为" not in content
+    assert "财务虚报配合股东压价增持" not in content
+    assert "十年千亿产值" not in content
+    assert "业务是否涉及数据中心及火箭发射厂" in content
 
 
 def test_write_text_report_filters_current_live_equity_incentive_review_opinion_without_hiding_exercise_notice(
