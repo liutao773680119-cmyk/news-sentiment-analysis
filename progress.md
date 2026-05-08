@@ -1,10 +1,10 @@
 # Progress Log
 
-## Latest Handoff Snapshot (2026-05-01)
+## Latest Handoff Snapshot (2026-05-08)
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
-  - `live report 尾噪收口 + 后台 loop 巡检 + 标准交接`
+  - `eia_wpsr 修复 + live report/audit 尾噪收口 + 收尾交接`
 - Files Changed:
   - `progress.md`
   - `task_plan.md`
@@ -13,56 +13,74 @@
   - `修改记录_会话备忘.md`
   - `避坑记录.md`
   - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/collectors/eia_wpsr.py`
   - `src/news_sentiment/reporting/text_report.py`
   - `tests/test_audit_suspicious.py`
+  - `tests/test_eia_wpsr_collector.py`
   - `tests/test_text_report_sorting.py`
 - Completed This Session:
-  - 持续只读看 `news-sentiment-watch` 后台 loop、`latest_report.txt` 头部和 `audit-suspicious`，没有先扩题材库，也没有动 `event_merge / analysis / source enable`
-  - 已确认后台 loop 正常滚动，最近自动落盘到 `2026-05-01_20:52:50`，`failed_sources=none`
-  - 基于当天 live 样本，按“红灯测试 -> 最窄规则 -> 验证”连续收掉：
-    - `stcn public affairs` 领导调研/慰问活动口径
-    - `irm_cninfo` 纯提问标题：`福建金森`、`东方钽业`
-    - `stcn` 榜单/综述：`近一周机构调研个股超700只`
-    - `stcn negative platform reply`：`安宁股份：目前公司未单独提取钒产品`
-  - 已推送最近两批代码提交：
-    - `881c5d6 fix: trim latest public affairs and irm complaint noise`
-    - `772fa56 fix: trim latest survey roundup and platform qa noise`
+  - 持续只读看 `news-sentiment-watch`、`latest_report.txt` 头部和 `audit-suspicious`，没有扩题材库，也没有动 `event_merge / analysis / source enable`
+  - 已确认后台 loop 连续稳定，最新 3 个完整块：
+    - `2026-05-08_07:54:40`
+    - `2026-05-08_08:25:42`
+    - `2026-05-08_08:56:33`
+    - 均为 `failed_sources=none`、`suspicious_count=0`
+  - 修复 `eia_wpsr` 页面日期解析，兼容有点/无点月份格式
+  - 基于 live 样本，按“红灯测试 -> 最窄规则 -> 验证”连续收掉：
+    - `audit`：`关于全资子公司仲裁事项的进展公告`
+    - `irm_cninfo`：`新余国科`
+    - `irm_cninfo`：`华天科技` 华羿微电两条弱问答
+    - `irm_cninfo`：`协创数据`
+    - `irm_cninfo`：`东利机械`
+    - `sse corporate_disclosure`：`保利发展...保利定转2026年付息公告`
+    - `audit`：`现货白银震荡走高，涨近1%`
 - Current Verification:
-  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `236 passed`
+  - `./.venv/bin/python -m pytest tests/test_eia_wpsr_collector.py -q` -> `6 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -q` -> `242 passed`
+  - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -q` -> `33 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=459 normalized_news=459 events=402 analyses=402 failed_sources=none`
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
-  - 串行强制重写 report 后读取 `latest_report.txt` -> 本轮目标弱样本均无命中
-  - `tmux ls | rg news-sentiment-watch` -> session 仍在
-  - `tail -n 120 /tmp/news-sentiment-watch.log` -> 最新自动落盘块为 `2026-05-01_20:52:50`
+  - 串行刷新后的 `latest_report.txt` 已确认：
+    - `华天科技 / 协创数据 / 新余国科 / 东利机械 / 保利发展付息公告`
+    - 均不在 report 头部
 - Current Report Head After Refresh:
-  - A股头部主要剩：
-    - `皖维高新`
-    - `佳通轮胎`
-    - `美克家居`
-    - `潜能恒信`
-    - `元道通信`
-  - 当前边界样本主要剩：
-    - `HF Sinclair` 二季度原油加工量指引
-    - `AIG` 软件风险敞口
-    - `奇瑞集团4月销量超25万辆`
+  - 当前头部主要是：
+    - `涉及诉讼、仲裁的公告`
+    - `关于诉讼进展的公告`
+    - `新疆天业...筹划股权收购的关联交易公告`
+    - `好上好...收购鼎瑞芯100%股权`
+    - `长高电新 / 运机集团` 中标
+    - `大容量电芯迭代速度远超行业预期...`
+    - `众生药业...IIb期临床试验初步结果`
+  - 当前剩余边界样本主要是：
+    - `精工钢构` 两条 `sse_einteractive` 问答
+    - `安通控股` 投资者抱怨型问答
 - Open TODO:
-  - 等下一轮 `news-sentiment-watch` 自动吃到 `772fa56`
-  - 下一轮先只读复核：
+  - 如继续收口，下一刀优先单拆 `sse_einteractive` 头部问答家族：
+    - `精工钢构`
+    - `安通控股`
+  - 下一轮仍先只读复核：
     - `tail -n 120 /tmp/news-sentiment-watch.log`
-    - `sed -n '1,170p' data/reports/latest_report.txt`
-  - 只盯两个全球分区边界：
-    - `HF Sinclair`
-    - `AIG`
-  - 如果它们连续多轮稳定占头部，再补最窄规则；否则停手，不继续过拟合
+    - `sed -n '1,180p' data/reports/latest_report.txt`
+  - 不要回头重开已处理家族：
+    - `eia_wpsr`
+    - `华羿微电弱问答`
+    - `保利定转付息公告`
+    - `现货白银 audit`
 - Risks/Blockers:
   - `audit-suspicious=0` 仍不代表 report 头部一定合理，必须直接看 report
-  - 后台 loop 的最新 log 块可能早于刚推送的 commit；不能拿上一轮 log 判断“新规则没生效”
+  - live 重跑后同一簇样本的 `event_id` 可能变化，排障时不要硬绑旧 `event_id`
+  - analyses 真路径是 `data/events/event_analysis.jsonl`，不是 `data/analysis/analyses.jsonl`
+  - 后台 loop 的最新 log 块可能早于最新 commit；不能拿上一轮 log 判断“新规则没生效”
   - `urllib3 NotOpenSSLWarning` 仍会出现，但当前命令退出码为 0
 - Next First Command:
-  - `tail -n 120 /tmp/news-sentiment-watch.log`
+  - `sed -n '1,180p' data/reports/latest_report.txt`
 - Known Avoidances:
   - 不要把 `report` 重写和 `sed latest_report.txt` 并行执行；要先写后读
+  - 不要查错 analyses 路径；当前用 `data/events/event_analysis.jsonl`
+  - 不要硬绑旧 `event_id` 排 live 问题；先按当前标题和正文对齐
   - 不要用上一轮 log 块直接判断新提交未生效；必须等下一轮 loop
-  - 不要在 A 股头部已基本干净时继续为了更短头部机械扩词
+  - 不要把 source 问题、report 尾噪、audit 尾噪混成一刀一起修
 
 ## Latest Handoff Snapshot (2026-04-29)
 - Task-ID:

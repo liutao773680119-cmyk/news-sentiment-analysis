@@ -39,6 +39,31 @@ def test_parse_eia_wpsr_release_extracts_weekly_petroleum_row() -> None:
     assert rows[0].url == "https://www.eia.gov/petroleum/supply/weekly/index.php"
 
 
+def test_parse_eia_wpsr_release_accepts_month_without_trailing_period() -> None:
+    page_html = """
+    <html>
+      <body>
+        <div>
+          <span>Data for week ending May 1, 2026</span>
+          <span class="responsive-container"><span class="label">Release Date:</span> <span class="date">May 6, 2026</span></span>
+          <span class="responsive-container"><span class="label">Next Release Date:</span> <span class="date">May 13, 2026</span></span>
+        </div>
+      </body>
+    </html>
+    """
+    table1_csv = '''"STUB_1","5/1/26","4/24/26","Difference","Percent Change"
+"Commercial (Excluding SPR)","457.182","459.495","-2.314","-0.500"
+"Total Motor Gasoline","219.795","222.299","-2.504","-1.100"
+"Distillate Fuel Oil","102.344","103.637","-1.293","-1.200"
+'''
+
+    rows = parse_eia_wpsr_release(page_html, table1_csv)
+    assert len(rows) == 1
+    assert rows[0].news_id == "eia_wpsr-20260506"
+    assert rows[0].published_at == "2026-05-06T10:30:00-04:00"
+    assert rows[0].title == "EIA周报 美国商业原油库存减少2.314百万桶 汽油库存减少2.504百万桶 馏分油库存减少1.293百万桶"
+
+
 def test_collect_eia_wpsr_source_writes_raw_news(tmp_path, monkeypatch) -> None:
     page_html = """
     <html><body>

@@ -21,6 +21,18 @@ EIA_WPSR_TABLE1_URL = "https://ir.eia.gov/wpsr/table1.csv"
 EASTERN_TZ = ZoneInfo("America/New_York")
 
 
+def _parse_calendar_date(value: str) -> datetime:
+    normalized = value.strip()
+    for old, new in (("Sept.", "Sep."), ("Sept ", "Sep "), ("Sept,", "Sep,")):
+        normalized = normalized.replace(old, new)
+    for fmt in ("%b. %d, %Y", "%b %d, %Y", "%B %d, %Y"):
+        try:
+            return datetime.strptime(normalized, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"unsupported EIA date: {value}")
+
+
 def fetch_eia_wpsr_page(url: str | None = None) -> str:
     source_definition = load_source_definition_map()["eia_wpsr"]
     return fetch_html(
@@ -44,13 +56,14 @@ def fetch_eia_wpsr_table1_csv(url: str | None = None) -> str:
 
 
 def _parse_page_metadata(html: str) -> tuple[str, str]:
-    week_match = re.search(r"Data for week ending\s+([A-Za-z]{3}\.\s+\d{1,2},\s+\d{4})", html)
-    release_match = re.search(r"Release Date:</span>\s*<span class=\"date\">([A-Za-z]{3}\.\s+\d{1,2},\s+\d{4})", html)
+    date_pattern = r"([A-Za-z]{3,9}\.?\s+\d{1,2},\s+\d{4})"
+    week_match = re.search(rf"Data for week ending\s+{date_pattern}", html)
+    release_match = re.search(rf"Release Date:</span>\s*<span class=\"date\">{date_pattern}", html)
     if not week_match or not release_match:
         raise CollectorParseError("eia_wpsr", "wpsr page metadata not found")
 
-    week_ending = datetime.strptime(week_match.group(1), "%b. %d, %Y").date().isoformat()
-    release_date = datetime.strptime(release_match.group(1), "%b. %d, %Y").replace(
+    week_ending = _parse_calendar_date(week_match.group(1)).date().isoformat()
+    release_date = _parse_calendar_date(release_match.group(1)).replace(
         hour=10,
         minute=30,
         tzinfo=EASTERN_TZ,

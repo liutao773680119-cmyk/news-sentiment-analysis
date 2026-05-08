@@ -8391,6 +8391,18 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
             event_subtype="corporate_disclosure",
         ),
         Event(
+            event_id="event-sse-convertible-bond-interest-notice",
+            first_seen_at="2026-05-08T00:00:00+08:00",
+            last_seen_at="2026-05-08T00:00:00+08:00",
+            canonical_title="保利发展控股集团股份有限公司关于“保利定转”2026年付息公告",
+            summary="summary",
+            source="sse",
+            published_at="2026-05-08T00:00:00+08:00",
+            url="https://example.com/sse-convertible-bond-interest-notice",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
             event_id="event-stcn-keep-low-signal-exchange",
             first_seen_at="2026-04-18T00:01:00+08:00",
             last_seen_at="2026-04-18T00:01:00+08:00",
@@ -8461,6 +8473,14 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
             triggered=True,
         ),
         EventAnalysis(
+            event_id="event-sse-convertible-bond-interest-notice",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["房地产"],
+            triggered=True,
+        ),
+        EventAnalysis(
             event_id="event-stcn-keep-low-signal-exchange",
             direction="bullish",
             impact_score=99.0,
@@ -8478,6 +8498,7 @@ def test_write_text_report_filters_exchange_low_signal_project_sales_and_mou_ann
     assert "ST中迪：中迪投资关于公司子公司达州绵石房地产开发有限公司以房抵款事项的公告" not in content
     assert "保利发展控股集团股份有限公司关于本公司获得房地产项目的公告" not in content
     assert "保利发展控股集团股份有限公司2026年3月份销售情况简报" not in content
+    assert "保利发展控股集团股份有限公司关于“保利定转”2026年付息公告" not in content
     assert "中国东方航空股份有限公司关于取得金融机构股票回购贷款承诺函的公告" not in content
     assert "建发股份关于控股子公司签署《谅解备忘录》暨关联交易的公告" not in content
 
@@ -12639,6 +12660,66 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-xinyuguoke-space-order-question-only",
+            first_seen_at="2026-05-07T21:33:20+08:00",
+            last_seen_at="2026-05-07T21:33:20+08:00",
+            canonical_title="新余国科：请问贵司在商业航天领域是否已经有订单？目前与哪些商业航天公司有合作？贵司自称点火装置可应用于商业航天领域，是否主动去寻找合作?",
+            summary="请问贵司在商业航天领域是否已经有订单？目前与哪些商业航天公司有合作？贵司自称点火装置可应用于商业航天领域，是否主动去寻找合作?",
+            source="irm_cninfo",
+            published_at="2026-05-07T21:33:20+08:00",
+            url="https://example.com/irm-xinyuguoke-space-order-question-only",
+            event_type="fast_news",
+            event_subtype="order_contract",
+        ),
+        Event(
+            event_id="event-irm-huatian-huayi-supply-question-only",
+            first_seen_at="2026-05-07T22:30:03+08:00",
+            last_seen_at="2026-05-07T22:30:03+08:00",
+            canonical_title="华天科技：你好董秘，贵公司收购的华羿微电有为安森美和意法半导体供货吗？",
+            summary="问题：你好董秘，贵公司收购的华羿微电有为安森美和意法半导体供货吗？ 回复：华羿微电为安森美、意法半导体提供封测服务。谢谢！",
+            source="irm_cninfo",
+            published_at="2026-05-07T22:30:03+08:00",
+            url="https://example.com/irm-huatian-huayi-supply-question-only",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-irm-huatian-huayi-sic-question-only",
+            first_seen_at="2026-05-07T22:31:03+08:00",
+            last_seen_at="2026-05-07T22:31:03+08:00",
+            canonical_title="华天科技：你好董秘，贵公司收购的华羿微电有碳化硅SiC相关封测业务吗？",
+            summary="问题：你好董秘，贵公司收购的华羿微电有碳化硅SiC相关封测业务吗？ 回复：有。谢谢！",
+            source="irm_cninfo",
+            published_at="2026-05-07T22:31:03+08:00",
+            url="https://example.com/irm-huatian-huayi-sic-question-only",
+            event_type="fast_news",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-irm-sharetronic-compute-scale-question-only",
+            first_seen_at="2026-05-07T22:17:03+08:00",
+            last_seen_at="2026-05-07T22:17:03+08:00",
+            canonical_title="协创数据：贵公司自有算力和在建算力有多少P？总共可调度算力有多少P？",
+            summary="问题：贵公司自有算力和在建算力有多少P？总共可调度算力有多少P？ 回复：您好，公司正积极构建全球化算力网络，已在上海、宁波、成都、乌兰察布等国内核心节点及东南亚、美国等海外市场布局分布式算力资源，持续提升服务能力。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-05-07T22:17:03+08:00",
+            url="https://example.com/irm-sharetronic-compute-scale-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-dongli-robot-reducer-question-only",
+            first_seen_at="2026-05-07T21:33:20+08:00",
+            last_seen_at="2026-05-07T21:33:20+08:00",
+            canonical_title="东利机械：公司是否生产销售用于人形机器人的减速器",
+            summary="公司是否生产销售用于人形机器人的减速器",
+            source="irm_cninfo",
+            published_at="2026-05-07T21:33:20+08:00",
+            url="https://example.com/irm-dongli-robot-reducer-question-only",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12679,6 +12760,11 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-sthuangting-reorg-semiconductor-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
         EventAnalysis(event_id="event-irm-fujianjinsen-three-operations-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-dongfangta-valuation-roadshow-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-xinyuguoke-space-order-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
+        EventAnalysis(event_id="event-irm-huatian-huayi-supply-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-huatian-huayi-sic-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-sharetronic-compute-scale-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-dongli-robot-reducer-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12711,6 +12797,11 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "*ST皇庭：公司有没可能通过重整引入有实力的半导体行业产业投资者" not in content
     assert "福建金森：董秘好； 咨询三个公司运营情况，第一，公司林业碳汇推进多年" not in content
     assert "东方钽业：目前资本市场仍把贵公司传统归类为小金属题材" not in content
+    assert "新余国科：请问贵司在商业航天领域是否已经有订单？" not in content
+    assert "华天科技：你好董秘，贵公司收购的华羿微电有为安森美和意法半导体供货吗？" not in content
+    assert "华天科技：你好董秘，贵公司收购的华羿微电有碳化硅SiC相关封测业务吗？" not in content
+    assert "协创数据：贵公司自有算力和在建算力有多少P？总共可调度算力有多少P？" not in content
+    assert "东利机械：公司是否生产销售用于人形机器人的减速器" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 

@@ -1,5 +1,56 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-08 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮从后台 loop 巡检继续：
+  - `news-sentiment-watch` 连续 3 个完整块稳定
+  - `failed_sources=none`
+  - `suspicious_count=0`
+  - 但 `latest_report.txt` 头部仍有 `sse_einteractive` 边界问答，所以当前适合停在“已清掉本轮目标尾噪”，不要继续泛化
+- 本轮已处理：
+  - `eia_wpsr`：
+    - 页面日期从 `Apr.` / `%b.` 扩到同时支持 `May 1, 2026`
+  - `audit-suspicious`：
+    - `关于全资子公司仲裁事项的进展公告`
+    - `现货白银震荡走高，涨近1%`
+  - `text_report`：
+    - `新余国科`
+    - `华天科技` 华羿微电两条弱问答
+    - `协创数据`
+    - `东利机械`
+    - `保利发展...保利定转2026年付息公告`
+- 当前验证：
+  - `tests/test_eia_wpsr_collector.py -q` -> `6 passed`
+  - `tests/test_text_report_sorting.py -q` -> `242 passed`
+  - `tests/test_audit_suspicious.py -q` -> `33 passed`
+  - `live-smoke --source all` -> `raw_news=459 normalized_news=459 events=402 analyses=402 failed_sources=none`
+  - `audit-suspicious --limit 10` -> `suspicious_count=0`
+  - 后台最新完整块 `2026-05-08_08:56:33` -> `failed_sources=none`、`suspicious_count=0`
+- 当前结论：
+  - 本轮目标尾噪已经清掉
+  - 当前更值得继续观察的是 `sse_einteractive` 头部问答边界，不是重开已处理家族
+- 当前风险：
+  - `audit=0` 不等于 report 头部完全没有边界样本
+  - live 重跑后同簇 `event_id` 可能变化，排障要按当前标题/正文对齐
+  - `data/events/event_analysis.jsonl` 才是当前 analyses 路径
+
+## Immediate Next Steps (2026-05-08 latest)
+1. 先只读查看：
+   - `tail -n 120 /tmp/news-sentiment-watch.log`
+   - `sed -n '1,180p' data/reports/latest_report.txt`
+2. 如果 `精工钢构 / 安通控股` 继续稳定停在头部，再单独拆 `sse_einteractive` 问答家族。
+3. 处理顺序仍是：
+   - 红灯测试
+   - 最窄规则
+   - 对应定向测试
+   - `live-smoke --source all`
+   - `audit-suspicious --limit 10`
+4. 暂不建议：
+   - 重开 `eia_wpsr`
+   - 重开 `华羿微电 / 协创数据 / 新余国科 / 东利机械`
+   - 重开 `保利定转付息公告`
+   - 混修 source 问题和 report/audit 尾噪
+
 ## Update 2026-05-01 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮从后台 loop 巡检继续：

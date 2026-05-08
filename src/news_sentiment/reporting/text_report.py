@@ -1190,6 +1190,8 @@ def _is_low_signal_exchange_operational_disclosure(title: str, event: Event) -> 
     ) or (
         "购买土地使用权" in title and "投资合作意向书" in title
     ) or (
+        "付息公告" in title and any(keyword in title for keyword in ("转债", "定转", "可转换公司债券"))
+    ) or (
         "转型算力业务相关进展情况" in title
     )
 
@@ -1986,6 +1988,10 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("通过重整引入有实力的半导体行业产业投资者" in title and "半导体业务产生协同效应" in title)
             or ("咨询三个公司运营情况" in title and "林业碳汇推进多年" in title and "建议放弃" in title)
             or ("资本市场仍把贵公司传统归类为小金属题材" in title and "专项路演" in title and "价值宣讲" in title and "修复公司合理市值估值" in title)
+            or ("商业航天领域" in title and "是否已经有订单" in title and "主动去寻找合作" in title)
+            or ("华羿微电" in title and "安森美" in title and "意法半导体" in title)
+            or ("自有算力" in title and "在建算力" in title and "可调度算力" in title)
+            or ("是否生产销售" in title and "人形机器人" in title and "减速器" in title)
         )
 
     return (
@@ -2049,6 +2055,13 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("算力方面发展前景如何" in title and "年度报告" in text)
         or ("最新消息" in title and "正在准备中" in text)
         or ("主要应用于机器人的哪个部分" in title and "请详见公司同类问题的回复" in text)
+        or ("华羿微电" in title and "安森美" in title and "意法半导体" in title and "提供封测服务" in text)
+        or (
+            "华羿微电" in title
+            and ("碳化硅SiC" in title or "MOSFET" in title)
+            and "有。谢谢！" in text
+        )
+        or ("自有算力" in title and "在建算力" in title and "可调度算力" in title and "积极构建全球化算力网络" in text and "分布式算力资源" in text)
         or ("您的建议已收悉" in text and "感谢您的关注" in text)
         or ("注册上市进行到了什么阶段" in title and "预计何时获批上市" in title and "目前该产品处于审评审批中" in text)
         or ("高端订单流失的风险" in title and "暂无项目涉及" in text and "相关技术储备及项目进展请以公司公开披露信息为准" in text)

@@ -824,6 +824,48 @@ def test_audit_suspicious_skips_major_litigation_arbitration_progress_disclosure
     assert "中化岩土：关于重大诉讼、仲裁情况进展的公告" not in output
 
 
+def test_audit_suspicious_skips_subsidiary_arbitration_progress_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-subsidiary-arbitration-progress",
+                first_seen_at="2026-05-07T00:00:00+08:00",
+                last_seen_at="2026-05-07T00:00:00+08:00",
+                canonical_title="关于全资子公司仲裁事项的进展公告",
+                summary="关于全资子公司仲裁事项的进展公告",
+                source="sse",
+                published_at="2026-05-07T00:00:00+08:00",
+                url="https://example.com/subsidiary-arbitration-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-subsidiary-arbitration-progress",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于全资子公司仲裁事项的进展公告" not in output
+
+
 def test_audit_suspicious_skips_cumulative_new_litigation_arbitration_disclosure(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -1318,6 +1360,48 @@ def test_audit_suspicious_skips_stcn_brent_fast_news_with_theme(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "国际原油短线快速拉升 布伦特原油期货涨逾5%" not in output
+
+
+def test_audit_suspicious_skips_stcn_precious_metal_spot_move_with_theme(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-spot-silver-fast",
+                first_seen_at="2026-05-08T07:25:32+08:00",
+                last_seen_at="2026-05-08T07:25:32+08:00",
+                canonical_title="现货白银震荡走高，涨近1%",
+                summary="人民财讯5月8日电，现货白银震荡走高，涨近1%；现货黄金涨约0.25%。",
+                source="stcn",
+                published_at="2026-05-08T07:25:32+08:00",
+                url="https://example.com/stcn-spot-silver-fast",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-spot-silver-fast",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["黄金"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "现货白银震荡走高，涨近1%" not in output
 
 
 def test_audit_suspicious_skips_stcn_industry_prosperity_story(tmp_path, monkeypatch, capsys) -> None:

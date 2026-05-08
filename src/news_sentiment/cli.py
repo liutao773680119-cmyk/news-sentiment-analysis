@@ -75,6 +75,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "问询函有关问题的专项说明",
     "年报的问询函相关事项的专项说明",
     "诉讼事项的进展",
+    "仲裁事项的进展",
     "涉及诉讼进展",
     "诉讼进展公告",
     "提起诉讼的进展公告",
@@ -123,6 +124,18 @@ LOW_SIGNAL_STCN_WTI_GENERAL_FAST_NEWS_TITLE_PREFIX = (
 )
 LOW_SIGNAL_STCN_BRENT_UPWARD_VOLATILITY_FAST_NEWS_TITLE_PREFIX = (
     "国际原油短线快速拉升 布伦特原油期货涨逾"
+)
+LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_PREFIXES = (
+    "现货白银",
+    "现货黄金",
+)
+LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_KEYWORDS = (
+    "涨近",
+    "跌近",
+    "涨超",
+    "跌超",
+    "震荡走高",
+    "震荡走低",
 )
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
@@ -355,6 +368,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
             return None
+        if _is_low_signal_stcn_precious_metal_spot_move_candidate(event):
+            return None
         if (
             event.source == "stcn"
             and any(keyword in title for keyword in LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS)
@@ -498,6 +513,19 @@ def _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(
         and event.event_subtype == "general_fast_news"
         and event.canonical_title.startswith(
             LOW_SIGNAL_STCN_BRENT_UPWARD_VOLATILITY_FAST_NEWS_TITLE_PREFIX
+        )
+    )
+
+
+def _is_low_signal_stcn_precious_metal_spot_move_candidate(event: Event) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and event.canonical_title.startswith(LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_PREFIXES)
+        and any(
+            keyword in event.canonical_title
+            for keyword in LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_KEYWORDS
         )
     )
 
