@@ -61,9 +61,24 @@ PYTHONPATH=src .venv/bin/python -m news_sentiment run-once --source fixture
 PYTHONPATH=src .venv/bin/python -m news_sentiment collect --source all
 PYTHONPATH=src .venv/bin/python -m news_sentiment run-once --source all
 PYTHONPATH=src .venv/bin/python -m news_sentiment live-smoke --source all
+PYTHONPATH=src .venv/bin/python -m news_sentiment watchdog-once --source all --limit 10
 ```
 
 `live-smoke` 会直接跑完整链路，并输出 `raw_news`、`events`、`analyses`、`failed_sources` 和报告路径。`failed_sources` 会附带错误类型，如 `fetch_error`、`parse_error`、`empty_result`，适合快速检查真实源当前是否可用。
+
+`watchdog-once` 会在 `live-smoke` 之后自动跑一轮 `audit-suspicious` 口径检查；如果发现 `failed_sources`，会额外做单源探测、落盘 incident 快照到 `data/monitoring/incidents/`，并在“单源探测已恢复且 `suspicious_count=0`”时自动再跑一轮全源主链路，用来吸收瞬时抖动。
+
+如需把后台 loop 切到自动处理版，直接运行仓库脚本：
+
+```bash
+scripts/run_news_sentiment_watchdog_loop.sh
+```
+
+可选环境变量：
+
+- `NEWS_SENTIMENT_WATCH_LOG`: 日志路径，默认 `/tmp/news-sentiment-watch.log`
+- `NEWS_SENTIMENT_WATCH_INTERVAL_SECONDS`: 轮询间隔，默认 `1800`
+- `NEWS_SENTIMENT_WATCH_LIMIT`: 巡检输出上限，默认 `10`
 
 社交 sidecar：
 

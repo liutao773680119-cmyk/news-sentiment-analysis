@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from pathlib import Path
 import sys
 from typing import Sequence
 
@@ -28,6 +29,7 @@ COMMANDS = (
     "analyze-events",
     "audit-suspicious",
     "live-smoke",
+    "watchdog-once",
     "collect-social",
     "report",
     "run-once",
@@ -148,6 +150,23 @@ class CollectResult:
     failed_sources: list[CollectFailure]
 
 
+@dataclass(frozen=True)
+class LiveSmokeStatus:
+    raw_count: int
+    normalized_count: int
+    event_count: int
+    analysis_count: int
+    failed_sources: list[CollectFailure]
+    report_path: Path
+
+
+@dataclass(frozen=True)
+class SuspiciousCandidate:
+    reason: str
+    event: Event
+    analysis: EventAnalysis
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="news-sentiment")
     subparsers = parser.add_subparsers(dest="command")
@@ -160,6 +179,9 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument("--limit", type=int, default=10)
     live_smoke_parser = subparsers.add_parser("live-smoke")
     live_smoke_parser.add_argument("--source", default="all")
+    watchdog_parser = subparsers.add_parser("watchdog-once")
+    watchdog_parser.add_argument("--source", default="all")
+    watchdog_parser.add_argument("--limit", type=int, default=10)
     collect_social_parser = subparsers.add_parser("collect-social")
     collect_social_parser.add_argument("--platform", default="fixture")
     subparsers.add_parser("report")
@@ -191,6 +213,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return run_audit_suspicious(paths, args.limit)
     if args.command == "live-smoke":
         return run_live_smoke(paths, args.source)
+    if args.command == "watchdog-once":
+        from news_sentiment.watchdog import run_watchdog_once
+
+        return run_watchdog_once(paths, args.source, args.limit)
     if args.command == "collect-social":
         try:
             return run_collect_social(paths, args.platform)
@@ -305,6 +331,28 @@ def run_collect_social(paths: ProjectPaths, platform: str) -> int:
 
 
 def run_audit_suspicious(paths: ProjectPaths, limit: int) -> int:
+    candidates = collect_suspicious_candidates(paths)
+    print(f"suspicious_count={len(candidates)}")
+    for candidate in candidates[: max(limit, 0)]:
+        event = candidate.event
+        analysis = candidate.analysis
+        themes = ",".join(analysis.themes) if analysis.themes else "无"
+        print(
+            " | ".join(
+                [
+                    f"reason={candidate.reason}",
+                    f"subtype={event.event_subtype}",
+                    f"direction={analysis.direction}",
+                    f"score={analysis.impact_score:.1f}",
+                    f"themes={themes}",
+                    f"title={event.canonical_title}",
+                ]
+            )
+        )
+    return 0
+
+
+def collect_suspicious_candidates(paths: ProjectPaths) -> list[SuspiciousCandidate]:
     events_store = JsonlStore(paths.events_path, Event)
     analyses_store = JsonlStore(paths.analyses_path, EventAnalysis)
     analyses = {analysis.event_id: analysis for analysis in analyses_store.read_all()}
@@ -316,25 +364,13 @@ def run_audit_suspicious(paths: ProjectPaths, limit: int) -> int:
         reason = _suspicious_reason(event, analysis)
         if reason is None:
             continue
-        candidates.append((analysis.impact_score, event.published_at, reason, event, analysis))
+        candidates.append(SuspiciousCandidate(reason=reason, event=event, analysis=analysis))
 
-    candidates.sort(key=lambda row: (row[0], row[1]), reverse=True)
-    print(f"suspicious_count={len(candidates)}")
-    for _, _, reason, event, analysis in candidates[: max(limit, 0)]:
-        themes = ",".join(analysis.themes) if analysis.themes else "无"
-        print(
-            " | ".join(
-                [
-                    f"reason={reason}",
-                    f"subtype={event.event_subtype}",
-                    f"direction={analysis.direction}",
-                    f"score={analysis.impact_score:.1f}",
-                    f"themes={themes}",
-                    f"title={event.canonical_title}",
-                ]
-            )
-        )
-    return 0
+    candidates.sort(
+        key=lambda candidate: (candidate.analysis.impact_score, candidate.event.published_at),
+        reverse=True,
+    )
+    return candidates
 
 
 def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
@@ -577,26 +613,36 @@ def _is_low_signal_irm_cninfo_legal_question_only(event: Event, text: str) -> bo
 
 
 def run_live_smoke(paths: ProjectPaths, source: str) -> int:
+    status = execute_live_smoke(paths, source)
+    print(format_live_smoke_status(status))
+    return 0
+
+
+def execute_live_smoke(paths: ProjectPaths, source: str) -> LiveSmokeStatus:
     collect_result = run_collect(paths, source)
     run_normalize(paths)
     run_merge_events(paths)
     run_analyze_events(paths)
     run_report(paths)
 
-    raw_count = len(JsonlStore(paths.raw_news_path, RawNews).read_all())
-    normalized_count = len(JsonlStore(paths.normalized_news_path, NormalizedNews).read_all())
-    event_count = len(JsonlStore(paths.events_path, Event).read_all())
-    analysis_count = len(JsonlStore(paths.analyses_path, EventAnalysis).read_all())
-    print(
-        " ".join(
-            [
-                f"raw_news={raw_count}",
-                f"normalized_news={normalized_count}",
-                f"events={event_count}",
-                f"analyses={analysis_count}",
-                f"failed_sources={format_collect_failures(collect_result.failed_sources)}",
-                f"report={paths.latest_report_path}",
-            ]
-        )
+    return LiveSmokeStatus(
+        raw_count=len(JsonlStore(paths.raw_news_path, RawNews).read_all()),
+        normalized_count=len(JsonlStore(paths.normalized_news_path, NormalizedNews).read_all()),
+        event_count=len(JsonlStore(paths.events_path, Event).read_all()),
+        analysis_count=len(JsonlStore(paths.analyses_path, EventAnalysis).read_all()),
+        failed_sources=collect_result.failed_sources,
+        report_path=paths.latest_report_path,
     )
-    return 0
+
+
+def format_live_smoke_status(status: LiveSmokeStatus) -> str:
+    return " ".join(
+        [
+            f"raw_news={status.raw_count}",
+            f"normalized_news={status.normalized_count}",
+            f"events={status.event_count}",
+            f"analyses={status.analysis_count}",
+            f"failed_sources={format_collect_failures(status.failed_sources)}",
+            f"report={status.report_path}",
+        ]
+    )

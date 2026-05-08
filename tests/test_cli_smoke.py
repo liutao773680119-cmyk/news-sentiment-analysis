@@ -12,6 +12,7 @@ def test_parser_exposes_expected_commands() -> None:
         "analyze-events",
         "audit-suspicious",
         "live-smoke",
+        "watchdog-once",
         "report",
         "run-once",
     } <= set(choices)
