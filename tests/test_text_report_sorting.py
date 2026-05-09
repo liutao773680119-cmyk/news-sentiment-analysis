@@ -12240,6 +12240,18 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-irm-h-share-equity-incentive-metric-fallback",
+            first_seen_at="2026-05-09T10:48:33+08:00",
+            last_seen_at="2026-05-09T10:48:33+08:00",
+            canonical_title="京新药业：问吕董，如果公司H股上市那么公司股权激励后续条件如何变化，难道还是公司利润总额吗？还是每股利润增长每年不低于10%？",
+            summary="问题：问吕董，如果公司H股上市那么公司股权激励后续条件如何变化，难道还是公司利润总额吗？还是每股利润增长每年不低于10%？ 回复：您好！公司的员工持股计划公司层面的业绩考核指标是以经审计的归属于上市公司股东的扣除非经常性损益后的净利润为计算依据，相关具体内容敬请查看相关公告。谢谢！",
+            source="irm_cninfo",
+            published_at="2026-05-09T10:48:33+08:00",
+            url="https://example.com/irm-h-share-equity-incentive-metric-fallback",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-stock-price-project-fallback",
             first_seen_at="2026-04-21T09:13:33+08:00",
             last_seen_at="2026-04-21T09:13:33+08:00",
@@ -12284,6 +12296,7 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
         EventAnalysis(event_id="event-irm-future-layout-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-compute-infra-fallback", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-revenue-order-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-h-share-equity-incentive-metric-fallback", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-stock-price-project-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-theme-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
         EventAnalysis(event_id="event-irm-generic-storage-theme-no-reply-current", direction="neutral", impact_score=100.0, reasoning="rule", themes=["储能"], triggered=True),
@@ -12298,6 +12311,7 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
     assert "中青宝：贵公司未来会在内蒙、新疆大规模发展算力中心吗" not in content
     assert "中亦科技：你好董秘，中亦科技是否有算力基建吗？有是哪些简单说说，如果没有，后期会布局介入吗？谢谢" not in content
     assert "冰轮环境：董秘您好，公司核能业务营收大概有多少？在手订单大概有多少？" not in content
+    assert "公司H股上市那么公司股权激励后续条件如何变化" not in content
     assert "中电港：美股存储公司大涨，国内龙头公司都在做加快发展，贵公司是英伟达、AMD的授权分销商之一，股价与业绩不对称，有瞄准市场机遇签订新项目么" not in content
     assert "青鸟智控：您好董秘，公司有涉及光伏储能相关业务吗？" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
@@ -14083,6 +14097,30 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
             event_subtype="business_guidance",
         ),
         Event(
+            event_id="event-sse-investor-relations-complaint-1",
+            first_seen_at="2026-05-08T18:28:00+08:00",
+            last_seen_at="2026-05-08T18:28:00+08:00",
+            canonical_title="航天晨光：关注到公司近期在资本市场的口碑受前期 IR 回复效率及减持信披一致性的影响有所波动。作为长期关注公司的投资者，想请问：公司是否意识到前期投资者沟通工作中存在的疏漏？对于高点发布减持后又未实施的情况，公司管理层如何向市场传达信披的权威性与一致性？",
+            summary="问题：关注到公司近期在资本市场的口碑受前期 IR 回复效率及减持信披一致性的影响有所波动。作为长期关注公司的投资者，想请问：公司是否意识到前期投资者沟通工作中存在的疏漏？对于高点发布减持后又未实施的情况，公司管理层如何向市场传达信披的权威性与一致性？ 回复：您好，公司将继续强化投资者关系管理工作，与投资者建立良好的双向互动关系。公司高管发布减持计划或者是否实施均符合相关监管规定，感谢您的监督和建议。",
+            source="sse_einteractive",
+            published_at="2026-05-08T18:28:00+08:00",
+            url="https://example.com/sse-investor-relations-complaint-1",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-investor-relations-complaint-2",
+            first_seen_at="2026-05-08T18:26:00+08:00",
+            last_seen_at="2026-05-08T18:26:00+08:00",
+            canonical_title="航天晨光：请问公司面对投资者质疑董秘无力履职，对于投资者提问选择投诉，是否合规？",
+            summary="问题：请问公司面对投资者质疑董秘无力履职，对于投资者提问选择投诉，是否合规？ 回复：您好，公司将继续强化投资者关系管理工作，加强与投资者沟通与服务，保护投资者合法权益。谢谢关注。",
+            source="sse_einteractive",
+            published_at="2026-05-08T18:26:00+08:00",
+            url="https://example.com/sse-investor-relations-complaint-2",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-sse-keep-substantive-jinggong-1",
             first_seen_at="2026-05-07T18:22:00+08:00",
             last_seen_at="2026-05-07T18:22:00+08:00",
@@ -14104,6 +14142,8 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
         EventAnalysis(event_id="event-sse-stock-price-complaint-antong-1", direction="bearish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-sse-stock-price-complaint-antong-2", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-sse-stock-price-complaint-jinggong-1", direction="bearish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-investor-relations-complaint-1", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-investor-relations-complaint-2", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-sse-keep-substantive-jinggong-1", direction="bullish", impact_score=99.9, reasoning="rule", themes=["算力"], triggered=True),
     ]
 
@@ -14116,6 +14156,8 @@ def test_write_text_report_filters_sse_einteractive_stock_price_complaints_with_
     assert "强烈质疑公司管理层不作为" not in content
     assert "财务虚报配合股东压价增持" not in content
     assert "十年千亿产值" not in content
+    assert "IR 回复效率及减持信披一致性" not in content
+    assert "质疑董秘无力履职" not in content
     assert "业务是否涉及数据中心及火箭发射厂" in content
 
 
@@ -14184,6 +14226,23 @@ def test_write_text_report_filters_cls_investment_sentiment_roundup_without_hidi
             event_subtype="order_contract",
         ),
         Event(
+            event_id="event-cls-venture-financing-weekly-roundup",
+            first_seen_at="2026-05-09T10:40:01+08:00",
+            last_seen_at="2026-05-09T10:40:01+08:00",
+            canonical_title="财联社创投通：一级市场本周融资总额约356.34亿元 大模型融资额居前",
+            summary=(
+                "【财联社创投通：一级市场本周融资总额约356.34亿元 大模型融资额居前】"
+                "《科创板日报》9日讯，据财联社创投通数据，本周国内统计口径内共发生66起投融资事件，"
+                "已披露的融资总额合计约356.34亿元。从投资事件数量来看，先进制造、人工智能、医疗健康、"
+                "集成电路、企业服务等领域较活跃；从融资总额来看，人工智能披露的融资总额最多。"
+            ),
+            source="cls",
+            published_at="2026-05-09T10:40:01+08:00",
+            url="https://example.com/cls-venture-financing-weekly-roundup",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-keep-substantive-dbs-progress",
             first_seen_at="2026-04-23T16:01:00+08:00",
             last_seen_at="2026-04-23T16:01:00+08:00",
@@ -14209,6 +14268,14 @@ def test_write_text_report_filters_cls_investment_sentiment_roundup_without_hidi
             triggered=True,
         ),
         EventAnalysis(
+            event_id="event-cls-venture-financing-weekly-roundup",
+            direction="neutral",
+            impact_score=99.3,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
             event_id="event-keep-substantive-dbs-progress",
             direction="bullish",
             impact_score=98.6,
@@ -14221,6 +14288,7 @@ def test_write_text_report_filters_cls_investment_sentiment_roundup_without_hidi
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "今日投资舆情热点" not in content
+    assert "一级市场本周融资总额" not in content
     assert "DBS产品订单情况、入院数量、医保落地进展情况" in content
 
 

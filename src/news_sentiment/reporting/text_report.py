@@ -1493,11 +1493,20 @@ def _is_low_signal_cls_investment_sentiment_roundup(event: Event, text: str) -> 
 
     title = event.canonical_title
     return (
-        "今日投资舆情热点" in title
-        and "【今日投资舆情热点】" in text
-        and "1）" in text
-        and "2）" in text
-        and "3）" in text
+        (
+            "今日投资舆情热点" in title
+            and "【今日投资舆情热点】" in text
+            and "1）" in text
+            and "2）" in text
+            and "3）" in text
+        )
+        or (
+            "财联社创投通" in title
+            and "一级市场本周融资总额" in title
+            and "投融资事件" in text
+            and "从投资事件数量来看" in text
+            and "从融资总额来看" in text
+        )
     )
 
 
@@ -2073,6 +2082,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("最近二级市场连创新低" in title and "收购新潮" in title and "烦请参考公司于4月29日披露的定期报告" in text)
         or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "《2024年限制性股票激励计划（草案）》" in text and "不能与《草案》中的考核目标直接比较" in text)
         or ("股权激励达标" in title and "玩文字游戏" in title and "《2024年限制性股票激励计划（草案）》" in text and "具体请查阅公司披露在巨潮资讯网的《草案》" in text)
+        or ("H股上市" in title and "股权激励" in title and "利润" in title and "员工持股计划" in text and "业绩考核指标" in text and "净利润为计算依据" in text and "相关公告" in text)
         or (
             "在手订单充足" in title
             and "营收同比下降是什么原因" in title
@@ -2160,6 +2170,19 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
             and "这个客户是近日上市的" in title
             and "AI芯片先进封装的关键材料之一" in text
             and "国产替代潜力巨大" in text
+        )
+        or (
+            "IR 回复效率" in title
+            and "减持信披一致性" in title
+            and "继续强化投资者关系管理工作" in text
+            and "双向互动关系" in text
+            and "减持计划" in text
+        )
+        or (
+            "质疑董秘无力履职" in title
+            and "选择投诉" in title
+            and "继续强化投资者关系管理工作" in text
+            and "保护投资者合法权益" in text
         )
         or (
             "是否已经进入" in title
