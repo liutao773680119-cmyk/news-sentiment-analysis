@@ -1704,6 +1704,38 @@ def test_write_text_report_filters_cninfo_equity_incentive_grant_registration(tm
     assert "关于2026年股票期权激励计划授予登记完成的公告" not in content
 
 
+def test_write_text_report_filters_exchange_equity_incentive_approval_material(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-equity-incentive-approval",
+            first_seen_at="2026-05-09T00:00:00+08:00",
+            last_seen_at="2026-05-09T00:00:00+08:00",
+            canonical_title="中国巨石关于2025年限制性股票激励计划获得批复的公告",
+            summary="中国巨石关于2025年限制性股票激励计划获得批复的公告",
+            source="sse",
+            published_at="2026-05-09T00:00:00+08:00",
+            url="https://example.com/sse-equity-incentive-approval",
+            event_type="hard_event",
+            event_subtype="equity_incentive",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-equity-incentive-approval",
+            direction="bearish",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "中国巨石关于2025年限制性股票激励计划获得批复的公告" not in content
+
+
 def test_write_text_report_filters_cninfo_equity_incentive_vesting_listing_result(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
