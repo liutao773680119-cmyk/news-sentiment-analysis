@@ -818,6 +818,9 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
     ):
         return False
 
+    if event.source != "hkex" and _is_low_signal_cninfo_restructuring_material(event.canonical_title):
+        return True
+
     if event.event_subtype == "corporate_disclosure":
         if event.source == "hkex":
             return _is_low_signal_hkex_disclosure_title(event.canonical_title)
@@ -1673,9 +1676,11 @@ def _is_low_signal_stcn_business_registration_story(event: Event, text: str) -> 
     title = event.canonical_title
     return (
         "成立" in title
-        and "科技公司" in title
-        and "机器人业务" in title
         and any(keyword in text for keyword in ("企查查APP显示", "经营范围"))
+        and (
+            ("科技公司" in title and "机器人业务" in title)
+            or ("置业公司" in title and "房地产开发经营业务" in title)
+        )
     )
 
 
@@ -2004,6 +2009,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("是否生产销售" in title and "人形机器人" in title and "减速器" in title)
             or ("网传中标" in title and "是真的吗" in title)
             or ("光伏储能" in title and "相关业务吗" in title)
+            or ("H股上市" in title and "股权激励" in title and "利润总额" in title and "每股利润增长每年不低于10%" in title)
         )
 
     return (
@@ -2025,6 +2031,14 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("签署" in title and "密切关注有关后续业务的进展" in text)
         or ("价格大涨" in title and "请查阅同类问题回复" in text)
         or ("提振股价" in title and "投资者关系管理工作" in text and "资本市场形象" in text)
+        or (
+            "业绩大不如前" in title
+            and "股价也一路走低" in title
+            and "提振股民信心" in title
+            and "面对血液制品行业深度调整与转型压力" in text
+            and "持续深耕血液制品主业" in text
+            and "聚焦血浆、营销、研发、国际化" in text
+        )
         or ("股价与业绩不对称" in title and "签订新项目么" in title and "经营发展趋势向好" in text and "定期报告和临时公告为准" in text)
         or ("有没有参与投资" in title and "持续关注" in text and "探索" in text and "可能性" in text)
         or ("发展算力中心" in title and "未来若有相关业务布局规划" in text and "以法定公告为准" in text)
@@ -2047,6 +2061,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("收入占整体营业收入的比例较小" in text and "对公司业绩无重大影响" in text)
         or ("准备做什么" in title and "主要经营范围为" in text and "人工智能应用软件开发" in text)
         or ("在手还未交付的算力规模还有多少" in title and "在手订单充裕" in text and "定期报告及相关公告" in text)
+        or ("建投智算" in title and "注入建投能源" in title and "未得到相关信息" in text)
         or ("资产注入" in title and "重大资产重组" in title and "不存在应披露而未披露的事项" in text)
         or (
             "股价异动" in title

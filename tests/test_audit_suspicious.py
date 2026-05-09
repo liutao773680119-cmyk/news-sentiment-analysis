@@ -189,6 +189,86 @@ def test_audit_suspicious_skips_cninfo_restructuring_revised_report(tmp_path, mo
     assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in output
 
 
+def test_audit_suspicious_skips_cninfo_restructuring_revised_report_without_theme(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-restructuring-revised-report-no-theme",
+                first_seen_at="2026-04-23T09:00:00+08:00",
+                last_seen_at="2026-04-23T09:00:00+08:00",
+                canonical_title="中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-04-23T09:00:00+08:00",
+                url="https://example.com/cninfo-restructuring-revised-report-no-theme",
+                event_type="hard_event",
+                event_subtype="acquisition_restructuring",
+            )
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-restructuring-revised-report-no-theme",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in output
+
+
+def test_audit_suspicious_skips_cninfo_restructuring_material_reply_without_theme(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-restructuring-reply-no-theme",
+                first_seen_at="2026-04-08T20:00:00+08:00",
+                last_seen_at="2026-04-08T20:00:00+08:00",
+                canonical_title="中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-04-08T20:00:00+08:00",
+                url="https://example.com/cninfo-restructuring-reply-no-theme",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            )
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-restructuring-reply-no-theme",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in output
+
+
 def test_audit_suspicious_skips_cninfo_restructuring_special_audit_verification_opinion(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

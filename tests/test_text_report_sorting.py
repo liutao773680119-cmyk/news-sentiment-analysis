@@ -6987,6 +6987,112 @@ def test_write_text_report_filters_cninfo_restructuring_revised_report_with_them
     assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in content
 
 
+def test_write_text_report_filters_cninfo_restructuring_material_reply_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-restructuring-reply-no-theme",
+            first_seen_at="2026-04-08T20:00:00+08:00",
+            last_seen_at="2026-04-08T20:00:00+08:00",
+            canonical_title="中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-08T20:00:00+08:00",
+            url="https://example.com/cninfo-restructuring-reply-no-theme",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-semiconductor-keep-no-theme",
+            first_seen_at="2026-04-08T20:01:00+08:00",
+            last_seen_at="2026-04-08T20:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-08T20:01:00+08:00",
+            url="https://example.com/stcn-semiconductor-keep-no-theme",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-restructuring-reply-no-theme",
+            direction="neutral",
+            impact_score=75.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-semiconductor-keep-no-theme",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in content
+
+
+def test_write_text_report_filters_cninfo_restructuring_revised_report_without_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-restructuring-revised-report-no-theme",
+            first_seen_at="2026-04-23T09:00:00+08:00",
+            last_seen_at="2026-04-23T09:00:00+08:00",
+            canonical_title="中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-04-23T09:00:00+08:00",
+            url="https://example.com/cninfo-restructuring-revised-report-no-theme",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-stcn-semiconductor-keep-no-theme-2",
+            first_seen_at="2026-04-23T09:01:00+08:00",
+            last_seen_at="2026-04-23T09:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-23T09:01:00+08:00",
+            url="https://example.com/keep-semiconductor-progress-no-theme",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-restructuring-revised-report-no-theme",
+            direction="neutral",
+            impact_score=75.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-semiconductor-keep-no-theme-2",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in content
+
+
 def test_write_text_report_filters_cninfo_restructuring_special_audit_verification_opinion_without_theme(
     tmp_path,
 ) -> None:
@@ -12319,6 +12425,18 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
             event_type="fast_news",
             event_subtype="company_update",
         ),
+        Event(
+            event_id="event-irm-jiantou-zhisuan-injection-no-info",
+            first_seen_at="2026-05-09T14:52:33+08:00",
+            last_seen_at="2026-05-09T14:52:33+08:00",
+            canonical_title="建投能源：大股东建投集团有考虑将建投智算注入建投能源吗？",
+            summary="问题：大股东建投集团有考虑将建投智算注入建投能源吗？ 回复：您好！公司未得到相关信息。",
+            source="irm_cninfo",
+            published_at="2026-05-09T14:52:33+08:00",
+            url="https://example.com/irm-jiantou-zhisuan-injection-no-info",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
     ]
     analyses = [
         EventAnalysis(event_id="event-irm-humanoid-confidence-fallback", direction="bullish", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
@@ -12332,6 +12450,7 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
         EventAnalysis(event_id="event-irm-stock-price-project-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-theme-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
         EventAnalysis(event_id="event-irm-generic-storage-theme-no-reply-current", direction="neutral", impact_score=100.0, reasoning="rule", themes=["储能"], triggered=True),
+        EventAnalysis(event_id="event-irm-jiantou-zhisuan-injection-no-info", direction="neutral", impact_score=75.0, reasoning="rule", themes=["算力"], triggered=True),
     ]
 
     write_text_report(paths, events, analyses)
@@ -12346,6 +12465,7 @@ def test_write_text_report_filters_irm_cninfo_weak_theme_inquiry_replies_without
     assert "公司H股上市那么公司股权激励后续条件如何变化" not in content
     assert "中电港：美股存储公司大涨，国内龙头公司都在做加快发展，贵公司是英伟达、AMD的授权分销商之一，股价与业绩不对称，有瞄准市场机遇签订新项目么" not in content
     assert "青鸟智控：您好董秘，公司有涉及光伏储能相关业务吗？" not in content
+    assert "建投能源：大股东建投集团有考虑将建投智算注入建投能源吗？" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
@@ -12794,6 +12914,18 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-h-share-equity-incentive-question-only",
+            first_seen_at="2026-05-09T11:09:52+08:00",
+            last_seen_at="2026-05-09T11:09:52+08:00",
+            canonical_title="京新药业：问吕董，如果公司H股上市那么公司股权激励后续条件如何变化，难道还是公司利润总额吗？还是每股利润增长每年不低于10%？",
+            summary="问吕董，如果公司H股上市那么公司股权激励后续条件如何变化，难道还是公司利润总额吗？还是每股利润增长每年不低于10%？",
+            source="irm_cninfo",
+            published_at="2026-05-09T11:09:52+08:00",
+            url="https://example.com/irm-h-share-equity-incentive-question-only",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-keep-substantive-progress",
             first_seen_at="2026-04-20T20:46:03+08:00",
             last_seen_at="2026-04-20T20:46:03+08:00",
@@ -12839,6 +12971,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
         EventAnalysis(event_id="event-irm-huatian-huayi-sic-question-only", direction="neutral", impact_score=75.2, reasoning="rule", themes=["半导体"], triggered=True),
         EventAnalysis(event_id="event-irm-sharetronic-compute-scale-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
         EventAnalysis(event_id="event-irm-dongli-robot-reducer-question-only", direction="neutral", impact_score=100.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-irm-h-share-equity-incentive-question-only", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-keep-substantive-progress", direction="bullish", impact_score=100.0, reasoning="rule", themes=["商业航天"], triggered=True),
     ]
 
@@ -12876,6 +13009,7 @@ def test_write_text_report_filters_current_live_irm_question_only_titles_without
     assert "华天科技：你好董秘，贵公司收购的华羿微电有碳化硅SiC相关封测业务吗？" not in content
     assert "协创数据：贵公司自有算力和在建算力有多少P？总共可调度算力有多少P？" not in content
     assert "东利机械：公司是否生产销售用于人形机器人的减速器" not in content
+    assert "京新药业：问吕董，如果公司H股上市那么公司股权激励后续条件如何变化" not in content
     assert "久之洋：您好，请问2026年以来，公司的星体跟踪器和光纤放大器等产品在商业航天和卫星互联网方面市场拓展如何？" in content
 
 
@@ -12993,6 +13127,18 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-irm-boya-weak-reply",
+            first_seen_at="2026-05-09T14:12:33+08:00",
+            last_seen_at="2026-05-09T14:12:33+08:00",
+            canonical_title="博雅生物：请问贵司在收购博雅生物之后为什么业绩大不如前，股价也一路走低，有没有采取切实可行的措施提升公司业绩，提振股民信心，大家对贵司的期望很大，希望别让大家失望！",
+            summary="问题：请问贵司在收购博雅生物之后为什么业绩大不如前，股价也一路走低，有没有采取切实可行的措施提升公司业绩，提振股民信心，大家对贵司的期望很大，希望别让大家失望！ 回复：您好，感谢您对本公司的关注。面对血液制品行业深度调整与转型压力，公司将始终围绕战略目标，持续深耕血液制品主业，多措并举夯实发展根基，聚焦血浆、营销、研发、国际化等核心业务领域，持续蓄力厚植增长动能，提升综合竞争力。",
+            source="irm_cninfo",
+            published_at="2026-05-09T14:12:33+08:00",
+            url="https://example.com/irm-boya-weak-reply",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
             event_id="event-irm-focus-media-report-fallback",
             first_seen_at="2026-05-01T00:03:33+08:00",
             last_seen_at="2026-05-01T00:03:33+08:00",
@@ -13063,6 +13209,7 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
         EventAnalysis(event_id="event-irm-share-reduction-pre-disclosure-rule", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-buyback-request-dividend-reply", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-fixed-increase-normal-progress", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-irm-boya-weak-reply", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-focus-media-report-fallback", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-target-gap-fallback", direction="bullish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-irm-zhongmi-incentive-wordgame-fallback", direction="bearish", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
@@ -13081,6 +13228,7 @@ def test_write_text_report_filters_current_live_irm_weak_replies_without_hiding_
     assert "大华股份：请问中国移动所持公司股份已经解禁上市流通，因为是特定对象增发，减持是不是不需要提前发预告？" not in content
     assert "海康威视：董秘，你好，公司股价四五年低位横盘，请公司继续回购股份，谢谢" not in content
     assert "茂化实华：定增失败了嘛？定增失败了嘛？定增失败了嘛？公司是否考虑增持自家股票？" not in content
+    assert "博雅生物：请问贵司在收购博雅生物之后为什么业绩大不如前，股价也一路走低" not in content
     assert "分众传媒：最近二级市场连创新低，请问是公司出线了大问题还是什么原因？" not in content
     assert "中密控股：你好，2025年年报中公司未来展望" not in content
     assert "中密控股：打公司投资者电话回复25年股权激励达标" not in content
@@ -16379,6 +16527,18 @@ def test_write_text_report_filters_latest_low_signal_live_head_noise(tmp_path) -
             event_subtype="company_update",
         ),
         Event(
+            event_id="event-stcn-business-registration-real-estate",
+            first_seen_at="2026-05-09T14:36:45+08:00",
+            last_seen_at="2026-05-09T14:36:45+08:00",
+            canonical_title="昊华科技成立置业公司 含房地产开发经营业务",
+            summary="人民财讯5月9日电，企查查APP显示，近日，成都棠茂置业有限公司成立，法定代表人为李佳，注册资本为3000万元，经营范围包含：房地产开发经营；住宅室内装饰装修；物业管理；房地产经纪；非居住房地产租赁。企查查股权穿透显示，该公司由昊华科技间接全资持股。",
+            source="stcn",
+            published_at="2026-05-09T14:36:45+08:00",
+            url="https://example.com/stcn-business-registration-real-estate",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
             event_id="event-stcn-world-bank-energy-forecast",
             first_seen_at="2026-04-29T13:45:13+08:00",
             last_seen_at="2026-04-29T13:45:13+08:00",
@@ -16681,6 +16841,7 @@ def test_write_text_report_filters_latest_low_signal_live_head_noise(tmp_path) -
         EventAnalysis(event_id="event-stcn-private-robot-financing", direction="neutral", impact_score=79.0, reasoning="rule", themes=["机器人"], triggered=True),
         EventAnalysis(event_id="event-szse-cumulative-litigation", direction="neutral", impact_score=78.2, reasoning="rule", themes=[], triggered=True),
         EventAnalysis(event_id="event-stcn-business-registration-ai-robotics", direction="neutral", impact_score=99.0, reasoning="rule", themes=["机器人"], triggered=True),
+        EventAnalysis(event_id="event-stcn-business-registration-real-estate", direction="neutral", impact_score=99.0, reasoning="rule", themes=["房地产"], triggered=True),
         EventAnalysis(event_id="event-stcn-world-bank-energy-forecast", direction="bullish", impact_score=99.0, reasoning="rule", themes=["油气"], triggered=True),
         EventAnalysis(event_id="event-irm-cninfo-lithium-capacity-qa", direction="bullish", impact_score=100.0, reasoning="rule", themes=["锂电池"], triggered=True),
         EventAnalysis(event_id="event-irm-cninfo-storage-reits-suggestion", direction="bullish", impact_score=100.0, reasoning="rule", themes=["储能"], triggered=True),
@@ -16723,6 +16884,7 @@ def test_write_text_report_filters_latest_low_signal_live_head_noise(tmp_path) -
     assert "擎天租完成数亿元Pre-A轮融资" not in content
     assert "雅博股份：关于累计新增诉讼、仲裁情况的公告" not in content
     assert "民爆光电成立精密科技公司 含AI及机器人业务" not in content
+    assert "昊华科技成立置业公司 含房地产开发经营业务" not in content
     assert "世界银行：今年全球能源价格或上涨24%" not in content
     assert "超频三：董秘您好" not in content
     assert "智光电气：4月28日" not in content
