@@ -477,6 +477,48 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
     assert "泰达股份：天津泰达资源循环集团股份有限公司关于重大资产出售暨关联交易问询函回复的公告" not in output
 
 
+def test_audit_suspicious_skips_judicial_execution_unpledge_percent_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-judicial-execution-unpledge-percent",
+                first_seen_at="2026-05-09T00:00:00+08:00",
+                last_seen_at="2026-05-09T00:00:00+08:00",
+                canonical_title="欢瑞世纪：关于公司持股5%以上股东所持部分股份被司法强制执行实施结果、权益变动触及1%整数倍暨解除质押及冻结的公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-09T00:00:00+08:00",
+                url="https://example.com/judicial-execution-unpledge-percent",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-judicial-execution-unpledge-percent",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "被司法强制执行实施结果" not in output
+
+
 def test_audit_suspicious_skips_exchange_major_litigation_and_filing_progress_notices(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -702,6 +744,48 @@ def test_audit_suspicious_skips_financing_inquiry_reply_material(tmp_path, monke
     assert "盈趣科技：容诚会计师事务所" not in output
 
 
+def test_audit_suspicious_skips_financing_inquiry_financial_matter_explanation(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-directed-offering-financial-matter-explanation",
+                first_seen_at="2026-05-09T00:00:00+08:00",
+                last_seen_at="2026-05-09T00:00:00+08:00",
+                canonical_title="某公司：会计师事务所关于某公司申请向特定对象发行股票的审核问询函中有关财务事项的说明",
+                summary="summary",
+                source="szse",
+                published_at="2026-05-09T00:00:00+08:00",
+                url="https://example.com/directed-offering-financial-matter-explanation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-directed-offering-financial-matter-explanation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "审核问询函中有关财务事项的说明" not in output
+
+
 def test_audit_suspicious_skips_judicial_unfreeze_disclosure(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -864,6 +948,48 @@ def test_audit_suspicious_skips_subsidiary_arbitration_progress_disclosure(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "关于全资子公司仲裁事项的进展公告" not in output
+
+
+def test_audit_suspicious_skips_arbitration_application_progress_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-arbitration-application-progress",
+                first_seen_at="2026-05-09T00:00:00+08:00",
+                last_seen_at="2026-05-09T00:00:00+08:00",
+                canonical_title="某公司：关于申请仲裁的进展公告",
+                summary="关于申请仲裁的进展公告",
+                source="szse",
+                published_at="2026-05-09T00:00:00+08:00",
+                url="https://example.com/arbitration-application-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-arbitration-application-progress",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于申请仲裁的进展公告" not in output
 
 
 def test_audit_suspicious_skips_cumulative_new_litigation_arbitration_disclosure(

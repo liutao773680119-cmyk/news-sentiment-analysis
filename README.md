@@ -79,6 +79,9 @@ scripts/run_news_sentiment_watchdog_loop.sh
 - `NEWS_SENTIMENT_WATCH_LOG`: 日志路径，默认 `/tmp/news-sentiment-watch.log`
 - `NEWS_SENTIMENT_WATCH_INTERVAL_SECONDS`: 轮询间隔，默认 `600`
 - `NEWS_SENTIMENT_WATCH_LIMIT`: 巡检输出上限，默认 `10`
+- `NEWS_SENTIMENT_WATCH_LOCK_DIR`: loop 锁目录，默认 `data/monitoring/news-sentiment-watch.lock`
+- `NEWS_SENTIMENT_WATCH_HEARTBEAT_PATH`: heartbeat 状态文件，默认 `data/monitoring/watchdog_heartbeat.json`
+- `NEWS_SENTIMENT_WATCH_INCIDENT_RETENTION`: incident 保留数量，默认 `200`
 
 社交 sidecar：
 

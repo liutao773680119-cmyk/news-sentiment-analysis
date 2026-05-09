@@ -54,6 +54,7 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函之回复",
     "问询函回复",
     "审核问询函中有关财务会计问题的专项说明",
+    "审核问询函中有关财务事项的说明",
     "报告书（修订稿）",
     "报告书(修订稿)",
 )
@@ -76,6 +77,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报问询函回复",
     "问询函有关问题的专项说明",
     "年报的问询函相关事项的专项说明",
+    "申请仲裁的进展公告",
     "诉讼事项的进展",
     "仲裁事项的进展",
     "涉及诉讼进展",
@@ -594,7 +596,11 @@ def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
 
 
 def _is_low_signal_hard_event_risk_disclosure(title: str) -> bool:
-    return _contains_any(title, LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS)
+    return _contains_any(title, LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS) or (
+        "被司法强制执行实施结果" in title
+        and "解除质押及冻结" in title
+        and "权益变动触及1%整数倍" in title
+    )
 
 
 def _is_low_signal_irm_cninfo_legal_question_only(event: Event, text: str) -> bool:
