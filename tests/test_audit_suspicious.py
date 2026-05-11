@@ -309,6 +309,144 @@ def test_audit_suspicious_skips_cninfo_restructuring_special_audit_verification_
     assert "欧菲光：中兴华会计师事务所（特殊普通合伙）关于欧菲光集团股份有限公司发行股份购买资产的审核问询函的专项核查意见" not in output
 
 
+def test_audit_suspicious_skips_cninfo_inquiry_reply_related_batch_8_titles(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    titles = [
+        "正平股份关于收到上海证券交易所对公司2025年年报有关事项问询函的公告",
+        "会计师事务所关于招商局蛇口工业区控股股份有限公司申请向特定对象发行优先股审核问询函回复的专项说明（修订稿）（2025年度财务数据更新版）",
+        "关于绿康生化股份有限公司2025年年报问询函相关问题之专项核查意见",
+        "信永中和关于对佳沃食品有限公司2025年年报问询函之回复",
+        "容诚会计师事务所（特殊普通合伙）关于必易微2025年年度报告信息披露监管问询函的回复",
+        "*ST绿康：关于持股5%以上股东股份解除冻结的公告",
+        "ST龙大：关于控股股东所持公司部分股份解除冻结的公告",
+        "国安股份：关于诉讼案件进展情况的公告",
+    ]
+    now = "2026-05-11T10:00:00+08:00"
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id=f"event-cninfo-batch8-{idx}",
+                first_seen_at=now,
+                last_seen_at=now,
+                canonical_title=title,
+                summary="summary",
+                source="cninfo",
+                published_at=now,
+                url=f"https://example.com/cninfo-batch8-{idx}",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            )
+            for idx, title in enumerate(titles)
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id=f"event-cninfo-batch8-{idx}",
+                direction="neutral",
+                impact_score=75.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            )
+            for idx in range(len(titles))
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "20"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    for title in titles:
+        assert title not in output
+
+
+def test_audit_suspicious_skips_cninfo_annual_inquiry_reply_with_quote_style(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "*ST佳沃：关于深圳证券交易所《关于对佳沃食品股份有限公司的2025年年报问询函》回复的公告"
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-annual-inquiry-quote-style",
+                first_seen_at="2026-05-11T11:00:00+08:00",
+                last_seen_at="2026-05-11T11:00:00+08:00",
+                canonical_title=title,
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-11T11:00:00+08:00",
+                url="https://example.com/cninfo-annual-inquiry-quote-style",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            )
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-annual-inquiry-quote-style",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_cninfo_added_litigation_progress_update_without_themes(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "瑞茂通关于公司及子公司新增诉讼及进展情况的公告"
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-added-litigation-progress-update",
+                first_seen_at="2026-05-12T00:00:00+08:00",
+                last_seen_at="2026-05-12T00:00:00+08:00",
+                canonical_title=title,
+                summary=title,
+                source="cninfo",
+                published_at="2026-05-12T00:00:00+08:00",
+                url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=600180&announcementId=1225292957&orgId=gssh0600180&announcementTime=2026-05-12",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            )
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-added-litigation-progress-update",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule_based_scoring",
+                themes=[],
+                triggered=True,
+            )
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "20"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
 def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

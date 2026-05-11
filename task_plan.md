@@ -1,5 +1,24 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-11 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 目前已完成 `cninfo` 年报问询函与发行优先股/诉讼材料的同步降噪：
+  - `src/news_sentiment/cli.py` 添加关键字收敛
+  - `tests/test_audit_suspicious.py` 补 8 条新异常固定回归
+- 近期验证：
+  - `PYTHONPATH=src ./.venv/bin/python -m pytest tests/test_audit_suspicious.py -q` -> `41 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=576 normalized_news=576 events=440 analyses=440 failed_sources=none`
+  - `latest_report.txt` 无关键异常标题命中
+- 当前风险：
+  - `audit-suspicious=0` 不等于 report 头部 0 风险，仍每轮要看 `latest_report.txt`
+- 当前首选下一步：
+  1. `sed -n '1,160p' data/reports/latest_report.txt`
+  2. `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  3. `git add src/news_sentiment/cli.py tests/test_audit_suspicious.py progress.md findings.md task_plan.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+  4. `git commit`
+  5. `git push origin HEAD:mvp-foundation`
+
 ## Update 2026-05-08 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮从 `sse_einteractive / irm_cninfo` 头部尾噪继续：

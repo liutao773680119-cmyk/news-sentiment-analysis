@@ -1,5 +1,35 @@
 # Findings & Decisions
 
+## Update 2026-05-11 (latest)
+- 本轮最有效边界仍是 cninfo 这类材料披露的“低信号材料化”最窄 title-only 收口，不扩题材库。
+- 重点结论：
+  - 这批 `cninfo` 噪音并非单一关键词可解释，集中在：
+    - 年报问询函相关文案（含引号风格）
+    - 对发行优先股类披露文本
+    - `新增诉讼及进展情况` 类中性公告
+  - 该类样本本身仍可触发高分，但语义偏材料披露；通过关键字白名单在 `audit-suspicious` 侧按口径收口后，`suspicious_count` 变为 0，且 `latest_report` 头部未再出现同族命中。
+- 已收敛到的规则边界：
+  - `LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS` 新增 `发行优先股` 语义，不扩散到一般融资披露。
+  - `LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS` 新增年报问询函、监管问询函、诉讼进展类词表，仍保留原始“冻结 / 已纳入真实风险保留样本”的上下文。
+  - 关键字加入在 `text_report` 不直接做 title-only 全网过滤，而是通过已有 helper 分支与 `event_subtype` 条件配合触发，避免误伤并购/退市/真实风险样本。
+- 验收结论：
+  - `tests/test_audit_suspicious.py`：
+    - `41 passed`
+  - `audit-suspicious --limit 20`：
+    - `suspicious_count=0`
+  - `live-smoke --source all`：
+    - `raw_news=576 normalized_news=576 events=440 analyses=440 failed_sources=none`
+  - `data/reports/latest_report.txt`：
+    - 头部无本轮新增关键词命中
+    - 已保留的样本类型为退市、订单合同、并购重组、市场异动与法务争议
+- 下一步判断：
+  - 当前可收口并提交推送，不建议继续在该类 `cninfo` 标题上做泛化扩词。
+  - 下一轮再遇到同源同族低信号样本，先做：
+    - 红灯测试（固定样本）
+    - 最窄 title-only / no-reply 规则
+    - 回归（含 `tests/test_audit_suspicious.py`）
+    - `live-smoke --source all` 与 `audit-suspicious` 双检
+
 ## Update 2026-05-08 (latest)
 - 当前最有效的动作仍是“单家族、单路径、最窄收口”：
   - `source` 问题单拆

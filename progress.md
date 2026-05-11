@@ -1,5 +1,55 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-11)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `cninfo 年报问询函与诉讼材料噪音收口`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `tests/test_audit_suspicious.py`
+- Completed This Session:
+  - 在 `LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS` 补齐问询及发行场景关键字：
+    - `向特定对象发行优先股`
+    - `发行优先股`
+  - 在 `LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS` 补齐年报/问询及诉讼材料关键字：
+    - `年报有关事项问询函`
+    - `年报问询函之回复`
+    - `年报问询函》回复`
+    - `监管问询函的回复`
+    - `问询函相关问题之专项核查意见`
+    - `新增诉讼及进展情况`
+  - 保留既有上下文词时，新增：
+    - `持股5%以上股东股份解除冻结`
+    - `控股股东所持公司部分股份解除冻结`
+    - `诉讼案件进展`
+    - `诉讼案件进展情况`
+  - 追加 `tests/test_audit_suspicious.py` 回归，覆盖 8 条样本是否全部不应再入 `audit-suspicious`：
+    - batch 8 年报/问询/优先股样本
+    - 引号风格问询函标题
+    - 瑞茂通 `新增诉讼及进展情况` 变体
+- Current Verification:
+  - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -q` -> `41 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=576 normalized_news=576 events=440 analyses=440 failed_sources=none`
+  - `rg -n '年报有关事项问询函|问询函》回复|发行优先股|新增诉讼及进展情况|瑞茂通' data/reports/latest_report.txt` -> 无命中
+  - `latest_report.txt` 最新头部为：
+    - 退市风险 / 订单合同 / 并购重组 / 合作协议 / 市场异动
+    - 目标 cninfo 噪音标题未再出现在头部
+- Current Report Head After Refresh:
+  - 当前为 `法律争议 / 订单合同 / 退市风险 / 并购重组 / 市场异动 / 公司动态` 的真实样本
+  - `suspicious_titles` 仍为 `[]`
+- Open TODO:
+  - 本轮已具备提交条件，可直接提交并推远端
+  - 下一轮先只读观察：
+    - `sed -n '1,160p' data/reports/latest_report.txt`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+  - 若再出现新一批 `cninfo` 同族问询/材料低信号，继续沿最窄 title-only / no-reply 路径补规则，再同步回归与 `live` 验证
+- Risks/Blockers:
+  - `audit-suspicious=0` 不代替 report 头部零命中校验
+  - `eia_wpsr` 已有过历史 `fetch_error`，本轮未触发，但要保留 watcher 视角
+  - `urllib3 NotOpenSSLWarning` 仍会出现，本次命令退出码正常
+
 ## Latest Handoff Snapshot (2026-05-08)
 - Task-ID:
   - `global-multisource-mainline`
