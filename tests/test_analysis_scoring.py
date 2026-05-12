@@ -994,6 +994,27 @@ def test_score_event_uses_lower_boost_for_general_fast_news_with_theme() -> None
     assert analysis.triggered is True
 
 
+def test_score_event_keeps_global_index_sector_move_as_theme_reference() -> None:
+    event = Event(
+        event_id="event-global-index-sector-move-reference",
+        first_seen_at="2026-05-12T22:38:14+08:00",
+        last_seen_at="2026-05-12T22:38:14+08:00",
+        canonical_title="纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌",
+        summary="纳斯达克综合指数跌逾1%，芯片半导体股票集体下跌。",
+        source="stcn",
+        published_at="2026-05-12T22:38:14+08:00",
+        url="https://example.com/global-index-sector-move-reference",
+        member_news_ids=["n-global-index-reference"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == ["半导体"]
+    assert analysis.impact_score == 79.0
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_editorial_roundup_general_fast_news_as_neutral() -> None:
     event = Event(
         event_id="event-007a2",

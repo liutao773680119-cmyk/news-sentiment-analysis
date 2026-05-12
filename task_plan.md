@@ -1,5 +1,40 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-13 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮围绕后台 `audit-suspicious` 连续 alert 做口径分层：
+  - 材料/流程型低信号继续走最窄降噪：
+    - `股票交易异常波动问询函` 回函
+    - `年报问询函的专项说明`
+    - `国内商品期货夜盘开盘 + 涨跌幅播报`
+  - 外盘题材联动信号不再当噪音：
+    - `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
+    - 保留在 report
+    - 保留 `半导体` 题材与 A 股候选映射
+    - 仅从 `audit-suspicious` 异常口径中按 `market_reference` 跳过
+- 当前验证：
+  - `tests/test_analysis_scoring.py -k 'global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `2 passed`
+  - `tests/test_audit_suspicious.py -k 'global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `2 passed`
+  - 当前数据复算：`current_suspicious_count 0`
+  - `latest_report.txt` 仍保留 `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
+- 当前判断：
+  - 这类外盘半导体联动属于 `market_reference`，不是 `LOW_SIGNAL`。
+  - 后台 alert 需要减少误报，但不能牺牲报告里的参考信号。
+
+## Immediate Next Steps (2026-05-13 latest)
+1. 推送后继续观察下一轮后台：
+   - `rg -n '^=====|watchdog_status=|suspicious_count=|failed_sources=' /tmp/news-sentiment-watch.log | tail -n 20`
+2. 再跑一次当前口径：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+3. 如果后台仍是同一条 `纳斯达克综合指数...半导体...`，先确认 loop 是否吃到最新 commit；不要再加 report 过滤。
+4. 如果出现新的外盘题材联动，按 `market_reference` 判断：
+   - 有明确指数/板块方向 + 明确 A 股题材映射：保留 report，仅跳过 audit 异常
+   - 纯指数点位或商品开盘播报：按低信号处理
+5. 暂不建议：
+   - 把 `general_fast_news_with_theme` 整体关掉
+   - 把 `market_reference` 加入 `text_report` 过滤
+   - 为了追求 `watchdog_status=clean` 删除有参考价值的题材联动新闻
+
 ## Update 2026-05-11 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 目前已完成 `cninfo` 年报问询函与发行优先股/诉讼材料的同步降噪：

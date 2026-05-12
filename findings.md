@@ -1,5 +1,32 @@
 # Findings & Decisions
 
+## Update 2026-05-13 (latest)
+- 本轮核心判断：`audit-suspicious` 里的 `general_fast_news_with_theme` 不能只分成“噪音/非噪音”两类，还需要第三类 `market_reference`。
+- 已确认的低信号样本：
+  - `股票交易异常波动问询函` 回函
+  - `年报问询函的专项说明`
+  - `国内商品期货夜盘开盘 液化石油气涨近3%`
+- 已确认应保留的参考信号：
+  - `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
+- 判断依据：
+  - 该样本有明确外盘方向：纳指下跌、芯片半导体股票集体下跌
+  - 该样本有明确题材：`半导体`
+  - 该样本能映射 A 股候选：`688981, 301269, 600584`
+  - 当前评分已是弱一级档位：`general_fast_news` + `impact_score=79.0`，没有被抬到公告/强催化同档
+- 规则决策：
+  - `market_reference` 只从 `audit-suspicious` 后台异常口径排除
+  - 不进入 `LOW_SIGNAL` 词表
+  - 不进入 `text_report` 过滤
+  - 不改变 `score_event` 的题材识别和触发
+- 验收结论：
+  - 评分侧测试确认该样本继续触发 `半导体`
+  - audit 侧测试确认该样本不再导致 `suspicious_count=1`
+  - 当前 live 数据复算 `current_suspicious_count=0`
+  - `latest_report.txt` 仍保留该条
+- 下一步判断：
+  - 后续遇到“外盘指数/海外板块 + A 股题材映射”的样本，先问它有没有明确题材传导价值；有则按 `market_reference` 保留报告。
+  - 后续遇到“纯开盘/收盘/点位/涨跌幅播报”的样本，仍按低信号降噪。
+
 ## Update 2026-05-11 (latest)
 - 本轮最有效边界仍是 cninfo 这类材料披露的“低信号材料化”最窄 title-only 收口，不扩题材库。
 - 重点结论：

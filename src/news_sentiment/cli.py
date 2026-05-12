@@ -81,8 +81,10 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报的问询函相关事项的专项说明",
     "年报有关事项问询函",
     "年报问询函之回复",
+    "年报问询函的专项说明",
     "年报问询函》回复",
     "监管问询函的回复",
+    "股票交易异常波动问询函",
     "问询函相关问题之专项核查意见",
     "申请仲裁的进展公告",
     "诉讼事项的进展",
@@ -155,6 +157,23 @@ LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_KEYWORDS = (
 )
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
+)
+LOW_SIGNAL_STCN_NIGHT_SESSION_COMMODITY_MOVE_TITLE_KEYWORDS = (
+    "涨近",
+    "跌近",
+    "涨超",
+    "跌超",
+)
+MARKET_REFERENCE_GLOBAL_INDEX_SECTOR_MOVE_TITLE_PREFIXES = (
+    "纳斯达克综合指数",
+    "道琼斯指数",
+    "标普500指数",
+)
+MARKET_REFERENCE_GLOBAL_INDEX_SECTOR_MOVE_CONTEXT_KEYWORDS = (
+    "股票集体上涨",
+    "股票集体下跌",
+    "板块集体上涨",
+    "板块集体下跌",
 )
 
 
@@ -414,6 +433,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         and event.source != "cls"
         and bool(analysis.themes)
     ):
+        if _is_market_reference_global_index_sector_move_candidate(event):
+            return None
         if _is_low_signal_stcn_wti_general_fast_news_candidate(event):
             return None
         if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
@@ -428,6 +449,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         if _is_low_signal_stcn_charging_infrastructure_candidate(event):
             return None
         if _is_low_signal_stcn_fund_manager_commentary_candidate(event):
+            return None
+        if _is_low_signal_stcn_night_session_commodity_move_candidate(event):
             return None
         if _is_low_signal_stcn_industry_prosperity_story_candidate(event):
             return None
@@ -539,6 +562,33 @@ def _is_low_signal_stcn_fund_manager_commentary_candidate(event: Event) -> bool:
         and any(
             keyword in event.canonical_title
             for keyword in LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS
+        )
+    )
+
+
+def _is_low_signal_stcn_night_session_commodity_move_candidate(event: Event) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "国内商品期货夜盘开盘" in event.canonical_title
+        and _contains_any(
+            event.canonical_title, LOW_SIGNAL_STCN_NIGHT_SESSION_COMMODITY_MOVE_TITLE_KEYWORDS
+        )
+    )
+
+
+def _is_market_reference_global_index_sector_move_candidate(event: Event) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and event.canonical_title.startswith(
+            MARKET_REFERENCE_GLOBAL_INDEX_SECTOR_MOVE_TITLE_PREFIXES
+        )
+        and _contains_any(
+            event.canonical_title,
+            MARKET_REFERENCE_GLOBAL_INDEX_SECTOR_MOVE_CONTEXT_KEYWORDS,
         )
     )
 

@@ -529,6 +529,69 @@ def test_audit_suspicious_skips_exchange_inquiry_reply_and_special_explanation(t
     assert "ST炼石：年度审计机构对公司2025年年报的问询函相关事项的专项说明" not in output
 
 
+def test_audit_suspicious_skips_exchange_stock_volatility_reply_and_annual_inquiry_special_note(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stock-volatility-inquiry-reply",
+                first_seen_at="2026-05-12T00:00:00+08:00",
+                last_seen_at="2026-05-12T00:00:00+08:00",
+                canonical_title="控股股东关于《上海网达软件股份有限公司股票交易异常波动问询函》的回函",
+                summary="summary",
+                source="sse",
+                published_at="2026-05-12T00:00:00+08:00",
+                url="https://example.com/stock-volatility-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-annual-inquiry-special-note",
+                first_seen_at="2026-05-12T00:00:00+08:00",
+                last_seen_at="2026-05-12T00:00:00+08:00",
+                canonical_title="*ST凯鑫：中兴华会计师事务所（特殊普通合伙）关于上海凯鑫分离技术股份有限公司2025年度年报问询函的专项说明",
+                summary="summary",
+                source="szse",
+                published_at="2026-05-12T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-special-note",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stock-volatility-inquiry-reply",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-annual-inquiry-special-note",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "股票交易异常波动问询函" not in output
+    assert "2025年度年报问询函的专项说明" not in output
+
+
 def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_person_notices(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -1662,6 +1725,90 @@ def test_audit_suspicious_skips_stcn_wti_general_fast_news_with_theme(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "国际油价持续回落 WTI原油期货价格涨幅收窄至1.1%" not in output
+
+
+def test_audit_suspicious_skips_stcn_night_session_commodity_opening_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-night-session-commodity-open",
+                first_seen_at="2026-05-12T21:48:00+08:00",
+                last_seen_at="2026-05-12T21:48:00+08:00",
+                canonical_title="国内商品期货夜盘开盘 液化石油气涨近3%",
+                summary="国内商品期货夜盘开盘，液化石油气涨近3%。",
+                source="stcn",
+                published_at="2026-05-12T21:48:00+08:00",
+                url="https://example.com/stcn-night-session-commodity-open",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-night-session-commodity-open",
+                direction="neutral",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "国内商品期货夜盘开盘 液化石油气涨近3%" not in output
+
+
+def test_audit_suspicious_keeps_global_index_sector_move_as_market_reference(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-global-index-sector-move-reference",
+                first_seen_at="2026-05-12T22:38:14+08:00",
+                last_seen_at="2026-05-12T22:38:14+08:00",
+                canonical_title="纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌",
+                summary="纳斯达克综合指数跌逾1%，芯片半导体股票集体下跌。",
+                source="stcn",
+                published_at="2026-05-12T22:38:14+08:00",
+                url="https://example.com/global-index-sector-move-reference",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-global-index-sector-move-reference",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌" not in output
 
 
 def test_audit_suspicious_skips_stcn_brent_fast_news_with_theme(
