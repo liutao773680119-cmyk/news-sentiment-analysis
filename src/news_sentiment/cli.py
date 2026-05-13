@@ -180,6 +180,12 @@ MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS = (
     "涨停",
     "大涨",
 )
+MARKET_REFERENCE_HK_THEME_MOVE_CONTEXT_KEYWORDS = (
+    "拉升",
+    "涨逾",
+    "涨幅扩大",
+    "涨近",
+)
 
 
 @dataclass(frozen=True)
@@ -442,6 +448,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_market_reference_a_share_concept_move_candidate(event):
             return None
+        if _is_market_reference_hk_theme_move_candidate(event):
+            return None
         if _is_low_signal_stcn_wti_general_fast_news_candidate(event):
             return None
         if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
@@ -610,6 +618,18 @@ def _is_market_reference_a_share_concept_move_candidate(event: Event) -> bool:
             f"{event.canonical_title} {event.summary}",
             MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS,
         )
+    )
+
+
+def _is_market_reference_hk_theme_move_candidate(event: Event) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "港股" in text
+        and _contains_any(text, ("AI应用", "大模型"))
+        and _contains_any(text, MARKET_REFERENCE_HK_THEME_MOVE_CONTEXT_KEYWORDS)
     )
 
 

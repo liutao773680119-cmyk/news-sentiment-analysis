@@ -1036,6 +1036,27 @@ def test_score_event_keeps_a_share_concept_move_as_theme_reference() -> None:
     assert analysis.triggered is True
 
 
+def test_score_event_keeps_hk_ai_application_move_as_theme_reference() -> None:
+    event = Event(
+        event_id="event-hk-ai-application-move-reference",
+        first_seen_at="2026-05-13T14:17:12+08:00",
+        last_seen_at="2026-05-13T14:17:12+08:00",
+        canonical_title="港股AI应用股拉升 智谱涨逾15%",
+        summary="人民财讯5月13日电，港股AI应用股拉升，智谱涨逾15%，MINIMAX-W涨逾11%。",
+        source="stcn",
+        published_at="2026-05-13T14:17:12+08:00",
+        url="https://example.com/hk-ai-application-move-reference",
+        member_news_ids=["n-hk-ai-application-reference"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == ["AI应用"]
+    assert analysis.impact_score == 79.0
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_editorial_roundup_general_fast_news_as_neutral() -> None:
     event = Event(
         event_id="event-007a2",
