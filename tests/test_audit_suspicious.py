@@ -863,6 +863,69 @@ def test_audit_suspicious_skips_exchange_major_litigation_and_filing_progress_no
     assert "长药退：重大诉讼公告" not in output
 
 
+def test_audit_suspicious_skips_exchange_short_litigation_material_notices(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-szse-new-litigation-short-notice",
+                first_seen_at="2026-05-14T00:00:00+08:00",
+                last_seen_at="2026-05-14T00:00:00+08:00",
+                canonical_title="*ST海源：关于新增诉讼的公告",
+                summary="*ST海源：关于新增诉讼的公告",
+                source="szse",
+                published_at="2026-05-14T00:00:00+08:00",
+                url="https://example.com/szse-new-litigation-short-notice",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-filed-litigation-short-notice",
+                first_seen_at="2026-05-14T00:00:00+08:00",
+                last_seen_at="2026-05-14T00:00:00+08:00",
+                canonical_title="海南海药：关于公司提起诉讼的公告",
+                summary="海南海药：关于公司提起诉讼的公告",
+                source="szse",
+                published_at="2026-05-14T00:00:00+08:00",
+                url="https://example.com/szse-filed-litigation-short-notice",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-szse-new-litigation-short-notice",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-filed-litigation-short-notice",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "*ST海源：关于新增诉讼的公告" not in output
+    assert "海南海药：关于公司提起诉讼的公告" not in output
+
+
 def test_audit_suspicious_skips_exchange_waiting_freeze_notice(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

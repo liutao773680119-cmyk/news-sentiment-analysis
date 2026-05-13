@@ -21,6 +21,8 @@
     - `股票交易异常波动问询函` 回函
     - `年报问询函的专项说明`
     - `国内商品期货夜盘开盘 + 涨近/跌近/涨超/跌超`
+    - `新增诉讼的公告`
+    - `提起诉讼的公告`
   - 重新判断 `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`：
     - 不作为噪音删除
     - 保留在 `latest_report.txt`
@@ -40,12 +42,14 @@
     - `test_audit_suspicious_keeps_global_index_sector_move_as_market_reference`
     - `test_audit_suspicious_keeps_a_share_concept_move_as_market_reference`
     - `test_audit_suspicious_keeps_hk_ai_application_move_as_market_reference`
+    - `test_audit_suspicious_skips_exchange_short_litigation_material_notices`
     - `test_score_event_keeps_global_index_sector_move_as_theme_reference`
     - `test_score_event_keeps_a_share_concept_move_as_theme_reference`
     - `test_score_event_keeps_hk_ai_application_move_as_theme_reference`
 - Current Verification:
   - `./.venv/bin/pytest tests/test_analysis_scoring.py -k 'hk_ai_application_move_as_theme_reference or a_share_concept_move_as_theme_reference or global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `4 passed`
   - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'hk_ai_application_move_as_market_reference or a_share_concept_move_as_market_reference or global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `4 passed`
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'short_litigation_material_notices or major_litigation_and_filing_progress_notices or cumulative_new_litigation_arbitration_disclosure or major_litigation_disclosure' -q` -> `4 passed`
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
   - `rg -n -C 4 '纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌' data/reports/latest_report.txt` -> 报告仍保留该条
   - 当前 `latest_report.txt` 已滚动，`PCB概念走强 大族激光等股价创新高` 不在当前 live 文件中；本轮用固定回归锁定口径
@@ -59,7 +63,7 @@
     - `rg -n '^=====|watchdog_status=|suspicious_count=|failed_sources=' /tmp/news-sentiment-watch.log | tail -n 20`
     - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
   - 若出现新的 `market_reference` 类样本，先判断是否应保留在报告，再决定是否只从 `audit-suspicious` 异常口径排除。
-  - 若出现新的材料/流程类弱样本，继续按红灯测试 + 最窄关键词处理。
+  - 若出现新的材料/流程类弱样本，继续按红灯测试 + 最窄关键词处理；诉讼类不要扩大到所有真实诉讼风险。
 - Risks/Blockers:
   - `market_reference` 不是低信号删除；不能同步加到 report 过滤。
   - `audit-suspicious=0` 仍不代表 report 头部全合理，下一轮仍要直接看 `latest_report.txt`。
@@ -72,6 +76,7 @@
   - 不要把“港股主题股异动 + 明确 A 股题材映射”的参考信号当作噪音删掉。
   - 不要因为 `audit-suspicious` 报红就默认要加 `LOW_SIGNAL` 过滤；先判断它是噪音、真实风险，还是 `market_reference`。
   - `market_reference` 只影响后台异常口径，不影响 `score_event` 和 `latest_report.txt` 展示。
+  - 短标题诉讼材料公告只按 audit 尾噪处理；有金额、判决、冻结、败诉、赔偿、重大进展的诉讼风险仍要保留。
 
 ## Latest Handoff Snapshot (2026-05-11)
 - Task-ID:

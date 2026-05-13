@@ -7,6 +7,8 @@
     - `股票交易异常波动问询函` 回函
     - `年报问询函的专项说明`
     - `国内商品期货夜盘开盘 + 涨跌幅播报`
+    - `新增诉讼的公告`
+    - `提起诉讼的公告`
   - 外盘题材联动信号不再当噪音：
     - `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
     - 保留在 report
@@ -23,6 +25,7 @@
 - 当前验证：
   - `tests/test_analysis_scoring.py -k 'hk_ai_application_move_as_theme_reference or a_share_concept_move_as_theme_reference or global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `4 passed`
   - `tests/test_audit_suspicious.py -k 'hk_ai_application_move_as_market_reference or a_share_concept_move_as_market_reference or global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `4 passed`
+  - `tests/test_audit_suspicious.py -k 'short_litigation_material_notices or major_litigation_and_filing_progress_notices or cumulative_new_litigation_arbitration_disclosure or major_litigation_disclosure' -q` -> `4 passed`
   - 当前数据复算：`suspicious_count=0`
   - `latest_report.txt` 仍保留 `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
 - 当前判断：
@@ -38,10 +41,12 @@
 4. 如果出现新的题材联动，按 `market_reference` 判断：
    - 有明确指数/板块/概念/主题股方向 + 明确 A 股题材映射：保留 report，仅跳过 audit 异常
    - 纯指数点位或商品开盘播报：按低信号处理
-5. 暂不建议：
+5. 如果出现新的短标题诉讼材料公告，先看 report 位置和是否有实质风险细节；无金额/判决/重大进展时才按 audit 尾噪处理。
+6. 暂不建议：
    - 把 `general_fast_news_with_theme` 整体关掉
    - 把 `market_reference` 加入 `text_report` 过滤
    - 为了追求 `watchdog_status=clean` 删除有参考价值的题材联动新闻
+   - 把所有诉讼公告一刀切为噪声
 
 ## Update 2026-05-11 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
