@@ -1015,6 +1015,27 @@ def test_score_event_keeps_global_index_sector_move_as_theme_reference() -> None
     assert analysis.triggered is True
 
 
+def test_score_event_keeps_a_share_concept_move_as_theme_reference() -> None:
+    event = Event(
+        event_id="event-a-share-concept-move-reference",
+        first_seen_at="2026-05-13T10:50:16+08:00",
+        last_seen_at="2026-05-13T10:50:16+08:00",
+        canonical_title="PCB概念走强 大族激光等股价创新高",
+        summary="人民财讯5月13日电，PCB概念走强，大族激光、生益科技均涨停，且股价再创历史新高；快克智能涨停，鹏鼎控股、国际复材等大涨。",
+        source="stcn",
+        published_at="2026-05-13T10:50:16+08:00",
+        url="https://example.com/a-share-concept-move-reference",
+        member_news_ids=["n-a-share-concept-reference"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == ["PCB"]
+    assert analysis.impact_score == 79.0
+    assert analysis.triggered is True
+
+
 def test_score_event_marks_editorial_roundup_general_fast_news_as_neutral() -> None:
     event = Event(
         event_id="event-007a2",

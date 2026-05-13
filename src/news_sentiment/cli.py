@@ -175,6 +175,11 @@ MARKET_REFERENCE_GLOBAL_INDEX_SECTOR_MOVE_CONTEXT_KEYWORDS = (
     "板块集体上涨",
     "板块集体下跌",
 )
+MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS = (
+    "股价创新高",
+    "涨停",
+    "大涨",
+)
 
 
 @dataclass(frozen=True)
@@ -435,6 +440,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     ):
         if _is_market_reference_global_index_sector_move_candidate(event):
             return None
+        if _is_market_reference_a_share_concept_move_candidate(event):
+            return None
         if _is_low_signal_stcn_wti_general_fast_news_candidate(event):
             return None
         if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
@@ -589,6 +596,19 @@ def _is_market_reference_global_index_sector_move_candidate(event: Event) -> boo
         and _contains_any(
             event.canonical_title,
             MARKET_REFERENCE_GLOBAL_INDEX_SECTOR_MOVE_CONTEXT_KEYWORDS,
+        )
+    )
+
+
+def _is_market_reference_a_share_concept_move_candidate(event: Event) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "概念走强" in event.canonical_title
+        and _contains_any(
+            f"{event.canonical_title} {event.summary}",
+            MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS,
         )
     )
 

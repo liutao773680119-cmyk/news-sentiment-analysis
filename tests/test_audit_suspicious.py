@@ -1811,6 +1811,48 @@ def test_audit_suspicious_keeps_global_index_sector_move_as_market_reference(
     assert "纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌" not in output
 
 
+def test_audit_suspicious_keeps_a_share_concept_move_as_market_reference(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-a-share-concept-move-reference",
+                first_seen_at="2026-05-13T10:50:16+08:00",
+                last_seen_at="2026-05-13T10:50:16+08:00",
+                canonical_title="PCB概念走强 大族激光等股价创新高",
+                summary="人民财讯5月13日电，PCB概念走强，大族激光、生益科技均涨停，且股价再创历史新高；快克智能涨停，鹏鼎控股、国际复材等大涨。",
+                source="stcn",
+                published_at="2026-05-13T10:50:16+08:00",
+                url="https://example.com/a-share-concept-move-reference",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-a-share-concept-move-reference",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["PCB"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "PCB概念走强 大族激光等股价创新高" not in output
+
+
 def test_audit_suspicious_skips_stcn_brent_fast_news_with_theme(
     tmp_path, monkeypatch, capsys
 ) -> None:

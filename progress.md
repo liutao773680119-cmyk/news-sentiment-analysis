@@ -4,7 +4,7 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
-  - `后台 suspicious 口径分层：低信号降噪与外盘题材参考保留`
+  - `后台 suspicious 口径分层：低信号降噪与市场参考保留`
 - Files Changed:
   - `src/news_sentiment/cli.py`
   - `tests/test_audit_suspicious.py`
@@ -26,21 +26,28 @@
     - 保留在 `latest_report.txt`
     - 保留 `半导体` 题材映射与 `impact_score=79.0`
     - 在 `audit-suspicious` 里按 `market_reference` 口径跳过，不再触发后台异常告警
+  - 重新判断 `PCB概念走强 大族激光等股价创新高`：
+    - 不作为噪音删除
+    - 保留 `PCB` 题材映射与 `impact_score=79.0`
+    - 在 `audit-suspicious` 里按 A 股概念异动 `market_reference` 口径跳过
   - 新增回归测试：
     - `test_audit_suspicious_skips_exchange_stock_volatility_reply_and_annual_inquiry_special_note`
     - `test_audit_suspicious_skips_stcn_night_session_commodity_opening_story`
     - `test_audit_suspicious_keeps_global_index_sector_move_as_market_reference`
+    - `test_audit_suspicious_keeps_a_share_concept_move_as_market_reference`
     - `test_score_event_keeps_global_index_sector_move_as_theme_reference`
+    - `test_score_event_keeps_a_share_concept_move_as_theme_reference`
 - Current Verification:
-  - `./.venv/bin/pytest tests/test_analysis_scoring.py -k 'global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `2 passed`
-  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `2 passed`
-  - `PYTHONPATH=src ./.venv/bin/python - <<'PY' ... collect_suspicious_candidates(...) ... PY` -> `current_suspicious_count 0`
+  - `./.venv/bin/pytest tests/test_analysis_scoring.py -k 'a_share_concept_move_as_theme_reference or global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `3 passed`
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'a_share_concept_move_as_market_reference or global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `3 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
   - `rg -n -C 4 '纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌' data/reports/latest_report.txt` -> 报告仍保留该条
+  - 当前 `latest_report.txt` 已滚动，`PCB概念走强 大族激光等股价创新高` 不在当前 live 文件中；本轮用固定回归锁定口径
   - `git diff --check` -> 通过
 - Current Report / Watchdog State:
   - 最新报告仍包含 `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
   - 当前本地规则复算 `suspicious_count=0`
-  - 后台 loop 下一轮需要观察是否从 `alert` 回到 `clean`
+  - 后台 loop 最新观察已回到 `clean`，仍需下一轮继续只读观察
 - Open TODO:
   - 等下一轮 `news-sentiment-watch` 自动跑完后，只读确认：
     - `rg -n '^=====|watchdog_status=|suspicious_count=|failed_sources=' /tmp/news-sentiment-watch.log | tail -n 20`
@@ -55,6 +62,7 @@
   - `rg -n '^=====|watchdog_status=|suspicious_count=|failed_sources=' /tmp/news-sentiment-watch.log | tail -n 20`
 - Known Avoidances:
   - 不要把“外盘指数 + A股题材映射”的参考信号当作噪音删掉。
+  - 不要把“A 股概念走强 + 涨停/创新高/大涨 + 明确题材映射”的参考信号当作噪音删掉。
   - 不要因为 `audit-suspicious` 报红就默认要加 `LOW_SIGNAL` 过滤；先判断它是噪音、真实风险，还是 `market_reference`。
   - `market_reference` 只影响后台异常口径，不影响 `score_event` 和 `latest_report.txt` 展示。
 

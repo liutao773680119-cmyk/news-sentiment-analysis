@@ -12,13 +12,17 @@
     - 保留在 report
     - 保留 `半导体` 题材与 A 股候选映射
     - 仅从 `audit-suspicious` 异常口径中按 `market_reference` 跳过
+  - A 股概念异动信号不再当噪音：
+    - `PCB概念走强 大族激光等股价创新高`
+    - 保留 `PCB` 题材映射和 `impact_score=79.0`
+    - 仅从 `audit-suspicious` 异常口径中按 `market_reference` 跳过
 - 当前验证：
-  - `tests/test_analysis_scoring.py -k 'global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `2 passed`
-  - `tests/test_audit_suspicious.py -k 'global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `2 passed`
-  - 当前数据复算：`current_suspicious_count 0`
+  - `tests/test_analysis_scoring.py -k 'a_share_concept_move_as_theme_reference or global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `3 passed`
+  - `tests/test_audit_suspicious.py -k 'a_share_concept_move_as_market_reference or global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `3 passed`
+  - 当前数据复算：`suspicious_count=0`
   - `latest_report.txt` 仍保留 `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
 - 当前判断：
-  - 这类外盘半导体联动属于 `market_reference`，不是 `LOW_SIGNAL`。
+  - 外盘半导体联动和 A 股概念走强都属于 `market_reference`，不是 `LOW_SIGNAL`。
   - 后台 alert 需要减少误报，但不能牺牲报告里的参考信号。
 
 ## Immediate Next Steps (2026-05-13 latest)
@@ -26,9 +30,9 @@
    - `rg -n '^=====|watchdog_status=|suspicious_count=|failed_sources=' /tmp/news-sentiment-watch.log | tail -n 20`
 2. 再跑一次当前口径：
    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
-3. 如果后台仍是同一条 `纳斯达克综合指数...半导体...`，先确认 loop 是否吃到最新 commit；不要再加 report 过滤。
-4. 如果出现新的外盘题材联动，按 `market_reference` 判断：
-   - 有明确指数/板块方向 + 明确 A 股题材映射：保留 report，仅跳过 audit 异常
+3. 如果后台仍是同一条 `纳斯达克综合指数...半导体...` 或 `PCB概念走强...`，先确认 loop 是否吃到最新 commit；不要再加 report 过滤。
+4. 如果出现新的题材联动，按 `market_reference` 判断：
+   - 有明确指数/板块/概念方向 + 明确 A 股题材映射：保留 report，仅跳过 audit 异常
    - 纯指数点位或商品开盘播报：按低信号处理
 5. 暂不建议：
    - 把 `general_fast_news_with_theme` 整体关掉
