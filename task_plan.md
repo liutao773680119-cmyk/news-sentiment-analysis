@@ -1,6 +1,6 @@
 # Task Plan: A股新闻题材雷达 MVP
 
-## Update 2026-05-13 (latest handoff)
+## Update 2026-05-14 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮围绕后台 `audit-suspicious` 连续 alert 做口径分层：
   - 材料/流程型低信号继续走最窄降噪：
@@ -9,6 +9,7 @@
     - `国内商品期货夜盘开盘 + 涨跌幅播报`
     - `新增诉讼的公告`
     - `提起诉讼的公告`
+    - `募集资金账户被冻结`
   - 外盘题材联动信号不再当噪音：
     - `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
     - 保留在 report
@@ -26,13 +27,14 @@
   - `tests/test_analysis_scoring.py -k 'hk_ai_application_move_as_theme_reference or a_share_concept_move_as_theme_reference or global_index_sector_move_as_theme_reference or general_fast_news_with_theme' -q` -> `4 passed`
   - `tests/test_audit_suspicious.py -k 'hk_ai_application_move_as_market_reference or a_share_concept_move_as_market_reference or global_index_sector_move_as_market_reference or night_session_commodity_opening_story' -q` -> `4 passed`
   - `tests/test_audit_suspicious.py -k 'short_litigation_material_notices or major_litigation_and_filing_progress_notices or cumulative_new_litigation_arbitration_disclosure or major_litigation_disclosure' -q` -> `4 passed`
+  - `tests/test_audit_suspicious.py -k 'fundraising_account_freeze_material_notice or waiting_freeze_notice or short_litigation_material_notices or major_litigation_disclosure' -q` -> `4 passed`
   - 当前数据复算：`suspicious_count=0`
   - `latest_report.txt` 仍保留 `纳斯达克综合指数跌逾1% 芯片半导体股票集体下跌`
 - 当前判断：
   - 外盘半导体联动、A 股概念走强、港股主题股拉升都属于 `market_reference`，不是 `LOW_SIGNAL`。
   - 后台 alert 需要减少误报，但不能牺牲报告里的参考信号。
 
-## Immediate Next Steps (2026-05-13 latest)
+## Immediate Next Steps (2026-05-14 latest)
 1. 推送后继续观察下一轮后台：
    - `rg -n '^=====|watchdog_status=|suspicious_count=|failed_sources=' /tmp/news-sentiment-watch.log | tail -n 20`
 2. 再跑一次当前口径：
@@ -42,7 +44,8 @@
    - 有明确指数/板块/概念/主题股方向 + 明确 A 股题材映射：保留 report，仅跳过 audit 异常
    - 纯指数点位或商品开盘播报：按低信号处理
 5. 如果出现新的短标题诉讼材料公告，先看 report 位置和是否有实质风险细节；无金额/判决/重大进展时才按 audit 尾噪处理。
-6. 暂不建议：
+6. 如果再次出现 `募集资金账户被冻结` 同族样本，按当前用户口径优先当 audit 尾噪，不要反向恢复成强风险正例。
+7. 暂不建议：
    - 把 `general_fast_news_with_theme` 整体关掉
    - 把 `market_reference` 加入 `text_report` 过滤
    - 为了追求 `watchdog_status=clean` 删除有参考价值的题材联动新闻

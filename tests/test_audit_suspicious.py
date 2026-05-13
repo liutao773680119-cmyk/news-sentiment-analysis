@@ -966,6 +966,48 @@ def test_audit_suspicious_skips_exchange_waiting_freeze_notice(tmp_path, monkeyp
     assert "关于持股5%以上股东及其一致行动人股份被轮候冻结的公告" not in output
 
 
+def test_audit_suspicious_skips_fundraising_account_freeze_material_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-fundraising-account-freeze",
+                first_seen_at="2026-05-14T00:00:00+08:00",
+                last_seen_at="2026-05-14T00:00:00+08:00",
+                canonical_title="联美量子股份有限公司关于子公司募集资金账户被冻结的公告",
+                summary="联美量子股份有限公司关于子公司募集资金账户被冻结的公告",
+                source="sse",
+                published_at="2026-05-14T00:00:00+08:00",
+                url="https://example.com/sse-fundraising-account-freeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-fundraising-account-freeze",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "联美量子股份有限公司关于子公司募集资金账户被冻结的公告" not in output
+
+
 def test_audit_suspicious_skips_convertible_bond_inquiry_reply_revision(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
