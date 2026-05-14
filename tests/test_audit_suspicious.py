@@ -2000,6 +2000,48 @@ def test_audit_suspicious_keeps_a_share_concept_active_limit_up_as_market_refere
     assert "创新药概念活跃 昂利康2连板" not in output
 
 
+def test_audit_suspicious_keeps_a_share_sector_strengthening_as_market_reference(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-a-share-sector-strengthening-reference",
+                first_seen_at="2026-05-14T13:25:05+08:00",
+                last_seen_at="2026-05-14T13:25:05+08:00",
+                canonical_title="半导体板块震荡走强 天岳先进涨近20%",
+                summary="人民财讯5月14日电，半导体板块震荡走强，天岳先进涨近20%，晶丰明源涨逾12%，燕东微涨逾10%，晶合集成、卓胜微等涨幅居前。",
+                source="stcn",
+                published_at="2026-05-14T13:25:05+08:00",
+                url="https://example.com/a-share-sector-strengthening-reference",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-a-share-sector-strengthening-reference",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "半导体板块震荡走强 天岳先进涨近20%" not in output
+
+
 def test_audit_suspicious_keeps_hk_ai_application_move_as_market_reference(
     tmp_path, monkeypatch, capsys
 ) -> None:

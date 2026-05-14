@@ -1057,6 +1057,27 @@ def test_score_event_keeps_a_share_concept_active_limit_up_as_theme_reference() 
     assert analysis.triggered is True
 
 
+def test_score_event_keeps_a_share_sector_strengthening_as_theme_reference() -> None:
+    event = Event(
+        event_id="event-a-share-sector-strengthening-reference",
+        first_seen_at="2026-05-14T13:25:05+08:00",
+        last_seen_at="2026-05-14T13:25:05+08:00",
+        canonical_title="半导体板块震荡走强 天岳先进涨近20%",
+        summary="人民财讯5月14日电，半导体板块震荡走强，天岳先进涨近20%，晶丰明源涨逾12%，燕东微涨逾10%，晶合集成、卓胜微等涨幅居前。",
+        source="stcn",
+        published_at="2026-05-14T13:25:05+08:00",
+        url="https://example.com/a-share-sector-strengthening-reference",
+        member_news_ids=["n-a-share-sector-strengthening-reference"],
+        event_type="fast_news",
+        event_subtype="general_fast_news",
+        source_authority_score=0.8,
+    )
+    analysis = score_event(event, scoring_config=load_scoring_config())
+    assert analysis.themes == ["半导体"]
+    assert analysis.impact_score == 79.0
+    assert analysis.triggered is True
+
+
 def test_score_event_keeps_hk_ai_application_move_as_theme_reference() -> None:
     event = Event(
         event_id="event-hk-ai-application-move-reference",

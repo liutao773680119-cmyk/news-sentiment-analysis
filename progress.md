@@ -38,6 +38,11 @@
     - 保留在 `latest_report.txt`
     - 保留 `创新药` 题材映射与 `impact_score=79.0`
     - 在 `audit-suspicious` 里按 A 股概念活跃 `market_reference` 口径跳过
+  - 重新判断 `半导体板块震荡走强 天岳先进涨近20%`：
+    - 不作为噪音删除
+    - 保留在 `latest_report.txt`
+    - 保留 `半导体` 题材映射与 `impact_score=79.0`
+    - 在 `audit-suspicious` 里按 A 股板块异动 `market_reference` 口径跳过
   - 重新判断 `港股AI应用股拉升 智谱涨逾15%`：
     - 不作为噪音删除
     - 保留 `AI应用` 题材映射与 `impact_score=79.0`
@@ -48,16 +53,18 @@
     - `test_audit_suspicious_keeps_global_index_sector_move_as_market_reference`
     - `test_audit_suspicious_keeps_a_share_concept_move_as_market_reference`
     - `test_audit_suspicious_keeps_a_share_concept_active_limit_up_as_market_reference`
+    - `test_audit_suspicious_keeps_a_share_sector_strengthening_as_market_reference`
     - `test_audit_suspicious_keeps_hk_ai_application_move_as_market_reference`
     - `test_audit_suspicious_skips_exchange_short_litigation_material_notices`
     - `test_audit_suspicious_skips_fundraising_account_freeze_material_notice`
     - `test_score_event_keeps_global_index_sector_move_as_theme_reference`
     - `test_score_event_keeps_a_share_concept_move_as_theme_reference`
     - `test_score_event_keeps_a_share_concept_active_limit_up_as_theme_reference`
+    - `test_score_event_keeps_a_share_sector_strengthening_as_theme_reference`
     - `test_score_event_keeps_hk_ai_application_move_as_theme_reference`
 - Current Verification:
-  - `./.venv/bin/pytest tests/test_analysis_scoring.py -k 'a_share_concept_active_limit_up_as_theme_reference or a_share_concept_move_as_theme_reference or hk_ai_application_move_as_theme_reference or global_index_sector_move_as_theme_reference' -q` -> `4 passed`
-  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'a_share_concept_active_limit_up_as_market_reference or a_share_concept_move_as_market_reference or hk_ai_application_move_as_market_reference or global_index_sector_move_as_market_reference' -q` -> `4 passed`
+  - `./.venv/bin/pytest tests/test_analysis_scoring.py -k 'a_share_sector_strengthening_as_theme_reference or a_share_concept_active_limit_up_as_theme_reference or a_share_concept_move_as_theme_reference or global_index_sector_move_as_theme_reference' -q` -> `4 passed`
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'a_share_sector_strengthening_as_market_reference or a_share_concept_active_limit_up_as_market_reference or a_share_concept_move_as_market_reference or global_index_sector_move_as_market_reference' -q` -> `4 passed`
   - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'short_litigation_material_notices or major_litigation_and_filing_progress_notices or cumulative_new_litigation_arbitration_disclosure or major_litigation_disclosure' -q` -> `4 passed`
   - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'fundraising_account_freeze_material_notice or waiting_freeze_notice or short_litigation_material_notices or major_litigation_disclosure' -q` -> `4 passed`
   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
@@ -84,6 +91,7 @@
   - 不要把“外盘指数 + A股题材映射”的参考信号当作噪音删掉。
   - 不要把“A 股概念走强 + 涨停/创新高/大涨 + 明确题材映射”的参考信号当作噪音删掉。
   - 不要把“A 股概念活跃 + 连板/涨逾/涨近/涨幅居前 + 明确题材映射”的参考信号当作噪音删掉。
+  - 不要把“A 股板块震荡走强 + 涨近/涨逾/涨幅居前 + 明确题材映射”的参考信号当作噪音删掉。
   - 不要把“港股主题股异动 + 明确 A 股题材映射”的参考信号当作噪音删掉。
   - 不要因为 `audit-suspicious` 报红就默认要加 `LOW_SIGNAL` 过滤；先判断它是噪音、真实风险，还是 `market_reference`。
   - `market_reference` 只影响后台异常口径，不影响 `score_event` 和 `latest_report.txt` 展示。

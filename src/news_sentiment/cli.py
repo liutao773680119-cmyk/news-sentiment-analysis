@@ -620,7 +620,11 @@ def _is_market_reference_a_share_concept_move_candidate(event: Event) -> bool:
         event.source == "stcn"
         and event.event_type == "fast_news"
         and event.event_subtype == "general_fast_news"
-        and ("概念走强" in event.canonical_title or "概念活跃" in event.canonical_title)
+        and (
+            "概念走强" in event.canonical_title
+            or "概念活跃" in event.canonical_title
+            or "板块震荡走强" in event.canonical_title
+        )
         and _contains_any(
             f"{event.canonical_title} {event.summary}",
             MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS,
