@@ -1958,6 +1958,48 @@ def test_audit_suspicious_keeps_a_share_concept_move_as_market_reference(
     assert "PCB概念走强 大族激光等股价创新高" not in output
 
 
+def test_audit_suspicious_keeps_a_share_concept_active_limit_up_as_market_reference(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-a-share-concept-active-reference",
+                first_seen_at="2026-05-14T10:24:01+08:00",
+                last_seen_at="2026-05-14T10:24:01+08:00",
+                canonical_title="创新药概念活跃 昂利康2连板",
+                summary="人民财讯5月14日电，创新药概念活跃，昂利康2连板，南新制药涨逾7%，广生堂涨近7%，津药药业、仟源医药、联环药业等涨幅居前。",
+                source="stcn",
+                published_at="2026-05-14T10:24:01+08:00",
+                url="https://example.com/a-share-concept-active-reference",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-a-share-concept-active-reference",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["创新药"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "创新药概念活跃 昂利康2连板" not in output
+
+
 def test_audit_suspicious_keeps_hk_ai_application_move_as_market_reference(
     tmp_path, monkeypatch, capsys
 ) -> None:
