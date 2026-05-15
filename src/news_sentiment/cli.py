@@ -136,6 +136,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "人形机器人半马",
     "文旅经济发展大会召开",
     "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
+    "加强新能源汽车安全管理工作视频会",
 )
 LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS = (
     "广汽自营充电桩突破",
@@ -476,6 +477,10 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_stcn_industry_prosperity_story_candidate(event):
             return None
+        if _is_low_signal_stcn_undersea_data_center_story_candidate(event):
+            return None
+        if _is_low_signal_stcn_company_visit_exchange_story_candidate(event):
+            return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
         if _is_low_signal_private_robot_financing_story_candidate(event):
@@ -691,6 +696,31 @@ def _is_low_signal_stcn_industry_prosperity_story_candidate(event: Event) -> boo
         and "重点布局方向" in event.canonical_title
         and "机构分析认为" in text
         and "有望获益" in text
+    )
+
+
+def _is_low_signal_stcn_undersea_data_center_story_candidate(event: Event) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "海底数据中心" in title
+        and "落户" in title
+        and "东海" in title
+    )
+
+
+def _is_low_signal_stcn_company_visit_exchange_story_candidate(event: Event) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "拜访" in event.canonical_title
+        and "交流" in event.canonical_title
+        and _contains_any(text, ("持续推进交流对接", "进行了交流"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
     )
 
 

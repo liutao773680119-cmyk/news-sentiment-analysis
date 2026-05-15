@@ -1,5 +1,28 @@
 # Findings & Decisions
 
+## Update 2026-05-15 (latest)
+- 本轮核心判断：不是所有带主题的 `general_fast_news` 都要触发后台异常；公共事务会议与项目示范/科普稿可以按 audit 尾噪处理。
+- 已确认低信号样本：
+  - `三部门召开加强新能源汽车安全管理工作视频会`
+  - `全球首个海底数据中心落户东海`
+  - `佳力图拜访之江实验室三体计算星座项目团队 交流液冷散热与太空算力温控技术`
+- 判断依据：
+  - 新能源车样本是三部门工作视频会，缺少明确政策强约束、订单、上市公司可交易链条。
+  - 海底数据中心样本是央视财经转述的示范项目/科普稿，虽带 `算力` 主题，但缺少明确上市公司、订单、政策强约束或产业链兑现路径。
+  - 佳力图样本是官微信息里的拜访、交流、持续推进交流对接，缺少签署、中标、订单、合同、采购等落地信号。
+- 规则决策：
+  - 新能源车会议只加入 `LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS` 的最窄标题关键词。
+  - 海底数据中心样本新增独立 helper：只匹配 `stcn + general_fast_news + 海底数据中心 + 落户 + 东海`。
+  - 公司拜访/交流样本新增独立 helper：只匹配 `stcn + general_fast_news + 拜访 + 交流 + 持续推进交流对接/进行了交流`，且排除 `签署/中标/订单/合同/采购`。
+  - 不改变 `score_event`，不扩大题材库，不关闭 `general_fast_news_with_theme`。
+- 验收结论：
+  - 当前 `audit-suspicious --limit 10` 为 `suspicious_count=0`。
+  - 后台 `news-sentiment-watch` 最近一轮为 `clean`、`failed_sources=none`、`suspicious_count=0`。
+  - 本机 Git/文件读取出现卡住，定向 pytest 命令需要恢复后补跑并再提交。
+- 下一步判断：
+  - 如果继续出现“会议/示范/科普”类带题材快讯，仍先判断是否缺少交易链条；是尾噪才补最窄测试和规则。
+  - 如果是算力订单、数据中心投资合同、上市公司明确业务进展，不能套本轮海底数据中心尾噪规则。
+
 ## Update 2026-05-14 (latest)
 - 本轮核心判断：`audit-suspicious` 里的 `general_fast_news_with_theme` 不能只分成“噪音/非噪音”两类，还需要第三类 `market_reference`。
 - 已确认的低信号样本：

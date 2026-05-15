@@ -2427,3 +2427,134 @@ def test_audit_suspicious_skips_stcn_public_affairs_leader_visit_story(tmp_path,
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况" not in output
+
+
+def test_audit_suspicious_skips_stcn_nev_safety_management_video_meeting(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-nev-safety-management-meeting",
+                first_seen_at="2026-05-14T18:50:52+08:00",
+                last_seen_at="2026-05-14T18:50:52+08:00",
+                canonical_title="三部门召开加强新能源汽车安全管理工作视频会",
+                summary="三部门召开加强新能源汽车安全管理工作视频会，部署新能源汽车安全管理相关工作。",
+                source="stcn",
+                published_at="2026-05-14T18:50:52+08:00",
+                url="https://example.com/stcn-nev-safety-management-meeting",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-nev-safety-management-meeting",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["新能源车"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "三部门召开加强新能源汽车安全管理工作视频会" not in output
+
+
+def test_audit_suspicious_skips_stcn_undersea_data_center_demonstration_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-undersea-data-center",
+                first_seen_at="2026-05-14T22:43:49+08:00",
+                last_seen_at="2026-05-14T22:43:49+08:00",
+                canonical_title="全球首个海底数据中心落户东海",
+                summary="人民财讯5月14日电，人工智能浪潮席卷全球，算力正成为至关重要的基础生产力。"
+                "我国算力基建企业另辟蹊径，把算力中心建在了海里。这里是全球首个投入运行的"
+                "海风直连海底数据中心，总投资16亿元，整体规划24兆瓦。",
+                source="stcn",
+                published_at="2026-05-14T22:43:49+08:00",
+                url="https://example.com/stcn-undersea-data-center",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-undersea-data-center",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "全球首个海底数据中心落户东海" not in output
+
+
+def test_audit_suspicious_skips_stcn_company_visit_exchange_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-company-visit-exchange",
+                first_seen_at="2026-05-15T10:48:08+08:00",
+                last_seen_at="2026-05-15T10:48:08+08:00",
+                canonical_title="佳力图拜访之江实验室三体计算星座项目团队 交流液冷散热与太空算力温控技术",
+                summary="佳力图官微消息，近日，佳力图拜访之江实验室三体计算星座项目团队。"
+                "双方围绕太空计算基础设施的温控散热需求，以及佳力图地面液冷技术在航天应用场景"
+                "下的转化前景进行了交流。双方将围绕太空算力温控技术路线、散热方案极端环境验证等"
+                "课题持续推进交流对接。",
+                source="stcn",
+                published_at="2026-05-15T10:48:08+08:00",
+                url="https://example.com/stcn-company-visit-exchange",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-company-visit-exchange",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "佳力图拜访之江实验室三体计算星座项目团队" not in output

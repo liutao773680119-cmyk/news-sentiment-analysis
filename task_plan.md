@@ -1,5 +1,40 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-15 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮继续围绕后台 `audit-suspicious` 误报做最窄降噪：
+  - `三部门召开加强新能源汽车安全管理工作视频会`
+    - 归入 `stcn` 公共事务/会议类低信号
+    - 不扩新能源车题材库
+  - `全球首个海底数据中心落户东海`
+    - 归入 `stcn` 项目示范/科普型低信号
+    - 不影响真实算力订单、产业链催化、上市公司明确业务进展
+  - `佳力图拜访之江实验室三体计算星座项目团队 交流液冷散热与太空算力温控技术`
+    - 归入 `stcn` 公司拜访/交流对接类低信号
+    - 不影响签署、中标、订单、合同、采购类真实合作进展
+- 当前验证：
+  - `audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `news-sentiment-watch` 最近一轮 `2026-05-15_09:10:48` -> `watchdog_status=clean`、`failed_sources=none`、`suspicious_count=0`
+  - 定向 pytest 和 `git diff --check` 本轮曾出现本机文件读取阻塞，未拿到最终输出；需在 Git/文件读取恢复后补跑。
+- 当前阻塞：
+  - 本机出现 `git status` / `git diff` / 部分文件头部读取卡住现象。
+  - 交接文件已更新；commit/push 需等 Git 可用后执行。
+
+## Immediate Next Steps (2026-05-15 latest)
+1. 先清理/确认卡住的只读进程：
+   - `ps -axo pid,stat,etime,command | rg 'git status|git diff|pytest tests/test_audit_suspicious|sed -n' | rg -v rg`
+2. Git 恢复后补跑：
+   - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'undersea_data_center_demonstration_story or nev_safety_management_video_meeting or public_affairs' -q`
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10`
+3. 然后提交推送：
+   - `git add src/news_sentiment/cli.py tests/test_audit_suspicious.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+   - `git commit -m "fix: suppress latest public affairs audit noise"`
+   - `git push origin HEAD:mvp-foundation`
+4. 暂不建议：
+   - 继续泛化 `stcn` 公共事务词表
+   - 关闭全部 `general_fast_news_with_theme`
+   - 把项目示范类规则扩到所有数据中心/算力新闻
+
 ## Update 2026-05-14 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮围绕后台 `audit-suspicious` 连续 alert 做口径分层：

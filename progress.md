@@ -1,5 +1,52 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-15)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `后台 suspicious 尾噪继续收口：新能源车会议与海底数据中心项目示范`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `tests/test_audit_suspicious.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 巡检 `news-sentiment-watch`，确认后台线程存活、heartbeat 正常。
+  - 按用户判断将 `三部门召开加强新能源汽车安全管理工作视频会` 归入 `stcn` 公共事务/会议类低信号。
+  - 按用户判断将 `全球首个海底数据中心落户东海` 归入 `stcn` 项目示范/科普型低信号。
+  - 将 `佳力图拜访之江实验室三体计算星座项目团队 交流液冷散热与太空算力温控技术` 归入公司拜访/交流对接类低信号。
+  - 新增回归测试：
+    - `test_audit_suspicious_skips_stcn_nev_safety_management_video_meeting`
+    - `test_audit_suspicious_skips_stcn_undersea_data_center_demonstration_story`
+    - `test_audit_suspicious_skips_stcn_company_visit_exchange_story`
+- Current Verification:
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'undersea_data_center_demonstration_story or nev_safety_management_video_meeting or public_affairs' -q` -> 本轮运行时被本机文件读取阻塞卡住，未得到最终输出。
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `rg -n '^=====|watchdog_status=|raw_news=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 30` -> 最近一轮 `2026-05-15_09:10:48` 为 `watchdog_status=clean`、`failed_sources=none`、`suspicious_count=0`
+- Open TODO:
+  - 先排查本机 Git/文件读取卡住问题，再完成 commit + push。
+  - Git 可用后优先执行：
+    - `git status --short`
+    - `git add src/news_sentiment/cli.py tests/test_audit_suspicious.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+    - `git commit -m "fix: suppress latest public affairs audit noise"`
+    - `git push origin HEAD:mvp-foundation`
+- Risks/Blockers:
+  - 当前 `git status` / `git diff` / `pytest` / 部分文件头部读取出现本机阻塞；交接已落盘，但 commit/push 可能受阻。
+  - `audit-suspicious=0` 不等于 report 头部完全合理，下一轮仍需看 `latest_report.txt`。
+  - `urllib3 NotOpenSSLWarning` 仍会出现，本轮 `audit-suspicious` 退出码正常。
+- Next First Command:
+  - `ps -axo pid,stat,etime,command | rg 'git status|git diff|pytest tests/test_audit_suspicious|sed -n' | rg -v rg`
+- Known Avoidances:
+  - 不要把 `general_fast_news_with_theme` 整体关掉。
+  - 不要把有明确题材传导的 `market_reference` 样本当噪声删除。
+  - `新能源汽车安全管理工作视频会` 按公共事务/会议类尾噪处理。
+  - `海底数据中心落户东海` 按项目示范/科普型尾噪处理；不代表所有数据中心/算力订单都要降噪。
+  - `拜访 + 交流 + 持续推进交流对接` 按弱合作线索尾噪处理；标题/正文出现 `签署/中标/订单/合同/采购` 时不能套用。
+
 ## Latest Handoff Snapshot (2026-05-14)
 - Task-ID:
   - `global-multisource-mainline`
