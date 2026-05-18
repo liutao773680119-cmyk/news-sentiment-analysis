@@ -1,5 +1,34 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-19 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮回溯 `2026-05-15` 到 `2026-05-19`：
+  - 5/15-5/18 确有多轮 `watchdog_status=alert`
+  - 5/19 内容可疑已回到 `suspicious_count=0`
+  - 仍存在采集源短暂失败：`szse / csrc / sse_einteractive` 等
+- 本轮已处理的内容异常：
+  - 年报问询函审计专项说明 / 法律意见书材料
+  - 仲裁进展材料
+  - 会见/交流类快讯
+  - 现货白银点位播报
+  - `irm_cninfo` 纯提问法律投诉
+  - `【淘金互动易】` 算力产业链内容按 `market_reference` 保留报告，只退出 audit 异常
+- 当前验证：
+  - `tests/test_audit_suspicious.py -k 'current_low_signal_batch_20260518 or bank_insurance_chairman_meeting_story or annual_inquiry_audit_and_legal_opinion_materials' -q` -> `3 passed`
+  - `audit-suspicious --limit 20` -> `suspicious_count=0`
+
+## Immediate Next Steps (2026-05-19 latest)
+1. 推送后只读观察后台：
+   - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+2. 再跑当前审计：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+3. 如果 `suspicious_count=0` 但 `watchdog_status=alert`，优先看 `failed_sources`，不要继续补内容降噪。
+4. 如果出现新内容异常，继续按：
+   - 先判断是否 `low_signal`、`market_reference` 或真实风险
+   - 红灯测试
+   - 最窄规则
+   - 定向测试 + 当前审计
+
 ## Update 2026-05-15 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮继续围绕后台 `audit-suspicious` 误报做最窄降噪：

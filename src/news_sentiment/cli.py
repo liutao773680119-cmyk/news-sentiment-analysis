@@ -82,11 +82,14 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报有关事项问询函",
     "年报问询函之回复",
     "年报问询函的专项说明",
+    "年报问询函审计相关事项的专项说明",
+    "年报的问询函相关事项的法律意见书",
     "年报问询函》回复",
     "监管问询函的回复",
     "股票交易异常波动问询函",
     "问询函相关问题之专项核查意见",
     "申请仲裁的进展公告",
+    "涉及仲裁的进展公告",
     "诉讼事项的进展",
     "仲裁事项的进展",
     "涉及诉讼进展",
@@ -158,6 +161,7 @@ LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_KEYWORDS = (
     "跌超",
     "震荡走高",
     "震荡走低",
+    "站上",
 )
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
@@ -458,6 +462,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_market_reference_hk_theme_move_candidate(event):
             return None
+        if _is_market_reference_stcn_interactive_theme_chain_candidate(event):
+            return None
         if _is_low_signal_stcn_wti_general_fast_news_candidate(event):
             return None
         if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
@@ -481,6 +487,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_stcn_company_visit_exchange_story_candidate(event):
             return None
+        if _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event):
+            return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
         if _is_low_signal_private_robot_financing_story_candidate(event):
@@ -492,6 +500,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         and _contains_any(title, FAST_NEWS_LEGAL_REVIEW_KEYWORDS)
     ):
         if _is_low_signal_irm_cninfo_legal_question_only(event, text):
+            return None
+        if _is_low_signal_irm_cninfo_legal_complaint_question_only(event, text):
             return None
         return "company_update_legal_keyword"
     if (
@@ -649,6 +659,18 @@ def _is_market_reference_hk_theme_move_candidate(event: Event) -> bool:
     )
 
 
+def _is_market_reference_stcn_interactive_theme_chain_candidate(event: Event) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and event.canonical_title.startswith("【淘金互动易】")
+        and _contains_any(text, ("产业链", "机构持续看好"))
+        and _contains_any(text, ("将应用于", "已应用于", "规模化落地", "最新布局"))
+    )
+
+
 def _is_low_signal_stcn_wti_general_fast_news_candidate(event: Event) -> bool:
     return (
         event.source == "stcn"
@@ -724,6 +746,20 @@ def _is_low_signal_stcn_company_visit_exchange_story_candidate(event: Event) -> 
     )
 
 
+def _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event: Event) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "会见" in event.canonical_title
+        and "董事" in event.canonical_title
+        and "主席" in event.canonical_title
+        and _contains_any(text, ("进行交流", "交换意见", "合作等话题", "深化互利合作"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
 def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
     return any(keyword in text for keyword in keywords)
 
@@ -758,6 +794,16 @@ def _is_low_signal_irm_cninfo_legal_question_only(event: Event, text: str) -> bo
             )
             or "履行信息披露义务" in text
         )
+    )
+
+
+def _is_low_signal_irm_cninfo_legal_complaint_question_only(event: Event, text: str) -> bool:
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and all(marker not in text for marker in ("回复：", "回复:"))
+        and _contains_any(text, ("诉讼", "查账诉讼"))
+        and _contains_any(text, ("请问公司", "可否", "是否考虑"))
+        and _contains_any(text, ("具体的解决方案", "尽快彻底解决", "不要因为这个事情毁掉"))
     )
 
 

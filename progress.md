@@ -1,5 +1,54 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-19)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/15-5/19 后台 suspicious 回溯与尾噪收口`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `tests/test_audit_suspicious.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 回溯 `2026-05-15` 到 `2026-05-19` 后台日志，确认 5/15-5/18 多次 alert，5/19 内容可疑已为 0。
+  - 处理并固定 5/18 晚间连续出现的 `audit-suspicious` 样本：
+    - 年报问询函审计专项说明 / 法律意见书材料。
+    - 仲裁进展材料。
+    - 会见/交流类快讯：中行-友邦、何立峰-AMD。
+    - 现货白银点位播报。
+    - `irm_cninfo` 纯提问法律投诉。
+    - `【淘金互动易】` 算力产业链内容按 `market_reference` 保留报告价值，只退出后台异常。
+  - 新增/更新回归测试：
+    - `test_audit_suspicious_skips_stcn_bank_insurance_chairman_meeting_story`
+    - `test_audit_suspicious_skips_annual_inquiry_audit_and_legal_opinion_materials`
+    - `test_audit_suspicious_skips_current_low_signal_batch_20260518`
+- Current Verification:
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'current_low_signal_batch_20260518 or bank_insurance_chairman_meeting_story or annual_inquiry_audit_and_legal_opinion_materials' -q` -> `3 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `GIT_OPTIONAL_LOCKS=0 git status --short -uno` -> 8 个文件待提交
+  - 5/19 最新后台自动轮次仍有采集源 alert，但 `suspicious_count=0`
+- Open TODO:
+  - 推送后观察下一轮后台：
+    - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+  - 若继续出现 `alert` 且 `suspicious_count=0`，优先排查采集源，不要继续补内容降噪。
+- Risks/Blockers:
+  - `suspicious_count=0` 不代表 `latest_report.txt` 头部完全合理，仍需抽查报告头部。
+  - 5/19 个别后台 `alert` 来自 `szse/csrc/sse_einteractive` 等采集失败，不是内容异常。
+  - `urllib3 NotOpenSSLWarning` 仍会出现，但本轮命令退出码正常。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+- Known Avoidances:
+  - 不要把 `general_fast_news_with_theme` 整体关掉。
+  - `【淘金互动易】` 算力产业链这类有明确链条和公司布局的内容按 `market_reference` 处理，不要当低信号从报告删除。
+  - 会见/交流类只在没有 `签署/中标/订单/合同/采购` 时按尾噪处理。
+  - 年报问询函专项说明、法律意见书属于材料尾噪；不要扩到真实退市、撤销风险警示、重大诉讼或实质仲裁风险。
+
 ## Latest Handoff Snapshot (2026-05-15)
 - Task-ID:
   - `global-multisource-mainline`

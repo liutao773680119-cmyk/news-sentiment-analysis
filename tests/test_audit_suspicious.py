@@ -2558,3 +2558,236 @@ def test_audit_suspicious_skips_stcn_company_visit_exchange_story(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "佳力图拜访之江实验室三体计算星座项目团队" not in output
+
+
+def test_audit_suspicious_skips_stcn_bank_insurance_chairman_meeting_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-bank-insurance-chairman-meeting",
+                first_seen_at="2026-05-18T20:33:58+08:00",
+                last_seen_at="2026-05-18T20:33:58+08:00",
+                canonical_title="中国银行董事长葛海蛟会见友邦保险集团董事会主席杜嘉祺爵士",
+                summary="据中国银行消息，5月18日，中国银行董事长葛海蛟在中国银行总行大厦会见"
+                "友邦保险集团董事会主席杜嘉祺爵士，双方就国内外宏观经济形势交换意见，并围绕"
+                "代理保险、托管、香港及东南亚地区合作等话题进行交流。",
+                source="stcn",
+                published_at="2026-05-18T20:33:58+08:00",
+                url="https://example.com/stcn-bank-insurance-chairman-meeting",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-bank-insurance-chairman-meeting",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["保险"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中国银行董事长葛海蛟会见友邦保险集团董事会主席杜嘉祺爵士" not in output
+
+
+def test_audit_suspicious_skips_annual_inquiry_audit_and_legal_opinion_materials(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-annual-inquiry-audit-note",
+                first_seen_at="2026-05-19T00:00:00+08:00",
+                last_seen_at="2026-05-19T00:00:00+08:00",
+                canonical_title="致同会计师事务所（特殊普通合伙）关于对杭州奥泰生物技术股份有限公司的2025年年报问询函审计相关事项的专项说明",
+                summary="summary",
+                source="sse",
+                published_at="2026-05-19T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-audit-note",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-annual-inquiry-legal-opinion",
+                first_seen_at="2026-05-19T00:00:00+08:00",
+                last_seen_at="2026-05-19T00:00:00+08:00",
+                canonical_title="*ST铖昌：北京君合（杭州）律师事务所关于深圳证券交易所关于浙江铖昌科技股份有限公司2025年年报的问询函相关事项的法律意见书",
+                summary="summary",
+                source="szse",
+                published_at="2026-05-19T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-legal-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-annual-inquiry-audit-note",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-annual-inquiry-legal-opinion",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "年报问询函审计相关事项的专项说明" not in output
+    assert "年报的问询函相关事项的法律意见书" not in output
+
+
+def test_audit_suspicious_skips_current_low_signal_batch_20260518(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-arbitration-progress-generic",
+                first_seen_at="2026-05-19T00:00:00+08:00",
+                last_seen_at="2026-05-19T00:00:00+08:00",
+                canonical_title="关于涉及仲裁的进展公告",
+                summary="关于涉及仲裁的进展公告",
+                source="cninfo",
+                published_at="2026-05-19T00:00:00+08:00",
+                url="https://example.com/arbitration-progress-generic",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-stcn-spot-silver-stands-above",
+                first_seen_at="2026-05-18T21:52:16+08:00",
+                last_seen_at="2026-05-18T21:52:16+08:00",
+                canonical_title="现货白银站上78美元/盎司",
+                summary="人民财讯5月18日电，现货白银站上78美元/盎司，日内涨2.78%。",
+                source="stcn",
+                published_at="2026-05-18T21:52:16+08:00",
+                url="https://example.com/stcn-spot-silver-stands-above",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-taojin-interactive-computing-chain",
+                first_seen_at="2026-05-18T21:42:42+08:00",
+                last_seen_at="2026-05-18T21:42:42+08:00",
+                canonical_title="【淘金互动易】上海将推动算力规模倍增，机构持续看好算力全产业链，这家公司正交背板材料将应用于Rubin架构的算力服务器",
+                summary="上海将推动算力规模倍增，机构持续看好算力全产业链，多家公司在互动平台回复算力领域最新布局。",
+                source="stcn",
+                published_at="2026-05-18T21:42:42+08:00",
+                url="https://example.com/stcn-taojin-interactive-computing-chain",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-amd-chairman-meeting",
+                first_seen_at="2026-05-18T20:57:52+08:00",
+                last_seen_at="2026-05-18T20:57:52+08:00",
+                canonical_title="何立峰会见美国超威半导体公司董事会主席兼首席执行官苏姿丰",
+                summary="何立峰会见美国超威半导体公司董事会主席兼首席执行官苏姿丰，欢迎跨国公司把握中国发展机遇，深化互利合作。苏姿丰表示愿继续拓展在华业务。",
+                source="stcn",
+                published_at="2026-05-18T20:57:52+08:00",
+                url="https://example.com/stcn-amd-chairman-meeting",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-irm-legal-complaint-question-only",
+                first_seen_at="2026-05-18T21:09:47+08:00",
+                last_seen_at="2026-05-18T21:09:47+08:00",
+                canonical_title="*ST动力：请问公司在处理普益基金的问题上，有什么具体的解决方案？可否查账诉讼的同时与业务剥离同步进行，采取切实有效的措施尽快彻底解决，不要因为这个事情毁掉整个上市公司。另外公司是否考虑停牌重整，引入有实力的大股东做实控人，做好转型升级。",
+                summary="请问公司在处理普益基金的问题上，有什么具体的解决方案？可否查账诉讼的同时与业务剥离同步进行，采取切实有效的措施尽快彻底解决，不要因为这个事情毁掉整个上市公司。另外公司是否考虑停牌重整，引入有实力的大股东做实控人，做好转型升级。",
+                source="irm_cninfo",
+                published_at="2026-05-18T21:09:47+08:00",
+                url="https://example.com/irm-legal-complaint-question-only",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-arbitration-progress-generic",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-spot-silver-stands-above",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["黄金"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-taojin-interactive-computing-chain",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-amd-chairman-meeting",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-irm-legal-complaint-question-only",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于涉及仲裁的进展公告" not in output
+    assert "现货白银站上78美元/盎司" not in output
+    assert "【淘金互动易】上海将推动算力规模倍增" not in output
+    assert "何立峰会见美国超威半导体公司董事会主席兼首席执行官苏姿丰" not in output
+    assert "普益基金的问题" not in output
