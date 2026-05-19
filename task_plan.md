@@ -1,5 +1,59 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-20 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮新增后台 6 小时汇总：
+  - 命令：`watchdog-summary --hours 6`
+  - 输出：`data/monitoring/summaries/*-summary.md`
+  - 后台 loop 默认每 6 小时自动生成一次
+- 本轮处理当前 `audit-suspicious` 异动：
+  - `中农发种业集团股份有限公司关于股东所持部分股份冻结的公告`
+  - 按现有“材料型冻结公告 audit 尾噪”口径，新增最窄关键词：
+    - `股东所持部分股份冻结`
+- 当前验证：
+  - 当前 `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `tests/test_watchdog_summary.py tests/test_watchdog_loop_script.py tests/test_watchdog.py -q` -> `6 passed`
+  - 定向股份冻结测试 -> `1 passed`
+
+## Immediate Next Steps (2026-05-20 latest)
+1. 提交并推送本轮变更。
+2. 重启 watchdog，让 6 小时汇总逻辑进入当前长跑线程。
+3. 重启后只读确认：
+   - `ps -axo pid,ppid,stat,etime,command | rg 'run_news_sentiment_watchdog_loop|news-sentiment-watchdog'`
+   - `cat data/monitoring/watchdog_heartbeat.json`
+   - `rg -n '^=====|watchdog_status=|suspicious_count=|summary_path=' /tmp/news-sentiment-watch.log | tail -n 40`
+4. 后续继续观察新 `suspicious`，但不自动改规则。
+
+## Update 2026-05-19 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮处理 20:34-21:44 夜间 watchdog alert：
+  - 年报问询函材料/回复类：
+    - 评估问题回复
+    - 会计师事务所年报问询函回复
+    - 收到年报有关事项问询函公告
+    - 年报的问询函的回复公告
+  - 会见交流类：
+    - 外汇局会见友邦保险主席
+    - 江苏省委书记会见 AMD 董事会主席兼 CEO
+  - 贵金属点位播报：
+    - 现货黄金日内跌幅达 2%
+- 当前验证：
+  - `tests/test_audit_suspicious.py -k 'current_low_signal_batch_20260519_night or current_low_signal_batch_20260518 or precious_metal_spot_move or chairman_meeting' -q` -> `4 passed`
+  - `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `live-smoke --source all` -> `raw_news=568 normalized_news=568 events=457 analyses=457 failed_sources=none`
+  - 刷新后 `audit-suspicious --limit 20` -> `suspicious_count=0`
+
+## Immediate Next Steps (2026-05-19 latest)
+1. 先只读观察 watchdog 是否吃到本地最新规则：
+   - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+2. 再跑当前审计：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+3. 若后台自动日志仍显示旧 `21:44 alert=2`，但即时审计为 0，先等下一轮自动 loop，不要重复补规则。
+4. 若用户要求收口，下一步是标准提交并推送：
+   - `git add src/news_sentiment/cli.py tests/test_audit_suspicious.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+   - `git commit -m "fix: suppress latest night audit noise"`
+   - `git push origin HEAD:mvp-foundation`
+
 ## Update 2026-05-19 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮继续处理 5/19 后台新滚入的 `audit-suspicious` 尾噪：

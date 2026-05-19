@@ -50,6 +50,37 @@ def test_watchdog_loop_run_once_writes_heartbeat_and_prunes_incidents(tmp_path) 
     ]
 
 
+def test_watchdog_loop_run_once_can_trigger_summary(tmp_path) -> None:
+    log_path = tmp_path / "watch.log"
+    lock_dir = tmp_path / "watch.lock"
+    heartbeat_path = tmp_path / "heartbeat.json"
+    summary_marker = tmp_path / "summary.marker"
+
+    env = {
+        **os.environ,
+        "NEWS_SENTIMENT_WATCH_RUN_ONCE": "1",
+        "NEWS_SENTIMENT_WATCH_LOG": str(log_path),
+        "NEWS_SENTIMENT_WATCH_LOCK_DIR": str(lock_dir),
+        "NEWS_SENTIMENT_WATCH_HEARTBEAT_PATH": str(heartbeat_path),
+        "NEWS_SENTIMENT_WATCH_REPORT_HEAD_LINES": "0",
+        "NEWS_SENTIMENT_WATCH_COMMAND": "printf 'watchdog_status=clean\\nsuspicious_count=0\\n'",
+        "NEWS_SENTIMENT_SUMMARY_INTERVAL_SECONDS": "0",
+        "NEWS_SENTIMENT_SUMMARY_COMMAND": f"printf summary_ran > '{summary_marker}'",
+    }
+
+    result = subprocess.run(
+        [str(SCRIPT)],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    assert result.returncode == 0, result.stderr + result.stdout
+    assert summary_marker.read_text(encoding="utf-8") == "summary_ran"
+
+
 def test_watchdog_loop_refuses_second_runner_when_lock_exists(tmp_path) -> None:
     log_path = tmp_path / "watch.log"
     lock_dir = tmp_path / "watch.lock"

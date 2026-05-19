@@ -1008,6 +1008,48 @@ def test_audit_suspicious_skips_fundraising_account_freeze_material_notice(
     assert "联美量子股份有限公司关于子公司募集资金账户被冻结的公告" not in output
 
 
+def test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-shareholder-partial-share-freeze",
+                first_seen_at="2026-05-20T00:00:00+08:00",
+                last_seen_at="2026-05-20T00:00:00+08:00",
+                canonical_title="中农发种业集团股份有限公司关于股东所持部分股份冻结的公告",
+                summary="中农发种业集团股份有限公司关于股东所持部分股份冻结的公告",
+                source="sse",
+                published_at="2026-05-20T00:00:00+08:00",
+                url="https://example.com/sse-shareholder-partial-share-freeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-shareholder-partial-share-freeze",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中农发种业集团股份有限公司关于股东所持部分股份冻结的公告" not in output
+
+
 def test_audit_suspicious_skips_convertible_bond_inquiry_reply_revision(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -2709,6 +2751,153 @@ def test_audit_suspicious_skips_annual_inquiry_audit_and_legal_opinion_materials
     assert "年报的问询函相关事项的法律意见书" not in output
 
 
+def test_audit_suspicious_skips_current_low_signal_batch_20260519_night(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-annual-inquiry-valuation-reply",
+                first_seen_at="2026-05-20T00:00:00+08:00",
+                last_seen_at="2026-05-20T00:00:00+08:00",
+                canonical_title="北京中林资产评估有限公司关于深圳证券交易所《关于对阳光新业地产股份有限公司2025年年报的问询函》涉及评估问题的回复",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-20T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-valuation-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-annual-inquiry-accountant-reply",
+                first_seen_at="2026-05-20T00:00:00+08:00",
+                last_seen_at="2026-05-20T00:00:00+08:00",
+                canonical_title="中兴华会计师事务所（特殊普通合伙）关于对阳光新业地产股份有限公司2025年年报问询函的回复",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-20T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-accountant-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-annual-inquiry-receipt-notice",
+                first_seen_at="2026-05-20T00:00:00+08:00",
+                last_seen_at="2026-05-20T00:00:00+08:00",
+                canonical_title="青海春天关于收到上海证券交易所《关于公司2025年年报有关事项的问询函》的公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-20T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-receipt-notice",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-annual-inquiry-generic-reply-notice",
+                first_seen_at="2026-05-20T00:00:00+08:00",
+                last_seen_at="2026-05-20T00:00:00+08:00",
+                canonical_title="关于对深圳证券交易所2025年年报的问询函的回复公告",
+                summary="关于对深圳证券交易所2025年年报的问询函的回复公告",
+                source="cninfo",
+                published_at="2026-05-20T00:00:00+08:00",
+                url="https://example.com/annual-inquiry-generic-reply-notice",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-safe-aia-chairman-meeting",
+                first_seen_at="2026-05-19T20:08:21+08:00",
+                last_seen_at="2026-05-19T20:08:21+08:00",
+                canonical_title="国家外汇局局长朱鹤新会见友邦保险集团主席杜嘉祺",
+                summary="双方就国际经济金融形势、中国经济发展机遇、外汇政策支持保险业高质量发展等议题进行了交流。",
+                source="stcn",
+                published_at="2026-05-19T20:08:21+08:00",
+                url="https://example.com/safe-aia-chairman-meeting",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-spot-gold-intraday-drop",
+                first_seen_at="2026-05-19T21:34:31+08:00",
+                last_seen_at="2026-05-19T21:34:31+08:00",
+                canonical_title="现货黄金日内跌幅达2%",
+                summary="人民财讯5月19日电，现货黄金日内跌幅达2%，报4470.45美元/盎司。",
+                source="stcn",
+                published_at="2026-05-19T21:34:31+08:00",
+                url="https://example.com/stcn-spot-gold-intraday-drop",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-annual-inquiry-valuation-reply",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-annual-inquiry-accountant-reply",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-annual-inquiry-receipt-notice",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-annual-inquiry-generic-reply-notice",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-safe-aia-chairman-meeting",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["保险"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-spot-gold-intraday-drop",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["黄金"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "涉及评估问题的回复" not in output
+    assert "年报问询函的回复" not in output
+    assert "年报的问询函的回复公告" not in output
+    assert "年报有关事项的问询函" not in output
+    assert "国家外汇局局长朱鹤新会见友邦保险集团主席杜嘉祺" not in output
+    assert "现货黄金日内跌幅达2%" not in output
+
+
 def test_audit_suspicious_skips_current_low_signal_batch_20260518(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -2766,6 +2955,18 @@ def test_audit_suspicious_skips_current_low_signal_batch_20260518(
                 event_subtype="general_fast_news",
             ),
             Event(
+                event_id="event-stcn-jiangsu-amd-chairman-meeting",
+                first_seen_at="2026-05-19T21:25:35+08:00",
+                last_seen_at="2026-05-19T21:25:35+08:00",
+                canonical_title="江苏省委书记信长星会见美国超威半导体公司董事会主席兼首席执行官苏姿丰",
+                summary="信长星会见美国超威半导体公司董事会主席兼首席执行官苏姿丰，希望超威半导体公司坚定在中国、在江苏发展的信心，深化产业合作，加大投资布局，携手实现更高水平的互利共赢。",
+                source="stcn",
+                published_at="2026-05-19T21:25:35+08:00",
+                url="https://example.com/stcn-jiangsu-amd-chairman-meeting",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
                 event_id="event-irm-legal-complaint-question-only",
                 first_seen_at="2026-05-18T21:09:47+08:00",
                 last_seen_at="2026-05-18T21:09:47+08:00",
@@ -2814,6 +3015,14 @@ def test_audit_suspicious_skips_current_low_signal_batch_20260518(
                 triggered=True,
             ),
             EventAnalysis(
+                event_id="event-stcn-jiangsu-amd-chairman-meeting",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+            EventAnalysis(
                 event_id="event-irm-legal-complaint-question-only",
                 direction="neutral",
                 impact_score=75.2,
@@ -2832,6 +3041,7 @@ def test_audit_suspicious_skips_current_low_signal_batch_20260518(
     assert "现货白银站上78美元/盎司" not in output
     assert "【淘金互动易】上海将推动算力规模倍增" not in output
     assert "何立峰会见美国超威半导体公司董事会主席兼首席执行官苏姿丰" not in output
+    assert "江苏省委书记信长星会见美国超威半导体公司董事会主席兼首席执行官苏姿丰" not in output
     assert "普益基金的问题" not in output
 
 

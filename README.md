@@ -68,6 +68,14 @@ PYTHONPATH=src .venv/bin/python -m news_sentiment watchdog-once --source all --l
 
 `watchdog-once` 会在 `live-smoke` 之后自动跑一轮 `audit-suspicious` 口径检查；如果发现 `failed_sources`，会额外做单源探测、落盘 incident 快照到 `data/monitoring/incidents/`，并在“单源探测已恢复且 `suspicious_count=0`”时自动再跑一轮全源主链路，用来吸收瞬时抖动。
 
+生成最近 6 小时后台汇总：
+
+```bash
+PYTHONPATH=src .venv/bin/python -m news_sentiment watchdog-summary --hours 6
+```
+
+汇总会读取 `data/monitoring/incidents/` 与 watchdog 日志，输出到 `data/monitoring/summaries/`。watchdog 日志按本机时区解析，后台 loop 默认每 6 小时自动生成一次汇总。
+
 如需把后台 loop 切到自动处理版，直接运行仓库脚本：
 
 ```bash
@@ -82,6 +90,9 @@ scripts/run_news_sentiment_watchdog_loop.sh
 - `NEWS_SENTIMENT_WATCH_LOCK_DIR`: loop 锁目录，默认 `data/monitoring/news-sentiment-watch.lock`
 - `NEWS_SENTIMENT_WATCH_HEARTBEAT_PATH`: heartbeat 状态文件，默认 `data/monitoring/watchdog_heartbeat.json`
 - `NEWS_SENTIMENT_WATCH_INCIDENT_RETENTION`: incident 保留数量，默认 `200`
+- `NEWS_SENTIMENT_SUMMARY_ENABLED`: 是否启用 6 小时汇总，默认 `1`
+- `NEWS_SENTIMENT_SUMMARY_INTERVAL_SECONDS`: 汇总间隔，默认 `21600`
+- `NEWS_SENTIMENT_SUMMARY_HOURS`: 每次汇总覆盖小时数，默认 `6`
 
 社交 sidecar：
 

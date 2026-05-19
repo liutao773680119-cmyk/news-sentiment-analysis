@@ -30,6 +30,7 @@ COMMANDS = (
     "audit-suspicious",
     "live-smoke",
     "watchdog-once",
+    "watchdog-summary",
     "collect-social",
     "report",
     "run-once",
@@ -80,10 +81,14 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "问询函有关问题的专项说明",
     "年报的问询函相关事项的专项说明",
     "年报有关事项问询函",
+    "年报有关事项的问询函",
     "年报问询函之回复",
+    "年报问询函的回复",
+    "年报的问询函的回复",
     "年报问询函的专项说明",
     "年报问询函审计相关事项的专项说明",
     "年报的问询函相关事项的法律意见书",
+    "涉及评估问题的回复",
     "年报问询函》回复",
     "监管问询函的回复",
     "股票交易异常波动问询函",
@@ -107,6 +112,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "失信被执行人",
     "轮候冻结",
     "募集资金账户被冻结",
+    "股东所持部分股份冻结",
     "解除司法冻结",
     "持股5%以上股东股份解除冻结",
     "控股股东所持公司部分股份解除冻结",
@@ -159,6 +165,7 @@ LOW_SIGNAL_STCN_PRECIOUS_METAL_SPOT_MOVE_TITLE_KEYWORDS = (
     "跌近",
     "涨超",
     "跌超",
+    "日内跌幅达",
     "震荡走高",
     "震荡走低",
     "站上",
@@ -238,6 +245,11 @@ def build_parser() -> argparse.ArgumentParser:
     watchdog_parser = subparsers.add_parser("watchdog-once")
     watchdog_parser.add_argument("--source", default="all")
     watchdog_parser.add_argument("--limit", type=int, default=10)
+    watchdog_summary_parser = subparsers.add_parser("watchdog-summary")
+    watchdog_summary_parser.add_argument("--hours", type=int, default=6)
+    watchdog_summary_parser.add_argument("--now")
+    watchdog_summary_parser.add_argument("--log-path", type=Path)
+    watchdog_summary_parser.add_argument("--log-timezone", choices=("local", "utc"), default="local")
     collect_social_parser = subparsers.add_parser("collect-social")
     collect_social_parser.add_argument("--platform", default="fixture")
     subparsers.add_parser("report")
@@ -273,6 +285,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         from news_sentiment.watchdog import run_watchdog_once
 
         return run_watchdog_once(paths, args.source, args.limit)
+    if args.command == "watchdog-summary":
+        from news_sentiment.watchdog_summary import run_watchdog_summary
+
+        return run_watchdog_summary(
+            paths,
+            hours=args.hours,
+            now=args.now,
+            log_path=args.log_path,
+            log_timezone=args.log_timezone,
+        )
     if args.command == "collect-social":
         try:
             return run_collect_social(paths, args.platform)
@@ -774,9 +796,20 @@ def _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event: Event) 
         and event.event_type == "fast_news"
         and event.event_subtype == "general_fast_news"
         and "会见" in event.canonical_title
-        and "董事" in event.canonical_title
+        and ("董事" in event.canonical_title or "友邦保险" in text)
         and "主席" in event.canonical_title
-        and _contains_any(text, ("进行交流", "交换意见", "合作等话题", "深化互利合作"))
+        and _contains_any(
+            text,
+            (
+                "进行交流",
+                "进行了交流",
+                "交换意见",
+                "合作等话题",
+                "深化互利合作",
+                "加大投资布局",
+                "互利共赢",
+            ),
+        )
         and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
     )
 

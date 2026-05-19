@@ -13,6 +13,11 @@ INCIDENT_RETENTION="${NEWS_SENTIMENT_WATCH_INCIDENT_RETENTION:-200}"
 REPORT_HEAD_LINES="${NEWS_SENTIMENT_WATCH_REPORT_HEAD_LINES:-80}"
 RUN_ONCE="${NEWS_SENTIMENT_WATCH_RUN_ONCE:-0}"
 WATCH_COMMAND="${NEWS_SENTIMENT_WATCH_COMMAND:-}"
+SUMMARY_ENABLED="${NEWS_SENTIMENT_SUMMARY_ENABLED:-1}"
+SUMMARY_INTERVAL_SECONDS="${NEWS_SENTIMENT_SUMMARY_INTERVAL_SECONDS:-21600}"
+SUMMARY_HOURS="${NEWS_SENTIMENT_SUMMARY_HOURS:-6}"
+SUMMARY_COMMAND="${NEWS_SENTIMENT_SUMMARY_COMMAND:-}"
+LAST_SUMMARY_EPOCH="$(date +%s)"
 
 cd "$ROOT_DIR"
 export PYTHONPATH=src
@@ -56,6 +61,35 @@ run_watchdog_command() {
   fi
 }
 
+run_summary_command() {
+  if [[ -n "$SUMMARY_COMMAND" ]]; then
+    bash -c "$SUMMARY_COMMAND"
+  else
+    ./.venv/bin/python -m news_sentiment watchdog-summary --hours "$SUMMARY_HOURS" --log-path "$LOG_PATH"
+  fi
+}
+
+run_summary_if_due() {
+  if [[ "$SUMMARY_ENABLED" != "1" ]]; then
+    return 0
+  fi
+  local now_epoch
+  local summary_exit_code=0
+  now_epoch="$(date +%s)"
+  if [[ "$SUMMARY_INTERVAL_SECONDS" -gt 0 && $((now_epoch - LAST_SUMMARY_EPOCH)) -lt "$SUMMARY_INTERVAL_SECONDS" ]]; then
+    return 0
+  fi
+  printf '===== summary %s =====\n' "$(date '+%Y-%m-%d_%H:%M:%S')" >> "$LOG_PATH"
+  if run_summary_command >> "$LOG_PATH" 2>&1; then
+    summary_exit_code=0
+  else
+    summary_exit_code=$?
+    printf 'summary_command_failed=%s\n' "$summary_exit_code" >> "$LOG_PATH"
+  fi
+  LAST_SUMMARY_EPOCH="$now_epoch"
+  return 0
+}
+
 run_iteration() {
   local exit_code=0
   write_heartbeat "running" 0
@@ -70,6 +104,7 @@ run_iteration() {
     sed -n "1,${REPORT_HEAD_LINES}p" data/reports/latest_report.txt >> "$LOG_PATH"
   fi
   prune_incidents
+  run_summary_if_due
   printf '\n' >> "$LOG_PATH"
   if [[ "$exit_code" -eq 0 ]]; then
     write_heartbeat "completed" "$exit_code"

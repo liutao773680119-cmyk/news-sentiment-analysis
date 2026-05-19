@@ -1,5 +1,118 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-20)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `6小时 watchdog 汇总与股份冻结 audit 异动收口`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/watchdog_summary.py`
+  - `scripts/run_news_sentiment_watchdog_loop.sh`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_watchdog_summary.py`
+  - `tests/test_watchdog_loop_script.py`
+  - `README.md`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 新增 `watchdog-summary --hours 6`，读取 `data/monitoring/incidents/` 与 watchdog 日志，生成 Markdown 汇总到 `data/monitoring/summaries/`。
+  - 后台 loop 新增默认 6 小时一次汇总：
+    - `NEWS_SENTIMENT_SUMMARY_ENABLED=1`
+    - `NEWS_SENTIMENT_SUMMARY_INTERVAL_SECONDS=21600`
+    - `NEWS_SENTIMENT_SUMMARY_HOURS=6`
+  - 真实生成一次 6 小时汇总，确认最近 29 轮全部 alert，核心重复 suspicious 是：
+    - `中农发种业集团股份有限公司关于股东所持部分股份冻结的公告`
+  - 处理当前 `audit-suspicious` 异动：
+    - 将 `股东所持部分股份冻结` 加入 hard_event 材料型冻结尾噪口径。
+    - 新增回归 `test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice`。
+- Current Verification:
+  - `tests/test_audit_suspicious.py::test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice -q` -> `1 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `tests/test_watchdog_summary.py tests/test_watchdog_loop_script.py tests/test_watchdog.py -q` -> `6 passed`
+  - `./.venv/bin/python -m py_compile src/news_sentiment/cli.py src/news_sentiment/watchdog_summary.py` -> passed
+  - `git diff --check` -> passed
+- Open TODO:
+  - 提交并推送本轮变更。
+  - 重启 watchdog，使 6 小时自动汇总逻辑进入当前长跑线程。
+  - 重启后只读确认新 PID、heartbeat、最新 log。
+- Risks/Blockers:
+  - `股东所持部分股份冻结` 只作为 audit 尾噪处理；不要扩成所有冻结公告都降噪。
+  - 真正公司资产查封、司法冻结、被执行、立案调查等仍应保留风险口径。
+  - 6 小时汇总不自动改规则，只汇总 incident 和 report 头部。
+- Next First Command:
+  - `git diff --check && git status --short`
+- Known Avoidances:
+  - 不要让 watchdog 自动改规则。
+  - 不要把 `suspicious_count=0` 当成 report 头部完全干净。
+  - 不要忘记重启旧 PID；脚本文件修改不会自动进入已运行 bash 进程。
+
+## Latest Handoff Snapshot (2026-05-19)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/19 夜间 watchdog alert 收口：年报问询函材料、会见交流与贵金属播报`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `tests/test_audit_suspicious.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 处理 `2026-05-19_20:34:58` 到 `2026-05-19_21:44:20` 的后台 `alert`：
+    - 20:34 `suspicious_count=2`
+    - 20:46 `suspicious_count=4`，同时有 `investing_news:parse_error,szse:parse_error`
+    - 20:57 自动 recovered，21:10/21:21 clean
+    - 21:32/21:44 再次因内容尾噪 alert 到 2
+  - 新增/扩展年报问询函材料尾噪：
+    - `涉及评估问题的回复`
+    - `年报问询函的回复`
+    - `年报的问询函的回复`
+    - `年报有关事项的问询函`
+  - 扩展会见交流类尾噪：
+    - `国家外汇局局长朱鹤新会见友邦保险集团主席杜嘉祺`
+    - `江苏省委书记信长星会见美国超威半导体公司董事会主席兼首席执行官苏姿丰`
+  - 扩展贵金属点位/涨跌幅播报尾噪：
+    - `现货黄金日内跌幅达2%`
+  - 新增/更新回归测试：
+    - `test_audit_suspicious_skips_current_low_signal_batch_20260519_night`
+    - `test_audit_suspicious_skips_current_low_signal_batch_20260518`
+- Current Verification:
+  - 红灯阶段：
+    - `current_low_signal_batch_20260519_night` 先失败为 `suspicious_count=4`
+    - 后续新滚入黄金/江苏 AMD 变体先失败为 `suspicious_count=1`
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'current_low_signal_batch_20260519_night or current_low_signal_batch_20260518 or precious_metal_spot_move or chairman_meeting' -q` -> `4 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=568 normalized_news=568 events=457 analyses=457 failed_sources=none`
+  - 刷新后 `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `./.venv/bin/python -m py_compile src/news_sentiment/cli.py tests/test_audit_suspicious.py` -> passed
+  - `git diff --check` -> passed
+- Open TODO:
+  - 等下一轮 watchdog 自动跑完后只读确认：
+    - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+  - 如果自动日志仍停在旧 alert，但即时审计为 0，先等下一轮或查 heartbeat，不要重复补规则。
+  - 本轮尚未 commit/push；若要收口远端，需要再执行提交推送。
+- Risks/Blockers:
+  - 会见交流类规则仍必须排除 `签署/中标/订单/合同/采购`；不能误伤真实合作落地。
+  - 贵金属规则只处理现货黄金/白银点位和涨跌幅播报；不能扩成所有黄金产业链新闻。
+  - 年报问询函材料是 audit 尾噪；真实退市、重大诉讼、监管处罚、实质财务风险不能套用。
+  - `urllib3 NotOpenSSLWarning` 仍会出现，本轮命令退出码正常。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+- Known Avoidances:
+  - 不要把 `general_fast_news_with_theme` 整体关掉。
+  - 不要把所有会见新闻降噪；只处理无签署/中标/订单/合同/采购的交流类。
+  - 不要把所有黄金新闻降噪；只处理现货点位/涨跌幅播报。
+  - 不要把所有问询函都一刀切；本轮只按年报问询函材料/回复/收到问询函公告口径处理。
+
 ## Latest Handoff Snapshot (2026-05-19)
 - Task-ID:
   - `global-multisource-mainline`
