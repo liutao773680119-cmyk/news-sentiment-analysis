@@ -1,6 +1,30 @@
 # Findings & Decisions
 
 ## Update 2026-05-19 (latest)
+- 本轮核心判断：后台新滚入的两条 `general_fast_news_with_theme` 不是高优先级交易信号，而是弱融资泛稿和海外法务串味。
+- 已确认并处理的低信号/串味样本：
+  - `爱科诺生物医药宣布完成5000万美元C轮融资`
+    - 私营生物医药 C 轮融资泛稿。
+    - 缺少上市公司、政策、订单、产业链兑现路径。
+  - `Japan’s Takeda engaged in antitrust scheme to delay generic constipation drug, US jury finds`
+    - 海外药企反垄断/诉讼新闻。
+    - 当前命中 `半导体` 题材属于主题串味。
+- 规则决策：
+  - 私营融资只扩到 `生物医药 + 完成 + C轮融资` 的窄标题条件，沿用已有私营融资弱样本分支。
+  - Takeda 只新增 `investing_news + general_fast_news + antitrust/lawsuit/jury + takeda/generic/drug/pharma` 的窄分支。
+  - 不关闭 `general_fast_news_with_theme`。
+  - 不改变 `score_event`，不扩题材库，不改 `text_report` 过滤。
+- 验收结论：
+  - 定向 audit 测试 `3 passed`。
+  - `live-smoke --source all` 为 `failed_sources=none`。
+  - 当前 `audit-suspicious --limit 20` 为 `suspicious_count=0`。
+  - 后台从 `2026-05-19_11:47:19` 到 `2026-05-19_13:58:53` 连续多轮 `clean`。
+- 下一步判断：
+  - 后续遇到融资新闻，先看是否有上市公司、政策强约束、订单、产业链兑现路径；没有才按低信号处理。
+  - 后续遇到海外医药法务新闻，先判断是否与 A 股主题真实相关；若只是主题串味，走 audit 窄豁免。
+  - 若后台 alert 但 `suspicious_count=0`，先查采集源失败，不要继续补内容规则。
+
+## Update 2026-05-19 (latest)
 - 本轮核心判断：5/15-5/18 的历史 `alert` 主要是两类问题混在一起：
   - 内容侧 `audit-suspicious` 尾噪。
   - 采集侧短暂 `fetch_error / parse_error`。

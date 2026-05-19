@@ -4,6 +4,58 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
+  - `后台 suspicious 二次降噪：私营生物医药融资与 Takeda 海外药企诉讼`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `tests/test_audit_suspicious.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 处理 `爱科诺生物医药宣布完成5000万美元C轮融资`：
+    - 判断为私营生物医药 C 轮融资泛稿。
+    - 只从 `audit-suspicious` 异常口径退出，不扩题材库。
+  - 处理 `Japan’s Takeda engaged in antitrust scheme to delay generic constipation drug, US jury finds`：
+    - 判断为海外药企反垄断/诉讼新闻，且本轮 `半导体` 主题属于串味。
+    - 只按 `investing_news + general_fast_news + pharma antitrust/lawsuit` 最窄口径降噪。
+  - 新增回归测试：
+    - `test_audit_suspicious_skips_private_biotech_c_round_financing_story`
+    - `test_audit_suspicious_skips_overseas_pharma_antitrust_lawsuit_theme_spillover`
+  - 后台自动巡检已恢复：
+    - `2026-05-19_11:47:19` 到 `2026-05-19_13:58:53` 连续多轮 `watchdog_status=clean`
+    - 最新即时审计为 `suspicious_count=0`
+- Current Verification:
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'overseas_pharma_antitrust_lawsuit_theme_spillover or private_biotech_c_round_financing_story or private_robot_financing_general_fast_news' -q` -> `3 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment live-smoke --source all` -> `raw_news=614 normalized_news=614 events=463 analyses=463 failed_sources=none`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `./.venv/bin/python -m py_compile src/news_sentiment/cli.py tests/test_audit_suspicious.py` -> passed
+  - `git diff --check` -> passed
+- Open TODO:
+  - 推送后继续只读观察下一轮后台：
+    - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+  - 若 `suspicious_count=0` 但 `watchdog_status=alert`，优先排查 `failed_sources`，不要补内容规则。
+- Risks/Blockers:
+  - 私营融资泛稿只适用于明确缺少上市公司/政策/订单传导的弱样本；不能扩到所有融资新闻。
+  - Takeda 规则只适用于海外药企反垄断/诉讼主题串味；不能扩到所有医药法务或药品新闻。
+  - `audit-suspicious=0` 不等于 report 头部完全合理，仍需抽查 `latest_report.txt`。
+  - `urllib3 NotOpenSSLWarning` 仍会出现，本轮命令退出码正常。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+- Known Avoidances:
+  - 不要把 `general_fast_news_with_theme` 整体关掉。
+  - 不要把所有融资新闻都当噪声；本轮只收 `生物医药 + 完成 + C轮融资` 这类私营融资泛稿。
+  - 不要把所有海外医药新闻都降噪；本轮只收 `investing_news` 的 Takeda/药品/反垄断/诉讼串味样本。
+  - `market_reference` 仍应保留报告价值，只退出后台异常口径。
+  - `suspicious_count=0` 但 watchdog alert 时先查采集源失败。
+
+## Latest Handoff Snapshot (2026-05-19)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
   - `5/15-5/19 后台 suspicious 回溯与尾噪收口`
 - Files Changed:
   - `src/news_sentiment/cli.py`

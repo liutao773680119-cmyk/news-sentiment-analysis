@@ -493,6 +493,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_private_robot_financing_story_candidate(event):
             return None
+        if _is_low_signal_overseas_pharma_antitrust_lawsuit_candidate(event):
+            return None
         return "general_fast_news_with_theme"
     if (
         event.event_type == "fast_news"
@@ -574,6 +576,25 @@ def _is_low_signal_private_robot_financing_story_candidate(event: Event) -> bool
         "Pre-A轮融资" in title
         and "机器人应用" in title
         and "交付能力" in title
+    ) or (
+        "生物医药" in title
+        and "完成" in title
+        and "C轮融资" in title
+    )
+
+
+def _is_low_signal_overseas_pharma_antitrust_lawsuit_candidate(event: Event) -> bool:
+    if not (
+        event.source == "investing_news"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    text = f"{event.canonical_title} {event.summary}".lower()
+    return (
+        _contains_any(text, ("antitrust", "lawsuit", "jury"))
+        and _contains_any(text, ("takeda", "generic", "drug", "pharma", "pharmaceutical"))
     )
 
 

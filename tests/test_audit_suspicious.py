@@ -1706,6 +1706,48 @@ def test_audit_suspicious_skips_private_robot_financing_general_fast_news(
     assert "擎天租完成数亿元Pre-A轮融资" not in output
 
 
+def test_audit_suspicious_skips_private_biotech_c_round_financing_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-private-biotech-c-round-financing",
+                first_seen_at="2026-05-19T09:24:27+08:00",
+                last_seen_at="2026-05-19T09:24:27+08:00",
+                canonical_title="爱科诺生物医药宣布完成5000万美元C轮融资",
+                summary="爱科诺生物医药宣布完成5000万美元C轮融资。",
+                source="stcn",
+                published_at="2026-05-19T09:24:27+08:00",
+                url="https://example.com/private-biotech-c-round-financing",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-private-biotech-c-round-financing",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["创新药"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "爱科诺生物医药宣布完成5000万美元C轮融资" not in output
+
+
 def test_audit_suspicious_skips_stcn_fund_manager_investment_opportunity_story(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -2791,3 +2833,45 @@ def test_audit_suspicious_skips_current_low_signal_batch_20260518(
     assert "【淘金互动易】上海将推动算力规模倍增" not in output
     assert "何立峰会见美国超威半导体公司董事会主席兼首席执行官苏姿丰" not in output
     assert "普益基金的问题" not in output
+
+
+def test_audit_suspicious_skips_overseas_pharma_antitrust_lawsuit_theme_spillover(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-overseas-pharma-antitrust-lawsuit",
+                first_seen_at="2026-05-19T02:24:26+00:00",
+                last_seen_at="2026-05-19T02:24:26+00:00",
+                canonical_title="Japan’s Takeda engaged in antitrust scheme to delay generic constipation drug, US jury finds",
+                summary="Japan’s Takeda engaged in antitrust scheme to delay generic constipation drug, US jury finds",
+                source="investing_news",
+                published_at="2026-05-19T02:24:26+00:00",
+                url="https://example.com/overseas-pharma-antitrust-lawsuit",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-overseas-pharma-antitrust-lawsuit",
+                direction="neutral",
+                impact_score=79.6,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "Japan’s Takeda engaged in antitrust scheme" not in output

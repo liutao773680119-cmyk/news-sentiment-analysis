@@ -2,6 +2,32 @@
 
 ## Update 2026-05-19 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
+- 本轮继续处理 5/19 后台新滚入的 `audit-suspicious` 尾噪：
+  - `爱科诺生物医药宣布完成5000万美元C轮融资`
+    - 私营生物医药 C 轮融资泛稿。
+    - 只退出 audit 异常，不扩题材库。
+  - `Japan’s Takeda engaged in antitrust scheme to delay generic constipation drug, US jury finds`
+    - 海外药企反垄断/诉讼新闻。
+    - 本轮 `半导体` 主题属于串味，只按 `investing_news + pharma antitrust/lawsuit` 最窄口径跳过。
+- 当前验证：
+  - `tests/test_audit_suspicious.py -k 'overseas_pharma_antitrust_lawsuit_theme_spillover or private_biotech_c_round_financing_story or private_robot_financing_general_fast_news' -q` -> `3 passed`
+  - `live-smoke --source all` -> `raw_news=614 normalized_news=614 events=463 analyses=463 failed_sources=none`
+  - `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - 后台 `2026-05-19_11:47:19` 到 `2026-05-19_13:58:53` 连续 clean。
+
+## Immediate Next Steps (2026-05-19 latest)
+1. 推送后只读观察后台：
+   - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+2. 再跑当前审计：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+3. 如果 `suspicious_count=0` 但 `watchdog_status=alert`，先看 `failed_sources`，不要继续补内容降噪。
+4. 如果继续出现新内容异常：
+   - 先判断是 `low_signal`、`market_reference`、主题串味还是真实风险。
+   - 再补红灯测试和最窄规则。
+   - 最后跑定向测试、`live-smoke --source all`、`audit-suspicious`。
+
+## Update 2026-05-19 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
 - 本轮回溯 `2026-05-15` 到 `2026-05-19`：
   - 5/15-5/18 确有多轮 `watchdog_status=alert`
   - 5/19 内容可疑已回到 `suspicious_count=0`
