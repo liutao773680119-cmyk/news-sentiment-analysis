@@ -1214,6 +1214,90 @@ def test_audit_suspicious_skips_financing_inquiry_financial_matter_explanation(
     assert "审核问询函中有关财务事项的说明" not in output
 
 
+def test_audit_suspicious_skips_current_exchange_inquiry_material_noise(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stock-price-investment-inquiry",
+                first_seen_at="2026-05-21T00:00:00+08:00",
+                last_seen_at="2026-05-21T00:00:00+08:00",
+                canonical_title="中国高科关于收到上海证券交易所《关于中国高科对外投资及股价波动事项的问询函》的公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-21T00:00:00+08:00",
+                url="https://example.com/stock-price-investment-inquiry",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-financing-inquiry-financial-matter-explanation",
+                first_seen_at="2026-05-21T00:00:00+08:00",
+                last_seen_at="2026-05-21T00:00:00+08:00",
+                canonical_title="百通能源：大华会计师事务所（特殊普通合伙）关于江西百通能源股份有限公司申请向特定对象发行股票审核问询函有关财务事项的说明",
+                summary="summary",
+                source="szse",
+                published_at="2026-05-21T00:00:00+08:00",
+                url="https://example.com/financing-inquiry-financial-matter-explanation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-real-investigation-risk",
+                first_seen_at="2026-05-21T00:00:00+08:00",
+                last_seen_at="2026-05-21T00:00:00+08:00",
+                canonical_title="佳通轮胎披露收到中国证监会立案告知书",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-21T00:00:00+08:00",
+                url="https://example.com/real-investigation-risk",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stock-price-investment-inquiry",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-financing-inquiry-financial-matter-explanation",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-real-investigation-risk",
+                direction="bearish",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=1" in output
+    assert "股价波动事项的问询函" not in output
+    assert "审核问询函有关财务事项的说明" not in output
+    assert "佳通轮胎披露收到中国证监会立案告知书" in output
+
+
 def test_audit_suspicious_skips_judicial_unfreeze_disclosure(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
