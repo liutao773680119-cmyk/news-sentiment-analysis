@@ -74,7 +74,7 @@ PYTHONPATH=src .venv/bin/python -m news_sentiment watchdog-once --source all --l
 PYTHONPATH=src .venv/bin/python -m news_sentiment watchdog-summary --hours 6
 ```
 
-汇总会读取 `data/monitoring/incidents/` 与 watchdog 日志，输出到 `data/monitoring/summaries/`。watchdog 日志按本机时区解析，后台 loop 默认每 6 小时自动生成一次汇总。
+汇总会读取 `data/monitoring/incidents/`、watchdog 日志与 `data/reports/latest_report.txt`，输出到 `data/monitoring/summaries/`。watchdog 日志按本机时区解析，后台 loop 默认每 6 小时自动生成一次汇总；汇总中的 `Report Highlights` 会带出当前报告重点条目。
 
 如需把后台 loop 切到自动处理版，直接运行仓库脚本：
 

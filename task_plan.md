@@ -2,26 +2,24 @@
 
 ## Update 2026-05-20 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
-- 本轮新增后台 6 小时汇总：
+- 本轮增强后台 6 小时汇总：
   - 命令：`watchdog-summary --hours 6`
   - 输出：`data/monitoring/summaries/*-summary.md`
   - 后台 loop 默认每 6 小时自动生成一次
-- 本轮处理当前 `audit-suspicious` 异动：
-  - `中农发种业集团股份有限公司关于股东所持部分股份冻结的公告`
-  - 按现有“材料型冻结公告 audit 尾噪”口径，新增最窄关键词：
-    - `股东所持部分股份冻结`
+  - 新增 `Report Highlights` 区块，直接摘要当前 `data/reports/latest_report.txt`
+  - 每条摘要包含：标题、类型、来源、方向、强度、题材、个股
+  - 目的：用户平时不用单独打开 `latest_report.txt`，只看 6 小时汇总也能看到报告重点
 - 当前验证：
-  - 当前 `audit-suspicious --limit 20` -> `suspicious_count=0`
-  - `tests/test_watchdog_summary.py tests/test_watchdog_loop_script.py tests/test_watchdog.py -q` -> `6 passed`
-  - 定向股份冻结测试 -> `1 passed`
+  - `tests/test_watchdog_summary.py tests/test_readme_commands.py tests/test_watchdog_loop_script.py -q` -> `6 passed`
+  - `py_compile src/news_sentiment/watchdog_summary.py tests/test_watchdog_summary.py` -> passed
+  - `watchdog-summary --hours 6` -> 已生成 `data/monitoring/summaries/20260520T023731Z-summary.md`
+  - `Report Highlights` 已确认包含类型、来源、方向、强度、题材、个股
 
 ## Immediate Next Steps (2026-05-20 latest)
 1. 提交并推送本轮变更。
-2. 重启 watchdog，让 6 小时汇总逻辑进入当前长跑线程。
-3. 重启后只读确认：
-   - `ps -axo pid,ppid,stat,etime,command | rg 'run_news_sentiment_watchdog_loop|news-sentiment-watchdog'`
-   - `cat data/monitoring/watchdog_heartbeat.json`
-   - `rg -n '^=====|watchdog_status=|suspicious_count=|summary_path=' /tmp/news-sentiment-watch.log | tail -n 40`
+2. 推送后只读确认当前最新汇总：
+   - `sed -n '/## Report Highlights/,+80p' data/monitoring/summaries/$(ls -1 data/monitoring/summaries/*-summary.md | tail -1)`
+3. 等下一轮后台自动 6 小时汇总自然生成后，再确认其也包含 `Report Highlights`。
 4. 后续继续观察新 `suspicious`，但不自动改规则。
 
 ## Update 2026-05-19 (latest handoff)

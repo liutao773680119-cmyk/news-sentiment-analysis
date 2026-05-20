@@ -1,6 +1,21 @@
 # Findings & Decisions
 
 ## Update 2026-05-20 (latest)
+- 本轮核心判断：用户平时不看 `latest_report.txt`，所以 6 小时汇总必须直接带出报告重点，而不是只保留 incident 截图里的 report head。
+- 汇总展示决策：
+  - `watchdog-summary` 主动读取 `data/reports/latest_report.txt`。
+  - 新增 `Report Highlights`，解析前 10 条 `[关注]` / `[温度]` 报告项。
+  - 每条摘要保留足够交易判断字段：类型、来源、方向、强度、题材、个股。
+  - `Latest Report Head` 仍保留，但后续人工查看优先看 `Report Highlights`。
+- 边界判断：
+  - `Report Highlights` 是当前最新报告摘要，不是历史 6 小时内每轮报告的完整回放。
+  - 6 小时汇总仍只做展示和巡检，不自动改规则、不自动提交。
+- 验收结论：
+  - 红灯测试先确认旧汇总没有 `Report Highlights`。
+  - 相关测试 `6 passed`。
+  - 手动生成的 `20260520T023731Z-summary.md` 已确认包含报告重点及字段。
+
+## Update 2026-05-20
 - 本轮核心判断：watchdog 长跑不应自动改规则，最稳妥路径是每 6 小时产出可读汇总，人工确认后再固化规则。
 - 6 小时汇总决策：
   - 复用现有 `incident` JSON 和 watchdog log，不改采集/分析主链路。

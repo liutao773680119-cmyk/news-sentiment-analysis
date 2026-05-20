@@ -90,3 +90,81 @@ def test_watchdog_summary_writes_six_hour_markdown(tmp_path, monkeypatch, capsys
     assert "中农发种业集团股份有限公司关于股东所持部分股份冻结的公告" in content
     assert "算力企业签署合作协议" in content
     assert "窗口外旧标题" not in content
+
+
+def test_watchdog_summary_embeds_latest_report_highlights(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    log_path = tmp_path / "watch.log"
+    log_path.write_text(
+        "\n".join(
+            [
+                "===== 2026-05-20_00:00:00 =====",
+                "watchdog_status=clean",
+                "suspicious_count=0",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    report_path = tmp_path / "data" / "reports" / "latest_report.txt"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(
+        "\n".join(
+            [
+                "[A股强催化]",
+                "[关注] 达瑞电子：关于以股权收购方式取得东莞运宏模具有限公司70%股权的公告",
+                "事件类型: 并购重组",
+                "来源: szse",
+                "发布时间: 2026-05-20T00:00:00+08:00",
+                "URL: https://example.com/darry",
+                "方向: neutral",
+                "强度: 78.2",
+                "题材: 无",
+                "个股: 300976",
+                "历史: 无",
+                "",
+                "[关注] 半导体设备板块延续强势 中科飞测涨超15%",
+                "事件类型: 市场异动",
+                "来源: cls",
+                "发布时间: 2026-05-20T09:33:39+08:00",
+                "URL: https://example.com/semiconductor",
+                "方向: bullish",
+                "强度: 99.3",
+                "题材: 半导体",
+                "个股: 688981, 301269, 600584",
+                "历史: hist-011",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "watchdog-summary",
+                "--hours",
+                "6",
+                "--now",
+                "2026-05-20T06:00:00Z",
+                "--log-path",
+                str(log_path),
+                "--log-timezone",
+                "utc",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    summary_path = Path(output.strip().split("summary_path=", 1)[1])
+    content = summary_path.read_text(encoding="utf-8")
+
+    assert "## Report Highlights" in content
+    assert "- [关注] 达瑞电子：关于以股权收购方式取得东莞运宏模具有限公司70%股权的公告" in content
+    assert "  - 类型: 并购重组" in content
+    assert "  - 方向: neutral" in content
+    assert "  - 强度: 78.2" in content
+    assert "  - 个股: 300976" in content
+    assert "- [关注] 半导体设备板块延续强势 中科飞测涨超15%" in content
+    assert "  - 题材: 半导体" in content

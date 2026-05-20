@@ -15,6 +15,17 @@ class LogIteration:
     status: str
 
 
+@dataclass(frozen=True)
+class ReportHighlight:
+    title: str
+    event_type: str = ""
+    source: str = ""
+    direction: str = ""
+    impact_score: str = ""
+    themes: str = ""
+    stock_codes: str = ""
+
+
 def run_watchdog_summary(
     paths: ProjectPaths,
     *,
@@ -28,7 +39,8 @@ def run_watchdog_summary(
     watch_log_path = log_path or Path("/tmp/news-sentiment-watch.log")
     iterations = _read_log_iterations(watch_log_path, window_start, now_at, log_timezone)
     incidents = _read_incidents(paths.data_dir / "monitoring" / "incidents", window_start, now_at)
-    summary_path = _write_summary(paths, window_start, now_at, iterations, incidents)
+    report_highlights = _read_report_highlights(paths.latest_report_path)
+    summary_path = _write_summary(paths, window_start, now_at, iterations, incidents, report_highlights)
     print(f"summary_path={summary_path}")
     return 0
 
@@ -124,12 +136,13 @@ def _write_summary(
     window_end: datetime,
     iterations: list[LogIteration],
     incidents: list[dict[str, object]],
+    report_highlights: list[ReportHighlight],
 ) -> Path:
     summary_dir = paths.data_dir / "monitoring" / "summaries"
     summary_dir.mkdir(parents=True, exist_ok=True)
     summary_path = summary_dir / f"{window_end.strftime('%Y%m%dT%H%M%SZ')}-summary.md"
     summary_path.write_text(
-        _format_summary(window_start, window_end, iterations, incidents),
+        _format_summary(window_start, window_end, iterations, incidents, report_highlights),
         encoding="utf-8",
     )
     return summary_path
@@ -140,6 +153,7 @@ def _format_summary(
     window_end: datetime,
     iterations: list[LogIteration],
     incidents: list[dict[str, object]],
+    report_highlights: list[ReportHighlight],
 ) -> str:
     status_counts = Counter(iteration.status for iteration in iterations)
     failed_source_counts: Counter[str] = Counter()
@@ -170,10 +184,67 @@ def _format_summary(
     lines.extend(_counter_lines(failed_source_counts))
     lines.extend(["", "## Suspicious Titles"])
     lines.extend(_counter_lines(suspicious_title_counts))
+    lines.extend(["", "## Report Highlights"])
+    lines.extend(_report_highlight_lines(report_highlights))
     lines.extend(["", "## Latest Report Head"])
     lines.extend(f"- {line}" for line in latest_report_head if line)
     lines.extend(["", "## Next Step", _next_step(failed_source_counts, suspicious_title_counts), ""])
     return "\n".join(lines)
+
+
+def _read_report_highlights(report_path: Path, *, limit: int = 10) -> list[ReportHighlight]:
+    if not report_path.exists():
+        return []
+
+    highlights: list[ReportHighlight] = []
+    current: dict[str, str] | None = None
+    for line in report_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith(("[关注] ", "[温度] ")):
+            if current is not None:
+                highlights.append(_build_report_highlight(current))
+                if len(highlights) >= limit:
+                    return highlights
+            current = {"title": line}
+            continue
+        if current is None or ": " not in line:
+            continue
+        key, value = line.split(": ", 1)
+        current[key] = value
+    if current is not None and len(highlights) < limit:
+        highlights.append(_build_report_highlight(current))
+    return highlights
+
+
+def _build_report_highlight(payload: dict[str, str]) -> ReportHighlight:
+    return ReportHighlight(
+        title=payload.get("title", ""),
+        event_type=payload.get("事件类型", ""),
+        source=payload.get("来源", ""),
+        direction=payload.get("方向", ""),
+        impact_score=payload.get("强度", ""),
+        themes=payload.get("题材", ""),
+        stock_codes=payload.get("个股", ""),
+    )
+
+
+def _report_highlight_lines(highlights: list[ReportHighlight]) -> list[str]:
+    if not highlights:
+        return ["- none"]
+
+    lines: list[str] = []
+    for item in highlights:
+        lines.append(f"- {item.title}")
+        lines.extend(
+            [
+                f"  - 类型: {item.event_type or '未知'}",
+                f"  - 来源: {item.source or '未知'}",
+                f"  - 方向: {item.direction or '未知'}",
+                f"  - 强度: {item.impact_score or '未知'}",
+                f"  - 题材: {item.themes or '无'}",
+                f"  - 个股: {item.stock_codes or '无'}",
+            ]
+        )
+    return lines
 
 
 def _counter_lines(counter: Counter[str]) -> list[str]:

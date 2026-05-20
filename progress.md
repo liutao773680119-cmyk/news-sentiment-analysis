@@ -4,14 +4,10 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
-  - `6小时 watchdog 汇总与股份冻结 audit 异动收口`
+  - `6小时 watchdog 汇总嵌入 Report Highlights`
 - Files Changed:
-  - `src/news_sentiment/cli.py`
   - `src/news_sentiment/watchdog_summary.py`
-  - `scripts/run_news_sentiment_watchdog_loop.sh`
-  - `tests/test_audit_suspicious.py`
   - `tests/test_watchdog_summary.py`
-  - `tests/test_watchdog_loop_script.py`
   - `README.md`
   - `progress.md`
   - `task_plan.md`
@@ -20,36 +16,45 @@
   - `修改记录_会话备忘.md`
   - `避坑记录.md`
 - Completed This Session:
-  - 新增 `watchdog-summary --hours 6`，读取 `data/monitoring/incidents/` 与 watchdog 日志，生成 Markdown 汇总到 `data/monitoring/summaries/`。
-  - 后台 loop 新增默认 6 小时一次汇总：
-    - `NEWS_SENTIMENT_SUMMARY_ENABLED=1`
-    - `NEWS_SENTIMENT_SUMMARY_INTERVAL_SECONDS=21600`
-    - `NEWS_SENTIMENT_SUMMARY_HOURS=6`
-  - 真实生成一次 6 小时汇总，确认最近 29 轮全部 alert，核心重复 suspicious 是：
-    - `中农发种业集团股份有限公司关于股东所持部分股份冻结的公告`
-  - 处理当前 `audit-suspicious` 异动：
-    - 将 `股东所持部分股份冻结` 加入 hard_event 材料型冻结尾噪口径。
-    - 新增回归 `test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice`。
+  - `watchdog-summary --hours 6` 新增 `Report Highlights` 区块。
+  - 汇总会主动读取 `data/reports/latest_report.txt`，不再只依赖 incident 里的 `report_head`。
+  - 新增 `ReportHighlight` 解析：提取前 10 条 `[关注]` / `[温度]` 报告项。
+  - 每条报告重点输出：
+    - 类型
+    - 来源
+    - 方向
+    - 强度
+    - 题材
+    - 个股
+  - 新增回归 `test_watchdog_summary_embeds_latest_report_highlights`，先红灯确认旧汇总无报告摘要，再转绿。
+  - 已真实生成样例汇总：
+    - `data/monitoring/summaries/20260520T023731Z-summary.md`
 - Current Verification:
-  - `tests/test_audit_suspicious.py::test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice -q` -> `1 passed`
-  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
-  - `tests/test_watchdog_summary.py tests/test_watchdog_loop_script.py tests/test_watchdog.py -q` -> `6 passed`
-  - `./.venv/bin/python -m py_compile src/news_sentiment/cli.py src/news_sentiment/watchdog_summary.py` -> passed
+  - 红灯：
+    - `tests/test_watchdog_summary.py::test_watchdog_summary_embeds_latest_report_highlights -q` -> 先失败，缺少 `## Report Highlights`
+  - 绿灯：
+    - `tests/test_watchdog_summary.py::test_watchdog_summary_embeds_latest_report_highlights -q` -> `1 passed`
+    - `tests/test_watchdog_summary.py -q` -> `2 passed`
+    - `tests/test_watchdog_summary.py tests/test_readme_commands.py tests/test_watchdog_loop_script.py -q` -> `6 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-summary --hours 6` -> 生成 `20260520T023731Z-summary.md`
+  - `sed -n '/## Report Highlights/,+80p' data/monitoring/summaries/20260520T023731Z-summary.md` -> 已看到报告重点、类型、来源、方向、强度、题材、个股
+  - `./.venv/bin/python -m py_compile src/news_sentiment/watchdog_summary.py tests/test_watchdog_summary.py` -> passed
   - `git diff --check` -> passed
 - Open TODO:
   - 提交并推送本轮变更。
-  - 重启 watchdog，使 6 小时自动汇总逻辑进入当前长跑线程。
-  - 重启后只读确认新 PID、heartbeat、最新 log。
+  - 推送后观察下一轮 6 小时自动汇总是否自然带出 `Report Highlights`。
+  - 如用户想看，直接打开最新 `data/monitoring/summaries/*-summary.md`，不必单独打开 `latest_report.txt`。
 - Risks/Blockers:
-  - `股东所持部分股份冻结` 只作为 audit 尾噪处理；不要扩成所有冻结公告都降噪。
-  - 真正公司资产查封、司法冻结、被执行、立案调查等仍应保留风险口径。
-  - 6 小时汇总不自动改规则，只汇总 incident 和 report 头部。
+  - `Report Highlights` 是当前 `latest_report.txt` 的摘要，不是严格按 6 小时窗口回放历史报告。
+  - 汇总只展示前 10 条重点；完整报告仍在 `data/reports/latest_report.txt`。
+  - 6 小时汇总仍不自动改规则，只提供人工查看入口。
 - Next First Command:
-  - `git diff --check && git status --short`
+  - `sed -n '/## Report Highlights/,+80p' data/monitoring/summaries/$(ls -1 data/monitoring/summaries/*-summary.md | tail -1)`
 - Known Avoidances:
   - 不要让 watchdog 自动改规则。
   - 不要把 `suspicious_count=0` 当成 report 头部完全干净。
-  - 不要忘记重启旧 PID；脚本文件修改不会自动进入已运行 bash 进程。
+  - 不要把 `Report Highlights` 当完整报告；它是摘要入口。
+  - 不要只看旧的 `Latest Report Head`，新汇总优先看 `Report Highlights`。
 
 ## Latest Handoff Snapshot (2026-05-19)
 - Task-ID:
