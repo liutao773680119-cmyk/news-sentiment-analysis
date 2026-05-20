@@ -2732,6 +2732,96 @@ def test_audit_suspicious_skips_stcn_storage_president_appointment_story(
     assert "晶澳科技任命王君生为储能公司总裁" not in output
 
 
+def test_audit_suspicious_skips_stcn_space_compute_ecosystem_plan_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-space-compute-ecosystem-plan",
+                first_seen_at="2026-05-20T10:57:03+08:00",
+                last_seen_at="2026-05-20T10:57:03+08:00",
+                canonical_title="优刻得加入上海太空算力产业生态伙伴计划",
+                summary="人民财讯5月20日电，据优刻得消息，近日，上海市太空算力产业发展研讨会暨"
+                "上海太空算力产业生态伙伴计划成立大会在复旦大学举办，标志着上海在太空算力领域"
+                "“高校+科研院所+科技企业”的协同创新机制正式确立。优刻得作为首批成员单位正式加入"
+                "上海太空算力产业生态伙伴计划，积极参与产业生态建设，推动产业协同创新与应用落地。",
+                source="stcn",
+                published_at="2026-05-20T10:57:03+08:00",
+                url="https://example.com/stcn-space-compute-ecosystem-plan",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-space-compute-ecosystem-plan",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "优刻得加入上海太空算力产业生态伙伴计划" not in output
+
+
+def test_audit_suspicious_skips_stcn_insurance_asset_management_regulation_reference(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-insurance-asset-management-regulation",
+                first_seen_at="2026-05-20T14:42:39+08:00",
+                last_seen_at="2026-05-20T14:42:39+08:00",
+                canonical_title="独家丨保险资管迎来“四个支柱”监管要求",
+                summary="人民财讯5月20日电，记者从多方获悉，金融监管总局资管司围绕"
+                "“四个支柱、四项目标、16项核心要素”对保险资管公司提出监管要求。"
+                "第一支柱是受托责任和投资者保护。第二支柱是防范系统性风险。"
+                "第三支柱是市场效率和稳定性。第四支柱是金融稳定与宏观审慎。",
+                source="stcn",
+                published_at="2026-05-20T14:42:39+08:00",
+                url="https://example.com/stcn-insurance-asset-management-regulation",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-insurance-asset-management-regulation",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["保险"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "独家丨保险资管迎来“四个支柱”监管要求" not in output
+
+
 def test_audit_suspicious_skips_annual_inquiry_audit_and_legal_opinion_materials(
     tmp_path, monkeypatch, capsys
 ) -> None:

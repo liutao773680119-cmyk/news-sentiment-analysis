@@ -738,6 +738,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_storage_president_appointment_story(event, text):
         return False
+    if _is_low_signal_stcn_space_compute_ecosystem_plan_story(event, text):
+        return False
     if _is_low_signal_stcn_cooperation_exchange_story(event, text):
         return False
     if _is_low_signal_robot_competition_story(event, text):
@@ -1823,6 +1825,20 @@ def _is_low_signal_stcn_storage_president_appointment_story(event: Event, text: 
         and "王君生" in text
         and "任命" in title
         and "储能公司总裁" in title
+        and not any(keyword in text for keyword in ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_space_compute_ecosystem_plan_story(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "优刻得" in text
+        and "加入" in title
+        and "太空算力产业生态伙伴计划" in text
+        and any(keyword in text for keyword in ("成立大会", "产业生态建设", "协同创新"))
         and not any(keyword in text for keyword in ("签署", "中标", "订单", "合同", "采购"))
     )
 

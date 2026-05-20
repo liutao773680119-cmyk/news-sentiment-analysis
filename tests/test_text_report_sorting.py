@@ -1356,6 +1356,64 @@ def test_write_text_report_filters_stcn_storage_president_appointment_without_hi
     assert "晶澳科技签署储能项目订单合同" in content
 
 
+def test_write_text_report_filters_stcn_space_compute_ecosystem_plan_without_hiding_contract(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-space-compute-ecosystem-plan",
+            first_seen_at="2026-05-20T10:57:03+08:00",
+            last_seen_at="2026-05-20T10:57:03+08:00",
+            canonical_title="优刻得加入上海太空算力产业生态伙伴计划",
+            summary="人民财讯5月20日电，据优刻得消息，近日，上海市太空算力产业发展研讨会暨"
+            "上海太空算力产业生态伙伴计划成立大会在复旦大学举办，标志着上海在太空算力领域"
+            "“高校+科研院所+科技企业”的协同创新机制正式确立。优刻得作为首批成员单位正式加入"
+            "上海太空算力产业生态伙伴计划，积极参与产业生态建设，推动产业协同创新与应用落地。",
+            source="stcn",
+            published_at="2026-05-20T10:57:03+08:00",
+            url="https://example.com/stcn-space-compute-ecosystem-plan",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-space-compute-contract",
+            first_seen_at="2026-05-20T10:58:03+08:00",
+            last_seen_at="2026-05-20T10:58:03+08:00",
+            canonical_title="优刻得签署太空算力项目合同",
+            summary="优刻得签署太空算力项目合同。",
+            source="stcn",
+            published_at="2026-05-20T10:58:03+08:00",
+            url="https://example.com/stcn-space-compute-contract",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-space-compute-ecosystem-plan",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-space-compute-contract",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "优刻得加入上海太空算力产业生态伙伴计划" not in content
+    assert "优刻得签署太空算力项目合同" in content
+
+
 def test_write_text_report_keeps_neutral_fast_news_with_market_move_keyword(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

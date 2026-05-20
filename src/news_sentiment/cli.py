@@ -486,6 +486,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_market_reference_stcn_interactive_theme_chain_candidate(event):
             return None
+        if _is_market_reference_stcn_insurance_asset_management_regulation_candidate(event):
+            return None
         if _is_low_signal_stcn_wti_general_fast_news_candidate(event):
             return None
         if _is_low_signal_stcn_brent_upward_volatility_general_fast_news_candidate(event):
@@ -512,6 +514,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         if _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event):
             return None
         if _is_low_signal_stcn_storage_president_appointment_story_candidate(event):
+            return None
+        if _is_low_signal_stcn_space_compute_ecosystem_plan_story_candidate(event):
             return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
@@ -716,6 +720,22 @@ def _is_market_reference_stcn_interactive_theme_chain_candidate(event: Event) ->
     )
 
 
+def _is_market_reference_stcn_insurance_asset_management_regulation_candidate(
+    event: Event,
+) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "保险资管" in text
+        and "监管要求" in event.canonical_title
+        and "金融监管总局" in text
+        and "四个支柱" in text
+        and _contains_any(text, ("投资者保护", "系统性风险", "宏观审慎"))
+    )
+
+
 def _is_low_signal_stcn_wti_general_fast_news_candidate(event: Event) -> bool:
     return (
         event.source == "stcn"
@@ -827,6 +847,21 @@ def _is_low_signal_stcn_storage_president_appointment_story_candidate(event: Eve
         and "王君生" in text
         and "任命" in title
         and "储能公司总裁" in title
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_space_compute_ecosystem_plan_story_candidate(event: Event) -> bool:
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "优刻得" in text
+        and "加入" in title
+        and "太空算力产业生态伙伴计划" in text
+        and _contains_any(text, ("成立大会", "产业生态建设", "协同创新"))
         and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
     )
 
