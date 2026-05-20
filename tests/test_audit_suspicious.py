@@ -2688,6 +2688,50 @@ def test_audit_suspicious_skips_stcn_bank_insurance_chairman_meeting_story(
     assert "中国银行董事长葛海蛟会见友邦保险集团董事会主席杜嘉祺爵士" not in output
 
 
+def test_audit_suspicious_skips_stcn_storage_president_appointment_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-storage-president-appointment",
+                first_seen_at="2026-05-20T09:29:28+08:00",
+                last_seen_at="2026-05-20T09:29:28+08:00",
+                canonical_title="晶澳科技任命王君生为储能公司总裁",
+                summary="人民财讯5月20日电，晶澳科技宣布任命王君生为晶澳储能公司总裁，即刻生效。"
+                "此次任命是晶澳科技推进“光储智生态”战略升级的关键一步，也标志着晶澳储能业务进入"
+                "专业化、规模化、全球化发展的新阶段。",
+                source="stcn",
+                published_at="2026-05-20T09:29:28+08:00",
+                url="https://example.com/stcn-storage-president-appointment",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-storage-president-appointment",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "晶澳科技任命王君生为储能公司总裁" not in output
+
+
 def test_audit_suspicious_skips_annual_inquiry_audit_and_legal_opinion_materials(
     tmp_path, monkeypatch, capsys
 ) -> None:

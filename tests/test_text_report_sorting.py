@@ -1299,6 +1299,63 @@ def test_write_text_report_filters_neutral_fast_news_without_catalyst_keyword(tm
     assert "礼来口服GLP-1减肥药在美获批上市 已提交中国上市申请" in content
 
 
+def test_write_text_report_filters_stcn_storage_president_appointment_without_hiding_order(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-storage-president-appointment",
+            first_seen_at="2026-05-20T09:29:28+08:00",
+            last_seen_at="2026-05-20T09:29:28+08:00",
+            canonical_title="晶澳科技任命王君生为储能公司总裁",
+            summary="人民财讯5月20日电，晶澳科技宣布任命王君生为晶澳储能公司总裁，即刻生效。"
+            "此次任命是晶澳科技推进“光储智生态”战略升级的关键一步，也标志着晶澳储能业务进入"
+            "专业化、规模化、全球化发展的新阶段。",
+            source="stcn",
+            published_at="2026-05-20T09:29:28+08:00",
+            url="https://example.com/stcn-storage-president-appointment",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-storage-order",
+            first_seen_at="2026-05-20T09:30:28+08:00",
+            last_seen_at="2026-05-20T09:30:28+08:00",
+            canonical_title="晶澳科技签署储能项目订单合同",
+            summary="晶澳科技签署储能项目订单合同。",
+            source="stcn",
+            published_at="2026-05-20T09:30:28+08:00",
+            url="https://example.com/stcn-storage-order",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-storage-president-appointment",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["储能"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-storage-order",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "晶澳科技任命王君生为储能公司总裁" not in content
+    assert "晶澳科技签署储能项目订单合同" in content
+
+
 def test_write_text_report_keeps_neutral_fast_news_with_market_move_keyword(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [

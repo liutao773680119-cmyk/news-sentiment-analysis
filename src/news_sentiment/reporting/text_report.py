@@ -736,6 +736,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_charging_infrastructure_story(event):
         return False
+    if _is_low_signal_stcn_storage_president_appointment_story(event, text):
+        return False
     if _is_low_signal_stcn_cooperation_exchange_story(event, text):
         return False
     if _is_low_signal_robot_competition_story(event, text):
@@ -1808,6 +1810,20 @@ def _is_low_signal_stcn_charging_infrastructure_story(event: Event) -> bool:
     return any(
         keyword in event.canonical_title
         for keyword in LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS
+    )
+
+
+def _is_low_signal_stcn_storage_president_appointment_story(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "晶澳科技" in text
+        and "王君生" in text
+        and "任命" in title
+        and "储能公司总裁" in title
+        and not any(keyword in text for keyword in ("签署", "中标", "订单", "合同", "采购"))
     )
 
 

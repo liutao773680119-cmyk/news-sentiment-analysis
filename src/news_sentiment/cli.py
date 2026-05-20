@@ -511,6 +511,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event):
             return None
+        if _is_low_signal_stcn_storage_president_appointment_story_candidate(event):
+            return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
         if _is_low_signal_private_robot_financing_story_candidate(event):
@@ -810,6 +812,21 @@ def _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event: Event) 
                 "互利共赢",
             ),
         )
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_storage_president_appointment_story_candidate(event: Event) -> bool:
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "晶澳科技" in text
+        and "王君生" in text
+        and "任命" in title
+        and "储能公司总裁" in title
         and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
     )
 
