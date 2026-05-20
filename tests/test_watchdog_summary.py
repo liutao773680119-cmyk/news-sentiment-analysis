@@ -168,3 +168,49 @@ def test_watchdog_summary_embeds_latest_report_highlights(tmp_path, monkeypatch,
     assert "  - 个股: 300976" in content
     assert "- [关注] 半导体设备板块延续强势 中科飞测涨超15%" in content
     assert "  - 题材: 半导体" in content
+
+
+def test_watchdog_summary_ignores_summary_log_sections(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    log_path = tmp_path / "watch.log"
+    log_path.write_text(
+        "\n".join(
+            [
+                "===== 2026-05-20_00:00:00 =====",
+                "watchdog_status=clean",
+                "suspicious_count=0",
+                "===== summary 2026-05-20_03:00:00 =====",
+                "summary_command_failed=1",
+                "===== 2026-05-20_05:00:00 =====",
+                "watchdog_status=alert",
+                "suspicious_count=1",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    assert (
+        main(
+            [
+                "watchdog-summary",
+                "--hours",
+                "6",
+                "--now",
+                "2026-05-20T06:00:00Z",
+                "--log-path",
+                str(log_path),
+                "--log-timezone",
+                "utc",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    summary_path = Path(output.strip().split("summary_path=", 1)[1])
+    content = summary_path.read_text(encoding="utf-8")
+
+    assert "- Iterations: 2" in content
+    assert "- clean: 1" in content
+    assert "- alert: 1" in content

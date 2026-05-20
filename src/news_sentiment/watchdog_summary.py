@@ -71,7 +71,10 @@ def _read_log_iterations(
         if line.startswith("===== ") and line.endswith(" ====="):
             if current_started_at is not None and current_status is not None:
                 _append_iteration(iterations, current_started_at, current_status, window_start, window_end)
-            current_started_at = _parse_log_timestamp(line, log_timezone)
+            try:
+                current_started_at = _parse_log_timestamp(line, log_timezone)
+            except ValueError:
+                current_started_at = None
             current_status = None
             continue
         if line.startswith("watchdog_status="):
