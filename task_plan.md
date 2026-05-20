@@ -2,6 +2,37 @@
 
 ## Update 2026-05-20 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
+- 本轮已处理当前两条交易所问询材料噪声：
+  - `中国高科关于收到上海证券交易所《关于中国高科对外投资及股价波动事项的问询函》的公告`
+  - `百通能源：大华会计师事务所（特殊普通合伙）关于江西百通能源股份有限公司申请向特定对象发行股票审核问询函有关财务事项的说明`
+- 本轮规则决策：
+  - `audit-suspicious` 侧新增最窄关键词：
+    - `股价波动事项的问询函`
+    - `审核问询函有关财务事项的说明`
+  - `text_report` 同步补 `审核问询函有关财务事项的说明`
+  - 不改评分，不扩题材库，不把全部 `问询函` 当噪声。
+- 当前验证：
+  - `tests/test_audit_suspicious.py -q` -> `64 passed`
+  - `tests/test_text_report_sorting.py::test_write_text_report_filters_financing_inquiry_reply_and_judicial_unfreeze_without_hiding_catalyst -q` -> `1 passed`
+  - 合并验证 -> `65 passed`
+  - `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `watchdog-once --source all --limit 20` -> `suspicious_count=0`
+  - 后台自动循环 -> `22:36 recovered`，之后 `clean`
+
+## Immediate Next Steps (2026-05-20 latest)
+1. 先只读观察后台下一轮：
+   - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+2. 再跑当前即时审计：
+   - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+3. 如果 `alert` 回来但 `suspicious_count=0`，先按 source 问题查 `failed_sources`，不要继续补内容规则。
+4. 如果又出现新 `问询函` 变体，先补红灯测试，再判断是否属于：
+   - 年报问询材料
+   - 融资审核财务说明
+   - 股价波动问询材料
+   - 真风险公告
+
+## Update 2026-05-20 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
 - 本轮增强后台 6 小时汇总：
   - 命令：`watchdog-summary --hours 6`
   - 输出：`data/monitoring/summaries/*-summary.md`

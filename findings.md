@@ -1,6 +1,25 @@
 # Findings & Decisions
 
 ## Update 2026-05-20 (latest)
+- 本轮核心判断：这两条不是“真实新风险”，而是交易所问询材料文案的新变体，继续留在 `hard_event_risk_keyword` 只会让后台反复误报。
+- 已确认并处理的低信号材料：
+  - `中国高科关于收到上海证券交易所《关于中国高科对外投资及股价波动事项的问询函》的公告`
+  - `百通能源：大华会计师事务所（特殊普通合伙）关于江西百通能源股份有限公司申请向特定对象发行股票审核问询函有关财务事项的说明`
+- 规则决策：
+  - `股价波动事项的问询函` 归入 `LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS`，只退出 audit 风险审计。
+  - `审核问询函有关财务事项的说明` 归入融资材料低信号口径，并同步到 `text_report` 过滤关键词。
+  - 保留 `立案告知书` 作为真风险反例，证明本轮不是把所有监管/交易所风险文案一起压掉。
+- 验收结论：
+  - 红灯测试先复现为 `suspicious_count=3`。
+  - 定向回归转绿后，全量 audit 测试 `64 passed`，合并 report 定向测试 `65 passed`。
+  - 当前 `audit-suspicious --limit 20` 为 `suspicious_count=0`。
+  - 手动 `watchdog-once` 为 `suspicious_count=0`。
+  - 后台自然循环 `22:22:56` 已确认 `suspicious_count=0`；随后 `22:36:54` recovered，之后 clean。
+- 下一步判断：
+  - 当前剩余 alert 风险主要在 source，不在内容。
+  - 后续再遇到 `问询函`，先分“材料文案”还是“立案/处罚/退市/重大诉讼”真风险，再决定是否进低信号口径。
+
+## Update 2026-05-20 (latest)
 - 本轮核心判断：用户平时不看 `latest_report.txt`，所以 6 小时汇总必须直接带出报告重点，而不是只保留 incident 截图里的 report head。
 - 汇总展示决策：
   - `watchdog-summary` 主动读取 `data/reports/latest_report.txt`。

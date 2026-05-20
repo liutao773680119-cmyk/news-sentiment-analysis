@@ -4,6 +4,61 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
+  - `交易所问询材料 audit 降噪与后台 recovered 复核`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 新增最窄降噪口径，处理两条当前交易所问询材料噪声：
+    - `中国高科关于收到上海证券交易所《关于中国高科对外投资及股价波动事项的问询函》的公告`
+    - `百通能源：大华会计师事务所（特殊普通合伙）关于江西百通能源股份有限公司申请向特定对象发行股票审核问询函有关财务事项的说明`
+  - `audit-suspicious` 与 `text_report` 同步补词，避免只清后台、不清报告口径。
+  - 新增回归 `test_audit_suspicious_skips_current_exchange_inquiry_material_noise`，并保留 `佳通轮胎披露收到中国证监会立案告知书` 作为真风险反例。
+  - 已提交并推送：
+    - `a585e70 fix: suppress exchange inquiry material noise`
+  - 后台自动循环已吃到新规则：
+    - `2026-05-20_22:22:56` -> `watchdog_status=alert` 但 `suspicious_count=0`
+    - `2026-05-20_22:36:54` -> `watchdog_status=recovered`
+    - 之后连续 `clean`
+- Current Verification:
+  - 红灯：
+    - `tests/test_audit_suspicious.py::test_audit_suspicious_skips_current_exchange_inquiry_material_noise -q` -> 先失败，`suspicious_count=3`
+  - 绿灯：
+    - `tests/test_audit_suspicious.py -q` -> `64 passed`
+    - `tests/test_text_report_sorting.py::test_write_text_report_filters_financing_inquiry_reply_and_judicial_unfreeze_without_hiding_catalyst -q` -> `1 passed`
+    - `tests/test_audit_suspicious.py tests/test_text_report_sorting.py::test_write_text_report_filters_financing_inquiry_reply_and_judicial_unfreeze_without_hiding_catalyst -q` -> `65 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 20` -> `failed_sources=eia_wpsr:fetch_error`、`suspicious_count=0`
+  - 后台自然循环：
+    - `2026-05-20_22:22:56` -> `failed_sources=eia_wpsr:fetch_error`、`suspicious_count=0`
+    - `2026-05-20_22:36:54` -> `watchdog_status=recovered`、`failed_sources=none`、`suspicious_count=0`
+    - 最新轮次 -> `watchdog_status=clean`、`failed_sources=none`、`suspicious_count=0`
+- Open TODO:
+  - 继续只读观察下一轮后台，确认 `eia_wpsr` 不再间歇性回落。
+  - 如再出现新 `suspicious`，先判断是否为问询材料变体，避免扩成全量问询函降噪。
+- Risks/Blockers:
+  - `股价波动事项的问询函` 当前按材料噪声退出 audit；但真实 `立案 / 处罚 / 退市风险 / 重大诉讼` 不能套用。
+  - `审核问询函有关财务事项的说明` 当前只按融资材料文案降噪；不能扩大到所有财务事项公告。
+  - 后台 `alert` 与 `suspicious_count=0` 仍可能只代表采集源短暂失败，不是内容回退。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+- Known Avoidances:
+  - 不要把所有 `问询函` 一刀切降噪。
+  - `audit-suspicious` 和 `text_report` 要同步改；不要只修一侧。
+  - `suspicious_count=0` 但 `watchdog_status=alert` 时优先看 `failed_sources`。
+  - 验收要等后台自然循环吃到新代码，不能只看手动命令。
+
+## Latest Handoff Snapshot (2026-05-20)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
   - `6小时 watchdog 汇总嵌入 Report Highlights`
 - Files Changed:
   - `src/news_sentiment/watchdog_summary.py`
