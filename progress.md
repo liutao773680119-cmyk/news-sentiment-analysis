@@ -1,5 +1,53 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-21)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `A股指数+板块活跃 market_reference 收口与后台 clean 复核`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `tests/test_audit_suspicious.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 复核并处理后台新滚入误报：
+    - `创业板指、深证成指均涨逾2% 半导体、券商等板块活跃`
+  - 判断该样本属于 `market_reference`，不是新的内容异常或采集失败。
+  - 新增最窄规则：
+    - 只放过 `stcn + general_fast_news + A股指数关键词 + 板块活跃 + 涨幅热度词`
+  - 新增回归：
+    - `test_audit_suspicious_keeps_a_share_index_sector_active_as_market_reference`
+  - 已提交并推送：
+    - 待本轮 commit/push 后补回 commit id
+  - 后台自然循环已确认吃到结果：
+    - `2026-05-21_10:15:11` / `10:26:15` / `10:37:04` -> `watchdog_status=alert`、`suspicious_count=1`
+    - `2026-05-21_10:47:54` -> `watchdog_status=clean`、`failed_sources=none`、`suspicious_count=0`
+- Current Verification:
+  - 红灯：
+    - `tests/test_audit_suspicious.py -k 'a_share_index_sector_active_as_market_reference' -q` -> 先失败，`suspicious_count=1`
+  - 绿灯：
+    - `tests/test_audit_suspicious.py -k 'a_share_index_sector_active_as_market_reference or global_index_sector_move_as_market_reference or a_share_concept_move_as_market_reference or a_share_concept_active_limit_up_as_market_reference or a_share_sector_strengthening_as_market_reference' -q` -> `5 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+    - 后台自然循环 `2026-05-21_10:47:54` -> `watchdog_status=clean`、`failed_sources=none`、`suspicious_count=0`
+- Open TODO:
+  - 继续只读观察后续是否还有新的 `A股指数 + 板块活跃` 变体。
+  - 如再出现同族标题，先判断是否仍有明确题材和热度上下文，再决定是否继续纳入 `market_reference`。
+- Risks/Blockers:
+  - 本轮规则只覆盖 `板块活跃` 模板；不要顺手扩成所有 `指数上涨/翻红/震荡` 都放过。
+  - `market_reference` 只退出 `audit-suspicious` 异常口径，不代表应删除 report 或改评分。
+  - 后台旧 alert 必须等自然下一轮 `clean` 才算真吃到规则，不能只看手动 `audit-suspicious=0`。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+- Known Avoidances:
+  - 不要把所有指数类快讯都直接当 `market_reference`。
+  - 只有 `A股指数关键词 + 板块活跃 + 涨幅热度词 + 已有题材映射` 才按本轮口径处理。
+  - 即时审计为 `0` 后，仍要等后台自然循环回 `clean`。
+
 ## Latest Handoff Snapshot (2026-05-20)
 - Task-ID:
   - `global-multisource-mainline`

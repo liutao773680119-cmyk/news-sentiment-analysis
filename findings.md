@@ -1,5 +1,25 @@
 # Findings & Decisions
 
+## Update 2026-05-21 (latest)
+- 本轮核心判断：`创业板指、深证成指均涨逾2% 半导体、券商等板块活跃` 不是真异常，而是 `A股指数 + 板块活跃` 这类新的 `market_reference` 模板漏网。
+- 已确认样本：
+  - `创业板指、深证成指均涨逾2% 半导体、券商等板块活跃`
+- 判断依据：
+  - 当前 `audit-suspicious` 误报理由仍是 `general_fast_news_with_theme`，不是 source 失败。
+  - 同族样本 `纳指跌+半导体集体下跌`、`PCB概念走强`、`创新药概念活跃`、`半导体板块震荡走强` 已经按 `market_reference` 放过。
+  - 这条样本同样具备明确题材和热度上下文，只是标题模板不同。
+- 规则决策：
+  - 新增 `A股指数关键词 + 板块活跃 + 涨幅热度词` 的最窄 `market_reference` 分支。
+  - 只从 `audit-suspicious` 异常口径放过，不改上游评分，不删 report。
+  - 不把所有指数综述、翻红、震荡、点位类快讯一并放过。
+- 验收结论：
+  - 红灯测试先复现 `suspicious_count=1`。
+  - 定向回归 `5 passed`。
+  - 即时审计 `suspicious_count=0`。
+  - 后台自然循环 `2026-05-21_10:47:54` 已回 `clean`、`failed_sources=none`、`suspicious_count=0`。
+- 下一步判断：
+  - 后续再遇到指数类快讯，先看是否仍具备题材传导和热度词；没有就不要套本轮豁免。
+
 ## Update 2026-05-20 (latest)
 - 本轮核心判断：这两条不是“真实新风险”，而是交易所问询材料文案的新变体，继续留在 `hard_event_risk_keyword` 只会让后台反复误报。
 - 已确认并处理的低信号材料：

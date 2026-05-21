@@ -201,6 +201,11 @@ MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS = (
     "大涨",
     "涨幅居前",
 )
+MARKET_REFERENCE_A_SHARE_INDEX_SECTOR_ACTIVE_TITLE_KEYWORDS = (
+    "创业板指",
+    "深证成指",
+    "沪指",
+)
 MARKET_REFERENCE_HK_THEME_MOVE_CONTEXT_KEYWORDS = (
     "拉升",
     "涨逾",
@@ -482,6 +487,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     ):
         if _is_market_reference_global_index_sector_move_candidate(event):
             return None
+        if _is_market_reference_a_share_index_sector_active_candidate(event):
+            return None
         if _is_market_reference_a_share_concept_move_candidate(event):
             return None
         if _is_market_reference_hk_theme_move_candidate(event):
@@ -694,6 +701,23 @@ def _is_market_reference_a_share_concept_move_candidate(event: Event) -> bool:
         and _contains_any(
             f"{event.canonical_title} {event.summary}",
             MARKET_REFERENCE_A_SHARE_CONCEPT_MOVE_CONTEXT_KEYWORDS,
+        )
+    )
+
+
+def _is_market_reference_a_share_index_sector_active_candidate(event: Event) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "板块活跃" in event.canonical_title
+        and _contains_any(
+            event.canonical_title,
+            MARKET_REFERENCE_A_SHARE_INDEX_SECTOR_ACTIVE_TITLE_KEYWORDS,
+        )
+        and _contains_any(
+            event.canonical_title,
+            ("涨逾", "涨近", "大涨"),
         )
     )
 

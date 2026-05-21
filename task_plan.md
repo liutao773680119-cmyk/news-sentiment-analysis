@@ -1,5 +1,37 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-21 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮已处理后台新滚入的 `general_fast_news_with_theme` 误报：
+  - `创业板指、深证成指均涨逾2% 半导体、券商等板块活跃`
+- 本轮规则决策：
+  - 该样本归入 `market_reference`，不是新的内容风险。
+  - 新增最窄条件：
+    - `stcn`
+    - `general_fast_news`
+    - 标题含 `创业板指 / 深证成指 / 沪指`
+    - 同时含 `板块活跃`
+    - 同时含 `涨逾 / 涨近 / 大涨`
+  - 不改评分，不动 report 过滤，不把所有指数快讯一起放行。
+- 当前验证：
+  - 红灯：
+    - `tests/test_audit_suspicious.py -k 'a_share_index_sector_active_as_market_reference' -q` -> 先失败，`suspicious_count=1`
+  - 绿灯：
+    - `tests/test_audit_suspicious.py -k 'a_share_index_sector_active_as_market_reference or global_index_sector_move_as_market_reference or a_share_concept_move_as_market_reference or a_share_concept_active_limit_up_as_market_reference or a_share_sector_strengthening_as_market_reference' -q` -> `5 passed`
+    - `audit-suspicious --limit 20` -> `suspicious_count=0`
+    - 后台自动循环：
+      - `10:15:11 / 10:26:15 / 10:37:04` -> `alert`
+      - `10:47:54` -> `clean`
+
+## Immediate Next Steps (2026-05-21 latest)
+1. 提交并推送本轮变更。
+2. 推送后继续只读观察后台：
+   - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+3. 如果再出现指数类快讯误报，先分：
+   - `A股指数 + 板块活跃 + 涨幅热度词`
+   - 纯指数综述 / 点位播报
+4. 只有前者才考虑继续按 `market_reference` 扩窄口径；不要把所有指数快讯一刀切放过。
+
 ## Update 2026-05-20 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮已处理当前两条交易所问询材料噪声：
