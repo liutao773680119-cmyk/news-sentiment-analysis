@@ -1,5 +1,38 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-24 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮补完了 2026-05-22 中断的本地未提交收口：
+  - `audit-suspicious`：
+    - `国电南自关于仲裁进展的公告`
+    - `ST宁科关于涉及追偿权纠纷诉讼的进展公告`
+    - `东方生物...简易判决动议...预计 7 月宣布开庭...`
+    - `国内单体最大智能组串式储能电站落地内蒙古`
+  - `event_merge`：
+    - `WTI原油期货日内涨3%` 保持 `market_move`
+    - `伊朗...武装部队在停火期间进行了重组与重整` 不再误归并购重组
+  - `text_report`：
+    - `楚江新材 / 恒瑞医药 / 扬杰科技 / 诺力股份` 新一批弱问答已退出头部
+    - 新补 `诺力股份：公司股价落后大盘指数50%以上了...不要光喊口号了`
+- 当前验证：
+  - `tests/test_audit_suspicious.py` 定向组 -> `6 passed`
+  - `tests/test_event_merge.py` 定向组 -> `2 passed`
+  - `tests/test_text_report_sorting.py` 定向组 -> `4 passed`
+  - `audit-suspicious --limit 20` -> `suspicious_count=1`
+  - `watchdog-once --source all --limit 20` -> `20260523T232729Z-watchdog.json`，`failed_sources=none`，`suspicious_count=1`
+- 当前唯一残留：
+  - `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告`
+- 当前判断：
+  - 这条先视为真风险，不继续按噪声压。
+
+## Immediate Next Steps (2026-05-24 latest)
+1. 先复核当前未提交 diff，确认只包含本轮 6 个代码/测试文件和交接文件：
+   - `git diff -- src/news_sentiment/cli.py src/news_sentiment/event_merge/core.py src/news_sentiment/reporting/text_report.py tests/test_audit_suspicious.py tests/test_event_merge.py tests/test_text_report_sorting.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+2. 再做 scoped commit / push。
+3. push 后只读观察后台：
+   - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+4. 如果 fresh live 继续只剩 `ST三木`，先停手，不再为“更干净头部”继续压规则。
+
 ## Update 2026-05-21 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮已处理后台新滚入的 `general_fast_news_with_theme` 误报：

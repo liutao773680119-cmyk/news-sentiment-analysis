@@ -1,5 +1,68 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-24)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/22 未提交 live/report 收口补完与 fresh watchdog 复核`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/event_merge/core.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_event_merge.py`
+  - `tests/test_text_report_sorting.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 接上 2026-05-22 中断的本地未提交改动，继续收当前 live/report 尾噪。
+  - `audit-suspicious` 新增并验证最窄降噪：
+    - `国电南自关于仲裁进展的公告`
+    - `ST宁科关于涉及追偿权纠纷诉讼的进展公告`
+    - `东方生物...简易判决动议...预计 7 月宣布开庭...`
+    - `国内单体最大智能组串式储能电站落地内蒙古`
+  - `event_merge` 新增并验证最窄修正：
+    - `WTI原油期货日内涨3%` 保持 `market_move`
+    - `伊朗...武装部队在停火期间进行了重组与重整` 不再误归并购重组
+  - `text_report` 新增并验证最窄过滤：
+    - `楚江新材 / 恒瑞医药 / 扬杰科技 / 诺力股份` 新一批弱问答已退出头部
+    - 新补 `诺力股份：公司股价落后大盘指数50%以上了...不要光喊口号了`
+  - fresh 验证结果：
+    - `20260523T230132Z-watchdog.json` -> `suspicious_count=5`
+    - `20260523T231344Z-watchdog.json` -> `suspicious_count=1`
+    - `20260523T232729Z-watchdog.json` -> `suspicious_count=1`
+    - `audit-suspicious --limit 20` -> `suspicious_count=1`
+  - 当前唯一残留：
+    - `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告`
+  - 当前判断：
+    - 这条更像真风险，不按噪声继续压。
+- Current Verification:
+  - 红灯：
+    - `tests/test_text_report_sorting.py -k 'current_report_followup_qa_noise_without_hiding_statement_and_policy' -q` -> 在补 `诺力股份：公司股价落后大盘指数50%以上了...` 前先失败
+  - 绿灯：
+    - `tests/test_audit_suspicious.py -k 'arbitration_progress_disclosure_without_substantive_detail or legal_schedule_follow_up_question or largest_storage_station_demonstration_story or mixed_freeze_and_risk_warning_disclosure_without_substantive_operational_fallout or banking_account_freeze_disclosure_without_operations_impact or sse_einteractive_merger_litigation_governance_question' -q` -> `6 passed`
+    - `tests/test_event_merge.py -k 'geopolitical_reorganization_wording_as_acquisition_restructuring or intraday_wti_oil_move_without_chao' -q` -> `2 passed`
+    - `tests/test_text_report_sorting.py -k 'current_report_followup_qa_noise_without_hiding_statement_and_policy or latest_irm_cninfo_theme_qa_noise_without_hiding_policy_and_statement or latest_weak_qa_and_demo_noise_without_hiding_legit_items or filters_sse_einteractive_stock_price_complaints_with_generic_market_reply' -q` -> `4 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=1`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 20` -> `raw_news=611 normalized_news=611 events=480 analyses=480 failed_sources=none suspicious_count=1`
+- Open TODO:
+  - 复核当前 6 个代码/测试文件与本轮交接文件后，做 scoped commit/push。
+  - push 后只读观察下一轮后台是否仍稳定只剩 `ST三木`。
+- Risks/Blockers:
+  - 不要把 `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告` 误压成材料噪声；当前更像真实风险。
+  - 当前 `latest_report.txt` 头部还剩一些 legit 但偏弱的交易所/治理材料，不能为了“更干净”继续过拟合。
+  - `urllib3 NotOpenSSLWarning` 仍会出现，但本轮命令退出码正常。
+- Next First Command:
+  - `git diff -- src/news_sentiment/cli.py src/news_sentiment/event_merge/core.py src/news_sentiment/reporting/text_report.py tests/test_audit_suspicious.py tests/test_event_merge.py tests/test_text_report_sorting.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+- Known Avoidances:
+  - 不要继续扩大全部 `仲裁/诉讼/冻结` 公告降噪。
+  - `report` 和 `audit-suspicious` 都要 fresh 跑，不要只看旧产物。
+  - `fresh watchdog=1` 且唯一残留是 `ST三木` 时，下一步优先收尾提交，不是继续压规则。
+
 ## Latest Handoff Snapshot (2026-05-21)
 - Task-ID:
   - `global-multisource-mainline`

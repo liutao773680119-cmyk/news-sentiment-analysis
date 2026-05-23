@@ -1677,6 +1677,26 @@ def test_merge_news_items_classifies_gold_touch_price_fast_news_as_market_move()
     assert events[0].event_subtype == "market_move"
 
 
+def test_merge_news_items_classifies_intraday_wti_oil_move_without_chao_as_market_move() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-05-21T18:57:59+08:00",
+            captured_at="2026-05-21T18:58:10+08:00",
+            title="WTI原油期货日内涨3%",
+            content="人民财讯5月21日电，WTI原油期货日内涨3%，现报101.21美元/桶。",
+            url="https://www.stcn.com/article/detail/3920989.html",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "market_move"
+
+
 def test_merge_news_items_classifies_cls_overnight_roundup_as_general_fast_news() -> None:
     items = [
         NormalizedNews(
@@ -1708,6 +1728,26 @@ def test_merge_news_items_classifies_cls_us_pre_market_brief_as_general_fast_new
             title="美股盘前要闻一览：伊朗称暂无与美国进行第二轮谈判的计划；SK海力士量产专供英伟达下一代AI芯片的内存模组；日本央行或在4月暂缓加息",
             content="①【伊朗称暂无与美国进行第二轮谈判的计划】伊朗外交部发言人表示，伊朗与美国尚未就任何后续谈判达成一致。②【SK海力士量产专供英伟达下一代AI芯片的内存模组】存储芯片行业正在经历结构性重组。③【日本央行或在4月暂缓加息】市场等待更多通胀与工资数据。",
             url="https://www.cls.cn/detail/2349775",
+        )
+    ]
+
+    events = merge_news_items(items)
+
+    assert len(events) == 1
+    assert events[0].event_subtype == "general_fast_news"
+
+
+def test_merge_news_items_does_not_classify_geopolitical_reorganization_wording_as_acquisition_restructuring() -> None:
+    items = [
+        NormalizedNews(
+            news_id="n1",
+            source="stcn",
+            source_type="fast_news",
+            published_at="2026-05-23T19:35:05+08:00",
+            captured_at="2026-05-23T19:35:20+08:00",
+            title="伊朗议会议长：伊武装部队在停火期间进行了重组与重整",
+            content="人民财讯5月23日电，当地时间23日，伊朗伊斯兰议会议长卡利巴夫与到访的巴基斯坦陆军参谋长穆尼尔举行会面。卡利巴夫表示，在这段临时停火期间，伊朗武装部队进行了重组与重整。",
+            url="https://www.stcn.com/article/detail/3924057.html",
         )
     ]
 

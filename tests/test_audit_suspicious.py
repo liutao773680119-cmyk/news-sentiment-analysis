@@ -1008,6 +1008,48 @@ def test_audit_suspicious_skips_fundraising_account_freeze_material_notice(
     assert "联美量子股份有限公司关于子公司募集资金账户被冻结的公告" not in output
 
 
+def test_audit_suspicious_skips_bank_account_partial_fund_freeze_material_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-bank-account-partial-fund-freeze",
+                first_seen_at="2026-05-22T00:00:00+08:00",
+                last_seen_at="2026-05-22T00:00:00+08:00",
+                canonical_title="关于公司银行账户部分资金被冻结的公告",
+                summary="关于公司银行账户部分资金被冻结的公告",
+                source="cninfo",
+                published_at="2026-05-22T00:00:00+08:00",
+                url="https://example.com/cninfo-bank-account-partial-fund-freeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-bank-account-partial-fund-freeze",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于公司银行账户部分资金被冻结的公告" not in output
+
+
 def test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -1212,6 +1254,48 @@ def test_audit_suspicious_skips_financing_inquiry_financial_matter_explanation(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "审核问询函中有关财务事项的说明" not in output
+
+
+def test_audit_suspicious_skips_directed_a_share_offering_inquiry_reply_material(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-directed-a-share-offering-inquiry-reply",
+                first_seen_at="2026-05-22T00:00:00+08:00",
+                last_seen_at="2026-05-22T00:00:00+08:00",
+                canonical_title="关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复",
+                summary="关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复",
+                source="cninfo",
+                published_at="2026-05-22T00:00:00+08:00",
+                url="https://example.com/directed-a-share-offering-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-directed-a-share-offering-inquiry-reply",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复" not in output
 
 
 def test_audit_suspicious_skips_current_exchange_inquiry_material_noise(
@@ -1504,6 +1588,90 @@ def test_audit_suspicious_skips_arbitration_application_progress_disclosure(
     assert "关于申请仲裁的进展公告" not in output
 
 
+def test_audit_suspicious_skips_subsidiary_arbitration_filing_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-szse-subsidiary-arbitration-filing",
+                first_seen_at="2026-05-22T00:00:00+08:00",
+                last_seen_at="2026-05-22T00:00:00+08:00",
+                canonical_title="ST棕榈：关于子公司提起仲裁的公告",
+                summary="ST棕榈：关于子公司提起仲裁的公告",
+                source="szse",
+                published_at="2026-05-22T00:00:00+08:00",
+                url="https://example.com/szse-subsidiary-arbitration-filing",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-szse-subsidiary-arbitration-filing",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "ST棕榈：关于子公司提起仲裁的公告" not in output
+
+
+def test_audit_suspicious_skips_arbitration_progress_disclosure_without_substantive_detail(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-arbitration-progress-disclosure",
+                first_seen_at="2026-05-23T00:00:00+08:00",
+                last_seen_at="2026-05-23T00:00:00+08:00",
+                canonical_title="国电南自关于仲裁进展的公告",
+                summary="国电南自关于仲裁进展的公告",
+                source="sse",
+                published_at="2026-05-23T00:00:00+08:00",
+                url="https://example.com/sse-arbitration-progress-disclosure",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-arbitration-progress-disclosure",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "国电南自关于仲裁进展的公告" not in output
+
+
 def test_audit_suspicious_skips_cumulative_new_litigation_arbitration_disclosure(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -1788,6 +1956,90 @@ def test_audit_suspicious_skips_sse_einteractive_legal_disclosure_policy_reply(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "未决诉讼事项的信息披露标准" not in output
+
+
+def test_audit_suspicious_skips_sse_einteractive_mna_litigation_governance_question(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-mna-litigation-governance-question",
+                first_seen_at="2026-05-20T08:35:00+08:00",
+                last_seen_at="2026-05-20T08:35:00+08:00",
+                canonical_title="三友医疗：根据公开的信息，（2025）京73民初1406号应为北京知识产权法院的诉讼，与三友关联的是水木天蓬，也就是2025年并购重组的子公司，同时，三友控股股东与董事及法人在2025年7月至2026年3月均进行减持，请问该纠纷是否与并购重组子公司主要业务存在关联，法人是否应该回避表决",
+                summary="问题：根据公开的信息，（2025）京73民初1406号应为北京知识产权法院的诉讼，与三友关联的是水木天蓬，也就是2025年并购重组的子公司，同时，三友控股股东与董事及法人在2025年7月至2026年3月均进行减持，请问该纠纷是否与并购重组子公司主要业务存在关联，法人是否应该回避表决 回复：您好，公司收购水木天蓬剩余股权事宜与公司股东减持不存在任何关联关系。收购水木事宜早已在2025年2月完成资产过户及工商变更手续。目前公司经营一切正常有序开展。感谢您的关注。",
+                source="sse_einteractive",
+                published_at="2026-05-20T08:35:00+08:00",
+                url="https://example.com/sse-mna-litigation-governance-question",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-mna-litigation-governance-question",
+                direction="neutral",
+                impact_score=74.9,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "三友医疗：根据公开的信息" not in output
+
+
+def test_audit_suspicious_skips_sse_einteractive_legal_schedule_follow_up_question(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-legal-schedule-follow-up-question",
+                first_seen_at="2026-05-22T18:24:00+08:00",
+                last_seen_at="2026-05-22T18:24:00+08:00",
+                canonical_title="东方生物：董秘您好，此前公司回复已提交简易判决动议，同时提及预计 7 月宣布开庭。特此咨询两个问题： 若判决全盘驳回 FS 全部诉讼诉求，案件理应无需再开庭审理。公司此前提示 7 月或将开庭，是目前简易判决结果尚未出具，出于谨慎口径预判，还是相关判决结果已出，偏向部分驳回 / 不予支持，暂未对外披露？ 倘若简易判决结果为驳回，原定 7 月 6 日庭审日期是否保持不变，还是法院会在7月重新确定新的开庭时间？辛苦解答，谢谢！",
+                summary="问题：董秘您好，此前公司回复已提交简易判决动议，同时提及预计 7 月宣布开庭。特此咨询两个问题： 若判决全盘驳回 FS 全部诉讼诉求，案件理应无需再开庭审理。公司此前提示 7 月或将开庭，是目前简易判决结果尚未出具，出于谨慎口径预判，还是相关判决结果已出，偏向部分驳回 / 不予支持，暂未对外披露？ 倘若简易判决结果为驳回，原定 7 月 6 日庭审日期是否保持不变，还是法院会在7月重新确定新的开庭时间？辛苦解答，谢谢！ 回复：尊敬的投资者您好，该诉讼事项截至2025年年度报告及2026年第一季度报告披露日，公司方主动提起简易和总结性判决的动议，要求驳回FS的诉讼请求，简易动议结果目前尚未收到，预计将在2026年7月宣布开庭时间。关于本诉讼事项的阶段性进展，请关注公司后续相关公告，谢谢！",
+                source="sse_einteractive",
+                published_at="2026-05-22T18:24:00+08:00",
+                url="https://example.com/sse-legal-schedule-follow-up-question",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-legal-schedule-follow-up-question",
+                direction="bullish",
+                impact_score=74.9,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "东方生物：董秘您好" not in output
 
 
 def test_audit_suspicious_skips_private_robot_financing_general_fast_news(
@@ -2723,6 +2975,48 @@ def test_audit_suspicious_skips_stcn_undersea_data_center_demonstration_story(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "全球首个海底数据中心落户东海" not in output
+
+
+def test_audit_suspicious_skips_stcn_largest_storage_station_demonstration_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-largest-storage-station",
+                first_seen_at="2026-05-23T21:59:27+08:00",
+                last_seen_at="2026-05-23T21:59:27+08:00",
+                canonical_title="国内单体最大智能组串式储能电站落地内蒙古",
+                summary="人民财讯5月23日电，2026储能高质量发展峰会22日在内蒙古自治区包头市举办。会上披露，当地投运的400兆瓦/2400兆瓦时储能电站，为目前国内单体规模最大的智能组串式储能电站，为内蒙古加快构建新型电力系统注入强劲动能。（中国新闻网）",
+                source="stcn",
+                published_at="2026-05-23T21:59:27+08:00",
+                url="https://example.com/stcn-largest-storage-station",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-largest-storage-station",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "国内单体最大智能组串式储能电站落地内蒙古" not in output
 
 
 def test_audit_suspicious_skips_stcn_company_visit_exchange_story(

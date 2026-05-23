@@ -76,6 +76,8 @@ LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS = (
     "发行优先股",
     "向特定对象发行股票",
     "申请向特定对象发行股票",
+    "向特定对象发行A股股票",
+    "申请向特定对象发行A股股票",
 )
 LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报问询函回复",
@@ -111,8 +113,10 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "重大诉讼公告",
     "重大诉讼的公告",
     "重大诉讼、仲裁情况进展",
+    "追偿权纠纷诉讼的进展公告",
     "失信被执行人",
     "轮候冻结",
+    "银行账户部分资金被冻结",
     "募集资金账户被冻结",
     "股东所持部分股份冻结",
     "解除司法冻结",
@@ -121,6 +125,8 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "诉讼案件进展",
     "诉讼案件进展情况",
     "强制执行完成",
+    "关于仲裁进展的公告",
+    "子公司提起仲裁的公告",
 )
 FAST_NEWS_LEGAL_REVIEW_KEYWORDS = (
     "商标争议",
@@ -518,6 +524,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_stcn_undersea_data_center_story_candidate(event):
             return None
+        if _is_low_signal_stcn_largest_storage_station_story_candidate(event):
+            return None
         if _is_low_signal_stcn_company_visit_exchange_story_candidate(event):
             return None
         if _is_low_signal_stcn_chairman_meeting_exchange_story_candidate(event):
@@ -539,6 +547,10 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         and _contains_any(title, FAST_NEWS_LEGAL_REVIEW_KEYWORDS)
     ):
         if _is_low_signal_irm_cninfo_legal_question_only(event, text):
+            return None
+        if _is_low_signal_irm_cninfo_mna_litigation_governance_question(event, text):
+            return None
+        if _is_low_signal_irm_cninfo_legal_schedule_follow_up_question(event, text):
             return None
         if _is_low_signal_irm_cninfo_legal_complaint_question_only(event, text):
             return None
@@ -824,6 +836,18 @@ def _is_low_signal_stcn_undersea_data_center_story_candidate(event: Event) -> bo
     )
 
 
+def _is_low_signal_stcn_largest_storage_station_story_candidate(event: Event) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "智能组串式储能电站" in title
+        and "落地" in title
+        and "内蒙古" in title
+    )
+
+
 def _is_low_signal_stcn_company_visit_exchange_story_candidate(event: Event) -> bool:
     text = f"{event.canonical_title} {event.summary}"
     return (
@@ -926,6 +950,33 @@ def _is_low_signal_irm_cninfo_legal_question_only(event: Event, text: str) -> bo
             )
             or "履行信息披露义务" in text
         )
+    )
+
+
+def _is_low_signal_irm_cninfo_mna_litigation_governance_question(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and "诉讼" in title
+        and "减持" in title
+        and "回避表决" in title
+        and "并购重组的子公司" in text
+        and "不存在任何关联关系" in text
+        and "经营一切正常有序开展" in text
+    )
+
+
+def _is_low_signal_irm_cninfo_legal_schedule_follow_up_question(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and "简易判决动议" in title
+        and "预计 7 月宣布开庭" in title
+        and "后续相关公告" in text
     )
 
 

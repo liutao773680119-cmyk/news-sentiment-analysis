@@ -391,6 +391,18 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS = (
     "重大资产出售",
     "并购重组",
 )
+LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS = (
+    "向不特定对象发行可转换公司债券",
+    "发行可转换公司债券",
+    "可转换公司债券",
+    "募集配套资金",
+    "向特定对象发行优先股",
+    "发行优先股",
+    "向特定对象发行股票",
+    "申请向特定对象发行股票",
+    "向特定对象发行A股股票",
+    "申请向特定对象发行A股股票",
+)
 LOW_SIGNAL_HKEX_DISCLOSURE_TITLE_KEYWORDS = (
     "An announcement has just been published by the Company on the HKEXnews website",
     "published by the issuer in the Chinese section",
@@ -737,6 +749,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_charging_infrastructure_story(event):
         return False
+    if _is_low_signal_stcn_largest_storage_station_story(event, text):
+        return False
     if _is_low_signal_stcn_storage_president_appointment_story(event, text):
         return False
     if _is_low_signal_stcn_space_compute_ecosystem_plan_story(event, text):
@@ -932,10 +946,13 @@ def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
         "关联交易",
         "重大资产重组",
         "并购重组",
-    )
+    ) + LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS
 
     return (
-        any(keyword in title for keyword in material_keywords)
+        (
+            any(keyword in title for keyword in material_keywords)
+            or ("审核问询函" in title and any(keyword in title for keyword in ("回复", "之回复")))
+        )
         and any(keyword in title for keyword in context_keywords)
     ) or (
         "监管工作函" in title
@@ -1816,6 +1833,19 @@ def _is_low_signal_stcn_charging_infrastructure_story(event: Event) -> bool:
     )
 
 
+def _is_low_signal_stcn_largest_storage_station_story(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "智能组串式储能电站" in title
+        and "落地" in title
+        and "内蒙古" in title
+        and "国内单体规模最大" in text
+    )
+
+
 def _is_low_signal_stcn_storage_president_appointment_story(event: Event, text: str) -> bool:
     title = event.canonical_title
     return (
@@ -2038,6 +2068,11 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("资本市场仍把贵公司传统归类为小金属题材" in title and "专项路演" in title and "价值宣讲" in title and "修复公司合理市值估值" in title)
             or ("商业航天领域" in title and "是否已经有订单" in title and "主动去寻找合作" in title)
             or ("华羿微电" in title and "安森美" in title and "意法半导体" in title)
+            or ("和泰晶科技在哪些方面合作" in title and "存储芯片方面的业务" in title and "哪些大半导体厂商合作" in title)
+            or ("国家第三代半导体技术创新中心" in title and "生产光刻机相关的部件" in title and "北美业务吗" in title)
+            or ("玻璃基板" in title and "陶瓷管壳&基板技术路线" in title and "应对措施" in title)
+            or ("第三代半导体领域有哪些作为" in title)
+            or ("高纯铜靶材" in title and "铜基封装材料" in title and "产品落地" in title)
             or ("自有算力" in title and "在建算力" in title and "可调度算力" in title)
             or ("是否生产销售" in title and "人形机器人" in title and "减速器" in title)
             or ("网传中标" in title and "是真的吗" in title)
@@ -2091,6 +2126,29 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("是否属于未来能源" in title and "光伏属于未来能源产业" in text and "感谢您的关注" in text)
         or ("出口正常吗" in title and "严格遵守国家相关法律法规及国际通行规则" in text)
         or ("已有大订单" in title and "目前项目正按计划稳步推进" in text and "建立了良好的合作关系" in text)
+        or (
+            "获批上市" in title
+            and "大规模商业化生产供货阶段" in title
+            and "未来的CDMO订单" in title
+            and "支持该项目的后续生产与供应" in text
+        )
+        or (
+            "在手订单及客户拓展情况" in title
+            and "路演或反向路演" in title
+            and "潜在的技术延伸可能性" in text
+            and "业务拓展计划请关注公司发布的相关公告" in text
+        )
+        or (
+            "盈利也是在前三" in title
+            and "估值就上不去" in title
+            and "上市公司估值是多方因素共同作用的结果" in text
+            and "高度重视市值管理工作" in text
+        )
+        or (
+            "估值一直都比同行低很多" in title
+            and "增持股份并注销" in title
+            and "公司管理层将认真考虑" in text
+        )
         or ("收入占整体营业收入的比例较小" in text and "对公司业绩无重大影响" in text)
         or ("准备做什么" in title and "主要经营范围为" in text and "人工智能应用软件开发" in text)
         or ("在手还未交付的算力规模还有多少" in title and "在手订单充裕" in text and "定期报告及相关公告" in text)
@@ -2170,7 +2228,15 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
         )
 
     return (
-        ("股价" in text and "投资者信心" in text)
+        (
+            "诉讼" in title
+            and "减持" in title
+            and "回避表决" in title
+            and "并购重组的子公司" in text
+            and "不存在任何关联关系" in text
+            and "经营一切正常有序开展" in text
+        )
+        or ("股价" in text and "投资者信心" in text)
         or ("股价" in text and "回购注销" in text)
         or ("市值持续下跌" in text and "315" in text)
         or ("市值管理" in text and "股价" in text)
@@ -2192,6 +2258,44 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
             and "请理性看待" in text
         )
         or (
+            "股价已经跌破52" in title
+            and "回购不做了吗" in title
+            and "公司日常经营管理和业务状况正常" in text
+            and "百时美施贵宝公司（BMS）达成全球战略合作及许可协议" in text
+            and "回购期限内实施" in text
+        )
+        or (
+            "恒瑞医药还是创新药龙头吗" in title
+            and "天天跌" in title
+            and "已在中国获批上市24款1类创新药" in text
+            and "创新药销售收入" in text
+        )
+        or (
+            "股价落后大盘指数50%以上" in title
+            and "很多优秀的公司现在还在增持" in title
+            and "对未来充满信心" in text
+            and "转达您的建议" in text
+            and "及时履行披露义务" in text
+        )
+        or (
+            "获批上市" in title
+            and "大规模商业化生产供货阶段" in title
+            and "未来的CDMO订单" in title
+            and "支持该项目的后续生产与供应" in text
+        )
+        or (
+            "在手订单及客户拓展情况" in title
+            and "路演或反向路演" in title
+            and "潜在的技术延伸可能性" in text
+            and "业务拓展计划请关注公司发布的相关公告" in text
+        )
+        or (
+            "盈利也是在前三" in title
+            and "估值就上不去" in title
+            and "上市公司估值是多方因素共同作用的结果" in text
+            and "高度重视市值管理工作" in text
+        )
+        or (
             any(keyword in title for keyword in ("市值被低估", "二级市场融资千亿"))
             and any(keyword in text for keyword in ("价值创造、价值经营和价值实现", "中期现金分红方案", "投资者获得感与回报水平"))
         )
@@ -2208,6 +2312,11 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
             and "公司的经营管理情况一切正常" in text
             and "公司股价受到宏观经济环境、行业周期以及二级市场波动等诸多因素的综合影响" in text
             and "有关公司的经营业绩，请关注公司发布的定期报告" in text
+        )
+        or (
+            "简易判决动议" in title
+            and "预计 7 月宣布开庭" in title
+            and "后续相关公告" in text
         )
         or (
             any(keyword in title for keyword in ("十年千亿产值", "知行合一在哪里", "客观事实的反馈"))
@@ -2232,6 +2341,13 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
             and "选择投诉" in title
             and "继续强化投资者关系管理工作" in text
             and "保护投资者合法权益" in text
+        )
+        or (
+            (
+                "中鼎集成5.15再次递交上市申请" in title
+                or "一季度（招股书更新）营业收入" in title
+            )
+            and "请您关注公司或子公司于指定媒体或平台披露的定期报告及公告信息" in text
         )
         or (
             "是否已经进入" in title

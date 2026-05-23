@@ -119,6 +119,30 @@ HKEX_TRANSACTION_KEYWORDS = (
     "ACQUISITION OF",
     "Acquisition of",
 )
+FAST_NEWS_CORPORATE_RESTRUCTURING_CONTEXT_KEYWORDS = (
+    "公司",
+    "企业",
+    "上市公司",
+    "股权",
+    "资产",
+    "交易",
+    "并购",
+    "重大资产",
+    "子公司",
+    "财务顾问",
+    "购买资产",
+    "出售资产",
+)
+FAST_NEWS_NON_CORPORATE_RESTRUCTURING_CONTEXT_KEYWORDS = (
+    "武装部队",
+    "停火",
+    "议会议长",
+    "军方",
+    "外交部",
+    "会面",
+    "战争",
+    "海上封锁",
+)
 HKEX_EXECUTIVE_CHANGE_KEYWORDS = (
     "CHANGE OF DIRECTORS",
     "RE-DESIGNATION OF DIRECTOR",
@@ -242,7 +266,21 @@ def _is_same_market_move_asset(left: NormalizedNews, right: NormalizedNews) -> b
 def _extract_market_move_asset(text: str) -> str:
     if not _contains_any(
         text,
-        ("涨幅扩大", "跌幅扩大", "涨超", "跌超", "跌破", "突破", "向上触及", "向下触及", "高开", "低开", "开盘"),
+        (
+            "涨幅扩大",
+            "跌幅扩大",
+            "涨超",
+            "跌超",
+            "日内涨",
+            "日内跌",
+            "跌破",
+            "突破",
+            "向上触及",
+            "向下触及",
+            "高开",
+            "低开",
+            "开盘",
+        ),
     ):
         return ""
     for asset in MARKET_MOVE_ASSETS:
@@ -380,7 +418,7 @@ def _classify_event_subtype(source_type: str, title: str, content: str) -> str:
             return "cooperation_agreement"
         if _is_share_disposal_disclaimer_fast_news(title, text):
             return "company_update"
-        if _contains_any(text, ("收购", "重组")):
+        if _is_acquisition_restructuring_fast_news(text):
             return "acquisition_restructuring"
         if "：" in title or _contains_any(text, ("发布", "上线", "推出", "回应")):
             return "company_update"
@@ -592,6 +630,19 @@ def _is_share_disposal_disclaimer_fast_news(title: str, text: str) -> bool:
     return "不构成" in text and "重大资产重组" in text
 
 
+def _is_acquisition_restructuring_fast_news(text: str) -> bool:
+    if _contains_any(text, ("收购", "并购", "购买资产", "出售资产")):
+        return True
+
+    if "重组" not in text:
+        return False
+
+    if _contains_any(text, FAST_NEWS_NON_CORPORATE_RESTRUCTURING_CONTEXT_KEYWORDS):
+        return False
+
+    return _contains_any(text, FAST_NEWS_CORPORATE_RESTRUCTURING_CONTEXT_KEYWORDS)
+
+
 def _is_broker_commentary_fast_news(title: str, text: str) -> bool:
     if "：" not in title:
         return False
@@ -604,9 +655,13 @@ def _is_broker_commentary_fast_news(title: str, text: str) -> bool:
 
 
 def _is_geopolitical_fast_news(text: str) -> bool:
-    if not _contains_any(text, ("朝鲜", "韩国军方", "日本防卫省", "韩联社", "共同社")):
+    if _contains_any(text, ("朝鲜", "韩国军方", "日本防卫省", "韩联社", "共同社")):
+        return _contains_any(text, ("导弹", "发射", "防卫省", "军方"))
+
+    if not _contains_any(text, ("伊朗", "巴基斯坦", "停火")):
         return False
-    return _contains_any(text, ("导弹", "发射", "防卫省", "军方"))
+
+    return _contains_any(text, ("武装部队", "议会议长", "会面", "海上封锁", "谈判"))
 
 
 def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:

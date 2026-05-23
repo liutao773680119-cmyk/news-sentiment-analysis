@@ -7155,6 +7155,114 @@ def test_write_text_report_filters_cninfo_restructuring_material_reply_without_t
     assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in content
 
 
+def test_write_text_report_filters_directed_a_share_offering_inquiry_reply_with_theme(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-directed-a-share-offering-inquiry-reply-theme",
+            first_seen_at="2026-05-22T00:00:00+08:00",
+            last_seen_at="2026-05-22T00:00:00+08:00",
+            canonical_title="关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-05-22T00:00:00+08:00",
+            url="https://example.com/directed-a-share-offering-inquiry-reply-theme",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-semiconductor-keep-a-share-reply-theme",
+            first_seen_at="2026-05-22T00:01:00+08:00",
+            last_seen_at="2026-05-22T00:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-05-22T00:01:00+08:00",
+            url="https://example.com/stcn-semiconductor-keep-a-share-reply-theme",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-directed-a-share-offering-inquiry-reply-theme",
+            direction="bullish",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-semiconductor-keep-a-share-reply-theme",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert "关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复" not in content
+
+
+def test_write_text_report_filters_directed_a_share_offering_inquiry_reply_without_theme(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-directed-a-share-offering-inquiry-reply",
+            first_seen_at="2026-05-22T00:00:00+08:00",
+            last_seen_at="2026-05-22T00:00:00+08:00",
+            canonical_title="关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复",
+            summary="关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复",
+            source="cninfo",
+            published_at="2026-05-22T00:00:00+08:00",
+            url="https://example.com/directed-a-share-offering-inquiry-reply",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-semiconductor-keep-a-share-reply",
+            first_seen_at="2026-05-22T00:01:00+08:00",
+            last_seen_at="2026-05-22T00:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-05-22T00:01:00+08:00",
+            url="https://example.com/stcn-semiconductor-keep-a-share-reply",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-directed-a-share-offering-inquiry-reply",
+            direction="neutral",
+            impact_score=80.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-semiconductor-keep-a-share-reply",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert "关于珠海冠宇电池股份有限公司2026年度向特定对象发行A股股票申请文件审核问询函的回复" not in content
+
+
 def test_write_text_report_filters_cninfo_restructuring_revised_report_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -9411,6 +9519,457 @@ def test_write_text_report_filters_exchange_share_freeze_waiting_notice_without_
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "中国能建与华北电力大学签署战略合作协议" in content
     assert "关于持股5%以上股东及其一致行动人股份被轮候冻结的公告" not in content
+
+
+def test_write_text_report_filters_current_freeze_arbitration_and_governance_noise_without_theme(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-bank-account-partial-fund-freeze",
+            first_seen_at="2026-05-22T00:00:00+08:00",
+            last_seen_at="2026-05-22T00:00:00+08:00",
+            canonical_title="关于公司银行账户部分资金被冻结的公告",
+            summary="关于公司银行账户部分资金被冻结的公告",
+            source="cninfo",
+            published_at="2026-05-22T00:00:00+08:00",
+            url="https://example.com/cninfo-bank-account-partial-fund-freeze",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-szse-subsidiary-arbitration-filing",
+            first_seen_at="2026-05-22T00:00:00+08:00",
+            last_seen_at="2026-05-22T00:00:00+08:00",
+            canonical_title="ST棕榈：关于子公司提起仲裁的公告",
+            summary="ST棕榈：关于子公司提起仲裁的公告",
+            source="szse",
+            published_at="2026-05-22T00:00:00+08:00",
+            url="https://example.com/szse-subsidiary-arbitration-filing",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-sse-mna-litigation-governance-question",
+            first_seen_at="2026-05-20T08:35:00+08:00",
+            last_seen_at="2026-05-20T08:35:00+08:00",
+            canonical_title="三友医疗：根据公开的信息，（2025）京73民初1406号应为北京知识产权法院的诉讼，与三友关联的是水木天蓬，也就是2025年并购重组的子公司，同时，三友控股股东与董事及法人在2025年7月至2026年3月均进行减持，请问该纠纷是否与并购重组子公司主要业务存在关联，法人是否应该回避表决",
+            summary="问题：根据公开的信息，（2025）京73民初1406号应为北京知识产权法院的诉讼，与三友关联的是水木天蓬，也就是2025年并购重组的子公司，同时，三友控股股东与董事及法人在2025年7月至2026年3月均进行减持，请问该纠纷是否与并购重组子公司主要业务存在关联，法人是否应该回避表决 回复：您好，公司收购水木天蓬剩余股权事宜与公司股东减持不存在任何关联关系。收购水木事宜早已在2025年2月完成资产过户及工商变更手续。目前公司经营一切正常有序开展。感谢您的关注。",
+            source="sse_einteractive",
+            published_at="2026-05-20T08:35:00+08:00",
+            url="https://example.com/sse-mna-litigation-governance-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-order-contract",
+            first_seen_at="2026-05-22T00:00:00+08:00",
+            last_seen_at="2026-05-22T00:00:00+08:00",
+            canonical_title="永贵电器：关于公司控股子公司近期收到中标通知书的公告",
+            summary="公司披露控股子公司收到中标通知书。",
+            source="szse",
+            published_at="2026-05-22T00:00:00+08:00",
+            url="https://example.com/keep-order-contract",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-bank-account-partial-fund-freeze",
+            direction="neutral",
+            impact_score=80.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-szse-subsidiary-arbitration-filing",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-sse-mna-litigation-governance-question",
+            direction="neutral",
+            impact_score=74.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-order-contract",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "永贵电器：关于公司控股子公司近期收到中标通知书的公告" in content
+    assert "关于公司银行账户部分资金被冻结的公告" not in content
+    assert "ST棕榈：关于子公司提起仲裁的公告" not in content
+    assert "三友医疗：根据公开的信息" not in content
+
+
+def test_write_text_report_filters_latest_weak_qa_and_demo_noise_without_hiding_legit_items(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-largest-storage-station",
+            first_seen_at="2026-05-23T21:59:27+08:00",
+            last_seen_at="2026-05-23T21:59:27+08:00",
+            canonical_title="国内单体最大智能组串式储能电站落地内蒙古",
+            summary="人民财讯5月23日电，2026储能高质量发展峰会22日在内蒙古自治区包头市举办。会上披露，当地投运的400兆瓦/2400兆瓦时储能电站，为目前国内单体规模最大的智能组串式储能电站，为内蒙古加快构建新型电力系统注入强劲动能。（中国新闻网）",
+            source="stcn",
+            published_at="2026-05-23T21:59:27+08:00",
+            url="https://example.com/stcn-largest-storage-station",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-sse-legal-schedule-follow-up-question",
+            first_seen_at="2026-05-22T18:24:00+08:00",
+            last_seen_at="2026-05-22T18:24:00+08:00",
+            canonical_title="东方生物：董秘您好，此前公司回复已提交简易判决动议，同时提及预计 7 月宣布开庭。特此咨询两个问题： 若判决全盘驳回 FS 全部诉讼诉求，案件理应无需再开庭审理。公司此前提示 7 月或将开庭，是目前简易判决结果尚未出具，出于谨慎口径预判，还是相关判决结果已出，偏向部分驳回 / 不予支持，暂未对外披露？ 倘若简易判决结果为驳回，原定 7 月 6 日庭审日期是否保持不变，还是法院会在7月重新确定新的开庭时间？辛苦解答，谢谢！",
+            summary="问题：董秘您好，此前公司回复已提交简易判决动议，同时提及预计 7 月宣布开庭。特此咨询两个问题： 若判决全盘驳回 FS 全部诉讼诉求，案件理应无需再开庭审理。公司此前提示 7 月或将开庭，是目前简易判决结果尚未出具，出于谨慎口径预判，还是相关判决结果已出，偏向部分驳回 / 不予支持，暂未对外披露？ 倘若简易判决结果为驳回，原定 7 月 6 日庭审日期是否保持不变，还是法院会在7月重新确定新的开庭时间？辛苦解答，谢谢！ 回复：尊敬的投资者您好，该诉讼事项截至2025年年度报告及2026年第一季度报告披露日，公司方主动提起简易和总结性判决的动议，要求驳回FS的诉讼请求，简易动议结果目前尚未收到，预计将在2026年7月宣布开庭时间。关于本诉讼事项的阶段性进展，请关注公司后续相关公告，谢谢！",
+            source="sse_einteractive",
+            published_at="2026-05-22T18:24:00+08:00",
+            url="https://example.com/sse-legal-schedule-follow-up-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-stock-support-question",
+            first_seen_at="2026-05-22T18:24:00+08:00",
+            last_seen_at="2026-05-22T18:24:00+08:00",
+            canonical_title="恒瑞医药：股价已经跌破52了，公司能给点支撑吗。怎么能这么跌呢……回购不做了吗？还是说公司也觉得股价高了？",
+            summary="问题：股价已经跌破52了，公司能给点支撑吗。怎么能这么跌呢……回购不做了吗？还是说公司也觉得股价高了？ 回复：尊敬的投资者您好，公司日常经营管理和业务状况正常，整体发展态势持续向好。近期公司与百时美施贵宝公司（BMS）达成全球战略合作及许可协议，共同推进13款涵盖肿瘤学、血液学及免疫学的早期项目，根据协议条款，BMS将向公司支付可达9.5亿美元的首付款及周年付款，潜在总交易额可达约152亿美元(需要满足一定的条件，最终金额存在不确定性)。公司将继续坚持科技创新与国际化发展战略，促进公司业绩可持续增长，以更好的发展回馈股东。公司董事会2025年8月20日审议通过新一期回购方案，以自有资金回购公司A股股份，回购期限为自2025年8月20日董事会审议通过回购股份方案之日起12个月以内，公司将在上述回购期限内实施，同时根据回购股份事项进展情况及时履行信息披露义务。",
+            source="sse_einteractive",
+            published_at="2026-05-22T18:24:00+08:00",
+            url="https://example.com/sse-stock-support-question",
+            event_type="fast_news",
+            event_subtype="cooperation_agreement",
+        ),
+        Event(
+            event_id="event-irm-semiconductor-partner-question",
+            first_seen_at="2026-05-23T18:01:17+08:00",
+            last_seen_at="2026-05-23T18:01:17+08:00",
+            canonical_title="中瓷电子：贵公司和泰晶科技在哪些方面合作？贵公司有存储芯片方面的业务吗？和哪些大半导体厂商合作？",
+            summary="贵公司和泰晶科技在哪些方面合作？贵公司有存储芯片方面的业务吗？和哪些大半导体厂商合作？",
+            source="irm_cninfo",
+            published_at="2026-05-23T18:01:17+08:00",
+            url="https://example.com/irm-semiconductor-partner-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-legit-order-contract",
+            first_seen_at="2026-05-23T00:00:00+08:00",
+            last_seen_at="2026-05-23T00:00:00+08:00",
+            canonical_title="首创环保关于对外投资暨签署安徽省铜陵市义安区区域城乡供水能力提升EPCO项目合同的公告",
+            summary="公司披露签署区域城乡供水能力提升EPCO项目合同。",
+            source="sse",
+            published_at="2026-05-23T00:00:00+08:00",
+            url="https://example.com/keep-legit-order-contract",
+            event_type="hard_event",
+            event_subtype="order_contract",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-largest-storage-station",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["储能"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-sse-legal-schedule-follow-up-question",
+            direction="bullish",
+            impact_score=74.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-sse-stock-support-question",
+            direction="bullish",
+            impact_score=74.9,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-irm-semiconductor-partner-question",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-legit-order-contract",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "首创环保关于对外投资暨签署安徽省铜陵市义安区区域城乡供水能力提升EPCO项目合同的公告" in content
+    assert "国内单体最大智能组串式储能电站落地内蒙古" not in content
+    assert "东方生物：董秘您好" not in content
+    assert "恒瑞医药：股价已经跌破52了" not in content
+    assert "中瓷电子：贵公司和泰晶科技在哪些方面合作" not in content
+
+
+def test_write_text_report_filters_latest_irm_cninfo_theme_qa_noise_without_hiding_policy_and_statement(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-drugstone-commercialization-question",
+            first_seen_at="2026-05-23T20:40:33+08:00",
+            last_seen_at="2026-05-23T20:40:33+08:00",
+            canonical_title="药石科技：“董秘您好，获悉公司深度参与的一体化项目——邦顺制药的贝泽昔替尼已获批上市。请问该药物的获批是否意味着公司已正式进入大规模商业化生产供货阶段？目前公司在原料药和制剂端的产能准备情况如何？随着客户后续适应症的拓展，预计会对公司未来的CDMO订单带来怎样的增量贡献？谢谢！”",
+            summary="问题：“董秘您好，获悉公司深度参与的一体化项目——邦顺制药的贝泽昔替尼已获批上市。请问该药物的获批是否意味着公司已正式进入大规模商业化生产供货阶段？目前公司在原料药和制剂端的产能准备情况如何？随着客户后续适应症的拓展，预计会对公司未来的CDMO订单带来怎样的增量贡献？谢谢！” 回复：投资者您好！公司将持续关注客户需求，支持该项目的后续生产与供应。同时，公司也将继续通过完善的一体化解决方案，赋能更多合作伙伴的创新药产业化进程。谢谢！",
+            source="irm_cninfo",
+            published_at="2026-05-23T20:40:33+08:00",
+            url="https://example.com/irm-drugstone-commercialization-question",
+            event_type="fast_news",
+            event_subtype="regulatory_approval",
+        ),
+        Event(
+            event_id="event-irm-drugstone-order-roadshow-question",
+            first_seen_at="2026-05-23T20:37:03+08:00",
+            last_seen_at="2026-05-23T20:37:03+08:00",
+            canonical_title="药石科技：“董秘您好！仲丁基锂的连续流工艺突破为公司建立了极高的技术与安全壁垒。请问目前该产品的在手订单及客户拓展情况如何？随着下游创新药及新材料领域需求的释放，公司预计该业务何时能为业绩带来显著的利润贡献？公司是否有计划通过路演或反向路演，向资本市场重点展示这一核心资产的长期投资价值，以吸引更多中长线资金入驻？”",
+            summary="问题：“董秘您好！仲丁基锂的连续流工艺突破为公司建立了极高的技术与安全壁垒。请问目前该产品的在手订单及客户拓展情况如何？随着下游创新药及新材料领域需求的释放，公司预计该业务何时能为业绩带来显著的利润贡献？公司是否有计划通过路演或反向路演，向资本市场重点展示这一核心资产的长期投资价值，以吸引更多中长线资金入驻？” 回复：投资者您好！针对您集中提出的仲丁基锂连续流应用的多个问题，公司现统一回复如下：仲丁基锂连续流工艺的成功应用，旨在解决医药合成中高活性试剂的安全与规模化生产难题，目前主要服务于公司医药研发与生产业务的需求，以提升相关反应的安全性、效率与绿色化水平。公司始终关注绿色化学技术的发展，对于潜在的技术延伸可能性，公司将基于市场需求、自身主营业务的战略规划与核心能力进行审慎评估，任何新业务布局均需经过严格的内部论证与决策程序。公司的法定信息披露渠道为巨潮资讯网及指定媒体，公司具体的经营数据、未来的业务拓展计划请关注公司发布的相关公告。公司相信，扎实的经营管理与持续的内生增长是市值的根本支撑，感谢关注。",
+            source="irm_cninfo",
+            published_at="2026-05-23T20:37:03+08:00",
+            url="https://example.com/irm-drugstone-order-roadshow-question",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-yangjie-valuation-question",
+            first_seen_at="2026-05-23T17:34:03+08:00",
+            last_seen_at="2026-05-23T17:34:03+08:00",
+            canonical_title="扬杰科技：你好董秘先生！集团在功率半导体算得上比较靠前的企业盈利也是在前三，捷捷微电和新洁能盈利能力都不及你集团这么估值就上不去呢？",
+            summary="问题：你好董秘先生！集团在功率半导体算得上比较靠前的企业盈利也是在前三，捷捷微电和新洁能盈利能力都不及你集团这么估值就上不去呢？ 回复：您好。上市公司估值是多方因素共同作用的结果，受到宏观环境、行业周期、市场情绪等多重复杂因素综合影响，存在阶段性波动。公司始终用心做好经营主业，持续夯实核心竞争力，同时高度重视市值管理工作，始终秉持对全体股东负责的态度，将市值管理纳入公司长期战略规划，积极开展价值传递。感谢您的认可与鞭策，祝您投资顺利！",
+            source="irm_cninfo",
+            published_at="2026-05-23T17:34:03+08:00",
+            url="https://example.com/irm-yangjie-valuation-question",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-zhongci-relationship-question",
+            first_seen_at="2026-05-23T18:13:29+08:00",
+            last_seen_at="2026-05-23T18:13:29+08:00",
+            canonical_title="中瓷电子：请问国家第三代半导体技术创新中心（北京）和公司是啥关系？请问公司有生产光刻机相关的部件吗？子公司国联万众有生产光刻机吗？有北美业务吗？",
+            summary="请问国家第三代半导体技术创新中心（北京）和公司是啥关系？请问公司有生产光刻机相关的部件吗？子公司国联万众有生产光刻机吗？有北美业务吗？",
+            source="irm_cninfo",
+            published_at="2026-05-23T18:13:29+08:00",
+            url="https://example.com/irm-zhongci-relationship-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-zhongci-glass-substrate-question",
+            first_seen_at="2026-05-23T18:13:29+08:00",
+            last_seen_at="2026-05-23T18:13:29+08:00",
+            canonical_title="中瓷电子：2026年05月20日，京东方与康宁公司协议合作开发光模块封装“玻璃基板”，对公司目前陶瓷管壳&基板技术路线有何重大影响？玻璃基板会否全面替代陶瓷基板？公司有何应对措施？",
+            summary="2026年05月20日，京东方与康宁公司协议合作开发光模块封装“玻璃基板”，对公司目前陶瓷管壳&基板技术路线有何重大影响？玻璃基板会否全面替代陶瓷基板？公司有何应对措施？",
+            source="irm_cninfo",
+            published_at="2026-05-23T18:13:29+08:00",
+            url="https://example.com/irm-zhongci-glass-substrate-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-chujiang-third-gen-question",
+            first_seen_at="2026-05-23T17:13:29+08:00",
+            last_seen_at="2026-05-23T17:13:29+08:00",
+            canonical_title="楚江新材：请问楚江新材在第三代半导体领域有哪些作为？",
+            summary="请问楚江新材在第三代半导体领域有哪些作为？",
+            source="irm_cninfo",
+            published_at="2026-05-23T17:13:29+08:00",
+            url="https://example.com/irm-chujiang-third-gen-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-policy-signal",
+            first_seen_at="2026-05-23T21:56:46+08:00",
+            last_seen_at="2026-05-23T21:56:46+08:00",
+            canonical_title="国家数据局：将把推动词元经济发展纳入工作体系",
+            summary="人民财讯5月23日电，国家数据局消息，5月22日，国家数据局党组书记、局长刘烈宏主持召开词元经济座谈会。词元是大模型处理文本、代码、图像、音频、视频等所有信息时采用的最小运算单元，正在成为人工智能服务的计量单位、结算单位和统计单位。国家数据局将把推动词元经济发展纳入工作体系。",
+            source="stcn",
+            published_at="2026-05-23T21:56:46+08:00",
+            url="https://example.com/keep-policy-signal",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-drugstone-commercialization-question", direction="bullish", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-drugstone-order-roadshow-question", direction="bullish", impact_score=100.0, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-yangjie-valuation-question", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongci-relationship-question", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-irm-zhongci-glass-substrate-question", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-chujiang-third-gen-question", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-keep-policy-signal", direction="bullish", impact_score=99.0, reasoning="rule", themes=["算力"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国家数据局：将把推动词元经济发展纳入工作体系" in content
+    assert "药石科技：“董秘您好，获悉公司深度参与的一体化项目" not in content
+    assert "药石科技：“董秘您好！仲丁基锂的连续流工艺突破" not in content
+    assert "扬杰科技：你好董秘先生！集团在功率半导体算得上比较靠前的企业盈利也是在前三" not in content
+    assert "中瓷电子：请问国家第三代半导体技术创新中心（北京）和公司是啥关系" not in content
+    assert "中瓷电子：2026年05月20日，京东方与康宁公司协议合作开发光模块封装“玻璃基板”" not in content
+    assert "楚江新材：请问楚江新材在第三代半导体领域有哪些作为？" not in content
+
+
+def test_write_text_report_filters_current_report_followup_qa_noise_without_hiding_statement_and_policy(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-chujiang-copper-target-question",
+            first_seen_at="2026-05-23T17:13:29+08:00",
+            last_seen_at="2026-05-23T20:31:52+08:00",
+            canonical_title="楚江新材：公司在半导体用高纯铜靶材 / 铜基封装材料方面有无技术布局或产品落地？",
+            summary="公司在半导体用高纯铜靶材 / 铜基封装材料方面有无技术布局或产品落地？",
+            source="irm_cninfo",
+            published_at="2026-05-23T17:13:29+08:00",
+            url="https://example.com/irm-chujiang-copper-target-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-sse-hengrui-stock-complaint",
+            first_seen_at="2026-05-22T18:24:00+08:00",
+            last_seen_at="2026-05-22T18:24:00+08:00",
+            canonical_title="恒瑞医药：恒瑞医药还是创新药龙头吗？！为什么被市场抛弃！天天跌你们脸上挂得住吗还是回购嫌股价高，你们为什么不考虑股民的利益！亏我老药师一直以你们为骄傲，等回本永远不碰你们股票了",
+            summary="问题：恒瑞医药还是创新药龙头吗？！为什么被市场抛弃！天天跌你们脸上挂得住吗还是回购嫌股价高，你们为什么不考虑股民的利益！亏我老药师一直以你们为骄傲，等回本永远不碰你们股票了 回复：尊敬的投资者您好，公司坚持科技创新战略，已在中国获批上市24款1类创新药、5款2类新药，另有100多个自主创新产品正在临床开发，400余项临床试验在国内外开展。经营业绩方面，创新成果转化高效赋能，创新药销售引领业绩增长。2025年公司创新药销售收入163.42 亿元，同比增长26.09%，占药品销售收入的比重达58.34%；2026年第一季度，创新药销售收入45.26亿元，同比增长25.75%，占药品销售收入的比重达61.69%。公司将继续大力推进“科技创新”和“国际化”两大发展战略，稳步推进研发创新和制剂产品的国际化。同时，也将着力于产品结构的优化提升，通过产品创新升级和多元化产品管线的拓展推动公司的持续发展，促进公司业绩可持续增长，以更好的发展回馈股东。",
+            source="sse_einteractive",
+            published_at="2026-05-22T18:24:00+08:00",
+            url="https://example.com/sse-hengrui-stock-complaint",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-irm-yangjie-buyback-suggestion",
+            first_seen_at="2026-05-23T17:32:33+08:00",
+            last_seen_at="2026-05-23T17:32:33+08:00",
+            canonical_title="扬杰科技：董秘及管理层， 您们好！虽然公司过去这些年经营管理的不错，但享受的估值一直都比同行低很多，尤其公司目前遭遇外界打压影响，公司是否有考虑过二级市场投资的感受？真的好的企业除了经营好业绩，也要维护做好投资回报工作，希望能够增持股份并注销，提振市场人气，谢谢！",
+            summary="问题：董秘及管理层， 您们好！虽然公司过去这些年经营管理的不错，但享受的估值一直都比同行低很多，尤其公司目前遭遇外界打压影响，公司是否有考虑过二级市场投资的感受？真的好的企业除了经营好业绩，也要维护做好投资回报工作，希望能够增持股份并注销，提振市场人气，谢谢！ 回复：感谢您提出的宝贵建议，公司管理层将认真考虑。感谢您的关注。",
+            source="irm_cninfo",
+            published_at="2026-05-23T17:32:33+08:00",
+            url="https://example.com/irm-yangjie-buyback-suggestion",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-noliforklift-order-question-1",
+            first_seen_at="2026-05-22T18:15:00+08:00",
+            last_seen_at="2026-05-22T18:15:00+08:00",
+            canonical_title="诺力股份：你好，中鼎集成5.15再次递交上市申请，财务报表更新为2026年一季度，请你发布一下中鼎集成一季度销售收入、验收金额、在手订单等等，谢谢！",
+            summary="问题：你好，中鼎集成5.15再次递交上市申请，财务报表更新为2026年一季度，请你发布一下中鼎集成一季度销售收入、验收金额、在手订单等等，谢谢！ 回复：尊敬的投资者，您好！请您关注公司或子公司于指定媒体或平台披露的定期报告及公告信息。感谢您对公司的关注！",
+            source="sse_einteractive",
+            published_at="2026-05-22T18:15:00+08:00",
+            url="https://example.com/sse-noliforklift-order-question-1",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-noliforklift-order-question-2",
+            first_seen_at="2026-05-22T18:15:00+08:00",
+            last_seen_at="2026-05-22T18:15:00+08:00",
+            canonical_title="诺力股份：2026年一季度（招股书更新）营业收入：5.48 亿元，净利润：0.92 亿元，新签订单：10.49 亿元同比 150%，请问更新后的一季度报表在手订单具体多少亿？",
+            summary="问题：2026年一季度（招股书更新）营业收入：5.48 亿元，净利润：0.92 亿元，新签订单：10.49 亿元同比 150%，请问更新后的一季度报表在手订单具体多少亿？ 回复：尊敬的投资者，您好！请您关注公司或子公司于指定媒体或平台披露的定期报告及公告信息。感谢您对公司的关注！",
+            source="sse_einteractive",
+            published_at="2026-05-22T18:15:00+08:00",
+            url="https://example.com/sse-noliforklift-order-question-2",
+            event_type="fast_news",
+            event_subtype="business_guidance",
+        ),
+        Event(
+            event_id="event-sse-noliforklift-stock-price-complaint",
+            first_seen_at="2026-05-22T18:15:00+08:00",
+            last_seen_at="2026-05-22T18:15:00+08:00",
+            canonical_title="诺力股份：公司股价落后大盘指数50%以上了，很多优秀的公司现在还在增持，比如银轮股份。公司管理层能不能行动起来，不要光喊口号了。",
+            summary="问题：公司股价落后大盘指数50%以上了，很多优秀的公司现在还在增持，比如银轮股份。公司管理层能不能行动起来，不要光喊口号了。 回复：尊敬的投资者，您好！公司对未来充满信心，将扎扎实实做好主业经营，回馈股东。我们将转达您的建议，未来如有信息，我们将及时履行披露义务。感谢您对公司的持续关注！",
+            source="sse_einteractive",
+            published_at="2026-05-22T18:15:00+08:00",
+            url="https://example.com/sse-noliforklift-stock-price-complaint",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-policy-signal-2",
+            first_seen_at="2026-05-23T21:56:46+08:00",
+            last_seen_at="2026-05-23T21:56:46+08:00",
+            canonical_title="国家数据局：将把推动词元经济发展纳入工作体系",
+            summary="人民财讯5月23日电，国家数据局消息，5月22日，国家数据局党组书记、局长刘烈宏主持召开词元经济座谈会。词元是大模型处理文本、代码、图像、音频、视频等所有信息时采用的最小运算单元，正在成为人工智能服务的计量单位、结算单位和统计单位。国家数据局将把推动词元经济发展纳入工作体系。",
+            source="stcn",
+            published_at="2026-05-23T21:56:46+08:00",
+            url="https://example.com/keep-policy-signal-2",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-keep-statement",
+            first_seen_at="2026-05-23T19:30:56+08:00",
+            last_seen_at="2026-05-23T19:30:56+08:00",
+            canonical_title="闻泰科技声明：安世荷兰声称公司回避与其沟通完全与事实不符",
+            summary="人民财讯5月23日电，闻泰科技5月23日在官微发布声明称，近日，安世半导体公开声称其多次要求与闻泰科技管理层沟通，寻求建设性解决方案，但未获积极回应。闻泰科技现就相关情况郑重声明如下。",
+            source="stcn",
+            published_at="2026-05-23T19:30:56+08:00",
+            url="https://example.com/keep-statement",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-chujiang-copper-target-question", direction="neutral", impact_score=100.0, reasoning="rule", themes=["半导体"], triggered=True),
+        EventAnalysis(event_id="event-sse-hengrui-stock-complaint", direction="bullish", impact_score=99.9, reasoning="rule", themes=["创新药"], triggered=True),
+        EventAnalysis(event_id="event-irm-yangjie-buyback-suggestion", direction="neutral", impact_score=75.2, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-noliforklift-order-question-1", direction="bullish", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-noliforklift-order-question-2", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-sse-noliforklift-stock-price-complaint", direction="neutral", impact_score=74.9, reasoning="rule", themes=[], triggered=True),
+        EventAnalysis(event_id="event-keep-policy-signal-2", direction="bullish", impact_score=99.0, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-keep-statement", direction="bullish", impact_score=99.0, reasoning="rule", themes=["半导体"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国家数据局：将把推动词元经济发展纳入工作体系" in content
+    assert "闻泰科技声明：安世荷兰声称公司回避与其沟通完全与事实不符" in content
+    assert "楚江新材：公司在半导体用高纯铜靶材 / 铜基封装材料方面有无技术布局或产品落地？" not in content
+    assert "恒瑞医药：恒瑞医药还是创新药龙头吗？！为什么被市场抛弃！天天跌你们脸上挂得住吗还是回购嫌股价高" not in content
+    assert "扬杰科技：董秘及管理层， 您们好！虽然公司过去这些年经营管理的不错" not in content
+    assert "诺力股份：你好，中鼎集成5.15再次递交上市申请" not in content
+    assert "诺力股份：2026年一季度（招股书更新）营业收入：5.48 亿元" not in content
+    assert "诺力股份：公司股价落后大盘指数50%以上了" not in content
 
 
 def test_write_text_report_filters_exchange_reduction_predisclosure_and_risk_control_opinion_without_theme(tmp_path) -> None:
