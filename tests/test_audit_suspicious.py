@@ -1050,6 +1050,48 @@ def test_audit_suspicious_skips_bank_account_partial_fund_freeze_material_notice
     assert "关于公司银行账户部分资金被冻结的公告" not in output
 
 
+def test_audit_suspicious_skips_mixed_debt_overdue_and_bank_account_freeze_material_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-szse-mixed-debt-overdue-bank-freeze",
+                first_seen_at="2026-05-23T00:00:00+08:00",
+                last_seen_at="2026-05-23T00:00:00+08:00",
+                canonical_title="ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告",
+                summary="ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告",
+                source="szse",
+                published_at="2026-05-23T00:00:00+08:00",
+                url="https://example.com/szse-mixed-debt-overdue-bank-freeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-szse-mixed-debt-overdue-bank-freeze",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告" not in output
+
+
 def test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice(
     tmp_path, monkeypatch, capsys
 ) -> None:

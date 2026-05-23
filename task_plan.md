@@ -18,20 +18,19 @@
   - `tests/test_audit_suspicious.py` 定向组 -> `6 passed`
   - `tests/test_event_merge.py` 定向组 -> `2 passed`
   - `tests/test_text_report_sorting.py` 定向组 -> `4 passed`
-  - `audit-suspicious --limit 20` -> `suspicious_count=1`
-  - `watchdog-once --source all --limit 20` -> `20260523T232729Z-watchdog.json`，`failed_sources=none`，`suspicious_count=1`
-- 当前唯一残留：
-  - `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告`
-- 当前判断：
-  - 这条先视为真风险，不继续按噪声压。
+  - `tests/test_audit_suspicious.py` 冻结/混合冻结定向组 -> `3 passed`
+  - `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `watchdog-once --source all --limit 20` -> `watchdog_status=clean`、`failed_sources=none`、`suspicious_count=0`
+- 当前补充判断：
+  - `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告` 只有标题材料口径，当前按最窄噪声处理。
 
 ## Immediate Next Steps (2026-05-24 latest)
-1. 先复核当前未提交 diff，确认只包含本轮 6 个代码/测试文件和交接文件：
-   - `git diff -- src/news_sentiment/cli.py src/news_sentiment/event_merge/core.py src/news_sentiment/reporting/text_report.py tests/test_audit_suspicious.py tests/test_event_merge.py tests/test_text_report_sorting.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+1. 先复核当前未提交 diff，确认只包含这轮 `ST三木` 增量和交接文件：
+   - `git diff -- src/news_sentiment/cli.py tests/test_audit_suspicious.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
 2. 再做 scoped commit / push。
 3. push 后只读观察后台：
    - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
-4. 如果 fresh live 继续只剩 `ST三木`，先停手，不再为“更干净头部”继续压规则。
+4. 如果后台自然下一轮也回 `clean`，本轮就结束；不要继续扩大到所有 `债务逾期` 公告。
 
 ## Update 2026-05-21 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`

@@ -18,21 +18,21 @@
   - `仲裁进展 / 追偿权纠纷诉讼进展 / 简易判决动议开庭追问 / 储能电站示范稿` 继续按最窄 `audit-suspicious` 尾噪处理。
   - `伊朗...重组与重整` 的问题不是 report 过滤，而是 `event_merge` 把地缘政治语境误判成并购重组；应在 merge 层修正。
   - `楚江新材 / 恒瑞医药 / 扬杰科技 / 诺力股份` 这批是典型弱问答，继续在 `text_report` helper 里按 `title + reply` 或 `title-only` 最窄收口。
-  - `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告` 当前保留为真风险，不纳入低信号规则。
+  - `ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告` 当前 raw/event 只有标题，没有正文细节；按最窄 `部分债务逾期和部分银行账户被冻结` 材料口径退出 audit。
 - 验收结论：
   - 初次 fresh `watchdog-once` 为 `suspicious_count=5`。
-  - 连续补完后，`audit-suspicious --limit 20` 为 `suspicious_count=1`。
+  - 连续补完后，`audit-suspicious --limit 20` 先到 `suspicious_count=1`，再回到 `suspicious_count=0`。
   - 最新 fresh `watchdog-once --source all --limit 20` 为：
     - `raw_news=611`
     - `normalized_news=611`
-    - `events=480`
-    - `analyses=480`
+    - `events=476`
+    - `analyses=476`
     - `failed_sources=none`
-    - `suspicious_count=1`
-    - 唯一残留：`ST三木：关于公司部分债务逾期和部分银行账户被冻结的公告`
+    - `watchdog_status=clean`
+    - `suspicious_count=0`
 - 下一步判断：
-  - 当前内容侧已经基本收口；下一步优先提交当前本地改动，不是继续扩规则。
-  - 只有当 push 后 fresh live 又滚出新的弱问答或材料噪声，才继续补红灯测试和最窄规则。
+  - 当前内容侧已经收口到 `watchdog clean`；下一步优先提交当前这轮最窄增量。
+  - 不要据此扩大到所有 `债务逾期` 公告；只有混合 `部分银行账户被冻结` 这类材料标题才适用。
 
 ## Update 2026-05-21 (latest)
 - 本轮核心判断：`创业板指、深证成指均涨逾2% 半导体、券商等板块活跃` 不是真异常，而是 `A股指数 + 板块活跃` 这类新的 `market_reference` 模板漏网。
