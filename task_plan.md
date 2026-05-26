@@ -1,5 +1,23 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-26 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮补完了两条后台内容误报：
+  - `先进封装概念震荡回升 长电科技2连板`
+  - `麦克奥迪：请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？`
+- 本轮规则决策：
+  - `先进封装概念震荡回升` 只在具备 `涨停/连板/创新高/大涨/涨幅居前` 这类题材热度上下文时按 `market_reference` 放过。
+  - `诉讼进行到什么程度 / 什么时候开庭 / 能庭外和解` 这类 `irm_cninfo` 问询式公司动态，按 question-only 最窄口径退出 `audit-suspicious` 和 `report`。
+  - 不扩成所有概念回升，也不扩成所有诉讼追问。
+- 当前验证：
+  - `tests/test_audit_suspicious.py -k 'litigation_follow_up_question or concept_rebound' -q` -> `2 passed`
+  - `tests/test_text_report_sorting.py -k 'litigation_follow_up_question or concept_rebound' -q` -> `2 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，目标标题都不在 `latest_report.txt`
+- 下一步判断：
+  - 先做一次 scoped commit/push。
+  - 推送后继续只读观察后台自然轮次是否保持 `clean`。
+
 ## Update 2026-05-24 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮补完了 2026-05-22 中断的本地未提交收口：

@@ -1134,6 +1134,88 @@ def test_audit_suspicious_skips_shareholder_partial_share_freeze_material_notice
     assert "中农发种业集团股份有限公司关于股东所持部分股份冻结的公告" not in output
 
 
+def test_audit_suspicious_skips_control_share_freeze_notice(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-control-share-freeze",
+                first_seen_at="2026-05-26T00:00:00+08:00",
+                last_seen_at="2026-05-26T00:00:00+08:00",
+                canonical_title="西安曲江文化旅游股份有限公司关于控股股东部分股份冻结公告",
+                summary="西安曲江文化旅游股份有限公司关于控股股东部分股份冻结公告",
+                source="cninfo",
+                published_at="2026-05-26T00:00:00+08:00",
+                url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=600706&announcementId=1225329931&orgId=gssh0600706&announcementTime=2026-05-26",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-control-share-freeze",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "西安曲江文化旅游股份有限公司关于控股股东部分股份冻结公告" not in output
+
+
+def test_audit_suspicious_skips_frozen_share_passive_reduction_plan_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-frozen-share-passive-reduction-plan",
+                first_seen_at="2026-05-25T00:00:00+08:00",
+                last_seen_at="2026-05-25T00:00:00+08:00",
+                canonical_title="上海皓元医药股份有限公司关于股东冻结股份被动减持计划公告",
+                summary="上海皓元医药股份有限公司关于股东冻结股份被动减持计划公告",
+                source="sse",
+                published_at="2026-05-25T00:00:00+08:00",
+                url="https://example.com/sse-frozen-share-passive-reduction-plan",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-frozen-share-passive-reduction-plan",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "上海皓元医药股份有限公司关于股东冻结股份被动减持计划公告" not in output
+
+
 def test_audit_suspicious_skips_convertible_bond_inquiry_reply_revision(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -1958,6 +2040,90 @@ def test_audit_suspicious_skips_irm_legal_question_only_company_update(tmp_path,
     assert "未决诉讼事项的信息披露标准" not in output
 
 
+def test_audit_suspicious_skips_irm_legal_arbitration_follow_up_question(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-irm-legal-arbitration-follow-up-question",
+                first_seen_at="2026-05-24T19:21:07+08:00",
+                last_seen_at="2026-05-24T19:21:07+08:00",
+                canonical_title="同有科技：董秘你好，贵司同有科技“5月22日在投资者互动平台表示，公司不存在与忆恒创源原创始人相关的仲裁案件” 请问这里的公司是指上市公司主体，还是包含了上市公司以及控股的子公司。另外如果子公司存在仲裁案件，目前案件进展如何。",
+                summary="董秘你好，贵司同有科技“5月22日在投资者互动平台表示，公司不存在与忆恒创源原创始人相关的仲裁案件” 请问这里的公司是指上市公司主体，还是包含了上市公司以及控股的子公司。另外如果子公司存在仲裁案件，目前案件进展如何。",
+                source="irm_cninfo",
+                published_at="2026-05-24T19:21:07+08:00",
+                url="https://example.com/irm-legal-arbitration-follow-up-question",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-irm-legal-arbitration-follow-up-question",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "目前案件进展如何" not in output
+
+
+def test_audit_suspicious_skips_irm_subsidiary_risk_question(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-irm-subsidiary-risk-question",
+                first_seen_at="2026-05-24T20:51:33+08:00",
+                last_seen_at="2026-05-24T20:51:33+08:00",
+                canonical_title="国投智能：2025年全资子公司江苏税软未达预期，计提1.82亿元商誉减值，叠加应收、存货减值，拖累全年巨亏。 今日闪崩是否与子公司再爆雷、新增大额减值、业务停滞、诉讼败诉有关？公司为何不提前预警、及时披露、充分提示风险？子公司风险是否持续恶化、无法挽回？董秘是否对子公司经营失控、风险隐瞒承担责任？投资者是否有权质疑公司资产质量、持续经营能力存在重大不确定性？",
+                summary="问题：2025年全资子公司江苏税软未达预期，计提1.82亿元商誉减值，叠加应收、存货减值，拖累全年巨亏。 今日闪崩是否与子公司再爆雷、新增大额减值、业务停滞、诉讼败诉有关？公司为何不提前预警、及时披露、充分提示风险？子公司风险是否持续恶化、无法挽回？董秘是否对子公司经营失控、风险隐瞒承担责任？投资者是否有权质疑公司资产质量、持续经营能力存在重大不确定性？ 回复：您好，公司股价短期波动系行业周期、市场情绪及资金偏好等多重因素综合影响，截至目前，公司不存在您提及的相关情形。公司已严格按照会计准则及监管要求，足额计提并及时披露江苏税软相关资产减值，并在定期报告中持续提示相关经营风险，不存在未预警、隐瞒风险或应披露未披露事项。公司管理层及董秘恪尽职守，依法合规履行信息披露职责，不存在对子公司经营失控、隐瞒风险的情况。公司资产质量及持续经营能力整体稳健，相关财务数据与风险提示均已充分披露，公司将持续夯实经营基本面，切实维护全体投资者利益。感谢您的关注与支持。",
+                source="irm_cninfo",
+                published_at="2026-05-24T20:51:33+08:00",
+                url="https://example.com/irm-subsidiary-risk-question",
+                event_type="fast_news",
+                event_subtype="company_update",
+            )
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-irm-subsidiary-risk-question",
+                direction="bullish",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            )
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "商誉减值" not in output
+
+
 def test_audit_suspicious_skips_sse_einteractive_legal_disclosure_policy_reply(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -2082,6 +2248,48 @@ def test_audit_suspicious_skips_sse_einteractive_legal_schedule_follow_up_questi
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "东方生物：董秘您好" not in output
+
+
+def test_audit_suspicious_skips_irm_cninfo_litigation_follow_up_question(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-irm-cninfo-litigation-follow-up-question",
+                first_seen_at="2026-05-26T16:15:37+08:00",
+                last_seen_at="2026-05-26T16:15:37+08:00",
+                canonical_title="麦克奥迪：请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？",
+                summary="请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？",
+                source="irm_cninfo",
+                published_at="2026-05-26T16:15:37+08:00",
+                url="https://irm.cninfo.com.cn/ircs/question/questionDetail?questionId=2276020588407750656",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-irm-cninfo-litigation-follow-up-question",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "麦克奥迪：请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？" not in output
 
 
 def test_audit_suspicious_skips_private_robot_financing_general_fast_news(
@@ -2460,6 +2668,48 @@ def test_audit_suspicious_keeps_a_share_concept_active_limit_up_as_market_refere
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "创新药概念活跃 昂利康2连板" not in output
+
+
+def test_audit_suspicious_skips_stcn_concept_rebound_with_theme(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-concept-rebound-reference",
+                first_seen_at="2026-05-26T14:54:38+08:00",
+                last_seen_at="2026-05-26T14:54:38+08:00",
+                canonical_title="先进封装概念震荡回升 长电科技2连板",
+                summary="人民财讯5月26日电，先进封装概念震荡回升，长电科技2连板，通富微电触及涨停，华天科技、生益科技、三佳科技此前涨停，胜科纳米、甬矽电子、联瑞新材、颀中科技涨幅居前。",
+                source="stcn",
+                published_at="2026-05-26T14:54:38+08:00",
+                url="https://www.stcn.com/article/detail/3927581.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-concept-rebound-reference",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "先进封装概念震荡回升 长电科技2连板" not in output
 
 
 def test_audit_suspicious_keeps_a_share_sector_strengthening_as_market_reference(
@@ -2931,6 +3181,88 @@ def test_audit_suspicious_skips_stcn_public_affairs_leader_visit_story(tmp_path,
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况" not in output
+
+
+def test_audit_suspicious_skips_stcn_ic_enterprise_exchange_story(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-wuhan-ic-enterprise-exchange",
+                first_seen_at="2026-05-25T07:56:19+08:00",
+                last_seen_at="2026-05-25T07:56:19+08:00",
+                canonical_title="武汉市委书记盛阅春与集成电路领域企业家座谈",
+                summary="人民财讯5月25日电，据长江日报，5月24日，湖北省委常委、武汉市委书记盛阅春与省内外的集成电路领域企业家座谈交流、共话合作。",
+                source="stcn",
+                published_at="2026-05-25T07:56:19+08:00",
+                url="https://www.stcn.com/article/detail/3924630.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-wuhan-ic-enterprise-exchange",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "武汉市委书记盛阅春与集成电路领域企业家座谈" not in output
+
+
+def test_audit_suspicious_skips_stcn_oil_storage_expert_guidance_service_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-oil-storage-expert-guidance-service",
+                first_seen_at="2026-05-25T12:37:40+08:00",
+                last_seen_at="2026-05-25T12:37:40+08:00",
+                canonical_title="应急管理部启动2026年油气储存企业部级专家指导服务",
+                summary="人民财讯5月25日电，为深入推进化工和危险化学品安全生产治本攻坚三年行动，应急管理部近日启动2026年油气储存企业部级专家指导服务。",
+                source="stcn",
+                published_at="2026-05-25T12:37:40+08:00",
+                url="https://www.stcn.com/article/detail/3925214.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-oil-storage-expert-guidance-service",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "应急管理部启动2026年油气储存企业部级专家指导服务" not in output
 
 
 def test_audit_suspicious_skips_stcn_nev_safety_management_video_meeting(

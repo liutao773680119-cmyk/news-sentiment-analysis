@@ -120,6 +120,9 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "银行账户部分资金被冻结",
     "募集资金账户被冻结",
     "股东所持部分股份冻结",
+    "控股股东股份被冻结",
+    "控股股东部分股份冻结",
+    "冻结股份被动减持计划",
     "解除司法冻结",
     "持股5%以上股东股份解除冻结",
     "控股股东所持公司部分股份解除冻结",
@@ -153,6 +156,8 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "调研先进制造业发展",
     "人形机器人半马",
     "文旅经济发展大会召开",
+    "集成电路领域企业家座谈",
+    "油气储存企业部级专家指导服务",
     "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
     "加强新能源汽车安全管理工作视频会",
 )
@@ -553,6 +558,12 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_irm_cninfo_legal_schedule_follow_up_question(event, text):
             return None
+        if _is_low_signal_irm_cninfo_legal_litigation_follow_up_question(event, text):
+            return None
+        if _is_low_signal_irm_cninfo_legal_arbitration_follow_up_question(event, text):
+            return None
+        if _is_low_signal_irm_cninfo_subsidiary_risk_question(event, text):
+            return None
         if _is_low_signal_irm_cninfo_legal_complaint_question_only(event, text):
             return None
         return "company_update_legal_keyword"
@@ -710,6 +721,8 @@ def _is_market_reference_a_share_concept_move_candidate(event: Event) -> bool:
             "概念走强" in event.canonical_title
             or "概念活跃" in event.canonical_title
             or "板块震荡走强" in event.canonical_title
+            or "概念震荡回升" in event.canonical_title
+            or "板块震荡回升" in event.canonical_title
         )
         and _contains_any(
             f"{event.canonical_title} {event.summary}",
@@ -978,6 +991,56 @@ def _is_low_signal_irm_cninfo_legal_schedule_follow_up_question(
         and "简易判决动议" in title
         and "预计 7 月宣布开庭" in title
         and "后续相关公告" in text
+    )
+
+
+def _is_low_signal_irm_cninfo_legal_litigation_follow_up_question(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+        and "诉讼" in title
+        and all(marker not in text for marker in ("回复：", "回复:"))
+        and (
+            ("进行到什么程度" in title or "进展如何" in title or "目前进展如何" in title)
+            and _contains_any(title, ("什么时候开庭", "何时开庭", "庭外和解", "能庭外和解", "能和解吗"))
+        )
+    )
+
+
+def _is_low_signal_irm_cninfo_legal_arbitration_follow_up_question(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+        and "仲裁案件" in title
+        and "目前案件进展如何" in title
+        and any(
+            keyword in title for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件")
+        )
+        and all(marker not in text for marker in ("回复：", "回复:"))
+    )
+
+
+def _is_low_signal_irm_cninfo_subsidiary_risk_question(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+        and "子公司" in title
+        and any(keyword in title for keyword in ("商誉减值", "资产减值", "减值"))
+        and any(
+            keyword in title
+            for keyword in ("诉讼败诉", "风险隐瞒", "持续经营能力", "资产质量", "经营失控", "今日闪崩")
+        )
+        and any(marker in text for marker in ("回复：", "回复:"))
     )
 
 

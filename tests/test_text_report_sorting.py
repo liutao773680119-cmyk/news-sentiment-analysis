@@ -6017,6 +6017,61 @@ def test_write_text_report_filters_stcn_public_affairs_fast_news_even_if_analysi
     assert "迪拜甲骨文大楼外立面遭防空系统拦截碎片击中 无人员伤亡" not in content
 
 
+def test_write_text_report_filters_stcn_oil_storage_expert_guidance_service_without_hiding_theme_order_contract(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-oil-storage-expert-guidance-service",
+            first_seen_at="2026-05-25T12:37:40+08:00",
+            last_seen_at="2026-05-25T12:37:40+08:00",
+            canonical_title="应急管理部启动2026年油气储存企业部级专家指导服务",
+            summary="人民财讯5月25日电，为深入推进化工和危险化学品安全生产治本攻坚三年行动，应急管理部近日启动2026年油气储存企业部级专家指导服务。",
+            source="stcn",
+            published_at="2026-05-25T12:37:40+08:00",
+            url="https://www.stcn.com/article/detail/3925214.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-keep-storage-order",
+            first_seen_at="2026-05-20T09:30:28+08:00",
+            last_seen_at="2026-05-20T09:30:28+08:00",
+            canonical_title="晶澳科技签署储能项目订单合同",
+            summary="晶澳科技签署储能项目订单合同。",
+            source="stcn",
+            published_at="2026-05-20T09:30:28+08:00",
+            url="https://example.com/stcn-storage-order",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-oil-storage-expert-guidance-service",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["油气"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-keep-storage-order",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "应急管理部启动2026年油气储存企业部级专家指导服务" not in content
+    assert "晶澳科技签署储能项目订单合同" in content
+
+
 def test_write_text_report_filters_stcn_charging_infra_general_fast_news_even_if_analysis_gets_theme(
     tmp_path,
 ) -> None:
@@ -6430,6 +6485,61 @@ def test_write_text_report_filters_stcn_public_affairs_conference_story_even_if_
     assert "2026年福建省文旅经济发展大会召开" not in content
     assert "黑龙江省启动“五一”文旅消费周活动" not in content
     assert "某公司签约大型文旅项目建设协议" in content
+
+
+def test_write_text_report_filters_stcn_ic_enterprise_exchange_without_hiding_order_contract(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-wuhan-ic-enterprise-exchange",
+            first_seen_at="2026-05-25T07:56:19+08:00",
+            last_seen_at="2026-05-25T07:56:19+08:00",
+            canonical_title="武汉市委书记盛阅春与集成电路领域企业家座谈",
+            summary="人民财讯5月25日电，据长江日报，5月24日，湖北省委常委、武汉市委书记盛阅春与省内外的集成电路领域企业家座谈交流、共话合作。",
+            source="stcn",
+            published_at="2026-05-25T07:56:19+08:00",
+            url="https://www.stcn.com/article/detail/3924630.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-keep-storage-order",
+            first_seen_at="2026-05-20T09:30:28+08:00",
+            last_seen_at="2026-05-20T09:30:28+08:00",
+            canonical_title="晶澳科技签署储能项目订单合同",
+            summary="晶澳科技签署储能项目订单合同。",
+            source="stcn",
+            published_at="2026-05-20T09:30:28+08:00",
+            url="https://example.com/stcn-storage-order",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-wuhan-ic-enterprise-exchange",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-keep-storage-order",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "武汉市委书记盛阅春与集成电路领域企业家座谈" not in content
+    assert "晶澳科技签署储能项目订单合同" in content
 
 
 def test_write_text_report_filters_stcn_operational_update_with_stable_order_wording(tmp_path) -> None:
@@ -7048,6 +7158,62 @@ def test_write_text_report_filters_cninfo_restructuring_material_reply_with_them
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "国产EDA工具链和先进封装产线建设提速" in content
     assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in content
+
+
+def test_write_text_report_filters_stcn_concept_rebound_without_hiding_semiconductor_progress(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-concept-rebound",
+            first_seen_at="2026-05-26T14:54:38+08:00",
+            last_seen_at="2026-05-26T14:54:38+08:00",
+            canonical_title="先进封装概念震荡回升 长电科技2连板",
+            summary="人民财讯5月26日电，先进封装概念震荡回升，长电科技2连板，通富微电触及涨停，华天科技、生益科技、三佳科技此前涨停，胜科纳米、甬矽电子、联瑞新材、颀中科技涨幅居前。",
+            source="stcn",
+            published_at="2026-05-26T14:54:38+08:00",
+            url="https://www.stcn.com/article/detail/3927581.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-stcn-semiconductor-progress-keep",
+            first_seen_at="2026-04-08T20:01:00+08:00",
+            last_seen_at="2026-04-08T20:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-04-08T20:01:00+08:00",
+            url="https://example.com/stcn-semiconductor-keep",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-concept-rebound",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-semiconductor-progress-keep",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "先进封装概念震荡回升 长电科技2连板" not in content
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+
 
 def test_write_text_report_filters_cninfo_restructuring_revised_report_with_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
@@ -9390,6 +9556,116 @@ def test_write_text_report_filters_exchange_litigation_and_dishonest_person_noti
     assert "*ST美谷：关于担保事项涉及诉讼进展暨银行账户解除冻结的公告" not in content
     assert "龙大美食：关于控股股东所持公司1000万股股份被强制执行完成暨解除冻结的公告" not in content
     assert "泰达股份：天津泰达资源循环集团股份有限公司关于重大资产出售暨关联交易问询函回复的公告" not in content
+
+
+def test_write_text_report_filters_frozen_share_passive_reduction_plan_notice_without_hiding_other_corporate_disclosure(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-sse-frozen-share-passive-reduction-plan",
+            first_seen_at="2026-05-25T00:00:00+08:00",
+            last_seen_at="2026-05-25T00:00:00+08:00",
+            canonical_title="上海皓元医药股份有限公司关于股东冻结股份被动减持计划公告",
+            summary="上海皓元医药股份有限公司关于股东冻结股份被动减持计划公告",
+            source="sse",
+            published_at="2026-05-25T00:00:00+08:00",
+            url="https://example.com/sse-frozen-share-passive-reduction-plan",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-keep-report-visible",
+            first_seen_at="2026-05-25T00:10:00+08:00",
+            last_seen_at="2026-05-25T00:10:00+08:00",
+            canonical_title="两单公募REITs获批",
+            summary="summary",
+            source="stcn",
+            published_at="2026-05-25T00:10:00+08:00",
+            url="https://example.com/stcn-keep-report-visible",
+            event_type="fast_news",
+            event_subtype="regulatory_approval",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-sse-frozen-share-passive-reduction-plan",
+            direction="neutral",
+            impact_score=78.5,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-keep-report-visible",
+            direction="bullish",
+            impact_score=97.0,
+            reasoning="rule",
+            themes=["REITs"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "上海皓元医药股份有限公司关于股东冻结股份被动减持计划公告" not in content
+    assert "两单公募REITs获批" in content
+
+
+def test_write_text_report_filters_control_share_freeze_notice_without_hiding_other_corporate_disclosure(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-control-share-freeze",
+            first_seen_at="2026-05-26T00:00:00+08:00",
+            last_seen_at="2026-05-26T00:00:00+08:00",
+            canonical_title="西安曲江文化旅游股份有限公司关于控股股东部分股份冻结公告",
+            summary="西安曲江文化旅游股份有限公司关于控股股东部分股份冻结公告",
+            source="cninfo",
+            published_at="2026-05-26T00:00:00+08:00",
+            url="https://www.cninfo.com.cn/new/disclosure/detail?stockCode=600706&announcementId=1225329931&orgId=gssh0600706&announcementTime=2026-05-26",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-stcn-keep-report-visible",
+            first_seen_at="2026-05-25T00:10:00+08:00",
+            last_seen_at="2026-05-25T00:10:00+08:00",
+            canonical_title="两单公募REITs获批",
+            summary="summary",
+            source="stcn",
+            published_at="2026-05-25T00:10:00+08:00",
+            url="https://example.com/stcn-keep-report-visible",
+            event_type="fast_news",
+            event_subtype="regulatory_approval",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-control-share-freeze",
+            direction="neutral",
+            impact_score=80.0,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-stcn-keep-report-visible",
+            direction="bullish",
+            impact_score=97.0,
+            reasoning="rule",
+            themes=["REITs"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "西安曲江文化旅游股份有限公司关于控股股东部分股份冻结公告" not in content
+    assert "两单公募REITs获批" in content
 
 
 def test_write_text_report_filters_exchange_major_litigation_and_filing_progress_notices_without_theme(
@@ -12836,6 +13112,143 @@ def test_write_text_report_filters_irm_cninfo_generic_followup_and_no_impact_rep
     assert "贵公司能不能尽快剥离房地产业务" not in content
     assert "贵公司是否有中东订单" not in content
     assert "长春高新：请问贵公司创新药海外授权推进进展如何？" in content
+
+
+def test_write_text_report_filters_irm_cninfo_legal_arbitration_follow_up_question_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-legal-arbitration-follow-up-question",
+            first_seen_at="2026-05-24T19:21:07+08:00",
+            last_seen_at="2026-05-24T19:21:07+08:00",
+            canonical_title="同有科技：董秘你好，贵司同有科技“5月22日在投资者互动平台表示，公司不存在与忆恒创源原创始人相关的仲裁案件” 请问这里的公司是指上市公司主体，还是包含了上市公司以及控股的子公司。另外如果子公司存在仲裁案件，目前案件进展如何。",
+            summary="董秘你好，贵司同有科技“5月22日在投资者互动平台表示，公司不存在与忆恒创源原创始人相关的仲裁案件” 请问这里的公司是指上市公司主体，还是包含了上市公司以及控股的子公司。另外如果子公司存在仲裁案件，目前案件进展如何。",
+            source="irm_cninfo",
+            published_at="2026-05-24T19:21:07+08:00",
+            url="https://example.com/irm-legal-arbitration-follow-up-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-arbitration-progress",
+            first_seen_at="2026-05-24T19:24:07+08:00",
+            last_seen_at="2026-05-24T19:24:07+08:00",
+            canonical_title="同有科技：关于仲裁案件的进展说明",
+            summary="问题：关于仲裁案件的进展说明。 回复：公司就相关仲裁事项已聘请律师跟进，目前案件正在依法推进。",
+            source="irm_cninfo",
+            published_at="2026-05-24T19:24:07+08:00",
+            url="https://example.com/irm-keep-arbitration-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-legal-arbitration-follow-up-question", direction="neutral", impact_score=75.2, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-arbitration-progress", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "目前案件进展如何" not in content
+    assert "同有科技：关于仲裁案件的进展说明" in content
+
+
+def test_write_text_report_filters_irm_cninfo_litigation_follow_up_question_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-litigation-follow-up-question",
+            first_seen_at="2026-05-26T16:15:37+08:00",
+            last_seen_at="2026-05-26T16:15:37+08:00",
+            canonical_title="麦克奥迪：请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？",
+            summary="请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？",
+            source="irm_cninfo",
+            published_at="2026-05-26T16:15:37+08:00",
+            url="https://irm.cninfo.com.cn/ircs/question/questionDetail?questionId=2276020588407750656",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-litigation-progress",
+            first_seen_at="2026-05-26T16:18:37+08:00",
+            last_seen_at="2026-05-26T16:18:37+08:00",
+            canonical_title="麦克奥迪：关于诉讼事项的进展说明",
+            summary="问题：关于诉讼事项的进展说明。 回复：公司正在依法推进相关诉讼事项，后续请关注公告。",
+            source="irm_cninfo",
+            published_at="2026-05-26T16:18:37+08:00",
+            url="https://example.com/irm-keep-litigation-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-irm-litigation-follow-up-question",
+            direction="neutral",
+            impact_score=75.2,
+            reasoning="rule",
+            themes=["医疗器械"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-irm-keep-litigation-progress",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["医疗器械"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "诉讼进行到什么程度" not in content
+    assert "麦克奥迪：关于诉讼事项的进展说明" in content
+
+
+def test_write_text_report_filters_irm_cninfo_subsidiary_risk_question_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-subsidiary-risk-question",
+            first_seen_at="2026-05-24T20:51:33+08:00",
+            last_seen_at="2026-05-24T20:51:33+08:00",
+            canonical_title="国投智能：2025年全资子公司江苏税软未达预期，计提1.82亿元商誉减值，叠加应收、存货减值，拖累全年巨亏。 今日闪崩是否与子公司再爆雷、新增大额减值、业务停滞、诉讼败诉有关？公司为何不提前预警、及时披露、充分提示风险？子公司风险是否持续恶化、无法挽回？董秘是否对子公司经营失控、风险隐瞒承担责任？投资者是否有权质疑公司资产质量、持续经营能力存在重大不确定性？",
+            summary="问题：2025年全资子公司江苏税软未达预期，计提1.82亿元商誉减值，叠加应收、存货减值，拖累全年巨亏。 今日闪崩是否与子公司再爆雷、新增大额减值、业务停滞、诉讼败诉有关？公司为何不提前预警、及时披露、充分提示风险？子公司风险是否持续恶化、无法挽回？董秘是否对子公司经营失控、风险隐瞒承担责任？投资者是否有权质疑公司资产质量、持续经营能力存在重大不确定性？ 回复：您好，公司股价短期波动系行业周期、市场情绪及资金偏好等多重因素综合影响，截至目前，公司不存在您提及的相关情形。公司已严格按照会计准则及监管要求，足额计提并及时披露江苏税软相关资产减值，并在定期报告中持续提示相关经营风险，不存在未预警、隐瞒风险或应披露未披露事项。公司管理层及董秘恪尽职守，依法合规履行信息披露职责，不存在对子公司经营失控、隐瞒风险的情况。公司资产质量及持续经营能力整体稳健，相关财务数据与风险提示均已充分披露，公司将持续夯实经营基本面，切实维护全体投资者利益。感谢您的关注与支持。",
+            source="irm_cninfo",
+            published_at="2026-05-24T20:51:33+08:00",
+            url="https://example.com/irm-subsidiary-risk-question",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-arbitration-progress",
+            first_seen_at="2026-05-24T19:24:07+08:00",
+            last_seen_at="2026-05-24T19:24:07+08:00",
+            canonical_title="同有科技：关于仲裁案件的进展说明",
+            summary="问题：关于仲裁案件的进展说明。 回复：公司就相关仲裁事项已聘请律师跟进，目前案件正在依法推进。",
+            source="irm_cninfo",
+            published_at="2026-05-24T19:24:07+08:00",
+            url="https://example.com/irm-keep-arbitration-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(event_id="event-irm-subsidiary-risk-question", direction="bullish", impact_score=75.2, reasoning="rule", themes=["算力"], triggered=True),
+        EventAnalysis(event_id="event-irm-keep-arbitration-progress", direction="neutral", impact_score=100.0, reasoning="rule", themes=["算力"], triggered=True),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "商誉减值" not in content
+    assert "同有科技：关于仲裁案件的进展说明" in content
 
 
 def test_write_text_report_filters_irm_cninfo_negative_project_reply_without_hiding_substantive_project_progress(

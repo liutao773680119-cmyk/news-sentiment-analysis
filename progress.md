@@ -1,5 +1,44 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-26)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `概念回升/诉讼追问误报收口与标准交接推送`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 把 `先进封装概念震荡回升 长电科技2连板` 收进 `market_reference` 的最窄豁免，`audit-suspicious` 不再把它算成异常。
+  - 把 `麦克奥迪：请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？` 收进 `irm_cninfo` 诉讼追问窄过滤，`audit-suspicious` 与 `report` 同步退出。
+  - 为两条样本补了红灯回归，并保住了现有 `概念走强 / 概念活跃 / 板块震荡走强`、`诉讼进展说明` 等正例。
+  - 当前验证：
+    - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'litigation_follow_up_question or concept_rebound' -q` -> `2 passed`
+    - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'litigation_follow_up_question or concept_rebound' -q` -> `2 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 10` -> `suspicious_count=0`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report`
+    - `rg -n "先进封装概念震荡回升 长电科技2连板|麦克奥迪：请问：公司现在与六院的诉讼进行到什么程度了？什么时候开庭？能庭外和解吗？" data/reports/latest_report.txt` -> 未命中
+    - `git diff --check` -> passed
+- Open TODO:
+  - 做一次 scoped commit/push。
+  - 下一轮只读看 watchdog 自然是否继续 `clean`。
+- Risks/Blockers:
+  - 概念回升类只应限于带 `涨停/连板/创新高/大涨/涨幅居前` 的题材联动，不要扩成所有概念回升。
+  - 诉讼追问只应限于 question-only 变体，不要误伤带实质回复的诉讼进展说明。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40`
+- Known Avoidances:
+  - `audit-suspicious` 和 `text_report` 必须同步改。
+  - `watchdog_status=alert` 但 `suspicious_count=0` 时先看 `failed_sources`。
+
 ## Latest Handoff Snapshot (2026-05-24)
 - Task-ID:
   - `global-multisource-mainline`

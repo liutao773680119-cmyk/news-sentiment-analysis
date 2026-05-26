@@ -1,5 +1,18 @@
 # Findings & Decisions
 
+## Update 2026-05-26 (latest)
+- 本轮核心判断：`先进封装概念震荡回升 长电科技2连板` 是新的 `market_reference` 变体，不是异常内容；`麦克奥迪` 这条是 question-only 诉讼追问，不是真正的诉讼进展公告。
+- 规则决策：
+  - `概念震荡回升 / 板块震荡回升` 只在同时具备 `涨停 / 连板 / 创新高 / 大涨 / 涨幅居前` 等热度上下文时，才按 `market_reference` 放过。
+  - `诉讼进行到什么程度 / 什么时候开庭 / 能庭外和解` 这类 `irm_cninfo` 问询式 `company_update`，按最窄 question-only 口径过滤。
+  - `audit-suspicious` 与 `text_report` 要保持同步，不要只修一侧。
+- 验收结论：
+  - 定向测试 `4 passed`。
+  - `audit-suspicious --limit 10` -> `suspicious_count=0`
+  - `latest_report.txt` 中两条目标标题均未命中。
+- 下一步判断：
+  - 做一次 scoped commit/push，然后只读观察后台自然轮次。
+
 ## Update 2026-05-24 (latest)
 - 本轮核心判断：真正中断点不是 2026-05-21 已推送那轮，而是 2026-05-22 留在本地未提交的 live/report 收口。
 - 已确认并处理的当前低信号/误分样本：

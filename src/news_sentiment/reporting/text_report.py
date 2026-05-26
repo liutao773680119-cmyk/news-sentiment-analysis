@@ -150,6 +150,9 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持计划期限届满",
     "减持计划完成",
     "减持计划实施完成",
+    "控股股东股份被冻结",
+    "控股股东部分股份冻结",
+    "冻结股份被动减持计划",
     "减持计划期限届满暨实施情况",
     "提前终止减持计划暨减持结果",
     "减持股份计划期限届满",
@@ -617,6 +620,8 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "文旅消费周活动",
     "以旧换新国补扩品",
     "“数据跨境”主题交流活动",
+    "集成电路领域企业家座谈",
+    "油气储存企业部级专家指导服务",
     "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
 )
 LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS = (
@@ -814,6 +819,10 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_irm_cninfo_investor_qa(event, text):
         return False
     if _is_low_signal_sse_einteractive_investor_qa(event, text):
+        return False
+    if _is_low_signal_stcn_a_share_concept_rebound_candidate(event, analysis):
+        return False
+    if _is_low_signal_irm_cninfo_litigation_follow_up_question(event, text):
         return False
     if analysis.themes:
         return True
@@ -1962,6 +1971,27 @@ def _is_low_signal_stcn_private_robot_financing_story(event: Event) -> bool:
     )
 
 
+def _is_low_signal_stcn_a_share_concept_rebound_candidate(
+    event: Event, analysis: EventAnalysis
+) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and analysis.themes
+    ):
+        return False
+
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        "概念震荡回升" in title or "板块震荡回升" in title
+    ) and any(
+        keyword in text
+        for keyword in ("股价创新高", "涨停", "连板", "涨逾", "涨近", "大涨", "涨幅居前")
+    )
+
+
 def _is_low_signal_miit_policy_meeting(event: Event, analysis: EventAnalysis, text: str) -> bool:
     if not (
         event.source == "miit"
@@ -2013,12 +2043,61 @@ def _is_low_signal_miit_policy_supervision_feedback(
     )
 
 
+def _is_low_signal_irm_cninfo_arbitration_follow_up_question(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "irm_cninfo"
+        and event.event_type == "fast_news"
+        and "仲裁案件" in title
+        and "目前案件进展如何" in title
+        and any(
+            keyword in title for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件")
+        )
+        and all(marker not in text for marker in ("回复：", "回复:"))
+    )
+
+
+def _is_low_signal_irm_cninfo_subsidiary_risk_question(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "irm_cninfo"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+        and "子公司" in title
+        and any(keyword in title for keyword in ("商誉减值", "资产减值", "减值"))
+        and any(
+            keyword in title
+            for keyword in ("诉讼败诉", "风险隐瞒", "持续经营能力", "资产质量", "经营失控", "今日闪崩")
+        )
+        and any(marker in text for marker in ("回复：", "回复:"))
+    )
+
+
+def _is_low_signal_irm_cninfo_litigation_follow_up_question(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source in {"irm_cninfo", "sse_einteractive"}
+        and event.event_type == "fast_news"
+        and event.event_subtype == "company_update"
+        and "诉讼" in title
+        and all(marker not in text for marker in ("回复：", "回复:"))
+        and (
+            ("进行到什么程度" in title or "进展如何" in title or "目前进展如何" in title)
+            and any(keyword in title for keyword in ("什么时候开庭", "何时开庭", "庭外和解", "能庭外和解", "能和解吗"))
+        )
+    )
+
+
 def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
     if not (event.source == "irm_cninfo" and event.event_type == "fast_news"):
         return False
 
     title = event.canonical_title
     if any(keyword in title for keyword in LOW_SIGNAL_IRM_CNINFO_INVESTOR_QA_TITLE_KEYWORDS):
+        return True
+    if _is_low_signal_irm_cninfo_arbitration_follow_up_question(event, text):
+        return True
+    if _is_low_signal_irm_cninfo_subsidiary_risk_question(event, text):
         return True
     if all(marker not in text for marker in ("回复：", "回复:")):
         return (
