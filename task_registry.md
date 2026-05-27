@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|
 | `phase8-live-boundary` | `旧 A股单线 live 样本边界收口口径` | `done` | `main` | `2026-04-22` | `sed -n '1,220p' task_plan.md` | `不要再把它当当前主线；不要用旧 phase8 标准验收当前 --source all；后续只作为历史口径参考` |
 | `phase9-source-expansion` | `第一批官方新闻源扩展` | `staged` | `main` | `2026-04-22` | `PYTHONPATH=src ./.venv/bin/python -m news_sentiment run-once --source hkex` | `hkex 仍是 staged；不要直接开进 --source all；不要把 CONNECTED/DISCLOSEABLE/MAJOR TRANSACTION 主干直接当低信号；先识别 AGM/EGM、delay、supplemental、framework、lease、results+suspension 这类材料尾巴；run-once 没 stdout 时要直接看 latest_report.txt` |
-| `global-multisource-mainline` | `全球多源主线 live report 尾噪收口` | `active` | `main` | `2026-05-26` | `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 40` | `report 与 audit-suspicious 要同步；概念震荡回升/板块震荡回升只在具备题材热度词时按 market_reference 处理；诉讼进度/开庭/和解追问只收窄到 question-only 变体；watchdog alert 先看 failed_sources` |
+| `global-multisource-mainline` | `全球多源主线 live report 尾噪收口` | `active` | `main` | `2026-05-27` | `git diff -- src/news_sentiment/cli.py src/news_sentiment/reporting/text_report.py tests/test_audit_suspicious.py tests/test_text_report_sorting.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md` | `report 与 audit-suspicious 要同步；概念震荡回升/板块震荡回升只在具备题材热度词时按 market_reference 处理；诉讼进度/开庭/和解追问只收窄到 question-only 变体；ETF 停牌只在具备基金溢价风险提示时按最窄口径处理；watchdog alert 先看 failed_sources` |
 | `social-sidecar` | `社交线索层最小接线 + sidecar 展示` | `staged` | `main` | `2026-04-22` | `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect-social --platform fixture` | `fixture 已完成最小验收并真实写盘；只做 sidecar，不进主评分；不接 run-once/live-smoke；weibo 当前仍受 visitor gate/403 限制，不要误判成生产可用` |
 
 ## Status Convention

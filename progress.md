@@ -1,5 +1,47 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-27)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/27 问询材料 / 仲裁追问收口与 ETF 停牌新异动复核`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+  - `task_registry.md`
+  - `修改记录_会话备忘.md`
+  - `避坑记录.md`
+- Completed This Session:
+  - 把 `cninfo` 重组材料里缺的 `问询函中有关财务事项的说明 / 问询函中有关财务会计问题的专项说明` 补进现有低信号口径。
+  - 把 `同有科技...殷雪冰的仲裁进展如何了` 这类带否认/回避式回复的 `irm_cninfo` 仲裁追问同步退出 `audit-suspicious` 与 `report`。
+  - 把 `致同...年报问询函》的回复 / 北京华亚正信...之回复 / 阿石创：关于延期回复深圳证券交易所审核问询函的公告` 这批 `cninfo` 材料公告同步从 audit / report 收掉。
+  - 把 `Solarpro Holding与宁德时代合作的601MWh储能项目在保加利亚并网投运` 归到 `market_reference`，保留 report / score 参考价值，不再触发 backend suspicious。
+  - 把 `中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌` 归到 `ETF 交易安排 + 溢价风险提示` 的最窄弱快讯口径，`audit-suspicious` 与 `report` 同步收口。
+  - 当前验证：
+    - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -k 'stcn_etf_intraday_suspension_risk_warning or solarpro_overseas_storage_project or current_cninfo_inquiry_reply_variants' -q` -> `3 passed`
+    - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k 'remaining_live_equity_and_cls_admin_fast_news or stcn_etf_intraday_suspension_risk_warning or current_cninfo_inquiry_reply_variants' -q` -> `3 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，`rg -n "中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌" data/reports/latest_report.txt` -> 未命中
+    - `git diff --check` -> passed
+- Open TODO:
+  - 复核当前未提交 diff 后，做 scoped commit / push。
+  - push 后只读观察后台自然轮次是否继续 `clean`。
+- Risks/Blockers:
+  - `Solarpro...` 属于 `market_reference`，不是 report 删除对象；后续如果要收它，只能动 backend suspicious 口径，不能误删 report 参考价值。
+  - `irm_cninfo` 仲裁追问只应限于否认/回避式回复；带实质进展说明的仲裁公告仍要保留。
+  - `ETF 停牌` 这一轮只限 `基金溢价幅度 + 警示风险/临时停牌至收盘` 组合，不要扩成所有 `ETF / 停牌`。
+- Next First Command:
+  - `git diff -- src/news_sentiment/cli.py src/news_sentiment/reporting/text_report.py tests/test_audit_suspicious.py tests/test_text_report_sorting.py progress.md task_plan.md findings.md task_registry.md 修改记录_会话备忘.md 避坑记录.md`
+- Known Avoidances:
+  - `audit-suspicious` 和 `text_report` 必须同步改。
+  - `watchdog_status=alert` 但 `failed_sources=none` 时先按内容侧查，不要误判成 source 抖动。
+  - `audit=0` 但 `latest_report.txt` 还残留旧标题时，先串行重跑 `report`，不要并行写读。
+
 ## Latest Handoff Snapshot (2026-05-26)
 - Task-ID:
   - `global-multisource-mainline`

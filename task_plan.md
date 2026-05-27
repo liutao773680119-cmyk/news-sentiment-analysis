@@ -1,5 +1,38 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-27 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮已补完 5/27 当前这批内容误报 / 漏口：
+  - `天健会计师事务所（特殊普通合伙）关于永杰新材料股份有限公司重大资产重组草案的问询函中有关财务事项的说明`
+  - `同有科技：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。`
+  - `致同会计师事务所关于深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》的回复`
+  - `北京华亚正信资产评估有限公司对深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》之回复`
+  - `阿石创：关于延期回复深圳证券交易所审核问询函的公告`
+  - `Solarpro Holding与宁德时代合作的601MWh储能项目在保加利亚并网投运`
+  - `中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌`
+- 本轮规则决策：
+  - `问询函中有关财务事项的说明 / 问询函中有关财务会计问题的专项说明` 归到现有 `cninfo` 重组材料低信号口径，`audit-suspicious` 与 `text_report` 同步处理。
+  - `irm_cninfo` 仲裁追问扩到 `仲裁进展如何了` 这类标题，并只在 `公司不存在与... / 以公司在指定信息披露网站公开披露的信息为准` 这类否认或回避式回复、且无实质进展词时过滤。
+  - `Solarpro...601MWh储能项目...并网投运` 归入 `market_reference`，保留 report / score 参考价值，不再算 backend suspicious。
+  - `年报问询函》的回复 / 年报问询函》之回复 / 延期回复深圳证券交易所审核问询函的公告` 继续按材料公告最窄 suppress，不扩成所有问询函。
+  - `stcn + general_fast_news + ETF + 停牌 + 基金溢价幅度 + 警示风险/临时停牌至收盘` 按纯交易安排类弱快讯处理，`audit-suspicious` 与 `text_report` 同步收口；不扩成所有 `ETF / 停牌` 快讯。
+- 当前验证：
+  - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -k 'cninfo_restructuring_financial_matter_explanation or reply_denial or current_cninfo_inquiry_reply_variants or solarpro_overseas_storage_project' -q` -> `4 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k 'cninfo_restructuring_financial_matter_explanation_without_theme or reply_denial_without_hiding_substantive_reply or current_cninfo_inquiry_reply_variants' -q` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_audit_suspicious.py -k 'stcn_etf_intraday_suspension_risk_warning or solarpro_overseas_storage_project or current_cninfo_inquiry_reply_variants' -q` -> `3 passed`
+  - `./.venv/bin/python -m pytest tests/test_text_report_sorting.py -k 'remaining_live_equity_and_cls_admin_fast_news or stcn_etf_intraday_suspension_risk_warning or current_cninfo_inquiry_reply_variants' -q` -> `3 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，`latest_report.txt` 中前述 7 条目标标题均未命中。
+- 下一步判断：
+  - 当前内容侧已收口，可以回到 scoped commit / push 准备态。
+  - 如果后续再出现 `audit=0` 但 report 里仍残留旧标题，先串行重跑一次 `report`，不要立刻误判成规则失效。
+
+## Immediate Next Steps (2026-05-27 latest)
+1. 先复核当前未提交 diff，确认只包含这轮最窄规则、回归测试和 handoff 更新。
+2. 再做 scoped commit / push。
+3. push 后优先只读看后台自然轮次是否继续 `clean`。
+4. 如果再出现 `ETF 停牌` 同族标题，只在同时具备 `基金溢价幅度 + 警示风险/临时停牌至收盘` 时套本轮口径。
+
 ## Update 2026-05-26 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮补完了两条后台内容误报：

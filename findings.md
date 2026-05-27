@@ -1,5 +1,33 @@
 # Findings & Decisions
 
+## Update 2026-05-27 (latest)
+- 本轮核心判断：5/27 这批 `cninfo` 材料公告、`irm_cninfo` 仲裁追问、`Solarpro` 储能项目和 `ETF 停牌溢价风险提示` 样本，都属于“窄标题模板漏口”或 `market_reference` 漏口，不是评分链路整体回退。
+- 已确认并处理的样本：
+  - `天健会计师事务所（特殊普通合伙）关于永杰新材料股份有限公司重大资产重组草案的问询函中有关财务事项的说明`
+  - `同有科技：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。`
+  - `致同会计师事务所关于深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》的回复`
+  - `北京华亚正信资产评估有限公司对深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》之回复`
+  - `阿石创：关于延期回复深圳证券交易所审核问询函的公告`
+  - `Solarpro Holding与宁德时代合作的601MWh储能项目在保加利亚并网投运`
+  - `中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌`
+- 规则决策：
+  - `问询函中有关财务事项的说明 / 问询函中有关财务会计问题的专项说明` 与已有 `审核问询函...` 同族，继续按 `cninfo` 重组材料最窄词表处理，`audit-suspicious` / `text_report` 两侧同步。
+  - `仲裁进展如何了` 这类 `irm_cninfo` 追问，如果回复只是 `公司不存在与...` 或 `以公司在指定信息披露网站公开披露的信息为准`，且没有 `已立案 / 已开庭 / 判决 / 裁定 / 仲裁裁决` 等实质进展词，继续按弱问答处理。
+  - `Solarpro...601MWh储能项目...并网投运` 保留为 `market_reference`，只退出 backend suspicious，不改 report / score。
+  - `致同...年报问询函》的回复 / ...之回复 / 延期回复深圳证券交易所审核问询函的公告` 继续按材料公告最窄 suppress，不扩成所有问询函。
+  - `ETF + 停牌 + 基金溢价幅度 + 警示风险/临时停牌至收盘` 属于交易安排风险提示，不应继续留在 `general_fast_news_with_theme` 的 live 可疑项里。
+- 验收结论：
+  - 红灯测试先复现 `audit` 和 `report` 两侧都被这条 ETF 停牌提示命中。
+  - 定向回归转绿：
+    - `tests/test_audit_suspicious.py` 相关组 -> `3 passed`
+    - `tests/test_text_report_sorting.py` 相关组 -> `3 passed`
+  - 当前即时审计：
+    - `audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，这批 7 条目标标题都已从 `latest_report.txt` 退出。
+- 下一步判断：
+  - 当前内容侧已经收口，下一步优先做 scoped commit / push。
+  - 如果再出现 `audit=0` 但 report 残留旧标题，优先怀疑 `report` 产物没 fresh 重写，不要先怀疑规则失效。
+
 ## Update 2026-05-26 (latest)
 - 本轮核心判断：`先进封装概念震荡回升 长电科技2连板` 是新的 `market_reference` 变体，不是异常内容；`麦克奥迪` 这条是 question-only 诉讼追问，不是真正的诉讼进展公告。
 - 规则决策：

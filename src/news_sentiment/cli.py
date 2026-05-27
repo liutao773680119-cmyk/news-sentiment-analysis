@@ -57,6 +57,8 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函中有关财务会计问题的专项说明",
     "审核问询函中有关财务事项的说明",
     "审核问询函有关财务事项的说明",
+    "问询函中有关财务事项的说明",
+    "问询函中有关财务会计问题的专项说明",
     "报告书（修订稿）",
     "报告书(修订稿)",
 )
@@ -87,11 +89,14 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "年报有关事项的问询函",
     "年报问询函之回复",
     "年报问询函的回复",
+    "年报问询函》的回复",
+    "年报问询函》之回复",
     "年报的问询函的回复",
     "年报问询函的专项说明",
     "年报问询函审计相关事项的专项说明",
     "年报的问询函相关事项的法律意见书",
     "股价波动事项的问询函",
+    "延期回复深圳证券交易所审核问询函的公告",
     "涉及评估问题的回复",
     "年报问询函》回复",
     "监管问询函的回复",
@@ -501,6 +506,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_market_reference_a_share_index_sector_active_candidate(event):
             return None
+        if _is_market_reference_stcn_overseas_storage_project_candidate(event):
+            return None
         if _is_market_reference_a_share_concept_move_candidate(event):
             return None
         if _is_market_reference_hk_theme_move_candidate(event):
@@ -539,6 +546,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
         if _is_low_signal_stcn_storage_president_appointment_story_candidate(event):
             return None
         if _is_low_signal_stcn_space_compute_ecosystem_plan_story_candidate(event):
+            return None
+        if _is_low_signal_stcn_etf_premium_risk_suspension_notice(event):
             return None
         if _is_low_signal_robot_competition_story_candidate(event):
             return None
@@ -748,6 +757,19 @@ def _is_market_reference_a_share_index_sector_active_candidate(event: Event) -> 
     )
 
 
+def _is_market_reference_stcn_overseas_storage_project_candidate(event: Event) -> bool:
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "Solarpro Holding" in event.canonical_title
+        and "宁德时代" in text
+        and "储能项目" in event.canonical_title
+        and _contains_any(text, ("并网投运", "投运", "长期合作意向"))
+    )
+
+
 def _is_market_reference_hk_theme_move_candidate(event: Event) -> bool:
     text = f"{event.canonical_title} {event.summary}"
     return (
@@ -930,6 +952,21 @@ def _is_low_signal_stcn_space_compute_ecosystem_plan_story_candidate(event: Even
     )
 
 
+def _is_low_signal_stcn_etf_premium_risk_suspension_notice(event: Event) -> bool:
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "ETF" in title
+        and "停牌" in title
+        and "基金" in text
+        and "溢价幅度" in text
+        and _contains_any(text, ("警示风险", "临时停牌至收盘"))
+    )
+
+
 def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
     return any(keyword in text for keyword in keywords)
 
@@ -1015,16 +1052,54 @@ def _is_low_signal_irm_cninfo_legal_arbitration_follow_up_question(
     event: Event, text: str
 ) -> bool:
     title = event.canonical_title
+    substantive_markers = (
+        "目前案件正在依法推进",
+        "正在依法推进",
+        "已聘请律师",
+        "已立案",
+        "已开庭",
+        "庭审",
+        "判决",
+        "裁定",
+        "达成和解",
+        "和解协议",
+        "仲裁委员会",
+        "仲裁裁决",
+    )
     return (
         event.source in {"irm_cninfo", "sse_einteractive"}
         and event.event_type == "fast_news"
         and event.event_subtype == "company_update"
-        and "仲裁案件" in title
-        and "目前案件进展如何" in title
-        and any(
-            keyword in title for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件")
+        and "仲裁" in title
+        and _contains_any(
+            title,
+            (
+                "目前案件进展如何",
+                "目前进展如何",
+                "案件进展如何",
+                "仲裁进展如何",
+                "仲裁进展如何了",
+                "进展如何",
+                "进展如何了",
+            ),
         )
-        and all(marker not in text for marker in ("回复：", "回复:"))
+        and any(
+            keyword in title
+            for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件", "全资子公司")
+        )
+        and (
+            all(marker not in text for marker in ("回复：", "回复:"))
+            or (
+                _contains_any(
+                    text,
+                    (
+                        "公司不存在与",
+                        "以公司在指定信息披露网站公开披露的信息为准",
+                    ),
+                )
+                and not _contains_any(text, substantive_markers)
+            )
+        )
     )
 
 

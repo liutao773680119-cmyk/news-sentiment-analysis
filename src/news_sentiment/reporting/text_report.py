@@ -38,6 +38,12 @@ HARD_EVENT_CATALYST_KEYWORDS = (
     "DISPOSAL",
     "SUSPENSION OF TRADING",
 )
+
+
+def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
+    return any(keyword in text for keyword in keywords)
+
+
 FAST_NEWS_CATALYST_KEYWORDS = (
     "战略合作",
     "合作协议",
@@ -253,6 +259,9 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "问询函回复",
     "审核问询函中有关财务会计问题的专项说明",
     "年报的问询函相关事项的专项说明",
+    "年报问询函》的回复",
+    "年报问询函》之回复",
+    "延期回复深圳证券交易所审核问询函的公告",
     "专项说明",
     "诉讼事项的进展",
     "涉及诉讼进展",
@@ -383,6 +392,8 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "问询函回复",
     "审核问询函的专项核查意见",
     "审核问询函有关财务事项的说明",
+    "问询函中有关财务事项的说明",
+    "问询函中有关财务会计问题的专项说明",
     "报告书（修订稿）",
     "报告书(修订稿)",
     "会议安排",
@@ -781,6 +792,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_exchange_template_cooperation_agreement(event, analysis):
         return False
     if _is_low_signal_cls_fund_suspend_resume_notice(event):
+        return False
+    if _is_low_signal_stcn_etf_premium_risk_suspension_notice(event):
         return False
     if _is_low_signal_cls_central_bank_gold_reserve_brief(event, text):
         return False
@@ -1392,6 +1405,25 @@ def _is_low_signal_cls_fund_suspend_resume_notice(event: Event) -> bool:
 
     title = event.canonical_title
     return "LOF" in title and "停牌" in title and "复牌" in title
+
+
+def _is_low_signal_stcn_etf_premium_risk_suspension_notice(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        "ETF" in title
+        and "停牌" in title
+        and "基金" in text
+        and "溢价幅度" in text
+        and _contains_any(text, ("警示风险", "临时停牌至收盘"))
+    )
 
 
 def _is_low_signal_cls_central_bank_gold_reserve_brief(event: Event, text: str) -> bool:
@@ -2045,15 +2077,52 @@ def _is_low_signal_miit_policy_supervision_feedback(
 
 def _is_low_signal_irm_cninfo_arbitration_follow_up_question(event: Event, text: str) -> bool:
     title = event.canonical_title
+    substantive_markers = (
+        "目前案件正在依法推进",
+        "正在依法推进",
+        "已聘请律师",
+        "已立案",
+        "已开庭",
+        "庭审",
+        "判决",
+        "裁定",
+        "达成和解",
+        "和解协议",
+        "仲裁委员会",
+        "仲裁裁决",
+    )
     return (
         event.source == "irm_cninfo"
         and event.event_type == "fast_news"
-        and "仲裁案件" in title
-        and "目前案件进展如何" in title
-        and any(
-            keyword in title for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件")
+        and "仲裁" in title
+        and _contains_any(
+            title,
+            (
+                "目前案件进展如何",
+                "目前进展如何",
+                "案件进展如何",
+                "仲裁进展如何",
+                "仲裁进展如何了",
+                "进展如何",
+                "进展如何了",
+            ),
         )
-        and all(marker not in text for marker in ("回复：", "回复:"))
+        and any(
+            keyword in title for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件", "全资子公司")
+        )
+        and (
+            all(marker not in text for marker in ("回复：", "回复:"))
+            or (
+                _contains_any(
+                    text,
+                    (
+                        "公司不存在与",
+                        "以公司在指定信息披露网站公开披露的信息为准",
+                    ),
+                )
+                and not _contains_any(text, substantive_markers)
+            )
+        )
     )
 
 

@@ -1380,6 +1380,48 @@ def test_audit_suspicious_skips_financing_inquiry_financial_matter_explanation(
     assert "审核问询函中有关财务事项的说明" not in output
 
 
+def test_audit_suspicious_skips_cninfo_restructuring_financial_matter_explanation(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-restructuring-financial-matter-explanation",
+                first_seen_at="2026-05-27T00:00:00+08:00",
+                last_seen_at="2026-05-27T00:00:00+08:00",
+                canonical_title="天健会计师事务所（特殊普通合伙）关于永杰新材料股份有限公司重大资产重组草案的问询函中有关财务事项的说明",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-27T00:00:00+08:00",
+                url="https://example.com/cninfo-restructuring-financial-matter-explanation",
+                event_type="hard_event",
+                event_subtype="acquisition_restructuring",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-restructuring-financial-matter-explanation",
+                direction="bullish",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "问询函中有关财务事项的说明" not in output
+
+
 def test_audit_suspicious_skips_directed_a_share_offering_inquiry_reply_material(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -2080,6 +2122,48 @@ def test_audit_suspicious_skips_irm_legal_arbitration_follow_up_question(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "目前案件进展如何" not in output
+
+
+def test_audit_suspicious_skips_irm_legal_arbitration_follow_up_question_with_reply_denial(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-irm-legal-arbitration-follow-up-question-reply-denial",
+                first_seen_at="2026-05-27T09:00:33+08:00",
+                last_seen_at="2026-05-27T09:00:33+08:00",
+                canonical_title="同有科技：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。",
+                summary="问题：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。 回复：您好，感谢您的关注！公司不存在与忆恒创源原创始人殷雪冰相关的仲裁。请您以公司在指定信息披露网站公开披露的信息为准。谢谢！",
+                source="irm_cninfo",
+                published_at="2026-05-27T09:00:33+08:00",
+                url="https://example.com/irm-legal-arbitration-follow-up-question-reply-denial",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-irm-legal-arbitration-follow-up-question-reply-denial",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "仲裁进展如何了" not in output
 
 
 def test_audit_suspicious_skips_irm_subsidiary_risk_question(
@@ -4013,3 +4097,171 @@ def test_audit_suspicious_skips_overseas_pharma_antitrust_lawsuit_theme_spillove
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "Japan’s Takeda engaged in antitrust scheme" not in output
+
+
+def test_audit_suspicious_skips_current_cninfo_inquiry_reply_variants_and_delayed_audit_reply(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-year-end-inquiry-reply-variant-1",
+                first_seen_at="2026-05-27T00:00:00+08:00",
+                last_seen_at="2026-05-27T00:00:00+08:00",
+                canonical_title="致同会计师事务所关于深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》的回复",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-27T00:00:00+08:00",
+                url="https://example.com/cninfo-year-end-inquiry-reply-variant-1",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-year-end-inquiry-reply-variant-2",
+                first_seen_at="2026-05-27T00:00:00+08:00",
+                last_seen_at="2026-05-27T00:00:00+08:00",
+                canonical_title="北京华亚正信资产评估有限公司对深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》之回复",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-27T00:00:00+08:00",
+                url="https://example.com/cninfo-year-end-inquiry-reply-variant-2",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-delayed-audit-inquiry-reply",
+                first_seen_at="2026-05-27T00:00:00+08:00",
+                last_seen_at="2026-05-27T00:00:00+08:00",
+                canonical_title="阿石创：关于延期回复深圳证券交易所审核问询函的公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-27T00:00:00+08:00",
+                url="https://example.com/cninfo-delayed-audit-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-year-end-inquiry-reply-variant-1",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-year-end-inquiry-reply-variant-2",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-delayed-audit-inquiry-reply",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "致同会计师事务所关于深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》的回复" not in output
+    assert "北京华亚正信资产评估有限公司对深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》之回复" not in output
+    assert "阿石创：关于延期回复深圳证券交易所审核问询函的公告" not in output
+
+
+def test_audit_suspicious_keeps_solarpro_overseas_storage_project_as_market_reference(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-solarpro-overseas-storage-project",
+                first_seen_at="2026-05-26T21:05:00+08:00",
+                last_seen_at="2026-05-26T21:05:00+08:00",
+                canonical_title="Solarpro Holding与宁德时代合作的601MWh储能项目在保加利亚并网投运",
+                summary="人民财讯5月26日电，近日，东欧地区企业Solarpro Holding与宁德时代合作的601MWh大型储能项目在保加利亚成功并网投运。项目全面搭载宁德时代自主研发的天恒储能系统，这是业内首个6MWh级零衰减产品。基于此次合作，Solarpro Holding与宁德时代已达成长期合作意向，计划未来两年内进一步扩大储能项目规模。",
+                source="stcn",
+                published_at="2026-05-26T21:05:00+08:00",
+                url="https://www.stcn.com/article/detail/3928504.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-solarpro-overseas-storage-project",
+                direction="bullish",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "Solarpro Holding与宁德时代合作的601MWh储能项目在保加利亚并网投运" not in output
+
+
+def test_audit_suspicious_skips_stcn_etf_intraday_suspension_risk_warning(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-etf-intraday-suspension-risk-warning",
+                first_seen_at="2026-05-27T19:21:24+08:00",
+                last_seen_at="2026-05-27T19:22:24+08:00",
+                canonical_title="中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌",
+                summary="人民财讯5月27日电，中韩半导体ETF华泰柏瑞(513310)将于5月28日开市起至当日10:30停牌。若基金午间收盘二级市场交易价格溢价幅度仍处于较高水平，基金有权向上交所申请5月28日下午盘中临时停牌至收盘的措施以向市场警示风险。",
+                source="stcn",
+                published_at="2026-05-27T19:22:24+08:00",
+                url="https://www.stcn.com/article/detail/3930451.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-etf-intraday-suspension-risk-warning",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌" not in output

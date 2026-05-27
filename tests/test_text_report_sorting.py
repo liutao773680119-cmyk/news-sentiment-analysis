@@ -7482,6 +7482,61 @@ def test_write_text_report_filters_cninfo_restructuring_revised_report_without_t
     assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in content
 
 
+def test_write_text_report_filters_cninfo_restructuring_financial_matter_explanation_without_theme(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-restructuring-financial-matter-explanation",
+            first_seen_at="2026-05-27T00:00:00+08:00",
+            last_seen_at="2026-05-27T00:00:00+08:00",
+            canonical_title="天健会计师事务所（特殊普通合伙）关于永杰新材料股份有限公司重大资产重组草案的问询函中有关财务事项的说明",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-05-27T00:00:00+08:00",
+            url="https://example.com/cninfo-restructuring-financial-matter-explanation",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+        Event(
+            event_id="event-keep-semiconductor-progress-financial-matter-explanation",
+            first_seen_at="2026-05-27T00:01:00+08:00",
+            last_seen_at="2026-05-27T00:01:00+08:00",
+            canonical_title="国产EDA工具链和先进封装产线建设提速",
+            summary="summary",
+            source="stcn",
+            published_at="2026-05-27T00:01:00+08:00",
+            url="https://example.com/keep-semiconductor-progress-financial-matter-explanation",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-restructuring-financial-matter-explanation",
+            direction="bullish",
+            impact_score=80.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-semiconductor-progress-financial-matter-explanation",
+            direction="bullish",
+            impact_score=99.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "国产EDA工具链和先进封装产线建设提速" in content
+    assert "天健会计师事务所（特殊普通合伙）关于永杰新材料股份有限公司重大资产重组草案的问询函中有关财务事项的说明" not in content
+
+
 def test_write_text_report_filters_cninfo_restructuring_special_audit_verification_opinion_without_theme(
     tmp_path,
 ) -> None:
@@ -13155,6 +13210,61 @@ def test_write_text_report_filters_irm_cninfo_legal_arbitration_follow_up_questi
     assert "同有科技：关于仲裁案件的进展说明" in content
 
 
+def test_write_text_report_filters_irm_cninfo_legal_arbitration_follow_up_question_with_reply_denial_without_hiding_substantive_reply(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-irm-legal-arbitration-follow-up-question-reply-denial",
+            first_seen_at="2026-05-27T09:00:33+08:00",
+            last_seen_at="2026-05-27T09:00:33+08:00",
+            canonical_title="同有科技：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。",
+            summary="问题：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。 回复：您好，感谢您的关注！公司不存在与忆恒创源原创始人殷雪冰相关的仲裁。请您以公司在指定信息披露网站公开披露的信息为准。谢谢！",
+            source="irm_cninfo",
+            published_at="2026-05-27T09:00:33+08:00",
+            url="https://example.com/irm-legal-arbitration-follow-up-question-reply-denial",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+        Event(
+            event_id="event-irm-keep-arbitration-progress",
+            first_seen_at="2026-05-24T19:24:07+08:00",
+            last_seen_at="2026-05-24T19:24:07+08:00",
+            canonical_title="同有科技：关于仲裁案件的进展说明",
+            summary="问题：关于仲裁案件的进展说明。 回复：公司就相关仲裁事项已聘请律师跟进，目前案件正在依法推进。",
+            source="irm_cninfo",
+            published_at="2026-05-24T19:24:07+08:00",
+            url="https://example.com/irm-keep-arbitration-progress",
+            event_type="fast_news",
+            event_subtype="company_update",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-irm-legal-arbitration-follow-up-question-reply-denial",
+            direction="neutral",
+            impact_score=75.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-irm-keep-arbitration-progress",
+            direction="neutral",
+            impact_score=100.0,
+            reasoning="rule",
+            themes=["算力"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "仲裁进展如何了" not in content
+    assert "同有科技：关于仲裁案件的进展说明" in content
+
+
 def test_write_text_report_filters_irm_cninfo_litigation_follow_up_question_without_hiding_substantive_reply(
     tmp_path,
 ) -> None:
@@ -18436,3 +18546,156 @@ def test_write_text_report_filters_contract_area_progress_notice_without_theme(t
 
     assert "潜能恒信：渤海0917合同区进展公告" not in content
     assert "佳通轮胎股份有限公司关于收到中国证券监督管理委员会立案告知书的公告" in content
+
+
+def test_write_text_report_filters_current_cninfo_inquiry_reply_variants_and_delayed_audit_reply_without_hiding_legit_items(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-cninfo-year-end-inquiry-reply-variant-1",
+            first_seen_at="2026-05-27T00:00:00+08:00",
+            last_seen_at="2026-05-27T00:00:00+08:00",
+            canonical_title="致同会计师事务所关于深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》的回复",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-05-27T00:00:00+08:00",
+            url="https://example.com/cninfo-year-end-inquiry-reply-variant-1",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-cninfo-year-end-inquiry-reply-variant-2",
+            first_seen_at="2026-05-27T00:00:00+08:00",
+            last_seen_at="2026-05-27T00:00:00+08:00",
+            canonical_title="北京华亚正信资产评估有限公司对深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》之回复",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-05-27T00:00:00+08:00",
+            url="https://example.com/cninfo-year-end-inquiry-reply-variant-2",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-cninfo-delayed-audit-inquiry-reply",
+            first_seen_at="2026-05-27T00:00:00+08:00",
+            last_seen_at="2026-05-27T00:00:00+08:00",
+            canonical_title="阿石创：关于延期回复深圳证券交易所审核问询函的公告",
+            summary="summary",
+            source="cninfo",
+            published_at="2026-05-27T00:00:00+08:00",
+            url="https://example.com/cninfo-delayed-audit-inquiry-reply",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-keep-legit-catalyst",
+            first_seen_at="2026-05-27T00:00:00+08:00",
+            last_seen_at="2026-05-27T00:00:00+08:00",
+            canonical_title="三峡能源与远景能源签署战略合作协议",
+            summary="双方将围绕构建新型能源体系和新型电力系统深化合作。",
+            source="stcn",
+            published_at="2026-05-27T00:00:00+08:00",
+            url="https://example.com/keep-legit-catalyst",
+            event_type="fast_news",
+            event_subtype="cooperation_agreement",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-cninfo-year-end-inquiry-reply-variant-1",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cninfo-year-end-inquiry-reply-variant-2",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-cninfo-delayed-audit-inquiry-reply",
+            direction="neutral",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-legit-catalyst",
+            direction="bullish",
+            impact_score=96.0,
+            reasoning="rule",
+            themes=["电力资源", "储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+    assert "三峡能源与远景能源签署战略合作协议" in content
+    assert "致同会计师事务所关于深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》的回复" not in content
+    assert "北京华亚正信资产评估有限公司对深圳证券交易所《关于对珠海汇金科技股份有限公司的年报问询函》之回复" not in content
+    assert "阿石创：关于延期回复深圳证券交易所审核问询函的公告" not in content
+
+
+def test_write_text_report_filters_stcn_etf_intraday_suspension_risk_warning_without_hiding_real_semiconductor_catalyst(
+    tmp_path,
+) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-stcn-etf-intraday-suspension-risk-warning",
+            first_seen_at="2026-05-27T19:21:24+08:00",
+            last_seen_at="2026-05-27T19:22:24+08:00",
+            canonical_title="中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌",
+            summary="人民财讯5月27日电，中韩半导体ETF华泰柏瑞(513310)将于5月28日开市起至当日10:30停牌。若基金午间收盘二级市场交易价格溢价幅度仍处于较高水平，基金有权向上交所申请5月28日下午盘中临时停牌至收盘的措施以向市场警示风险。",
+            source="stcn",
+            published_at="2026-05-27T19:22:24+08:00",
+            url="https://www.stcn.com/article/detail/3930451.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-keep-semiconductor-catalyst",
+            first_seen_at="2026-05-27T20:00:00+08:00",
+            last_seen_at="2026-05-27T20:00:00+08:00",
+            canonical_title="盈新发展：关于收购广东长兴半导体科技有限公司控制权的公告",
+            summary="公司披露收购半导体公司控制权。",
+            source="cninfo",
+            published_at="2026-05-27T20:00:00+08:00",
+            url="https://example.com/keep-semiconductor-catalyst",
+            event_type="hard_event",
+            event_subtype="acquisition_restructuring",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-stcn-etf-intraday-suspension-risk-warning",
+            direction="neutral",
+            impact_score=79.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-keep-semiconductor-catalyst",
+            direction="bullish",
+            impact_score=88.0,
+            reasoning="rule",
+            themes=["半导体"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌" not in content
+    assert "盈新发展：关于收购广东长兴半导体科技有限公司控制权的公告" in content
