@@ -475,9 +475,16 @@ def collect_suspicious_candidates(paths: ProjectPaths) -> list[SuspiciousCandida
     return candidates
 
 
+def _is_st_title(title: str) -> bool:
+    normalized_title = title.lstrip()
+    return normalized_title.startswith("*ST") or normalized_title.startswith("ST")
+
+
 def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
     title = event.canonical_title
     text = f"{event.canonical_title} {event.summary}"
+    if _is_st_title(title):
+        return None
     if _is_cls_editorial_roundup_column(event):
         return None
     if _is_low_signal_market_roundup_candidate(event):

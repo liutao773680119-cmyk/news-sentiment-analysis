@@ -719,8 +719,15 @@ def _parse_event_timestamp(event: Event) -> datetime | None:
     return datetime.fromisoformat(timestamp)
 
 
+def _is_st_title(title: str) -> bool:
+    normalized_title = title.lstrip()
+    return normalized_title.startswith("*ST") or normalized_title.startswith("ST")
+
+
 def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     text = f"{event.canonical_title} {event.summary}"
+    if _is_st_title(event.canonical_title):
+        return False
     if _is_low_signal_foreign_index_fast_news(event, text):
         return False
     if _is_low_signal_domestic_futures_market_move(event.canonical_title, event):

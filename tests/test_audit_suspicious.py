@@ -229,6 +229,67 @@ def test_audit_suspicious_skips_cninfo_restructuring_revised_report_without_them
     assert "中芯国际集成电路制造有限公司发行股份购买资产暨关联交易报告书（修订稿）" not in output
 
 
+def test_audit_suspicious_ignores_all_st_titles_while_keeps_non_st_risk(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-st-west-dev",
+                first_seen_at="2026-05-27T14:00:00+08:00",
+                last_seen_at="2026-05-27T14:00:00+08:00",
+                canonical_title="*ST西发：关于回复《深圳证券交易所对公司重大资产购买的问询函》的公告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-27T14:00:00+08:00",
+                url="https://example.com/st-west-dev",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-non-st-risk",
+                first_seen_at="2026-05-27T14:05:00+08:00",
+                last_seen_at="2026-05-27T14:05:00+08:00",
+                canonical_title="美克家居关于被债权人申请重整及预重整的专项自查报告",
+                summary="summary",
+                source="cninfo",
+                published_at="2026-05-27T14:05:00+08:00",
+                url="https://example.com/non-st-risk",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-st-west-dev",
+                direction="neutral",
+                impact_score=83.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-non-st-risk",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=1" in output
+    assert "美克家居关于被债权人申请重整及预重整的专项自查报告" in output
+    assert "*ST西发：关于回复《深圳证券交易所对公司重大资产购买的问询函》的公告" not in output
+
+
 def test_audit_suspicious_skips_cninfo_restructuring_material_reply_without_theme(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()

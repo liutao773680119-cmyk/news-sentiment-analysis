@@ -119,6 +119,60 @@ def test_write_text_report_filters_stale_events_relative_to_latest_batch_time(tm
     assert "过旧事件" not in content
 
 
+def test_write_text_report_filters_all_st_titles_while_keeps_non_st_catalyst(tmp_path) -> None:
+    paths = ProjectPaths(tmp_path)
+    events = [
+        Event(
+            event_id="event-st-delisting-risk",
+            first_seen_at="2026-05-27T14:00:00+08:00",
+            last_seen_at="2026-05-27T14:00:00+08:00",
+            canonical_title="ST中青宝：关于撤销其他风险警示暨股票停复牌的公告",
+            summary="summary",
+            source="szse",
+            published_at="2026-05-27T14:00:00+08:00",
+            url="https://example.com/st-delisting-risk",
+            event_type="hard_event",
+            event_subtype="delisting_risk",
+        ),
+        Event(
+            event_id="event-non-st-catalyst",
+            first_seen_at="2026-05-27T14:05:00+08:00",
+            last_seen_at="2026-05-27T14:05:00+08:00",
+            canonical_title="三峡能源与远景能源签署战略合作协议",
+            summary="双方将围绕构建新型能源体系和新型电力系统深化合作。",
+            source="stcn",
+            published_at="2026-05-27T14:05:00+08:00",
+            url="https://example.com/non-st-catalyst",
+            event_type="fast_news",
+            event_subtype="cooperation_agreement",
+        ),
+    ]
+    analyses = [
+        EventAnalysis(
+            event_id="event-st-delisting-risk",
+            direction="bearish",
+            impact_score=78.2,
+            reasoning="rule",
+            themes=[],
+            triggered=True,
+        ),
+        EventAnalysis(
+            event_id="event-non-st-catalyst",
+            direction="bullish",
+            impact_score=96.0,
+            reasoning="rule",
+            themes=["电力资源", "储能"],
+            triggered=True,
+        ),
+    ]
+
+    write_text_report(paths, events, analyses)
+    content = paths.latest_report_path.read_text(encoding="utf-8")
+
+    assert "三峡能源与远景能源签署战略合作协议" in content
+    assert "ST中青宝：关于撤销其他风险警示暨股票停复牌的公告" not in content
+
+
 def test_write_text_report_falls_back_to_event_stock_code_for_sse_hard_event_without_theme(tmp_path) -> None:
     paths = ProjectPaths(tmp_path)
     events = [
@@ -12607,7 +12661,7 @@ def test_write_text_report_filters_repeated_delisting_risk_tip_variants_without_
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "中化岩土：关于公司股票交易风险的第三次提示性公告" not in content
     assert "GQY视讯：关于公司股票可能被实施退市风险警示的第三次提示性公告" not in content
-    assert "*ST铖昌：浙江铖昌科技股份有限公司关于申请撤销公司股票退市风险警示的公告" in content
+    assert "*ST铖昌：浙江铖昌科技股份有限公司关于申请撤销公司股票退市风险警示的公告" not in content
 
 
 def test_write_text_report_keeps_current_live_related_party_shipbuilding_catalyst(tmp_path) -> None:
@@ -15707,7 +15761,7 @@ def test_write_text_report_filters_current_live_restructuring_impairment_audit_r
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     assert "会计师事务所关于电投水电重大资产重组标的减值测试报告的专项审核报告" not in content
-    assert "*ST荣控：荣丰控股集团关于申请撤销对公司股票交易实施退市风险警示的公告" in content
+    assert "*ST荣控：荣丰控股集团关于申请撤销对公司股票交易实施退市风险警示的公告" not in content
 
 
 def test_write_text_report_filters_current_live_equity_incentive_unmet_exercise_condition_notice(
@@ -15843,7 +15897,7 @@ def test_write_text_report_filters_restructuring_performance_commitment_audit_re
 
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
-    assert "ST中青宝：关于撤销其他风险警示暨股票停复牌的公告" in content
+    assert "ST中青宝：关于撤销其他风险警示暨股票停复牌的公告" not in content
     assert "维业股份：关于重大资产重组业绩承诺实现情况说明专项审核报告维业-信会师报字[2026]第ZM10552号" not in content
 
 
@@ -16439,14 +16493,12 @@ def test_write_text_report_deprioritizes_cls_global_information_below_direct_cat
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
     control_change_pos = content.index("盈新发展：关于收购广东长兴半导体科技有限公司控制权的进展公告")
-    delisting_risk_pos = content.index("*ST中地：关于申请撤销公司股票退市风险警示的公告")
     cls_industry_data_pos = content.index("韩国3月汽车出口额为63.7亿美元 同比增长2.2%")
     cls_general_fast_news_pos = content.index("财联社4月15日电，韩国总统府官员称，已从海外确保获得2.73亿桶原油供应。")
 
-    assert control_change_pos < delisting_risk_pos
-    assert delisting_risk_pos < cls_industry_data_pos
-    assert delisting_risk_pos < cls_general_fast_news_pos
-    assert "*ST中地：关于申请撤销公司股票退市风险警示的公告" in content
+    assert control_change_pos < cls_industry_data_pos
+    assert control_change_pos < cls_general_fast_news_pos
+    assert "*ST中地：关于申请撤销公司股票退市风险警示的公告" not in content
 
 
 def test_write_text_report_appends_social_signal_section_without_affecting_main_entries(tmp_path) -> None:
@@ -16735,7 +16787,7 @@ def test_write_text_report_filters_investor_qa_and_exchange_material_within_asha
     content = paths.latest_report_path.read_text(encoding="utf-8")
 
     assert "长亮科技中标某股份制银行新网贷服务平台项目" in content
-    assert "ST岭南：关于重大诉讼的进展公告" in content
+    assert "ST岭南：关于重大诉讼的进展公告" not in content
     assert "快可电子：董秘您好，有看到公司在招聘网站上招聘光模块技术人员，请问公司目前有哪些光模块产品，谢谢" not in content
     assert "北京市大龙伟业房地产开发股份有限公司2025年年度股东会会议资料" not in content
 
@@ -17123,7 +17175,7 @@ def test_write_text_report_filters_second_batch_live_exchange_material_variants_
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
 
-    assert "*ST和科：关于申请撤销对公司股票交易实施退市风险警示的公告" in content
+    assert "*ST和科：关于申请撤销对公司股票交易实施退市风险警示的公告" not in content
     assert "续签日常关联交易合同" not in content
     assert "申请综合授信并为经销商和子公司订单融资提供担保" not in content
     assert "签署《框架协议》的自愿性披露公告" not in content
@@ -18068,7 +18120,7 @@ def test_write_text_report_filters_latest_low_signal_live_head_noise(tmp_path) -
     write_text_report(paths, events, analyses)
     content = paths.latest_report_path.read_text(encoding="utf-8")
 
-    assert "*ST新研：关于申请撤销公司股票退市风险警示的公告" in content
+    assert "*ST新研：关于申请撤销公司股票退市风险警示的公告" not in content
     assert "美股光通信板块开盘普跌 Coherent跌超4%" not in content
     assert "世界银行：如果中东战争的最严重干扰在五月结束" not in content
     assert "【财联社早知道】我国最大规模科学智能集群接入全国一体化算力网" not in content

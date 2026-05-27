@@ -2,6 +2,22 @@
 
 ## Update 2026-05-27 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
+- 本轮口径切换：
+  - 用户明确要求 `ST/*ST` 全部不保留、不查看。
+  - 已在 `audit-suspicious` 与 `text_report` 两个输出口统一加前缀过滤，`ST/*ST` 不再进入 backend suspicious，也不再进入简报。
+- 本轮验证：
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'ignores_all_st_titles_while_keeps_non_st_risk' -q` -> `1 passed`
+  - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'filters_all_st_titles_while_keeps_non_st_catalyst or filters_repeated_delisting_risk_tip_variants_without_hiding_revocation or filters_current_live_restructuring_impairment_audit_report_without_hiding_revocation or filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk or deprioritizes_cls_global_information_below_direct_catalysts or filters_investor_qa_and_exchange_material_within_ashare_section or filters_second_batch_live_exchange_material_variants_without_hiding_real_risk or filters_latest_low_signal_live_head_noise' -q` -> `8 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，`rg -n '^\[关注\] (\*ST|ST)' data/reports/latest_report.txt` -> `0 hits`
+- 风险提示：
+  - 这是有意识的信息裁剪，`ST/*ST` 下的退市风险、立案、诉讼、重整也会一起被隐藏。
+  - 如果后续又想只恢复 `ST` 真风险，不能在现规则上叠补丁，需重新定义允许保留的 `ST` 子集。
+- 下一步判断：
+  - 当前内容侧与用户阅读口径已一致；后续只需要继续观察非 `ST` 标题族是否还有新漏口。
+
+## Update 2026-05-27 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
 - 本轮已补完 5/27 当前这批内容误报 / 漏口：
   - `天健会计师事务所（特殊普通合伙）关于永杰新材料股份有限公司重大资产重组草案的问询函中有关财务事项的说明`
   - `同有科技：董秘您好， 请问贵公司的全资子公司与殷雪冰的仲裁进展如何了？这关乎到贵公司的战略运营，广大投资者很关心，请回答谢谢。`

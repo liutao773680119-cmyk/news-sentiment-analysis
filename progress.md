@@ -4,6 +4,39 @@
 - Task-ID:
   - `global-multisource-mainline`
 - Task-Name:
+  - `5/27 ST 全量屏蔽口径切换`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+- Completed This Session:
+  - 在 `audit-suspicious` 判定入口增加 `ST/*ST` 标题总闸，所有 `ST/*ST` 候选不再进入 suspicious。
+  - 在 `text_report` relevance 入口增加同口径过滤，所有 `ST/*ST` 标题不再进入简报。
+  - 新增红灯测试锁 `*ST西发` 与 `ST中青宝` 当前会漏出，再转绿。
+  - 同步更新 6 条旧的 `report` 回归期待，改成 `ST/*ST` 必须退出，同时保留非 `ST` 对照项。
+  - 当前验证：
+    - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'ignores_all_st_titles_while_keeps_non_st_risk' -q` -> `1 passed`
+    - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'filters_all_st_titles_while_keeps_non_st_catalyst or filters_repeated_delisting_risk_tip_variants_without_hiding_revocation or filters_current_live_restructuring_impairment_audit_report_without_hiding_revocation or filters_restructuring_performance_commitment_audit_report_without_hiding_delisting_risk or deprioritizes_cls_global_information_below_direct_catalysts or filters_investor_qa_and_exchange_material_within_ashare_section or filters_second_batch_live_exchange_material_variants_without_hiding_real_risk or filters_latest_low_signal_live_head_noise' -q` -> `8 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，`latest_report.txt` 中 `ST/*ST` 关注项为 `0`
+    - `git diff --check` -> passed
+- Open TODO:
+  - 继续只读观察非 `ST` 样本是否还有新的 live 漏口。
+- Risks/Blockers:
+  - 这是按用户要求做的全量屏蔽，`ST/*ST` 的真风险也会被一起忽略。
+- Next First Command:
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20`
+- Known Avoidances:
+  - 不要再按旧口径把 `ST` 真风险重新放回 report / suspicious，除非用户明确撤销本轮决策。
+
+## Latest Handoff Snapshot (2026-05-27)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
   - `5/27 问询材料 / 仲裁追问收口与 ETF 停牌新异动复核`
 - Files Changed:
   - `src/news_sentiment/cli.py`
