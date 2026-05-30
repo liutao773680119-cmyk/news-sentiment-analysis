@@ -4,6 +4,7 @@ import json
 import re
 from datetime import datetime, timedelta, timezone
 from html import unescape
+from urllib.parse import urlencode
 
 from news_sentiment.collectors.errors import (
     CollectorEmptyResultError,
@@ -16,7 +17,24 @@ from news_sentiment.models import RawNews
 
 
 CLS_TELEGRAPH_URL = "https://www.cls.cn/telegraph"
+CLS_TELEGRAPH_CACHE_URL = "https://www.cls.cn/api/cache"
 CHINA_TZ = timezone(timedelta(hours=8))
+CLS_BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/136.0.0.0 Safari/537.36"
+)
+CLS_PAGE_HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "Referer": "https://www.cls.cn/",
+}
+CLS_API_HEADERS = {
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "Referer": CLS_TELEGRAPH_URL,
+    "X-Requested-With": "XMLHttpRequest",
+}
 NEXT_DATA_PATTERN = re.compile(
     r'<script id="__NEXT_DATA__" type="application/json">\s*(?P<data>.*?)\s*</script>',
     re.S,
@@ -29,7 +47,22 @@ def fetch_cls_telegraph_html(url: str = CLS_TELEGRAPH_URL) -> str:
     return fetch_html(
         url,
         timeout_seconds=source_definition.timeout_seconds,
-        user_agent=source_definition.user_agent,
+        user_agent=CLS_BROWSER_USER_AGENT,
+        extra_headers=CLS_PAGE_HEADERS,
+        no_proxy_hosts=source_definition.no_proxy_hosts,
+        retry_count=source_definition.retry_count,
+        backoff_seconds=source_definition.backoff_seconds,
+    )
+
+
+def fetch_cls_telegraph_cache_payload(last_time: int | None = None) -> str:
+    source_definition = load_source_definition_map()["cls"]
+    cache_url = f"{CLS_TELEGRAPH_CACHE_URL}?{urlencode(_build_cls_cache_query(last_time))}"
+    return fetch_html(
+        cache_url,
+        timeout_seconds=source_definition.timeout_seconds,
+        user_agent=CLS_BROWSER_USER_AGENT,
+        extra_headers=CLS_API_HEADERS,
         no_proxy_hosts=source_definition.no_proxy_hosts,
         retry_count=source_definition.retry_count,
         backoff_seconds=source_definition.backoff_seconds,
@@ -48,9 +81,66 @@ def parse_cls_telegraph_html(html: str) -> list[RawNews]:
         initial_state = props.get("pageProps", {}).get("initialState", {})
     telegraph_list = initial_state.get("telegraph", {}).get("telegraphList", [])
 
+    return _build_cls_rows(telegraph_list)
+
+
+def parse_cls_telegraph_cache_payload(payload: str) -> list[RawNews]:
+    parsed = json.loads(payload)
+    roll_data = parsed.get("data", {}).get("roll_data", [])
+    return _build_cls_rows(roll_data)
+
+
+def collect_cls_news() -> list[RawNews]:
+    cache_payload = None
+    cache_error = None
+    try:
+        cache_payload = fetch_cls_telegraph_cache_payload()
+    except Exception as exc:
+        cache_error = exc
+    else:
+        if cache_payload.strip():
+            rows = parse_cls_telegraph_cache_payload(cache_payload)
+            if rows:
+                return rows
+
+    html = None
+    html_error = None
+    try:
+        html = fetch_cls_telegraph_html()
+    except Exception as exc:
+        html_error = exc
+    else:
+        if html.strip():
+            rows = parse_cls_telegraph_html(html)
+            if rows:
+                return rows
+
+    if cache_error is not None and html_error is not None:
+        detail = str(cache_error) or cache_error.__class__.__name__
+        raise CollectorFetchError("cls", detail) from cache_error
+
+    if (cache_payload is None or not cache_payload.strip()) and (html is None or not html.strip()):
+        raise CollectorEmptyResultError("cls", "empty response body")
+
+    raise CollectorParseError("cls", "no telegraph rows matched response")
+
+
+def _build_cls_cache_query(last_time: int | None = None) -> dict[str, int | str]:
+    return {
+        "rn": 20,
+        "lastTime": last_time or int(datetime.now(CHINA_TZ).timestamp()),
+        "name": "telegraph",
+    }
+
+
+def _build_cls_rows(items: object) -> list[RawNews]:
     captured_at = datetime.now(timezone.utc).isoformat()
     rows: list[RawNews] = []
-    for item in telegraph_list:
+    if not isinstance(items, list):
+        return rows
+    for item in items:
+        if not isinstance(item, dict):
+            continue
         article_id = str(item.get("id", "")).strip()
         if not article_id:
             continue
@@ -74,21 +164,6 @@ def parse_cls_telegraph_html(html: str) -> list[RawNews]:
                 url=f"https://www.cls.cn/detail/{article_id}",
             )
         )
-    return rows
-
-
-def collect_cls_news() -> list[RawNews]:
-    try:
-        html = fetch_cls_telegraph_html()
-    except Exception as exc:
-        raise CollectorFetchError("cls", str(exc) or exc.__class__.__name__) from exc
-
-    if not html.strip():
-        raise CollectorEmptyResultError("cls", "empty response body")
-
-    rows = parse_cls_telegraph_html(html)
-    if not rows:
-        raise CollectorParseError("cls", "no telegraph rows matched response")
     return rows
 
 

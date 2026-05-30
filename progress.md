@@ -1,5 +1,102 @@
 # Progress Log
 
+## Latest Handoff Snapshot (2026-05-30)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/30 stcn 宏观观点与观察稿噪音收口`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+- Completed This Session:
+  - 把 `全球资本加速拥抱中国 增配A股进入黄金窗口期` 识别为 `stcn` 宏观配置观点稿。
+  - 把 `12只滞涨算力股获融资客重仓` 识别为融资余额选股清单。
+  - 把 `海外储能需求崛起 锂价传导机制整体顺畅` 识别为无实质落地词的行业观察稿。
+  - 在 `audit-suspicious` 与 `text_report` 两侧同步新增窄 suppress，并保留 `联想在天津投建新一代AI算力研发制造中心` 作为实质投建对照项。
+  - 当前验证：
+    - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'fund_manager_investment_opportunity or foreign_mayor_delegation_exchange or global_capital_a_share_allocation or stock_screen_and_industry_observation' -q` -> `4 passed`
+    - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'fund_manager_allocation_commentary_without_hiding_real_order_news or foreign_mayor_delegation_exchange or global_capital_a_share_allocation or stock_screen_and_industry_observation' -q` -> `4 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，三条目标标题均已从 `latest_report.txt` 退出
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 10` -> `watchdog_status=clean`, `failed_sources=none`, `suspicious_count=0`
+    - 自然 loop `2026-05-30_09:26:29` 与 `2026-05-30_09:37:21` 连续两轮 `clean`
+- Open TODO:
+  - 本轮内容侧已可提交；提交后继续按自然 loop 观察 source 抖动。
+- Risks/Blockers:
+  - `海外储能需求...` 这类行业观察稿如果后续正文出现明确订单、合同、采购、签署等落地词，应保留为真实催化，不应被本轮规则误伤。
+- Next First Command:
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 10`
+- Known Avoidances:
+  - 不要把所有 `储能需求` 或 `算力股` 文章都屏蔽；本轮只收选股清单、宏观配置观点、无落地词行业观察稿。
+
+## Latest Handoff Snapshot (2026-05-29)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/29 stcn 外宾市长率团访问交流噪音收口`
+- Files Changed:
+  - `src/news_sentiment/cli.py`
+  - `src/news_sentiment/reporting/text_report.py`
+  - `tests/test_audit_suspicious.py`
+  - `tests/test_text_report_sorting.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+- Completed This Session:
+  - 把 `德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作` 识别为 `stcn + general_fast_news` 外宾市长率团访问/参访/座谈交流类低信号标题。
+  - 在 `audit-suspicious` 与 `text_report` 两侧新增最窄 suppress，只匹配 `市长率团 + 率团访问/访蓉/代表团参访 + 座谈/交流/参访 + 无签署/订单/合同/采购`。
+  - 保留对照项 `博泰车联：与NVIDIA达成战略合作`，确认不被误伤。
+  - 当前验证：
+    - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'foreign_mayor_delegation_exchange_story or stcn_company_visit_exchange_story or stcn_public_affairs_leader_visit_story or stcn_ic_enterprise_exchange_story' -q` -> `4 passed`
+    - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'foreign_mayor_delegation_exchange_story_without_hiding_real_ai_cooperation or stcn_public_affairs_conference_story_even_if_analysis_gets_theme or stcn_ic_enterprise_exchange_without_hiding_order_contract or filters_stcn_public_affairs_fast_news_even_if_analysis_gets_theme' -q` -> `4 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，目标标题已从 `latest_report.txt` 退出，`博泰车联：与NVIDIA达成战略合作` 仍保留
+    - 即时 `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 15` -> 当前剩余 `1` 条 `联想在天津投建新一代AI算力研发制造中心`
+    - `git diff --check` -> passed
+- Open TODO:
+  - 当前剩余 `联想在天津投建新一代AI算力研发制造中心` 更像真实催化；除非用户明确要求更激进降噪，否则不继续 suppress。
+- Risks/Blockers:
+  - 如果后续把“政府签署建设协议 + 投资建设 + 量产计划”这类标题也当噪音压掉，会误伤真实 AI 算力建设催化。
+- Next First Command:
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 15`
+- Known Avoidances:
+  - 不要把所有 `合作`、`交流`、`市长率团` 标题混成一个大词表；本轮只收外宾访问交流型，不扩到实质签约落地型。
+
+## Latest Handoff Snapshot (2026-05-29)
+- Task-ID:
+  - `global-multisource-mainline`
+- Task-Name:
+  - `5/29 CLS parse_error backend recovery`
+- Files Changed:
+  - `src/news_sentiment/collectors/cls.py`
+  - `tests/test_cls_collector.py`
+  - `progress.md`
+  - `task_plan.md`
+  - `findings.md`
+- Completed This Session:
+  - 复核 runtime / content / source 三层后，确认异常只在 `cls:parse_error`，不是 runtime down，也不是内容侧回潮。
+  - 单源 `collect --source cls` 复现 `CollectorParseError: no telegraph rows matched response`。
+  - 抓真实远端响应确认旧请求被 WAF `418` 拦截；补浏览器头后页面可访问，但 `__NEXT_DATA__` 中 `telegraphList` 已为空。
+  - 从 `telegraph` 页脚本确认真实数据迁到 `/api/cache?name=telegraph`，并将 collector 主路径切到该接口。
+  - 保留旧 HTML `__NEXT_DATA__` 解析作为 fallback。
+  - 新增 `api/cache` payload 回归测试，并同步更新 `collect` / `empty_result` 相关测试。
+  - 当前验证：
+    - `./.venv/bin/pytest tests/test_cls_collector.py -q` -> `4 passed`
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source cls` -> success
+    - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 10` -> `watchdog_status=clean`, `failed_sources=none`, `suspicious_count=0`
+- Open TODO:
+  - 等下一轮自然 watchdog 轮次确认 log/incident 也回到 `clean`。
+- Risks/Blockers:
+  - `cls` 现依赖 `api/cache?name=telegraph` 当前返回结构；若财联社再次切接口或签名逻辑，优先重抓页面脚本，而不是回退到旧 `__NEXT_DATA__` 假设。
+- Next First Command:
+  - `rg -n '^=====|watchdog_status=|failed_sources=|suspicious_count=' /tmp/news-sentiment-watch.log | tail -n 20`
+- Known Avoidances:
+  - 不要再把 `cls` 异常直接归因为 `telegraphList` 解析坏掉；这轮先是 `418`，再是 SSR 数据口失效，两个层次都要看。
+
 ## Latest Handoff Snapshot (2026-05-27)
 - Task-ID:
   - `global-multisource-mainline`

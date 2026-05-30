@@ -570,6 +570,33 @@ LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_TITLE_KEYWORDS = (
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
 )
+LOW_SIGNAL_STCN_GLOBAL_CAPITAL_A_SHARE_ALLOCATION_TITLE_KEYWORDS = (
+    "增配A股",
+    "黄金窗口期",
+)
+LOW_SIGNAL_STCN_GLOBAL_CAPITAL_A_SHARE_ALLOCATION_BODY_KEYWORDS = (
+    "全球投资者大会",
+    "中国资产",
+    "低配状态",
+)
+LOW_SIGNAL_STCN_STOCK_SCREEN_OBSERVATION_TITLE_KEYWORDS = (
+    "滞涨",
+    "融资客重仓",
+)
+LOW_SIGNAL_STCN_STOCK_SCREEN_OBSERVATION_BODY_KEYWORDS = (
+    "融资余额",
+    "累计涨幅低于",
+    "按照融资余额增幅排序",
+)
+LOW_SIGNAL_STCN_STORAGE_LITHIUM_PRICE_OBSERVATION_TITLE_KEYWORDS = (
+    "海外储能需求",
+    "锂价传导机制",
+)
+LOW_SIGNAL_STCN_STORAGE_LITHIUM_PRICE_OBSERVATION_BODY_KEYWORDS = (
+    "记者采访获悉",
+    "全球储能需求增速",
+    "价格联动",
+)
 LOW_SIGNAL_STCN_ETF_ALLOCATION_COMMENTARY_TITLE_KEYWORDS = (
     "ETF资金流向分化",
     "公募策略趋于多元",
@@ -742,6 +769,12 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_broker_macro_commentary(event, text):
         return False
+    if _is_low_signal_stcn_global_capital_a_share_allocation_commentary(event, text):
+        return False
+    if _is_low_signal_stcn_stock_screen_observation(event, text):
+        return False
+    if _is_low_signal_stcn_storage_lithium_price_observation(event, text):
+        return False
     if _is_low_signal_stcn_fund_manager_allocation_commentary(event):
         return False
     if _is_low_signal_stcn_industry_prosperity_story(event, text):
@@ -773,6 +806,8 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_stcn_charging_infrastructure_story(event):
         return False
     if _is_low_signal_stcn_largest_storage_station_story(event, text):
+        return False
+    if _is_low_signal_stcn_foreign_mayor_delegation_exchange_story(event, text):
         return False
     if _is_low_signal_stcn_storage_president_appointment_story(event, text):
         return False
@@ -1708,6 +1743,45 @@ def _is_low_signal_stcn_fund_manager_allocation_commentary(event: Event) -> bool
     )
 
 
+def _is_low_signal_stcn_global_capital_a_share_allocation_commentary(
+    event: Event, text: str
+) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and _contains_any(
+            event.canonical_title,
+            LOW_SIGNAL_STCN_GLOBAL_CAPITAL_A_SHARE_ALLOCATION_TITLE_KEYWORDS,
+        )
+        and _contains_any(text, LOW_SIGNAL_STCN_GLOBAL_CAPITAL_A_SHARE_ALLOCATION_BODY_KEYWORDS)
+    )
+
+
+def _is_low_signal_stcn_stock_screen_observation(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and _contains_any(event.canonical_title, LOW_SIGNAL_STCN_STOCK_SCREEN_OBSERVATION_TITLE_KEYWORDS)
+        and _contains_any(text, LOW_SIGNAL_STCN_STOCK_SCREEN_OBSERVATION_BODY_KEYWORDS)
+    )
+
+
+def _is_low_signal_stcn_storage_lithium_price_observation(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and _contains_any(
+            event.canonical_title,
+            LOW_SIGNAL_STCN_STORAGE_LITHIUM_PRICE_OBSERVATION_TITLE_KEYWORDS,
+        )
+        and _contains_any(text, LOW_SIGNAL_STCN_STORAGE_LITHIUM_PRICE_OBSERVATION_BODY_KEYWORDS)
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
 def _is_low_signal_stcn_industry_prosperity_story(event: Event, text: str) -> bool:
     if not (
         event.source == "stcn"
@@ -1891,6 +1965,18 @@ def _is_low_signal_stcn_largest_storage_station_story(event: Event, text: str) -
         and "落地" in title
         and "内蒙古" in title
         and "国内单体规模最大" in text
+    )
+
+
+def _is_low_signal_stcn_foreign_mayor_delegation_exchange_story(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "市长率团" in event.canonical_title
+        and any(keyword in text for keyword in ("率团访问", "访蓉", "代表团参访"))
+        and any(keyword in text for keyword in ("座谈", "交流", "参访"))
+        and not any(keyword in text for keyword in ("签署", "中标", "订单", "合同", "采购"))
     )
 
 

@@ -2563,6 +2563,156 @@ def test_audit_suspicious_skips_stcn_fund_manager_investment_opportunity_story(
     assert "基金经理把握光通信投资机会" not in output
 
 
+def test_audit_suspicious_skips_stcn_global_capital_a_share_allocation_commentary(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-global-capital-a-share-allocation",
+                first_seen_at="2026-05-29T07:25:03+08:00",
+                last_seen_at="2026-05-29T07:25:03+08:00",
+                canonical_title="全球资本加速拥抱中国 增配A股进入黄金窗口期",
+                summary="人民财讯5月29日电，在世界宏观经济面临复杂变局的当下，全球资本都在寻找更具确定性投资价值的资产。"
+                "5月28日，由深交所主办的2026全球投资者大会在深圳举行。"
+                "瑞银全球金融市场部中国主管房东明表示，目前全球机构投资者对中国资产处于显著低配状态，未来五年乃至更长周期将是外资增配A股的黄金窗口期。",
+                source="stcn",
+                published_at="2026-05-29T07:25:03+08:00",
+                url="https://example.com/stcn-global-capital-a-share-allocation",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-keep-ai-build-center",
+                first_seen_at="2026-05-29T11:14:22+08:00",
+                last_seen_at="2026-05-29T11:14:22+08:00",
+                canonical_title="联想在天津投建新一代AI算力研发制造中心",
+                summary="人民财讯5月29日电，联想集团与天津签署建设新一代AI基础设施协议，将投资建设新一代AI算力产品研发制造中心。",
+                source="stcn",
+                published_at="2026-05-29T11:14:22+08:00",
+                url="https://example.com/keep-ai-build-center",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-global-capital-a-share-allocation",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["证券"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-keep-ai-build-center",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "全球资本加速拥抱中国 增配A股进入黄金窗口期" not in output
+    assert "联想在天津投建新一代AI算力研发制造中心" in output
+
+
+def test_audit_suspicious_skips_stcn_stock_screen_and_industry_observation_stories(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-compute-financing-stock-screen",
+                first_seen_at="2026-05-30T08:27:41+08:00",
+                last_seen_at="2026-05-30T08:27:41+08:00",
+                canonical_title="12只滞涨算力股获融资客重仓",
+                summary="人民财讯5月30日电，受益于科技板块的走强，今年以来算力概念股整体表现强势。"
+                "从融资资金来看，74只算力概念股最新融资余额合计接近2126亿元。"
+                "今年以来累计涨幅低于45%，且融资余额较去年末增幅均超过30%的算力概念股有12只，按照融资余额增幅排序。",
+                source="stcn",
+                published_at="2026-05-30T08:27:41+08:00",
+                url="https://example.com/stcn-compute-financing-stock-screen",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-storage-lithium-price-observation",
+                first_seen_at="2026-05-30T08:12:34+08:00",
+                last_seen_at="2026-05-30T08:12:34+08:00",
+                canonical_title="海外储能需求崛起 锂价传导机制整体顺畅",
+                summary="人民财讯5月30日电，记者采访获悉，下游储能需求持续火爆，为锂价提供了坚实的基本面支撑。"
+                "机构预计2026年全球储能需求增速将超过50%。在锂价高企的背景下，产业链通过价格联动、下游直采等机制整体实现了顺畅传导。（上海证券报）",
+                source="stcn",
+                published_at="2026-05-30T08:12:34+08:00",
+                url="https://example.com/stcn-storage-lithium-price-observation",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-keep-ai-build-center",
+                first_seen_at="2026-05-29T11:14:22+08:00",
+                last_seen_at="2026-05-29T11:14:22+08:00",
+                canonical_title="联想在天津投建新一代AI算力研发制造中心",
+                summary="人民财讯5月29日电，联想集团与天津签署建设新一代AI基础设施协议，将投资建设新一代AI算力产品研发制造中心。",
+                source="stcn",
+                published_at="2026-05-29T11:14:22+08:00",
+                url="https://example.com/keep-ai-build-center",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-compute-financing-stock-screen",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-storage-lithium-price-observation",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-keep-ai-build-center",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "12只滞涨算力股获融资客重仓" not in output
+    assert "海外储能需求崛起 锂价传导机制整体顺畅" not in output
+    assert "联想在天津投建新一代AI算力研发制造中心" in output
+
+
 def test_audit_suspicious_skips_stcn_charging_infra_fast_news_with_theme(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -3581,6 +3731,71 @@ def test_audit_suspicious_skips_stcn_company_visit_exchange_story(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "佳力图拜访之江实验室三体计算星座项目团队" not in output
+
+
+def test_audit_suspicious_skips_stcn_foreign_mayor_delegation_exchange_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-foreign-mayor-delegation-exchange",
+                first_seen_at="2026-05-29T08:27:56+08:00",
+                last_seen_at="2026-05-29T08:27:56+08:00",
+                canonical_title="德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作",
+                summary="人民财讯5月29日电，据成都商报，5月28日，德国纽伦堡市市长马库斯·柯尼希率团访问成都。"
+                "代表团参访成都天府国际生物城文化中心，并与成都博恩思医学机器人有限公司相关负责人进行座谈，"
+                "围绕生物医药、医疗机器人及产业合作等内容展开交流。",
+                source="stcn",
+                published_at="2026-05-29T08:27:56+08:00",
+                url="https://example.com/stcn-foreign-mayor-delegation-exchange",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-keep-ai-cooperation",
+                first_seen_at="2026-05-29T08:35:33+08:00",
+                last_seen_at="2026-05-29T08:35:33+08:00",
+                canonical_title="博泰车联：与NVIDIA达成战略合作",
+                summary="人民财讯5月29日电，博泰车联在港交所公告，公司与NVIDIA举行战略合作签约仪式。",
+                source="stcn",
+                published_at="2026-05-29T08:35:33+08:00",
+                url="https://example.com/keep-ai-cooperation",
+                event_type="fast_news",
+                event_subtype="cooperation_agreement",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-foreign-mayor-delegation-exchange",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人", "创新药"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-keep-ai-cooperation",
+                direction="neutral",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作" not in output
+    assert "博泰车联：与NVIDIA达成战略合作" not in output
 
 
 def test_audit_suspicious_skips_stcn_bank_insurance_chairman_meeting_story(

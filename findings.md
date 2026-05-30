@@ -1,5 +1,45 @@
 # Findings & Decisions
 
+## Update 2026-05-30 (latest)
+- 本轮核心判断：5/30 新冒出的三条 `stcn + general_fast_news_with_theme` 都不是直接新闻催化，而是观点/选股/行业观察稿。
+- 规则决策：
+  - `全球资本加速拥抱中国 增配A股进入黄金窗口期` 只在标题含 `增配A股 / 黄金窗口期` 且正文含 `全球投资者大会 / 中国资产 / 低配状态` 时过滤。
+  - `12只滞涨算力股获融资客重仓` 只在标题含 `滞涨 / 融资客重仓` 且正文含 `融资余额 / 累计涨幅低于 / 按照融资余额增幅排序` 时过滤。
+  - `海外储能需求崛起 锂价传导机制整体顺畅` 只在标题含 `海外储能需求 / 锂价传导机制`，正文含 `记者采访获悉 / 全球储能需求增速 / 价格联动`，且没有 `签署 / 中标 / 订单 / 合同 / 采购` 时过滤。
+- 当前 live 结论：
+  - 三条目标标题已从 `audit` 与 `report` 退出。
+  - 当前即时 `audit-suspicious --limit 20` 已回到 `suspicious_count=0`。
+  - 手动 `watchdog-once --source all --limit 10` 已回到 `watchdog_status=clean`，且 `failed_sources=none`。
+  - 自然 loop 已连续两轮 `clean`，本轮不再有内容侧异动。
+
+## Update 2026-05-29
+- 本轮核心判断：`德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作` 是新一类 `stcn` 外宾率团访问/参访/座谈交流快讯，不是实质合作落地。
+- 规则决策：
+  - `audit-suspicious` / `text_report` 同步新增窄 helper：
+    - 标题含 `市长率团`
+    - 正文含 `率团访问 / 访蓉 / 代表团参访`
+    - 同时有 `座谈 / 交流 / 参访`
+    - 且没有 `签署 / 中标 / 订单 / 合同 / 采购`
+  - 对照项 `博泰车联：与NVIDIA达成战略合作` 继续保留，避免把实质签约误压。
+- 当前 live 结论：
+  - 该条已从 `audit` 与 `report` 退出。
+  - 当前剩余 live 可疑项 `联想在天津投建新一代AI算力研发制造中心`，正文含 `签署建设协议 / 投资建设 / 2027量产`，更像真实催化，当前保留。
+
+## Update 2026-05-29
+- 本轮核心判断：`cls` backend alert 是单源取数链路变化，不是内容规则回退。
+- 根因分层：
+  - 旧 `news-sentiment-mvp/0.1` 请求口径会被 `https://www.cls.cn/telegraph` 当前 WAF 拦成 `418`。
+  - 即使补成浏览器头后，页面里的 `__NEXT_DATA__ -> initialState.telegraph.telegraphList` 也已经为空，不再承载真实电报列表。
+  - 页面脚本当前真实使用的是 `https://www.cls.cn/api/cache?rn=20&lastTime=<...>&name=telegraph`，并轮询 `refreshTenTelegraph`。
+- 规则/实现决策：
+  - `cls` collector 主路径改成 `api/cache?name=telegraph`。
+  - 旧 HTML 解析不删，只保留为 fallback。
+  - 浏览器头只局部放在 `cls` collector，不扩散到全局 `fetch_html`。
+- 验收结论：
+  - `tests/test_cls_collector.py` -> `4 passed`
+  - `collect --source cls` 已能写出真实 `cls` 电报
+  - `watchdog-once --source all --limit 10` -> `watchdog_status=clean`, `failed_sources=none`, `suspicious_count=0`
+
 ## Update 2026-05-27 (latest)
 - 本轮核心判断：用户已经把阅读口径改成 `全部不看 ST/*ST`，因此这不是单条噪音收口，而是输出层策略切换。
 - 规则决策：

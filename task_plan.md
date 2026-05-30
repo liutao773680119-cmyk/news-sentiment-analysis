@@ -1,5 +1,57 @@
 # Task Plan: A股新闻题材雷达 MVP
 
+## Update 2026-05-30 (latest handoff)
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮内容侧新增收口：
+  - `全球资本加速拥抱中国 增配A股进入黄金窗口期`
+  - `12只滞涨算力股获融资客重仓`
+  - `海外储能需求崛起 锂价传导机制整体顺畅`
+- 本轮判断：
+  - `全球资本...增配A股...黄金窗口期` 属于 `stcn + general_fast_news` 宏观配置观点稿，不是具体公司/题材催化。
+  - `12只滞涨算力股获融资客重仓` 属于融资余额选股清单，不是新闻事件。
+  - `海外储能需求崛起...锂价传导机制...` 属于行业观察稿，当前没有签署、订单、合同、采购等实质落地词。
+- 当前验证：
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'fund_manager_investment_opportunity or foreign_mayor_delegation_exchange or global_capital_a_share_allocation or stock_screen_and_industry_observation' -q` -> `4 passed`
+  - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'fund_manager_allocation_commentary_without_hiding_real_order_news or foreign_mayor_delegation_exchange or global_capital_a_share_allocation or stock_screen_and_industry_observation' -q` -> `4 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment audit-suspicious --limit 20` -> `suspicious_count=0`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，三条目标标题均不在 `latest_report.txt`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 10` -> `watchdog_status=clean`, `failed_sources=none`, `suspicious_count=0`
+  - 自然 loop `2026-05-30_09:26:29` 与 `2026-05-30_09:37:21` 连续两轮 `clean`
+- 下一步判断：
+  - 手动全链路与自然 loop 都已回 `clean`；本轮内容收口可以提交。
+
+## Update 2026-05-29
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮内容侧新增收口：
+  - `德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作`
+- 本轮判断：
+  - 该标题属于 `stcn + general_fast_news` 的外宾市长率团访问/参访/座谈交流类快讯，没有签署、订单、合同、采购等实质落地词，应按低信号交流类处理。
+  - 同时出现的新标题 `联想在天津投建新一代AI算力研发制造中心` 不属于同类噪音；正文包含 `与天津市政府签署建设协议 + 投资建设 + 量产计划`，当前保留为真实候选。
+- 当前验证：
+  - `./.venv/bin/pytest tests/test_audit_suspicious.py -k 'foreign_mayor_delegation_exchange_story or stcn_company_visit_exchange_story or stcn_public_affairs_leader_visit_story or stcn_ic_enterprise_exchange_story' -q` -> `4 passed`
+  - `./.venv/bin/pytest tests/test_text_report_sorting.py -k 'foreign_mayor_delegation_exchange_story_without_hiding_real_ai_cooperation or stcn_public_affairs_conference_story_even_if_analysis_gets_theme or stcn_ic_enterprise_exchange_without_hiding_order_contract or filters_stcn_public_affairs_fast_news_even_if_analysis_gets_theme' -q` -> `4 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment report` 后，`德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作` 已不在 `latest_report.txt`
+  - 即时 `audit-suspicious --limit 15` 当前剩余 `1` 条：`联想在天津投建新一代AI算力研发制造中心`
+- 下一步判断：
+  - 当前 backend 未清零，但剩余 1 条更像真实催化，不建议继续按噪音处理。
+
+## Update 2026-05-29
+- 当前真实主线仍是 `global-multisource-mainline`
+- 本轮 backend 异常根因：
+  - runtime 正常，`audit-suspicious=0`，但 watchdog 连续多轮 `failed_sources=cls:parse_error`。
+  - 单源复现确认旧 `cls` collector 先被 WAF 拦成 `418`，补浏览器头后页面返回 `200`，但 `__NEXT_DATA__ -> initialState.telegraph.telegraphList` 已为空。
+  - 进一步从 `telegraph` 页脚本确认，真实数据已迁到前端运行时请求：`/api/cache?name=telegraph`。
+- 本轮修复：
+  - `cls` collector 主路径切到 `https://www.cls.cn/api/cache?rn=20&lastTime=<now>&name=telegraph`。
+  - 保留旧 `__NEXT_DATA__` HTML 解析做 fallback。
+  - `cls` 请求头升级为浏览器口径，绕过当前 `418` WAF 拦截。
+- 当前验证：
+  - `./.venv/bin/pytest tests/test_cls_collector.py -q` -> `4 passed`
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment collect --source cls` -> 执行成功，`data/raw/raw_news.jsonl` 已写出 `cls` 行
+  - `PYTHONPATH=src ./.venv/bin/python -m news_sentiment watchdog-once --source all --limit 10` -> `watchdog_status=clean`, `failed_sources=none`, `suspicious_count=0`
+- 下一步判断：
+  - 代码层已修通；若要确认自然 loop 已恢复，只需等下一轮 watchdog 自然轮次刷出 `clean`。
+
 ## Update 2026-05-27 (latest handoff)
 - 当前真实主线仍是 `global-multisource-mainline`
 - 本轮口径切换：
