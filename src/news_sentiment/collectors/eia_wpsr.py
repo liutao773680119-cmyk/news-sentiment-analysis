@@ -4,6 +4,7 @@ import csv
 import re
 from datetime import datetime, timezone
 from io import StringIO
+from urllib.error import HTTPError
 from zoneinfo import ZoneInfo
 
 from news_sentiment.collectors.errors import (
@@ -69,6 +70,27 @@ def _parse_page_metadata(html: str) -> tuple[str, str]:
         tzinfo=EASTERN_TZ,
     )
     return week_ending, release_date.replace(microsecond=0).isoformat()
+
+
+def _parse_next_release_at(html: str) -> datetime | None:
+    date_pattern = r"([A-Za-z]{3,9}\.?\s+\d{1,2},\s+\d{4})"
+    release_match = re.search(rf"Next Release Date:</span>\s*<span class=\"date\">{date_pattern}", html)
+    if not release_match:
+        return None
+    return _parse_calendar_date(release_match.group(1)).replace(
+        hour=10,
+        minute=30,
+        tzinfo=EASTERN_TZ,
+    )
+
+
+def _is_pre_release_access_restricted(exc: Exception, page_html: str) -> bool:
+    if not isinstance(exc, HTTPError) or exc.code != 403:
+        return False
+    next_release_at = _parse_next_release_at(page_html)
+    if next_release_at is None:
+        return False
+    return datetime.now(EASTERN_TZ) < next_release_at
 
 
 def _parse_table1_metrics(payload: str) -> dict[str, tuple[str, str]]:
@@ -144,8 +166,14 @@ def parse_eia_wpsr_release(page_html: str, table1_csv: str) -> list[RawNews]:
 def collect_eia_wpsr_news() -> list[RawNews]:
     try:
         page_html = fetch_eia_wpsr_page()
+    except Exception as exc:
+        raise CollectorFetchError("eia_wpsr", str(exc) or exc.__class__.__name__) from exc
+
+    try:
         table1_csv = fetch_eia_wpsr_table1_csv()
     except Exception as exc:
+        if _is_pre_release_access_restricted(exc, page_html):
+            return []
         raise CollectorFetchError("eia_wpsr", str(exc) or exc.__class__.__name__) from exc
 
     if not page_html.strip() or not table1_csv.strip():

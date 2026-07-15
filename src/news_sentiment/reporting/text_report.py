@@ -146,24 +146,36 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "增持公司股份的法律意见书",
     "增持公司股份计划",
     "增持股份计划",
+    "首次增持公司股份暨增持计划",
+    "后续增持计划公告",
     "增持计划实施完成",
     "减持股份预披露",
     "减持股份的预披露公告",
     "减持股份预披露公告",
+    "减持股份计划的预披露公告",
     "股东计划减持公司股份的预披露公告",
+    "高级管理人员减持公司股份的预披露公告",
+    "股东减持股份计划的公告",
     "减持股份计划公告",
     "减持计划的预披露公告",
+    "减持计划实施期限届满",
+    "减持计划届满暨未减持股份",
     "减持计划期限届满",
+    "减持计划时间届满暨减持结果",
     "减持计划完成",
     "减持计划实施完成",
+    "减持参股公司股票",
     "控股股东股份被冻结",
     "控股股东部分股份冻结",
+    "控股子公司部分银行账户资金解除冻结",
     "冻结股份被动减持计划",
     "减持计划期限届满暨实施情况",
     "提前终止减持计划暨减持结果",
     "减持股份计划期限届满",
     "减持股份计划期限届满暨实施情况",
     "减持股份计划实施完成",
+    "股份减持计划实施完毕",
+    "减持股份计划实施完毕",
     "减持至5%以下",
     "减持期限届满未减持股份",
     "减持股份结果",
@@ -172,9 +184,12 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持公司股份比例触及",
     "减持股份触及",
     "触及1%整数倍",
+    "触及5%整数倍",
     "终止股份减持计划",
+    "终止减持股份计划",
     "提前终止股份减持计划",
     "回购实施结果",
+    "回购股份实施结果",
     "回购公司股份方案",
     "回购股份方案",
     "回购公司股份的预案",
@@ -183,11 +198,17 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "一般风险提示暨公司股票复牌",
     "变更股份回购用途",
     "回购股份用途",
+    "实施回购股份注销暨股份变动",
     "回购股份注销完成",
+    "注销已回购股份暨股份变动",
+    "员工持股计划股份回购注销实施公告",
+    "限制性股票回购注销实施公告",
     "股票质押式回购交易业务",
     "股票质押式回购交易提前购回",
     "回购股份事项前十名股东",
     "前十名无限售条件股东持股情况",
+    "回购股份事项前十大股东",
+    "前十大无限售条件股东持股情况",
     "库存股减少公司注册资本",
     "注销回购股份并减少注册资本",
     "回购公司股份用于注销的结果",
@@ -197,6 +218,13 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "信用评级报告",
     "临时受托管理事务报告",
     "未被证券监管部门和证券交易所采取监管措施或处罚情况",
+    "未被证券监管部门和证券交易所采取监管措施或处罚",
+    "被证券监管部门和交易所采取监管措施或处罚的情况",
+    "被证券监管部门和交易所处罚或采取监管措施情况",
+    "被证券监管部门和交易所处罚或采取监管措施",
+    "不存在被证券监管部门和交易所处罚或采取监管措施情况",
+    "不存在被证券监管部门和交易所采取监管措施或处罚情况",
+    "未被证券监管部门和交易所采取监管措施或处罚",
     "股东质询建议函",
     "金融服务协议及相关风险控制措施执行情况的核查意见",
     "金融服务协议",
@@ -224,16 +252,28 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "年度薪酬方案",
     "提质增效重回报",
     "回购股份价格上限",
+    "调整回购股份价格",
     "回购公司部分社会公众股份的报告书",
     "出售已回购股份计划",
+    "回购股份进展",
+    "回购股份管理制度",
+    "公司股份回购实施完成暨股份变动",
+    "以集中竞价交易方式首次回购股份",
+    "权益分派实施后调整回购股份上限",
+    "解除质押的公告",
+    "担保进展情况",
+    "股票交易风险的提示性公告",
     "摊薄即期回报的风险提示及填补回报措施",
     "相关主体承诺",
     "互动易平台信息发布及回复内部审核制度",
     "会计政策变更",
     "计提减值准备",
+    "终止年产",
     "风险管理制度",
+    "风险投资管理制度",
     "风险控制指标报告",
     "风险评估说明",
+    "采取风险控制措施通知书",
     "关联存款风险处置预案",
     "洗钱和恐怖融资风险管理办法",
     "行政处罚决定书",
@@ -251,17 +291,42 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "监管措施或处罚及整改情况",
     "上市投资风险特别公告",
     "风险提示公告",
+    "市场传闻的澄清及风险提示",
+    "投资者适当性要求",
     "不存在被证券监管部门和交易所采取处罚或监管措施",
     "附条件生效的股份认购协议",
+    "附生效条件的股份认购协议",
+    "特定期间不减持公司股票承诺",
+    "特定期间不减持公司股票",
+    "特定期间不减持公司股份承诺函",
+    "股东权益变动的提示性公告",
+    "权益变动提示性公告",
+    "简式权益变动报告书",
+    "免于发出要约",
+    "股东分红回报规划",
+    "提供资料真实性、准确性和完整性的承诺",
+    "内幕信息知情人登记制度的制定和执行情况的核查意见",
+    "备考合并财务报表审阅报告",
+    "募集资金管理制度",
+    "证券变动月报表",
+    "转股情况",
     "股权委托管理协议",
     "相关规定的核查意见",
     "重整投资协议",
+    "免于发出收购要约",
     "问询函回复",
+    "信息披露监管问询函之回复",
+    "承诺函",
+    "矿业权评估报告",
+    "审计报告",
+    "廉洁从业风险防控",
+    "披露预案暨公司股票复牌及一般风险提示性公告",
     "审核问询函中有关财务会计问题的专项说明",
     "年报的问询函相关事项的专项说明",
     "年报问询函》的回复",
     "年报问询函》之回复",
     "延期回复深圳证券交易所审核问询函的公告",
+    "采矿权评估发表意见",
     "专项说明",
     "诉讼事项的进展",
     "涉及诉讼进展",
@@ -272,6 +337,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "轮候冻结",
     "强制执行完成",
     "交易进展及签署补充协议",
+    "促成交割先决条件之补充协议",
+    "筹划破产重组暨公司实际控制人拟变更事项的提示性公告",
 )
 LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "考核管理办法",
@@ -289,7 +356,9 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "符合行权条件",
     "采用自主行权",
     "首次授予限制性股票",
+    "限制性股票激励计划首次授予结果",
     "向激励对象授予限制性股票",
+    "激励对象授予股票期权登记完成",
     "授予预留限制性股票",
     "授予登记完成",
     "限制性股票激励计划获得批复",
@@ -302,8 +371,12 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "回购注销限制性股票的减资公告",
     "回购注销完成",
     "回购注销及作废",
+    "回购注销部分2025年限制性股票",
     "回购注销2022年限制性股票激励计划",
     "回购注销2023年限制性股票激励计划",
+    "股权激励限制性股票回购注销实施公告",
+    "限制性股票回购注销实施公告",
+    "限制性股票激励计划部分限制性股票的核查意见",
     "暨通知债权人",
     "回购注销部分限制性股票",
     "作废部分限制性股票",
@@ -325,12 +398,18 @@ LOW_SIGNAL_CNINFO_EQUITY_INCENTIVE_KEYWORDS = (
     "股权激励计划相关事项的核查意见",
     "归属相关事项的核查意见",
     "股票期权激励计划相关事项的公告",
+    "股票期权激励计划相关事项的核查意见",
+    "股票期权激励计划行权价格调整",
+    "回购价格的公告",
+    "自主行权的提示性公告",
     "激励对象买卖公司股票情况的自查报告",
     "内幕信息知情人买卖公司股票情况的自查报告",
+    "内幕信息知情人及激励对象买卖公司股票的自查报告",
     "符合归属条件的公告",
     "归属条件成就",
     "行权条件达成",
     "行权条件未成就",
+    "解除限售期业绩绩效考核达成",
     "注销部分股票期权",
     "预留权益失效",
 )
@@ -344,6 +423,10 @@ LOW_SIGNAL_CNINFO_BOARD_RESOLUTION_KEYWORDS = (
     "独立性情况的专项意见",
     "授权董事会审议股份回购事项",
     "股票价格波动情况的说明",
+    "独立董事专门会议决议",
+    "本次交易前十二个月内购买、出售资产情况的说明",
+    "本次交易履行法定程序完备性",
+    "本次交易采取的保密措施",
 )
 LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "实施情况之法律意见书",
@@ -356,10 +439,22 @@ LOW_SIGNAL_CNINFO_RESTRUCTURING_KEYWORDS = (
     "第四条规定的说明",
     "进展公告",
     "收购控股子公司少数股东股权进展的公告",
+    "促成交割先决条件之补充协议",
+    "筹划破产重组暨公司实际控制人拟变更事项的提示性公告",
+    "收购控股子公司",
+    "少数股权涉及关联交易",
     "一般风险提示性公告",
     "一般风险提示暨公司股票复牌",
     "并购重组审核委员会审核通过",
+    "免于发出收购要约",
     "管理办法》第十一条、第四十三条及第四十四条规定的核查意见",
+    "本次交易符合《创业板上市公司持续监管办法",
+    "本次交易符合《上市公司重大资产重组管理办法",
+    "不得参与任何上市公司重大资产重组情形的核查意见",
+    "不存在不得参与任何上市公司重大资产重组情形的说明",
+    "本次交易前十二个月内购买、出售资产情况的说明",
+    "本次交易履行法定程序完备性",
+    "本次交易采取的保密措施",
 )
 LOW_SIGNAL_EXCHANGE_ORDER_CONTRACT_PROGRESS_KEYWORDS = (
     "中标项目签订协议的进展公告",
@@ -390,16 +485,31 @@ LOW_SIGNAL_EXCHANGE_TEMPLATE_COOPERATION_STRONG_KEYWORDS = (
 LOW_SIGNAL_CNINFO_RESTRUCTURING_MATERIAL_KEYWORDS = (
     "审核问询函回复",
     "问询函回复",
+    "问询函》的回复公告",
     "审核问询函的专项核查意见",
     "审核问询函有关财务事项的说明",
     "问询函中有关财务事项的说明",
     "问询函中有关财务会计问题的专项说明",
+    "预案披露的提示性公告",
     "报告书（修订稿）",
     "报告书(修订稿)",
+    "报告书（草案）摘要",
     "会议安排",
+    "独立财务顾问主办人",
+    "报告书（草案）与预案差异对比说明",
+    "本次交易符合《创业板上市公司持续监管办法",
+    "本次交易符合《上市公司重大资产重组管理办法",
+    "不得参与任何上市公司重大资产重组情形的核查意见",
+    "本次交易前十二个月内购买、出售资产情况的说明",
+    "本次交易履行法定程序完备性",
+    "本次交易采取的保密措施",
+    "廉洁从业风险防控",
+    "矿业权评估报告",
 )
 LOW_SIGNAL_CNINFO_RESTRUCTURING_CONTEXT_KEYWORDS = (
     "发行股份购买资产",
+    "发行股份及支付现金购买资产",
+    "重大资产购买",
     "关联交易",
     "重大资产重组",
     "重大资产出售",
@@ -569,6 +679,14 @@ LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_TITLE_KEYWORDS = (
 )
 LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_EXTRA_TITLE_KEYWORDS = (
     "投资机会",
+    "长期配置价值",
+)
+LOW_SIGNAL_STCN_FUND_COMMENTARY_KEYWORDS = (
+    "公募前瞻布局",
+    "头部公募",
+    "公募基金经理",
+    "主题ETF",
+    "ETF“吸金”",
 )
 LOW_SIGNAL_STCN_GLOBAL_CAPITAL_A_SHARE_ALLOCATION_TITLE_KEYWORDS = (
     "增配A股",
@@ -661,6 +779,7 @@ LOW_SIGNAL_STCN_PUBLIC_AFFAIRS_TITLE_KEYWORDS = (
     "集成电路领域企业家座谈",
     "油气储存企业部级专家指导服务",
     "看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况",
+    "专题调研集成电路产业发展工作",
 )
 LOW_SIGNAL_STCN_CHARGING_INFRASTRUCTURE_TITLE_KEYWORDS = (
     "广汽自营充电桩突破",
@@ -757,7 +876,13 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_foreign_index_fast_news(event, text):
         return False
+    if _is_low_signal_investing_economic_colombia_runoff_story(event, text):
+        return False
+    if _is_low_signal_investing_news_glp1_access_program_story(event, text):
+        return False
     if _is_low_signal_domestic_futures_market_move(event.canonical_title, event):
+        return False
+    if _is_low_signal_stcn_crude_low_general_fast_news(event, text):
         return False
     if _is_low_signal_stcn_market_roundup(event.canonical_title, event, analysis):
         return False
@@ -773,11 +898,21 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_stock_screen_observation(event, text):
         return False
+    if _is_low_signal_stcn_financing_balance_recap(event, text):
+        return False
+    if _is_low_signal_stcn_sector_fund_flow_observation(event, text):
+        return False
     if _is_low_signal_stcn_storage_lithium_price_observation(event, text):
         return False
     if _is_low_signal_stcn_fund_manager_allocation_commentary(event):
         return False
     if _is_low_signal_stcn_industry_prosperity_story(event, text):
+        return False
+    if _is_low_signal_stcn_storage_grid_connection_story(event, text):
+        return False
+    if _is_low_signal_stcn_storage_system_delivery_progress_story(event, text):
+        return False
+    if _is_low_signal_stcn_overseas_storage_landing_validation_story(event, text):
         return False
     if _is_low_signal_stcn_operational_update(event, text):
         return False
@@ -813,11 +948,17 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_space_compute_ecosystem_plan_story(event, text):
         return False
+    if _is_low_signal_stcn_space_compute_innovation_center_meeting_story(event, text):
+        return False
+    if _is_low_signal_stcn_space_compute_research_institute_establishment_story(event, text):
+        return False
     if _is_low_signal_stcn_cooperation_exchange_story(event, text):
         return False
     if _is_low_signal_robot_competition_story(event, text):
         return False
     if _is_low_signal_stcn_private_robot_financing_story(event):
+        return False
+    if _is_low_signal_stcn_robotaxi_internal_test_story(event, text):
         return False
     if _is_low_signal_stcn_buyback_flash(event):
         return False
@@ -837,7 +978,7 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
         return False
     if _is_low_signal_stcn_etf_premium_risk_suspension_notice(event):
         return False
-    if _is_low_signal_cls_central_bank_gold_reserve_brief(event, text):
+    if _is_low_signal_central_bank_gold_reserve_brief(event, text):
         return False
     if _is_low_signal_cls_news_broadcast_roundup(event):
         return False
@@ -904,6 +1045,9 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
     if event.source != "hkex" and _is_low_signal_cninfo_restructuring_material(event.canonical_title):
         return True
 
+    if event.event_subtype == "financing_acceptance":
+        return _is_low_signal_financing_review_pass_material(event.canonical_title, event)
+
     if event.event_subtype == "corporate_disclosure":
         if event.source == "hkex":
             return _is_low_signal_hkex_disclosure_title(event.canonical_title)
@@ -920,6 +1064,10 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
             or _is_low_signal_exchange_governance_material(event.canonical_title)
             or _is_low_signal_exchange_inquiry_transfer_verification_report(event.canonical_title)
             or _is_low_signal_order_data_disclosure(event.canonical_title, event)
+            or _is_low_signal_exchange_project_investment_prompt(event.canonical_title)
+            or _is_low_signal_restructuring_process_disclosure(event.canonical_title)
+            or _is_low_signal_convertible_repayment_risk_notice(event.canonical_title)
+            or _is_low_signal_controlling_shareholder_group_merger_prompt(event.canonical_title)
         )
 
     if event.event_subtype == "equity_incentive":
@@ -933,7 +1081,9 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
         )
 
     if event.event_subtype == "executive_change":
-        return "增持股份计划" in event.canonical_title
+        return "增持股份计划" in event.canonical_title or _is_low_signal_exchange_charter_governance_change(
+            event.canonical_title
+        )
 
     if event.event_subtype == "acquisition_restructuring":
         return (
@@ -989,6 +1139,18 @@ def _is_low_signal_cninfo_hard_event(event: Event, text: str) -> bool:
     return False
 
 
+def _is_low_signal_financing_review_pass_material(title: str, event: Event) -> bool:
+    return (
+        event.source in {"cninfo", "szse"}
+        and "向特定对象发行股票申请" in title
+        and "上市审核中心审核通过" in title
+    ) or (
+        event.source in {"cninfo", "szse"}
+        and "2026年度向特定对象发行A股股票" in title
+        and _contains_any(title, ("申请获得深圳证券交易所受理", "申请获得上海证券交易所受理"))
+    )
+
+
 def _is_low_signal_contract_area_progress_notice(event: Event, analysis: EventAnalysis) -> bool:
     return (
         event.source in {"sse", "szse"}
@@ -1012,10 +1174,11 @@ def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
         "并购重组",
     ) + LOW_SIGNAL_FINANCING_MATERIAL_CONTEXT_KEYWORDS
 
-    return (
+    return _is_numbered_inquiry_reply_exemption_material(title) or (
         (
             any(keyword in title for keyword in material_keywords)
             or ("审核问询函" in title and any(keyword in title for keyword in ("回复", "之回复")))
+            or _is_restructuring_review_process_material(title)
         )
         and any(keyword in title for keyword in context_keywords)
     ) or (
@@ -1025,11 +1188,53 @@ def _is_low_signal_cninfo_restructuring_material(title: str) -> bool:
     ) or (
         "专项核查意见" in title
         and any(keyword in title for keyword in ("重大资产重组前发生业绩异常", "拟置出资产情形"))
+    ) or (
+        "核查意见" in title
+        and "监管指引第9号" in title
+        and any(keyword in title for keyword in context_keywords)
+    )
+
+
+def _is_numbered_inquiry_reply_exemption_material(title: str) -> bool:
+    return (
+        "审核问询函的回复" in title
+        and "豁免版" in title
+        and _contains_any(title, ("发行人及保荐机构", "会计师"))
+    )
+
+
+def _is_restructuring_review_process_material(title: str) -> bool:
+    return (
+        ("审核问询函" in title and _contains_any(title, ("收到", "申请")))
+        or ("申请文件" in title and _contains_any(title, ("受理", "获得深圳证券交易所受理")))
     )
 
 
 def _is_low_signal_cninfo_cancel_shareholder_meeting(title: str) -> bool:
     return "取消" in title and any(keyword in title for keyword in ("临时股东会", "股东大会"))
+
+
+def _is_low_signal_exchange_project_investment_prompt(title: str) -> bool:
+    return "关于拟投资建设" in title and "提示性公告" in title
+
+
+def _is_low_signal_restructuring_process_disclosure(title: str) -> bool:
+    return (
+        _contains_any(title, ("发行股份购买资产", "重大资产重组", "本次交易"))
+        and _contains_any(title, ("一般风险提示性公告", "股票价格波动情况"))
+    )
+
+
+def _is_low_signal_convertible_repayment_risk_notice(title: str) -> bool:
+    return "转债" in title and "到期预计无法兑付" in title and "风险提示性公告" in title
+
+
+def _is_low_signal_controlling_shareholder_group_merger_prompt(title: str) -> bool:
+    return "控股股东拟与" in title and "整体合并" in title and "提示性公告" in title
+
+
+def _is_low_signal_exchange_charter_governance_change(title: str) -> bool:
+    return "增设副董事长" in title and "修订《公司章程》" in title
 
 
 def _is_low_signal_financing_authorization_material(title: str) -> bool:
@@ -1352,6 +1557,29 @@ def _is_low_signal_foreign_index_fast_news(event: Event, text: str) -> bool:
     return any(keyword in text for keyword in LOW_SIGNAL_FOREIGN_INDEX_FAST_NEWS_KEYWORDS)
 
 
+def _is_low_signal_investing_economic_colombia_runoff_story(event: Event, text: str) -> bool:
+    return (
+        event.source == "investing_economic"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "Colombia" in text
+        and "runoff" in text
+        and _contains_any(text, ("De La Espriella", "Cepeda"))
+    )
+
+
+def _is_low_signal_investing_news_glp1_access_program_story(event: Event, text: str) -> bool:
+    return (
+        event.source == "investing_news"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "GLP-1" in text
+        and "Older Americans" in text
+        and "program" in text
+        and not _contains_any(text, ("FDA approval", "trial", "earnings", "guidance"))
+    )
+
+
 def _is_low_signal_stcn_buyback_flash(event: Event) -> bool:
     return (
         event.source == "stcn"
@@ -1365,11 +1593,23 @@ def _is_low_signal_domestic_futures_market_move(title: str, event: Event) -> boo
     if not (
         event.source in {"stcn", "cls"}
         and event.event_type == "fast_news"
-        and event.event_subtype == "market_move"
+        and event.event_subtype in {"market_move", "general_fast_news"}
     ):
         return False
 
     return any(keyword in title for keyword in LOW_SIGNAL_DOMESTIC_FUTURES_MARKET_MOVE_KEYWORDS)
+
+
+def _is_low_signal_stcn_crude_low_general_fast_news(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "原油期价" in event.canonical_title
+        and "新低" in event.canonical_title
+        and _contains_any(text, ("轻质原油期货价格", "纽约商品交易所"))
+        and not _contains_any(text, ("供应中断", "制裁", "战争", "减产", "库存"))
+    )
 
 
 def _is_low_signal_hk_listing_application_fast_news(title: str, event: Event) -> bool:
@@ -1468,9 +1708,9 @@ def _is_low_signal_stcn_etf_premium_risk_suspension_notice(event: Event) -> bool
     )
 
 
-def _is_low_signal_cls_central_bank_gold_reserve_brief(event: Event, text: str) -> bool:
+def _is_low_signal_central_bank_gold_reserve_brief(event: Event, text: str) -> bool:
     if not (
-        event.source == "cls"
+        event.source in {"cls", "stcn"}
         and event.event_type == "fast_news"
         and event.event_subtype == "general_fast_news"
     ):
@@ -1731,6 +1971,7 @@ def _is_low_signal_stcn_fund_manager_allocation_commentary(event: Event) -> bool
         return False
 
     title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
     return all(
         keyword in event.canonical_title
         for keyword in LOW_SIGNAL_STCN_FUND_MANAGER_COMMENTARY_TITLE_KEYWORDS
@@ -1740,6 +1981,9 @@ def _is_low_signal_stcn_fund_manager_allocation_commentary(event: Event) -> bool
     ) or all(
         keyword in title
         for keyword in LOW_SIGNAL_STCN_ETF_ALLOCATION_COMMENTARY_TITLE_KEYWORDS
+    ) or (
+        event.event_subtype == "general_fast_news"
+        and any(keyword in text for keyword in LOW_SIGNAL_STCN_FUND_COMMENTARY_KEYWORDS)
     )
 
 
@@ -1765,6 +2009,30 @@ def _is_low_signal_stcn_stock_screen_observation(event: Event, text: str) -> boo
         and event.event_subtype == "general_fast_news"
         and _contains_any(event.canonical_title, LOW_SIGNAL_STCN_STOCK_SCREEN_OBSERVATION_TITLE_KEYWORDS)
         and _contains_any(text, LOW_SIGNAL_STCN_STOCK_SCREEN_OBSERVATION_BODY_KEYWORDS)
+    )
+
+
+def _is_low_signal_stcn_financing_balance_recap(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and _contains_any(event.canonical_title, ("融资资金", "融资客"))
+        and _contains_any(text, ("融资余额", "融资净买入", "融资净偿还"))
+        and _contains_any(text, ("据证券时报·数据宝统计", "数据宝统计"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "获批", "投产"))
+    )
+
+
+def _is_low_signal_stcn_sector_fund_flow_observation(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "指数" in event.canonical_title
+        and "主力资金" in event.canonical_title
+        and _contains_any(text, ("概念指数", "成份股", "主力资金净流入"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购", "获批"))
     )
 
 
@@ -2008,6 +2276,93 @@ def _is_low_signal_stcn_space_compute_ecosystem_plan_story(event: Event, text: s
     )
 
 
+def _is_low_signal_stcn_space_compute_innovation_center_meeting_story(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "太空算力" in title
+        and "座谈会" in title
+        and "创新中心" in title
+        and "建设工作" in title
+        and any(keyword in text for keyword in ("研究部署", "打造太空算力产业高地", "产业高地"))
+        and not any(keyword in text for keyword in ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_space_compute_research_institute_establishment_story(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "太空" in title
+        and "研究院" in title
+        and "成立" in title
+        and _contains_any(
+            text,
+            (
+                "注册成立",
+                "试验星",
+                "天地一体化网络",
+                "星载算力芯片",
+                "星间激光通信",
+                "太空能源与散热",
+                "空间安全标准",
+            ),
+        )
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_storage_grid_connection_story(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "储能电站" in title
+        and "全容量并网" in title
+        and _contains_any(text, ("项目预计", "消纳绿电", "节约标准煤", "减排二氧化碳"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_storage_system_delivery_progress_story(event: Event, text: str) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "储能系统" in title
+        and "交付" in title
+        and "完成" in title
+        and _contains_any(text, ("设备交付", "液冷储能系统", "新能源基地项目", "高比例并网"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
+def _is_low_signal_stcn_overseas_storage_landing_validation_story(
+    event: Event, text: str
+) -> bool:
+    title = event.canonical_title
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "液冷储能" in title
+        and "欧洲" in title
+        and "落地验证" in title
+        and _contains_any(text, ("欧洲市场", "工商业储能", "接连落地储能项目"))
+        and not _contains_any(text, ("签署", "中标", "订单", "合同", "采购"))
+    )
+
+
 def _is_low_signal_stcn_nonlisted_ai_finance_story(event: Event, text: str) -> bool:
     if not (
         event.source == "stcn"
@@ -2093,6 +2448,18 @@ def _is_low_signal_stcn_private_robot_financing_story(event: Event) -> bool:
         "Pre-A轮融资" in title
         and "机器人应用" in title
         and "交付能力" in title
+    )
+
+
+def _is_low_signal_stcn_robotaxi_internal_test_story(event: Event, text: str) -> bool:
+    return (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+        and "Robotaxi" in text
+        and "内测" in text
+        and "服务商" in text
+        and not any(keyword in text for keyword in ("订单", "中标", "合同", "量产", "交付"))
     )
 
 
@@ -2301,6 +2668,7 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "2026年的净利润会低于" in title)
             or ("大股东怎么不发增持消息" in title)
             or ("持股数量减少" in title and "没有发布减持公告" in title)
+            or ("大股东" in title and "减持计划" in title and "减持比例和减持完成度" in title)
             or ("回购增持" in title and "高分红回馈股东" in title and "恢复分红政策" in title and "时间表与量化目标" in title)
             or ("机器人领域的发展嘛" in title and "行星滚柱丝杠" in title and "灵巧手" in title)
             or ("液冷服务器领域有什么产品布局" in title and "已经在液冷服务器方面有所应用" in title)
@@ -2317,8 +2685,13 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
             or ("自有算力" in title and "在建算力" in title and "可调度算力" in title)
             or ("是否生产销售" in title and "人形机器人" in title and "减速器" in title)
             or ("网传中标" in title and "是真的吗" in title)
+            or ("特种行业订单" in title and "有无延续" in title)
+            or ("合同价预计超" in title and "是否属实" in title)
+            or ("获批上市" in title and "销售影响" in title)
             or ("光伏储能" in title and "相关业务吗" in title)
             or ("H股上市" in title and "股权激励" in title and "利润总额" in title and "每股利润增长每年不低于10%" in title)
+            or ("董事会你好" in title and "资产重组" in title and "国资控制权" in title and "国资退出规划" in title)
+            or "产品是否用于商业航天回收" in title
         )
 
     return (
@@ -2425,7 +2798,9 @@ def _is_low_signal_irm_cninfo_investor_qa(event: Event, text: str) -> bool:
         or ("注册上市进行到了什么阶段" in title and "预计何时获批上市" in title and "目前该产品处于审评审批中" in text)
         or ("高端订单流失的风险" in title and "暂无项目涉及" in text and "相关技术储备及项目进展请以公司公开披露信息为准" in text)
         or ("资产注入" in title and "重组" in title and "满足披露条件" in text and "相关公告" in text)
+        or ("董事会你好" in title and "资产重组" in title and "国资控制权" in title and "国资退出规划" in title)
         or ("存储行业" in title and "涨价周期" in title and "订单能见度" in title and "定期报告为准" in text)
+        or ("特种行业订单" in title and "订单情况良好" in text and "感谢您的关注" in text)
         or ("净利润能否到" in title and "业绩情况请以定期报告及相关公告为准" in text)
         or ("最近二级市场连创新低" in title and "收购新潮" in title and "烦请参考公司于4月29日披露的定期报告" in text)
         or ("为什么公司对未来的展望" in title and "股权激励的考核指标" in title and "《2024年限制性股票激励计划（草案）》" in text and "不能与《草案》中的考核目标直接比较" in text)
@@ -2486,6 +2861,13 @@ def _is_low_signal_sse_einteractive_investor_qa(event: Event, text: str) -> bool
         or ("股价突发性暴跌" in text and "及时澄清" in text)
         or ("订单被抢" in title and "生产经营一切正常" in text and "在手订单" in text)
         or ("不要总是踩竞争对手" in title and "生态协同" in text and "国产算力生态建设" in text)
+        or (
+            "股价" in title
+            and any(keyword in title for keyword in ("中小股东投资回报", "长期低迷股价", "领导层怎么看", "明确交代"))
+            and any(keyword in text for keyword in ("感谢您的关注", "信息披露"))
+        )
+        or ("出货境外和境内的分布情况" in title and "定期报告" in text and "公告" in text)
+        or ("逐步退出房地产业务" in title and "加大分红力度" in title and "感谢您的关注" in text)
         or ("请问公司产品是否可服务于" in title and "部分产品" in text and "可应用于" in text)
         or ("产品主要应用于" in title and "请查阅公司招股说明书" in text and "定期报告及相关公告" in text)
         or (any(keyword in title for keyword in ("大约多少家", "大致有多少家")) and "请关注公司相关公告和定期报告" in text)

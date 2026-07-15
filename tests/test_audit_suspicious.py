@@ -149,6 +149,349 @@ def test_audit_suspicious_skips_cninfo_restructuring_material_reply(tmp_path, mo
     assert "suspicious_count=0" in output
     assert "中芯国际关于发行股份购买资产暨关联交易的审核问询函回复的提示性公告" not in output
 
+
+def test_audit_suspicious_skips_cninfo_numbered_inquiry_reply_exemption_material(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-numbered-inquiry-reply-exemption",
+                first_seen_at="2026-07-01T11:56:28+08:00",
+                last_seen_at="2026-07-01T11:56:28+08:00",
+                canonical_title="7-2 会计师关于审核问询函的回复（豁免版）",
+                summary="7-2 会计师关于审核问询函的回复（豁免版）",
+                source="cninfo",
+                published_at="2026-07-01T11:56:28+08:00",
+                url="https://example.com/cninfo-numbered-inquiry-reply-exemption",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-numbered-inquiry-reply-exemption",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "7-2 会计师关于审核问询函的回复（豁免版）" not in output
+
+
+def test_audit_suspicious_skips_sse_einteractive_litigation_disposal_suggestion(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = (
+        "泉阳泉：董秘你好：园林 1.23 亿工程款诉讼尚未落地，持有越久，坏账计提、负债风险越大，"
+        "越早挂牌转让越能锁定资产价值。 希望证券部把我的建议完整转达董事长、经营层和大股东森工集团，"
+        "恳请管理层成立专项小组对接国资审批，简化流程、主动对接意向受让方，争取今年内完成全部剥离交割工作。"
+    )
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-einteractive-litigation-disposal-suggestion",
+                first_seen_at="2026-07-09T10:51:00+08:00",
+                last_seen_at="2026-07-09T10:51:00+08:00",
+                canonical_title=title,
+                summary=(
+                    f"问题：{title} "
+                    "回复：尊敬的投资者，您的建议我们已收悉，我们将如实转达，并将积极推进有关工作。谢谢！"
+                ),
+                source="sse_einteractive",
+                published_at="2026-07-09T10:51:00+08:00",
+                url="https://sns.sseinfo.com/qadetail.do?weiboId=1767015",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-einteractive-litigation-disposal-suggestion",
+                direction="bullish",
+                impact_score=74.9,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "泉阳泉：董秘你好：园林 1.23 亿工程款诉讼尚未落地" not in output
+
+
+def test_audit_suspicious_skips_stcn_financing_balance_statistical_recap(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "近一周融资资金加码多只光模块龙头股 撤离存储等赛道"
+    summary = (
+        "据证券时报·数据宝统计，近一周A股融资余额有所下降，交易所披露的最新数据为29341.64亿元。"
+        "A股融资资金近一周总体呈现净偿还态势，融资净买入方面，新易盛、东山精密净买入额居前。"
+    )
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-financing-balance-recap",
+                first_seen_at="2026-07-12T19:11:25+08:00",
+                last_seen_at="2026-07-12T19:11:25+08:00",
+                canonical_title=title,
+                summary=summary,
+                source="stcn",
+                published_at="2026-07-12T19:11:25+08:00",
+                url="https://www.stcn.com/article/detail/4013181.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-financing-balance-recap",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_stcn_crude_main_contract_percent_move(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "上期所原油主力合约涨幅扩大至9%"
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-crude-main-contract-percent-move",
+                first_seen_at="2026-07-14T11:22:10+08:00",
+                last_seen_at="2026-07-14T11:22:10+08:00",
+                canonical_title=title,
+                summary="人民财讯7月14日电，上期所原油主力合约涨幅扩大至9%，报514.8元/桶。",
+                source="stcn",
+                published_at="2026-07-14T11:22:10+08:00",
+                url="https://www.stcn.com/article/detail/4016708.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-crude-main-contract-percent-move",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_stcn_electric_robot_validation_platform(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "北京电力具身智能机器人中试验证平台正式对外服务"
+    summary = (
+        "人民财讯7月14日电，近日，由北京市经济和信息化局指导，国网北京市电力公司牵头建设的"
+        "北京电力具身智能机器人中试验证平台建成并对外提供服务。该平台位于大兴区磁各庄国网北京市"
+        "电力公司实验实训基地，占地面积5000余平方米，包含输变电真型实验平台、配网真型实验平台、"
+        "电力具身智能研发验证区等多个区域，重点聚焦输变配巡检、带电作业等电网核心业务场景，打造"
+        "电力具身智能机器人自主巡视、状态检测、现场操作等中试验证能力。"
+    )
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-electric-robot-validation-platform",
+                first_seen_at="2026-07-14T11:13:39+08:00",
+                last_seen_at="2026-07-14T11:13:39+08:00",
+                canonical_title=title,
+                summary=summary,
+                source="stcn",
+                published_at="2026-07-14T11:13:39+08:00",
+                url="https://www.stcn.com/article/detail/4016695.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-electric-robot-validation-platform",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_stcn_a_share_concept_rebound_recap(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "科技股反弹，MLCC、PCB概念等涨幅居前"
+    summary = (
+        "人民财讯7月14日电，科技股反弹，MLCC、PCB概念、复合铜箔、CPO概念等涨幅居前。"
+        "个股方面，博杰股份、沪电股份、金安国纪等一批个股涨停。"
+    )
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-a-share-concept-rebound-recap",
+                first_seen_at="2026-07-14T13:28:22+08:00",
+                last_seen_at="2026-07-14T13:28:22+08:00",
+                canonical_title=title,
+                summary=summary,
+                source="stcn",
+                published_at="2026-07-14T13:28:22+08:00",
+                url="https://www.stcn.com/article/detail/4016933.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-a-share-concept-rebound-recap",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["PCB"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_restructuring_review_process_materials(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-restructuring-review-inquiry-received",
+                first_seen_at="2026-07-02T00:00:00+08:00",
+                last_seen_at="2026-07-02T00:00:00+08:00",
+                canonical_title="关于收到深圳证券交易所《关于紫光国芯微电子股份有限公司发行股份及支付现金购买资产并募集配套资金申请的审核问询函》的公告",
+                summary="关于收到深圳证券交易所《关于紫光国芯微电子股份有限公司发行股份及支付现金购买资产并募集配套资金申请的审核问询函》的公告",
+                source="cninfo",
+                published_at="2026-07-02T00:00:00+08:00",
+                url="https://example.com/cninfo-restructuring-review-inquiry-received",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-restructuring-application-accepted",
+                first_seen_at="2026-07-02T00:00:00+08:00",
+                last_seen_at="2026-07-02T00:00:00+08:00",
+                canonical_title="盈方微：关于发行股份及支付现金购买资产并募集配套资金暨关联交易申请文件获得深圳证券交易所受理的公告",
+                summary="盈方微：关于发行股份及支付现金购买资产并募集配套资金暨关联交易申请文件获得深圳证券交易所受理的公告",
+                source="szse",
+                published_at="2026-07-02T00:00:00+08:00",
+                url="https://example.com/szse-restructuring-application-accepted",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-restructuring-review-inquiry-received",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-restructuring-application-accepted",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "紫光国芯微电子股份有限公司发行股份及支付现金购买资产" not in output
+    assert "盈方微：关于发行股份及支付现金购买资产并募集配套资金暨关联交易申请文件获得深圳证券交易所受理的公告" not in output
+
+
 def test_audit_suspicious_skips_cninfo_restructuring_revised_report(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -466,6 +809,185 @@ def test_audit_suspicious_skips_cninfo_annual_inquiry_reply_with_quote_style(tmp
     assert title not in output
 
 
+def test_audit_suspicious_skips_exchange_generic_annual_inquiry_reply_and_acting_party_unfreeze(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    titles = [
+        "关于上海证券交易所对公司2025年年度报告的信息披露监管问询函回复的公告",
+        "关于控股股东的一致行动人部分股份解除冻结的公告",
+    ]
+    now = "2026-07-07T00:00:00+08:00"
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id=f"event-sse-generic-disclosure-{idx}",
+                first_seen_at=now,
+                last_seen_at=now,
+                canonical_title=title,
+                summary=title,
+                source="sse",
+                published_at=now,
+                url=f"https://example.com/sse-generic-disclosure-{idx}",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            )
+            for idx, title in enumerate(titles)
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id=f"event-sse-generic-disclosure-{idx}",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            )
+            for idx, _title in enumerate(titles)
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    for title in titles:
+        assert title not in output
+
+
+def test_audit_suspicious_skips_cninfo_accountant_annual_inquiry_special_explanation(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "天健会计师事务所(特殊普通合伙)关于合盛硅业股份有限公司2025年年度报告的信息披露监管问询函专项说明"
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-accountant-annual-inquiry-special-explanation",
+                first_seen_at="2026-07-04T00:00:00+08:00",
+                last_seen_at="2026-07-04T00:00:00+08:00",
+                canonical_title=title,
+                summary=title,
+                source="cninfo",
+                published_at="2026-07-04T00:00:00+08:00",
+                url="https://example.com/cninfo-accountant-annual-inquiry-special-explanation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-accountant-annual-inquiry-special-explanation",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_cninfo_accountant_annual_inquiry_special_explanation_with_de_particle(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "天健会计师事务所（特殊普通合伙）关于安达智能2025年年度报告信息披露监管问询函的专项说明"
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-accountant-annual-inquiry-special-explanation-with-de",
+                first_seen_at="2026-07-13T00:00:00+08:00",
+                last_seen_at="2026-07-13T00:00:00+08:00",
+                canonical_title=title,
+                summary=title,
+                source="cninfo",
+                published_at="2026-07-13T00:00:00+08:00",
+                url="https://example.com/cninfo-accountant-annual-inquiry-special-explanation-with-de",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-accountant-annual-inquiry-special-explanation-with-de",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
+def test_audit_suspicious_skips_cninfo_accountant_annual_inquiry_special_explanation_without_de_particle(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    title = "大华会计师事务所关于洲际油气股份有限公司2025年年度报告信息披露监管问询函专说明"
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-accountant-annual-inquiry-special-explanation-without-de",
+                first_seen_at="2026-07-06T00:00:00+08:00",
+                last_seen_at="2026-07-06T00:00:00+08:00",
+                canonical_title=title,
+                summary=title,
+                source="cninfo",
+                published_at="2026-07-06T00:00:00+08:00",
+                url="https://example.com/cninfo-accountant-annual-inquiry-special-explanation-without-de",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-accountant-annual-inquiry-special-explanation-without-de",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert title not in output
+
+
 def test_audit_suspicious_skips_cninfo_added_litigation_progress_update_without_themes(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -653,6 +1175,69 @@ def test_audit_suspicious_skips_exchange_stock_volatility_reply_and_annual_inqui
     assert "2025年度年报问询函的专项说明" not in output
 
 
+def test_audit_suspicious_skips_exchange_stock_volatility_matter_reply_and_generic_filing_risk_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stock-volatility-matter-inquiry-reply",
+                first_seen_at="2026-07-06T00:00:00+08:00",
+                last_seen_at="2026-07-06T00:00:00+08:00",
+                canonical_title="关于《亚士创能科技（上海）股份有限公司股票交易异常波动有关事项的问询函》的回函",
+                summary="关于《亚士创能科技（上海）股份有限公司股票交易异常波动有关事项的问询函》的回函",
+                source="cninfo",
+                published_at="2026-07-06T00:00:00+08:00",
+                url="https://example.com/stock-volatility-matter-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-generic-filing-risk-progress-notice",
+                first_seen_at="2026-07-06T00:00:00+08:00",
+                last_seen_at="2026-07-06T00:00:00+08:00",
+                canonical_title="关于立案调查进展暨风险提示公告",
+                summary="关于立案调查进展暨风险提示公告",
+                source="cninfo",
+                published_at="2026-07-06T00:00:00+08:00",
+                url="https://example.com/generic-filing-risk-progress-notice",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stock-volatility-matter-inquiry-reply",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-generic-filing-risk-progress-notice",
+                direction="bearish",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "股票交易异常波动有关事项的问询函" not in output
+    assert "立案调查进展暨风险提示公告" not in output
+
+
 def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_person_notices(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -732,6 +1317,18 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
                 event_subtype="corporate_disclosure",
             ),
             Event(
+                event_id="event-szse-subsidiary-bank-account-funds-unfreeze",
+                first_seen_at="2026-07-08T00:00:00+08:00",
+                last_seen_at="2026-07-08T00:00:00+08:00",
+                canonical_title="三羊马：关于控股子公司部分银行账户资金解除冻结的公告",
+                summary="三羊马：关于控股子公司部分银行账户资金解除冻结的公告",
+                source="szse",
+                published_at="2026-07-08T00:00:00+08:00",
+                url="https://example.com/szse-subsidiary-bank-account-funds-unfreeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
                 event_id="event-szse-asset-sale-inquiry-reply",
                 first_seen_at="2026-04-24T00:00:00+08:00",
                 last_seen_at="2026-04-24T00:00:00+08:00",
@@ -796,6 +1393,14 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
                 triggered=True,
             ),
             EventAnalysis(
+                event_id="event-szse-subsidiary-bank-account-funds-unfreeze",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
                 event_id="event-szse-asset-sale-inquiry-reply",
                 direction="neutral",
                 impact_score=78.2,
@@ -816,6 +1421,7 @@ def test_audit_suspicious_skips_exchange_litigation_progress_and_dishonest_perso
     assert "ST中迪：中迪投资关于公司全资子公司重庆中美恒置业有限公司诉讼进展公告" not in output
     assert "*ST美谷：关于担保事项涉及诉讼进展暨银行账户解除冻结的公告" not in output
     assert "龙大美食：关于控股股东所持公司1000万股股份被强制执行完成暨解除冻结的公告" not in output
+    assert "三羊马：关于控股子公司部分银行账户资金解除冻结的公告" not in output
     assert "泰达股份：天津泰达资源循环集团股份有限公司关于重大资产出售暨关联交易问询函回复的公告" not in output
 
 
@@ -859,6 +1465,132 @@ def test_audit_suspicious_skips_judicial_execution_unpledge_percent_disclosure(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "被司法强制执行实施结果" not in output
+
+
+def test_audit_suspicious_skips_annual_report_inquiry_reply_and_mixed_judicial_freeze_change_notices(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-annual-report-regulatory-inquiry-reply",
+                first_seen_at="2026-06-06T00:00:00+08:00",
+                last_seen_at="2026-06-06T00:00:00+08:00",
+                canonical_title="返利网数字科技股份有限公司关于对上海证券交易所《关于返利网数字科技股份有限公司 2025 年年度报告的信息披露监管问询函》的回复公告",
+                summary="返利网数字科技股份有限公司关于对上海证券交易所《关于返利网数字科技股份有限公司 2025 年年度报告的信息披露监管问询函》的回复公告",
+                source="sse",
+                published_at="2026-06-06T00:00:00+08:00",
+                url="https://example.com/sse-annual-report-regulatory-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-mixed-judicial-freeze-change",
+                first_seen_at="2026-06-06T00:00:00+08:00",
+                last_seen_at="2026-06-06T00:00:00+08:00",
+                canonical_title="万马科技：关于股东部分股份司法拍卖完成过户登记、解除质押、解除司法再冻结及司法冻结的公告",
+                summary="万马科技：关于股东部分股份司法拍卖完成过户登记、解除质押、解除司法再冻结及司法冻结的公告",
+                source="szse",
+                published_at="2026-06-06T00:00:00+08:00",
+                url="https://example.com/szse-mixed-judicial-freeze-change",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-szse-mixed-judicial-freeze-change-percent",
+                first_seen_at="2026-06-06T00:00:00+08:00",
+                last_seen_at="2026-06-06T00:00:00+08:00",
+                canonical_title="深水海纳：关于控股股东、实际控制人所持公司部分股份司法拍卖过户完成、股份变动触及1%整数倍暨股份质押与冻结变动情况的公告",
+                summary="深水海纳：关于控股股东、实际控制人所持公司部分股份司法拍卖过户完成、股份变动触及1%整数倍暨股份质押与冻结变动情况的公告",
+                source="szse",
+                published_at="2026-06-06T00:00:00+08:00",
+                url="https://example.com/szse-mixed-judicial-freeze-change-percent",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-keep-litigation",
+                first_seen_at="2026-06-06T00:00:00+08:00",
+                last_seen_at="2026-06-06T00:00:00+08:00",
+                canonical_title="正平股份关于公司及子公司诉讼事项进展及新增诉讼事项的公告",
+                summary="正平股份关于公司及子公司诉讼事项进展及新增诉讼事项的公告",
+                source="cninfo",
+                published_at="2026-06-06T00:00:00+08:00",
+                url="https://example.com/cninfo-keep-litigation",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-stcn-keep-strategic-investment",
+                first_seen_at="2026-06-06T21:30:34+08:00",
+                last_seen_at="2026-06-06T21:30:34+08:00",
+                canonical_title="赛意信息战略投资七号智算 健全企业全栈AI业务布局",
+                summary="人民财讯6月6日电，记者获悉，近日，赛意信息与广东七号智算技术有限公司签署战略投资协议，并已完成工商股权变更登记，公司正式成为七号智算在册股东。",
+                source="stcn",
+                published_at="2026-06-06T21:30:34+08:00",
+                url="https://example.com/stcn-keep-strategic-investment",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-annual-report-regulatory-inquiry-reply",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-mixed-judicial-freeze-change",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-mixed-judicial-freeze-change-percent",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-keep-litigation",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-keep-strategic-investment",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=2" in output
+    assert "返利网数字科技股份有限公司关于对上海证券交易所《关于返利网数字科技股份有限公司 2025 年年度报告的信息披露监管问询函》的回复公告" not in output
+    assert "万马科技：关于股东部分股份司法拍卖完成过户登记、解除质押、解除司法再冻结及司法冻结的公告" not in output
+    assert "深水海纳：关于控股股东、实际控制人所持公司部分股份司法拍卖过户完成、股份变动触及1%整数倍暨股份质押与冻结变动情况的公告" not in output
+    assert "正平股份关于公司及子公司诉讼事项进展及新增诉讼事项的公告" in output
+    assert "赛意信息战略投资七号智算 健全企业全栈AI业务布局" in output
 
 
 def test_audit_suspicious_skips_exchange_major_litigation_and_filing_progress_notices(
@@ -1109,6 +1841,48 @@ def test_audit_suspicious_skips_bank_account_partial_fund_freeze_material_notice
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "关于公司银行账户部分资金被冻结的公告" not in output
+
+
+def test_audit_suspicious_skips_company_partial_bank_account_freeze_material_notice(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-company-partial-bank-account-freeze",
+                first_seen_at="2026-06-17T00:00:00+08:00",
+                last_seen_at="2026-06-17T00:00:00+08:00",
+                canonical_title="永安林业：关于公司部分银行账户被冻结的公告",
+                summary="永安林业：关于公司部分银行账户被冻结的公告",
+                source="cninfo",
+                published_at="2026-06-17T00:00:00+08:00",
+                url="https://example.com/cninfo-company-partial-bank-account-freeze",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-company-partial-bank-account-freeze",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "永安林业：关于公司部分银行账户被冻结的公告" not in output
 
 
 def test_audit_suspicious_skips_mixed_debt_overdue_and_bank_account_freeze_material_notice(
@@ -1609,6 +2383,69 @@ def test_audit_suspicious_skips_current_exchange_inquiry_material_noise(
     assert "佳通轮胎披露收到中国证监会立案告知书" in output
 
 
+def test_audit_suspicious_skips_major_asset_purchase_inquiry_reply_material(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-major-asset-purchase-inquiry-reply",
+                first_seen_at="2026-07-14T00:00:00+08:00",
+                last_seen_at="2026-07-14T00:00:00+08:00",
+                canonical_title="恒尚节能：关于上海证券交易所《关于对江苏恒尚节能科技股份有限公司重大资产购买预案信息披露的问询函》的回复公告",
+                summary="恒尚节能：关于上海证券交易所《关于对江苏恒尚节能科技股份有限公司重大资产购买预案信息披露的问询函》的回复公告",
+                source="cninfo",
+                published_at="2026-07-14T00:00:00+08:00",
+                url="https://example.com/major-asset-purchase-inquiry-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-real-risk",
+                first_seen_at="2026-07-14T00:00:00+08:00",
+                last_seen_at="2026-07-14T00:00:00+08:00",
+                canonical_title="佳通轮胎披露收到中国证监会立案告知书",
+                summary="佳通轮胎披露收到中国证监会立案告知书。",
+                source="cninfo",
+                published_at="2026-07-14T00:00:00+08:00",
+                url="https://example.com/real-risk",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-major-asset-purchase-inquiry-reply",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-real-risk",
+                direction="bearish",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=1" in output
+    assert "重大资产购买预案信息披露的问询函" not in output
+    assert "佳通轮胎披露收到中国证监会立案告知书" in output
+
+
 def test_audit_suspicious_skips_judicial_unfreeze_disclosure(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -1729,6 +2566,48 @@ def test_audit_suspicious_skips_major_litigation_arbitration_progress_disclosure
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "中化岩土：关于重大诉讼、仲裁情况进展的公告" not in output
+
+
+def test_audit_suspicious_skips_litigation_progress_disclosure_with_company_name(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-litigation-progress-with-company-name",
+                first_seen_at="2026-07-02T00:00:00+08:00",
+                last_seen_at="2026-07-02T00:00:00+08:00",
+                canonical_title="江苏澄星磷化工股份有限公司关于诉讼的进展公告",
+                summary="江苏澄星磷化工股份有限公司关于诉讼的进展公告",
+                source="sse",
+                published_at="2026-07-02T00:00:00+08:00",
+                url="https://example.com/sse-litigation-progress-with-company-name",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-litigation-progress-with-company-name",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "江苏澄星磷化工股份有限公司关于诉讼的进展公告" not in output
 
 
 def test_audit_suspicious_skips_subsidiary_arbitration_progress_disclosure(
@@ -2023,6 +2902,48 @@ def test_audit_suspicious_skips_commodity_market_move_with_theme(tmp_path, monke
     assert "现货黄金向上触及4800美元" not in output
 
 
+def test_audit_suspicious_skips_stcn_central_bank_gold_reserve_brief(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-central-bank-gold-reserve-brief",
+                first_seen_at="2026-07-07T16:09:37+08:00",
+                last_seen_at="2026-07-07T16:09:37+08:00",
+                canonical_title="中国央行连续第20个月增持黄金",
+                summary="人民财讯7月7日电，据央行数据，中国6月末黄金储备报7544万盎司，5月末黄金储备报7496万盎司，为连续第20个月增持黄金。6月末外汇储备报34162.6亿美元，5月末34422.38亿美元。",
+                source="stcn",
+                published_at="2026-07-07T16:09:37+08:00",
+                url="https://example.com/stcn-central-bank-gold-reserve-brief",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-central-bank-gold-reserve-brief",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["黄金"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "中国央行连续第20个月增持黄金" not in output
+
+
 def test_audit_suspicious_skips_cls_editorial_roundup_column(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -2101,6 +3022,69 @@ def test_audit_suspicious_skips_cls_general_fast_news_with_theme(tmp_path, monke
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "隔夜全球要闻" not in output
+
+
+def test_audit_suspicious_skips_cls_overseas_legal_response_without_hiding_company_lawsuit(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cls-openai-apple-lawsuit-response",
+                first_seen_at="2026-07-15T03:35:18+08:00",
+                last_seen_at="2026-07-15T03:35:18+08:00",
+                canonical_title="财联社7月15日电，OpenAI回应苹果公司的诉讼案，我们严肃对待这些指控，未发现任何证据可证明该申诉具备合理依据。",
+                summary="财联社7月15日电，OpenAI回应苹果公司的诉讼案，严肃对待这些指控，未发现任何证据可证明该申诉具备合理依据。",
+                source="cls",
+                published_at="2026-07-15T03:35:18+08:00",
+                url="https://www.cls.cn/detail/2426525",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+            Event(
+                event_id="event-stcn-company-lawsuit",
+                first_seen_at="2026-04-08T19:51:57+08:00",
+                last_seen_at="2026-04-08T19:51:57+08:00",
+                canonical_title="佰维存储：作为被告涉及两起侵害发明专利权纠纷案件 涉案金额合计5000万元",
+                summary="佰维存储涉及两起侵害发明专利权纠纷案件。",
+                source="stcn",
+                published_at="2026-04-08T19:51:57+08:00",
+                url="https://example.com/company-lawsuit",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cls-openai-apple-lawsuit-response",
+                direction="neutral",
+                impact_score=74.3,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-company-lawsuit",
+                direction="neutral",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=1" in output
+    assert "OpenAI回应苹果公司的诉讼案" not in output
+    assert "佰维存储：作为被告涉及两起侵害发明专利权纠纷案件" in output
 
 
 def test_audit_suspicious_skips_irm_legal_question_only_company_update(tmp_path, monkeypatch, capsys) -> None:
@@ -2479,6 +3463,48 @@ def test_audit_suspicious_skips_private_robot_financing_general_fast_news(
     assert "擎天租完成数亿元Pre-A轮融资" not in output
 
 
+def test_audit_suspicious_skips_stcn_robotaxi_internal_test_general_fast_news(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-robotaxi-internal-test",
+                first_seen_at="2026-07-09T11:52:35+08:00",
+                last_seen_at="2026-07-09T11:52:35+08:00",
+                canonical_title="小鹏Robotaxi开启内测，何小鹏称Robotaxi是小鹏迈向“机器人汽车”的重要一步",
+                summary="小鹏集团召开Robotaxi业务首次全员会，并宣布正式启动员工内测。小鹏未来将聚焦整车平台、自动驾驶软件及AI能力，打造服务全球合作伙伴的Robotaxi软硬件服务商。",
+                source="stcn",
+                published_at="2026-07-09T11:52:35+08:00",
+                url="https://www.stcn.com/article/detail/4008285.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-robotaxi-internal-test",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "小鹏Robotaxi开启内测" not in output
+
+
 def test_audit_suspicious_skips_private_biotech_c_round_financing_story(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -2795,6 +3821,69 @@ def test_audit_suspicious_skips_stcn_wti_general_fast_news_with_theme(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "国际油价持续回落 WTI原油期货价格涨幅收窄至1.1%" not in output
+
+
+def test_audit_suspicious_skips_current_oil_low_and_glp1_access_noise(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-crude-low",
+                first_seen_at="2026-07-01T21:25:47+08:00",
+                last_seen_at="2026-07-01T21:25:47+08:00",
+                canonical_title="纽约原油期价盘中创2月27日以来新低",
+                summary="纽约商品交易所8月交货的轻质原油期货价格盘中创2月27日以来新低。",
+                source="stcn",
+                published_at="2026-07-01T21:25:47+08:00",
+                url="https://example.com/stcn-crude-low",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-investing-glp1-access",
+                first_seen_at="2026-07-01T13:55:30+00:00",
+                last_seen_at="2026-07-01T13:55:30+00:00",
+                canonical_title="Analysis-Older Americans left out of costly GLP-1 craze expected to flock to new program",
+                summary="Analysis-Older Americans left out of costly GLP-1 craze expected to flock to new program",
+                source="investing_news",
+                published_at="2026-07-01T13:55:30+00:00",
+                url="https://example.com/investing-glp1-access",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-crude-low",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-investing-glp1-access",
+                direction="neutral",
+                impact_score=79.6,
+                reasoning="rule",
+                themes=["创新药"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "纽约原油期价盘中创2月27日以来新低" not in output
+    assert "Analysis-Older Americans left out" not in output
 
 
 def test_audit_suspicious_skips_stcn_night_session_commodity_opening_story(
@@ -3217,6 +4306,52 @@ def test_audit_suspicious_skips_stcn_precious_metal_spot_move_with_theme(
     assert "现货白银震荡走高，涨近1%" not in output
 
 
+def test_audit_suspicious_skips_stcn_phase_one_clinical_trial_start(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-phase-one-clinical-trial-start",
+                first_seen_at="2026-07-04T08:38:26+08:00",
+                last_seen_at="2026-07-04T08:38:26+08:00",
+                canonical_title="新华制药抗肺动脉高压1类创新药LXH-1211片I期临床试验启动",
+                summary=(
+                    "人民财讯7月4日电，7月3日，新华制药抗肺动脉高压1类创新药LXH-1211片I期临床试验正式启动。"
+                    "LXH-1211为新华制药与中南大学联合研发的1类创新药，是针对肺动脉高压的临床表现和疾病病理本质"
+                    "（血管重构导致的纤维化）而设计的全新结构化合物。临床前研究显示，LXH-1211具有双重作用机制。"
+                ),
+                source="stcn",
+                published_at="2026-07-04T08:38:26+08:00",
+                url="https://www.stcn.com/article/detail/3998353.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-phase-one-clinical-trial-start",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["创新药"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "新华制药抗肺动脉高压1类创新药LXH-1211片I期临床试验启动" not in output
+
+
 def test_audit_suspicious_skips_stcn_industry_prosperity_story(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -3478,6 +4613,68 @@ def test_audit_suspicious_skips_stcn_public_affairs_leader_visit_story(tmp_path,
     assert "刘小明在海南商业航天发射场看望慰问“五一”假期在岗一线劳动者并调研重点工作进展情况" not in output
 
 
+def test_audit_suspicious_skips_stcn_governor_industry_research_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-governor-ic-research",
+                first_seen_at="2026-07-13T22:44:50+08:00",
+                last_seen_at="2026-07-13T22:44:50+08:00",
+                canonical_title="浙江省省长刘捷在宁波专题调研集成电路产业发展工作",
+                summary="人民财讯7月13日电，据浙江日报，13日下午，浙江省委副书记、省长刘捷在宁波专题调研集成电路产业发展工作。刘捷在调研中强调，推动人工智能及算力、芯片、智能装备等相关产业高质量发展。",
+                source="stcn",
+                published_at="2026-07-13T22:44:50+08:00",
+                url="https://example.com/stcn-governor-ic-research",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-keep-stcn-cooperation",
+                first_seen_at="2026-07-13T21:30:57+08:00",
+                last_seen_at="2026-07-13T21:30:57+08:00",
+                canonical_title="江苏省政府与中科曙光签署战略合作协议",
+                summary="江苏省政府与中科曙光在南京签署战略合作协议。",
+                source="stcn",
+                published_at="2026-07-13T21:30:57+08:00",
+                url="https://example.com/stcn-cooperation",
+                event_type="fast_news",
+                event_subtype="cooperation_agreement",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-governor-ic-research",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-keep-stcn-cooperation",
+                direction="bullish",
+                impact_score=99.0,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "浙江省省长刘捷在宁波专题调研集成电路产业发展工作" not in output
+
+
 def test_audit_suspicious_skips_stcn_ic_enterprise_exchange_story(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.chdir(tmp_path)
     paths = ProjectPaths.discover()
@@ -3688,6 +4885,51 @@ def test_audit_suspicious_skips_stcn_largest_storage_station_demonstration_story
     assert "国内单体最大智能组串式储能电站落地内蒙古" not in output
 
 
+def test_audit_suspicious_skips_stcn_storage_collection_station_commissioning_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-storage-collection-station-commissioning",
+                first_seen_at="2026-07-04T16:48:43+08:00",
+                last_seen_at="2026-07-04T16:48:43+08:00",
+                canonical_title="明阳包头威俊150万千瓦独立储能电站500千伏汇集站正式投运",
+                summary="人民财讯7月4日电，近期，明阳包头威俊150万千瓦独立储能电站500千伏汇集站顺利完成各项测试，"
+                "正式并网投运。作为目前国内电压等级最高、配套单体储能规模最大的500千伏储能汇集站和全国储能领域的标杆性工程，"
+                "该项目落地投用，将补齐蒙西地区高压储能电网配套短板，进一步完善包头市源网荷储一体化能源产业布局，"
+                "为区域能源结构优化、新型电力系统建设、绿色低碳发展注入强劲持久动能。",
+                source="stcn",
+                published_at="2026-07-04T16:48:43+08:00",
+                url="https://www.stcn.com/article/detail/3998461.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-storage-collection-station-commissioning",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "明阳包头威俊150万千瓦独立储能电站500千伏汇集站正式投运" not in output
+
+
 def test_audit_suspicious_skips_stcn_company_visit_exchange_story(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -3796,6 +5038,90 @@ def test_audit_suspicious_skips_stcn_foreign_mayor_delegation_exchange_story(
     assert "suspicious_count=0" in output
     assert "德国纽伦堡市市长率团访蓉，聚焦生物医药与医疗机器人合作" not in output
     assert "博泰车联：与NVIDIA达成战略合作" not in output
+
+
+def test_audit_suspicious_skips_investing_economic_colombia_runoff_story_without_hiding_other_investing_economic_news(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-investing-economic-colombia-runoff-1",
+                first_seen_at="2026-06-01T17:13:03+00:00",
+                last_seen_at="2026-06-01T17:13:03+00:00",
+                canonical_title="Right-wing lawyer De La Espriella, leftist senator Cepeda set for heated Colombia runoff",
+                summary="Right-wing lawyer De La Espriella, leftist senator Cepeda set for heated Colombia runoff",
+                source="investing_economic",
+                published_at="2026-06-01T17:13:03+00:00",
+                url="https://www.investing.com/news/economic-indicators/rightwing-lawyer-de-la-espriella-leftist-senator-cepeda-set-for-heated-colombia-runoff-4719686",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-investing-economic-colombia-runoff-2",
+                first_seen_at="2026-06-01T13:18:32+00:00",
+                last_seen_at="2026-06-01T13:18:32+00:00",
+                canonical_title="Colombia right-wing lawyer De La Espriella, leftist senator Cepeda set for adversarial runoff",
+                summary="Colombia right-wing lawyer De La Espriella, leftist senator Cepeda set for adversarial runoff",
+                source="investing_economic",
+                published_at="2026-06-01T13:18:32+00:00",
+                url="https://www.investing.com/news/economic-indicators/colombia-right-wing-lawyer-de-la-espriella-leftist-senator-cepeda-set-for-adversarial-runoff-4718724",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-investing-economic-control",
+                first_seen_at="2026-06-01T08:00:00+00:00",
+                last_seen_at="2026-06-01T08:00:00+00:00",
+                canonical_title="U.S. jobless claims fall as inflation cools",
+                summary="U.S. jobless claims fall as inflation cools",
+                source="investing_economic",
+                published_at="2026-06-01T08:00:00+00:00",
+                url="https://example.com/investing-economic-control",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-investing-economic-colombia-runoff-1",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["宏观"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-investing-economic-colombia-runoff-2",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["宏观"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-investing-economic-control",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["宏观"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=1" in output
+    assert "Right-wing lawyer De La Espriella, leftist senator Cepeda set for heated Colombia runoff" not in output
+    assert "Colombia right-wing lawyer De La Espriella, leftist senator Cepeda set for adversarial runoff" not in output
+    assert "U.S. jobless claims fall as inflation cools" in output
 
 
 def test_audit_suspicious_skips_stcn_bank_insurance_chairman_meeting_story(
@@ -3929,6 +5255,225 @@ def test_audit_suspicious_skips_stcn_space_compute_ecosystem_plan_story(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "优刻得加入上海太空算力产业生态伙伴计划" not in output
+
+
+def test_audit_suspicious_skips_stcn_space_compute_research_institute_establishment_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-space-compute-research-institute",
+                first_seen_at="2026-05-30T19:40:07+08:00",
+                last_seen_at="2026-05-30T19:40:07+08:00",
+                canonical_title="北京太空智算研究院在北京亦庄成立",
+                summary="人民财讯5月30日电，近日，北京太空智算研究院在北京经济技术开发区（简称北京亦庄）注册成立。"
+                "研究院将围绕星载算力芯片、星间激光通信、太空能源与散热、天地一体化网络及空间安全标准等方向开展关键共性技术攻关，"
+                "并计划于2028年前完成首发试验星研制与发射。",
+                source="stcn",
+                published_at="2026-05-30T19:40:07+08:00",
+                url="https://example.com/stcn-space-compute-research-institute",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-space-compute-research-institute",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "北京太空智算研究院在北京亦庄成立" not in output
+
+
+def test_audit_suspicious_skips_stcn_overseas_satellite_orbit_maintenance_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-overseas-satellite-orbit-maintenance",
+                first_seen_at="2026-07-04T10:22:19+08:00",
+                last_seen_at="2026-07-04T10:22:19+08:00",
+                canonical_title="美发射商业航天器抬升天文卫星轨道 延长工作寿命",
+                summary="人民财讯7月4日电，美国航空航天局3日表示，一枚商业航天器当天从马绍尔群岛升空，"
+                "部署至预定轨道，将与尼尔·格雷尔斯·斯威夫特（又称“雨燕”）天文台在轨对接，"
+                "以帮助抬升该天文卫星轨道高度，延长其使用寿命。（新华社）",
+                source="stcn",
+                published_at="2026-07-04T10:22:19+08:00",
+                url="https://www.stcn.com/article/detail/3998382.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-overseas-satellite-orbit-maintenance",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["商业航天"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "美发射商业航天器抬升天文卫星轨道 延长工作寿命" not in output
+
+
+def test_audit_suspicious_skips_current_live_storage_space_compute_and_tcl_material_noise(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-storage-grid-connection",
+                first_seen_at="2026-06-02T19:55:23+08:00",
+                last_seen_at="2026-06-02T19:55:23+08:00",
+                canonical_title="云南弥勒西100兆瓦/200兆瓦时电化学共享储能电站全容量并网",
+                summary="人民财讯6月2日电，5月31日，三峡能源云南弥勒西100兆瓦/200兆瓦时电化学共享储能电站实现全容量并网。"
+                "项目预计年充放电量1.16亿千瓦时，每年可消纳绿电约4000万千瓦时，相当于节约标准煤约1.2万吨、"
+                "减排二氧化碳约3.3万吨，可满足1.3万个三口之家全年用电量。",
+                source="stcn",
+                published_at="2026-06-02T19:55:23+08:00",
+                url="https://www.stcn.com/article/detail/3939966.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-space-compute-symposium",
+                first_seen_at="2026-06-02T19:33:06+08:00",
+                last_seen_at="2026-06-02T19:33:06+08:00",
+                canonical_title="北京经开区召开太空算力企业座谈会 研究部署太空算力创新中心建设工作",
+                summary="人民财讯6月2日电，6月1日，北京经济技术开发区（简称北京经开区，也称北京亦庄）工委副书记、"
+                "管委会主任王磊主持召开太空算力企业座谈会，听取相关企业对北京亦庄打造太空算力产业高地的意见建议，"
+                "研究部署太空算力创新中心建设工作。",
+                source="stcn",
+                published_at="2026-06-02T19:33:06+08:00",
+                url="https://www.stcn.com/article/detail/3939939.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-szse-tcl-question-reply",
+                first_seen_at="2026-06-03T00:00:00+08:00",
+                last_seen_at="2026-06-03T00:00:00+08:00",
+                canonical_title="TCL科技：关于发行股份及支付现金购买资产审核问询函回复的公告",
+                summary="TCL科技：关于发行股份及支付现金购买资产审核问询函回复的公告",
+                source="szse",
+                published_at="2026-06-03T00:00:00+08:00",
+                url="https://www.szse.cn/disc/disk03/finalpage/2026-06-03/dcd8bf69-0a67-4a53-820b-ec43cd0b47d2.PDF",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-storage-grid-connection",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-space-compute-symposium",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-szse-tcl-question-reply",
+                direction="neutral",
+                impact_score=78.2,
+                reasoning="rule",
+                themes=["半导体"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "云南弥勒西100兆瓦/200兆瓦时电化学共享储能电站全容量并网" not in output
+    assert "北京经开区召开太空算力企业座谈会 研究部署太空算力创新中心建设工作" not in output
+    assert "TCL科技：关于发行股份及支付现金购买资产审核问询函回复的公告" not in output
+
+
+def test_audit_suspicious_skips_stcn_storage_system_delivery_progress_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-storage-system-delivery-progress",
+                first_seen_at="2026-06-02T20:54:12+08:00",
+                last_seen_at="2026-06-02T20:54:12+08:00",
+                canonical_title="晶科储能完成722MWh储能系统交付",
+                summary="人民财讯6月2日电，据晶科能源消息，近日，晶科储能已向印度大型新能源基地项目完成722MWh储能系统设备交付。"
+                "该项目采用144套晶科SunTera G2液冷储能系统，将为当地新能源高比例并网、清洁能源调度、电网稳定运行及峰值负荷支撑提供可靠储能能力。",
+                source="stcn",
+                published_at="2026-06-02T20:54:12+08:00",
+                url="https://www.stcn.com/article/detail/3940044.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-storage-system-delivery-progress",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "晶科储能完成722MWh储能系统交付" not in output
 
 
 def test_audit_suspicious_skips_stcn_insurance_asset_management_regulation_reference(
@@ -4541,3 +6086,234 @@ def test_audit_suspicious_skips_stcn_etf_intraday_suspension_risk_warning(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "中韩半导体ETF华泰柏瑞将于5月28日开市起至当日10:30停牌" not in output
+
+
+def test_audit_suspicious_skips_annual_report_inquiry_mining_right_valuation_opinion(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-mining-right-inquiry-opinion",
+                first_seen_at="2026-07-01T00:00:00+08:00",
+                last_seen_at="2026-07-01T00:00:00+08:00",
+                canonical_title="评估机构对《关于山东新华锦国际股份有限公司2025年年度报告的信息披露监管问询函》之采矿权评估发表意见",
+                summary="评估机构对年报信息披露监管问询函之采矿权评估发表意见。",
+                source="sse",
+                published_at="2026-07-01T00:00:00+08:00",
+                url="https://example.com/mining-right-inquiry-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-mining-right-inquiry-opinion",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "采矿权评估发表意见" not in output
+
+
+def test_audit_suspicious_skips_stcn_overseas_storage_landing_validation_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-overseas-storage-landing-validation",
+                first_seen_at="2026-07-02T15:26:09+08:00",
+                last_seen_at="2026-07-02T15:26:09+08:00",
+                canonical_title="东方日升iCon系列液冷储能已在欧洲多元场景中完成落地验证",
+                summary="人民财讯7月2日电，据东方日升消息，随着欧洲电价波动加剧与REPowerEU计划的深入推进，工商业储能已从可选项变为企业的必选项。东方日升以iCon系列工商业液冷储能一体机为锚点，在波黑、比利时、立陶宛等地接连落地储能项目。近期，东方日升iCon系列液冷储能已在欧洲多元场景中完成落地验证，未来，东方日升将继续深耕欧洲市场。",
+                source="stcn",
+                published_at="2026-07-02T15:26:09+08:00",
+                url="https://www.stcn.com/article/detail/3994666.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-overseas-storage-landing-validation",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "东方日升iCon系列液冷储能已在欧洲多元场景中完成落地验证" not in output
+
+
+def test_audit_suspicious_skips_stcn_storage_project_cooperation_and_sector_fund_flow(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-storage-project-cooperation",
+                first_seen_at="2026-07-02T20:15:27+08:00",
+                last_seen_at="2026-07-02T20:15:27+08:00",
+                canonical_title="晶科储能与Taliva Energy达成东欧区域总计400MWh的大型储能系统项目合作",
+                summary="人民财讯7月2日电，晶科能源股份有限公司子公司晶科储能近日在慕尼黑Intersolar Europe展会期间，与清洁能源开发商Taliva Energy正式完成签约，达成东欧区域总计400MWh的大型储能系统项目合作。",
+                source="stcn",
+                published_at="2026-07-02T20:15:27+08:00",
+                url="https://www.stcn.com/article/detail/3995675.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-sector-fund-flow",
+                first_seen_at="2026-07-02T19:31:59+08:00",
+                last_seen_at="2026-07-02T19:31:59+08:00",
+                canonical_title="今日黄金珠宝指数逆市上涨 主力资金净流入15只黄金珠宝股",
+                summary="人民财讯7月2日电，7月2日，黄金珠宝指数逆市大涨，涨幅为2.89%，位于万得热门概念指数涨幅榜前列。成份股中，鹏欣资源、招金黄金和赤峰黄金涨停。据证券时报·数据宝统计，今日主力资金净流入15只黄金珠宝股。",
+                source="stcn",
+                published_at="2026-07-02T19:31:59+08:00",
+                url="https://www.stcn.com/article/detail/3995607.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-storage-project-cooperation",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["储能"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-sector-fund-flow",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["黄金"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "晶科储能与Taliva Energy达成东欧区域总计400MWh的大型储能系统项目合作" not in output
+    assert "今日黄金珠宝指数逆市上涨 主力资金净流入15只黄金珠宝股" not in output
+
+
+def test_audit_suspicious_skips_stcn_domestic_commodity_night_session_close(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-domestic-commodity-night-session-close",
+                first_seen_at="2026-07-02T23:06:06+08:00",
+                last_seen_at="2026-07-02T23:06:06+08:00",
+                canonical_title="国内商品期货夜盘收盘 液化石油气涨近3%",
+                summary="人民财讯7月2日电，国内商品期货夜盘收盘涨多跌少，液化石油气（LPG）涨近3%，甲醇涨超2%，丙烯、聚丙烯、沥青、焦炭涨超1%；铁矿石跌超1%，棕榈油跌近1%。",
+                source="stcn",
+                published_at="2026-07-02T23:06:06+08:00",
+                url="https://www.stcn.com/article/detail/3995821.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-domestic-commodity-night-session-close",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["油气"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "国内商品期货夜盘收盘 液化石油气涨近3%" not in output
+
+
+def test_audit_suspicious_skips_cninfo_annual_report_inquiry_reply_verification_opinion(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-annual-report-inquiry-reply-verification-opinion",
+                first_seen_at="2026-07-08T00:00:00+08:00",
+                last_seen_at="2026-07-08T00:00:00+08:00",
+                canonical_title="国金证券股份有限公司关于无锡祥生医疗科技股份有限公司2025年年度报告的信息披露监管问询函之回复的核查意见",
+                summary="国金证券股份有限公司关于无锡祥生医疗科技股份有限公司2025年年度报告的信息披露监管问询函之回复的核查意见",
+                source="cninfo",
+                published_at="2026-07-08T00:00:00+08:00",
+                url="https://example.com/cninfo-annual-report-inquiry-reply-verification-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-annual-report-inquiry-reply-verification-opinion",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "信息披露监管问询函之回复的核查意见" not in output

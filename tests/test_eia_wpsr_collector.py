@@ -1,3 +1,5 @@
+from urllib.error import HTTPError
+
 from news_sentiment.cli import main
 from news_sentiment.collectors.eia_wpsr import (
     collect_eia_wpsr_news,
@@ -103,6 +105,36 @@ def test_collect_eia_wpsr_news_raises_fetch_error_on_network_failure(monkeypatch
         assert exc.kind == "fetch_error"
     else:
         raise AssertionError("Expected CollectorFetchError")
+
+
+def test_collect_eia_wpsr_news_returns_empty_when_table_restricted_before_next_release(
+    monkeypatch,
+) -> None:
+    page_html = """
+    <html><body>
+      <span>Data for week ending Jan. 1, 2099</span>
+      <span class="responsive-container"><span class="label">Release Date:</span> <span class="date">Jan. 6, 2099</span></span>
+      <span class="responsive-container"><span class="label">Next Release Date:</span> <span class="date">Jan. 13, 2099</span></span>
+    </body></html>
+    """
+    monkeypatch.setattr(
+        "news_sentiment.collectors.eia_wpsr.fetch_eia_wpsr_page",
+        lambda url=None: page_html,
+    )
+    monkeypatch.setattr(
+        "news_sentiment.collectors.eia_wpsr.fetch_eia_wpsr_table1_csv",
+        lambda url=None: (_ for _ in ()).throw(
+            HTTPError(
+                "https://ir.eia.gov/wpsr/table1.csv",
+                403,
+                "Forbidden",
+                {},
+                None,
+            )
+        ),
+    )
+
+    assert collect_eia_wpsr_news() == []
 
 
 def test_collect_eia_wpsr_news_raises_parse_error_on_unmatched_payload(monkeypatch) -> None:
