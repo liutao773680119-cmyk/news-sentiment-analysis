@@ -3505,6 +3505,216 @@ def test_audit_suspicious_skips_stcn_robotaxi_internal_test_general_fast_news(
     assert "小鹏Robotaxi开启内测" not in output
 
 
+def test_audit_suspicious_skips_stcn_nev_repair_safety_standard_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-nev-repair-safety-standard",
+                first_seen_at="2026-07-20T14:34:45+08:00",
+                last_seen_at="2026-07-20T14:34:45+08:00",
+                canonical_title="《新能源汽车维修作业安全要求》国家标准8月1日起实施",
+                summary="人民财讯7月20日电，据市场监管总局消息，8月1日起，《新能源汽车维修作业安全要求》（GB/T 47439—2026）国家标准正式实施。该标准主要规定了新能源汽车维修的人员与场地、作业准备、风险排查与处置、作业流程和操作安全等要求。",
+                source="stcn",
+                published_at="2026-07-20T14:34:45+08:00",
+                url="https://www.stcn.com/article/detail/4028968.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-nev-repair-safety-standard",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["新能源车"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "新能源汽车维修作业安全要求" not in output
+
+
+def test_audit_suspicious_skips_stcn_waic_touch_robot_model_showcase(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-waic-touch-robot-model-showcase",
+                first_seen_at="2026-07-18T20:24:13+08:00",
+                last_seen_at="2026-07-18T20:24:13+08:00",
+                canonical_title="千觉机器人首个VTLA具身触觉模型亮相世界人工智能大会",
+                summary="千觉机器人在世界人工智能大会带来VTLA具身触觉模型、视触觉多模态数据集、核心数采设备与触觉传感器硬件矩阵。",
+                source="stcn",
+                published_at="2026-07-18T20:24:13+08:00",
+                url="https://www.stcn.com/article/detail/4027332.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-waic-touch-robot-model-showcase",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "千觉机器人首个VTLA具身触觉模型亮相世界人工智能大会" not in output
+
+
+def test_audit_suspicious_skips_stcn_waic_quadruped_robot_showcase(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-waic-quadruped-robot-showcase",
+                first_seen_at="2026-07-19T10:15:23+08:00",
+                last_seen_at="2026-07-19T10:15:23+08:00",
+                canonical_title="广和通携手璇玑动力，提升四足机器人复杂环境连续定位能力",
+                summary="人民财讯7月19日电，7月17日—20日，2026世界人工智能大会在上海举行。广和通携手璇玑动力联合展示面向行业应用的四足机器人方案。通过此次合作，璇玑动力中型轮足机器人平台可在原有复杂地形运动能力基础上，进一步获得稳定的连续定位能力支撑。",
+                source="stcn",
+                published_at="2026-07-19T10:15:23+08:00",
+                url="https://www.stcn.com/article/detail/4027469.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-waic-quadruped-robot-showcase",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "广和通携手璇玑动力" not in output
+
+
+def test_audit_suspicious_skips_stcn_ubtech_korea_robot_validation_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-ubtech-korea-robot-validation",
+                first_seen_at="2026-07-19T18:45:32+08:00",
+                last_seen_at="2026-07-19T18:45:32+08:00",
+                canonical_title="优必选携手韩国伙伴，推动人形机器人落地汽车零部件制造场景",
+                summary="人民财讯7月19日电，近日，优必选韩国合作伙伴德山JMR（Duksan JM Robotics，DSJMR）与韩国领先汽车零部件企业AJIN Industrial正式签署合作谅解备忘录。未来，优必选、德山JMR、AJIN Industrial将三方合作，共同推动Cruzr Y1、Walker S2等工业人形机器人在韩国首个汽车零部件生产产线的验证项目，将围绕人形机器人在汽车零部件制造领域的创新应用展开合作，共同推动人形机器人从展示验证走向真实产业场景。",
+                source="stcn",
+                published_at="2026-07-19T18:45:32+08:00",
+                url="https://www.stcn.com/article/detail/4027696.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-ubtech-korea-robot-validation",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "优必选携手韩国伙伴" not in output
+
+
+def test_audit_suspicious_skips_stcn_waic_compute_node_showcase(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-waic-compute-node-showcase",
+                first_seen_at="2026-07-20T07:10:01+08:00",
+                last_seen_at="2026-07-20T07:10:01+08:00",
+                canonical_title="多家国产厂商展示超节点产品 算力竞逐各显神通",
+                summary="人民财讯7月20日电，2026世界人工智能大会（WAIC）现场，国产超节点成为绝对焦点。证券时报记者在现场观察到，虽然采用的芯片、架构各有所异，但每一个有超节点方案的展台前围观、交流的人群均络绎不绝，厂商们则将一排排机柜置于展台的“C位”。这场国内首次超大规模的超节点集中展示，既是一次成果检阅，也标志着国产算力行业竞逐新阶段的开启。",
+                source="stcn",
+                published_at="2026-07-20T07:10:01+08:00",
+                url="https://www.stcn.com/article/detail/4027926.html",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-waic-compute-node-showcase",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["算力"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "多家国产厂商展示超节点产品" not in output
+
+
 def test_audit_suspicious_skips_private_biotech_c_round_financing_story(
     tmp_path, monkeypatch, capsys
 ) -> None:
@@ -3545,6 +3755,90 @@ def test_audit_suspicious_skips_private_biotech_c_round_financing_story(
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "爱科诺生物医药宣布完成5000万美元C轮融资" not in output
+
+
+def test_audit_suspicious_skips_stcn_concept_continues_strong_limit_up_story(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-concept-continues-strong",
+                first_seen_at="2026-07-16T10:03:00+08:00",
+                last_seen_at="2026-07-16T10:03:00+08:00",
+                canonical_title="创新药概念持续走强 哈药股份五连板",
+                summary="创新药概念持续走强，哈药股份五连板，多只成份股涨停。",
+                source="stcn",
+                published_at="2026-07-16T10:03:00+08:00",
+                url="https://example.com/stcn-concept-continues-strong",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-concept-continues-strong",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["创新药"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "创新药概念持续走强 哈药股份五连板" not in output
+
+
+def test_audit_suspicious_skips_lawsuit_related_transaction_progress_disclosure(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-dongwang-lawsuit-related-transaction-progress",
+                first_seen_at="2026-07-16T00:00:00+08:00",
+                last_seen_at="2026-07-16T00:00:00+08:00",
+                canonical_title="浙江东望时代科技股份有限公司关于子公司提起诉讼暨关联交易的进展公告",
+                summary="浙江东望时代披露子公司提起诉讼暨关联交易的进展。",
+                source="sse",
+                published_at="2026-07-16T00:00:00+08:00",
+                url="https://example.com/dongwang-lawsuit-related-transaction-progress",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-dongwang-lawsuit-related-transaction-progress",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "子公司提起诉讼暨关联交易的进展公告" not in output
 
 
 def test_audit_suspicious_skips_stcn_fund_manager_investment_opportunity_story(
@@ -6297,12 +6591,72 @@ def test_audit_suspicious_skips_cninfo_annual_report_inquiry_reply_verification_
                 event_type="hard_event",
                 event_subtype="corporate_disclosure",
             ),
+            Event(
+                event_id="event-cninfo-accountant-special-verification-note",
+                first_seen_at="2026-07-17T00:00:00+08:00",
+                last_seen_at="2026-07-17T00:00:00+08:00",
+                canonical_title="大华会计师事务所(特殊普通合伙)关于东易日盛家居装饰集团股份有限公司2025年年度报告的信息披露监管问询函的专项核查说明",
+                summary="大华会计师事务所披露年报信息披露监管问询函专项核查说明。",
+                source="cninfo",
+                published_at="2026-07-17T00:00:00+08:00",
+                url="https://example.com/cninfo-accountant-special-verification-note",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-audit-committee-inquiry-verification-opinion",
+                first_seen_at="2026-07-17T00:00:00+08:00",
+                last_seen_at="2026-07-17T00:00:00+08:00",
+                canonical_title="审计委员会关于《深圳证券交易所对摩登大道时尚集团股份有限公司2025年年报的问询函》的核查意见",
+                summary="摩登大道审计委员会披露年报问询函核查意见。",
+                source="cninfo",
+                published_at="2026-07-17T00:00:00+08:00",
+                url="https://example.com/cninfo-audit-committee-inquiry-verification-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-lawyer-annual-report-inquiry-opinion",
+                first_seen_at="2026-07-17T00:00:00+08:00",
+                last_seen_at="2026-07-17T00:00:00+08:00",
+                canonical_title="北京市天元律师事务所关于摩登大道时尚集团股份有限公司2025年年报问询函相关事项的法律意见书",
+                summary="北京市天元律师事务所披露摩登大道年报问询函相关事项法律意见书。",
+                source="cninfo",
+                published_at="2026-07-17T00:00:00+08:00",
+                url="https://example.com/cninfo-lawyer-annual-report-inquiry-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
         ]
     )
     JsonlStore(paths.analyses_path, EventAnalysis).write_many(
         [
             EventAnalysis(
                 event_id="event-cninfo-annual-report-inquiry-reply-verification-opinion",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-accountant-special-verification-note",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-audit-committee-inquiry-verification-opinion",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-lawyer-annual-report-inquiry-opinion",
                 direction="neutral",
                 impact_score=80.0,
                 reasoning="rule",
@@ -6317,3 +6671,423 @@ def test_audit_suspicious_skips_cninfo_annual_report_inquiry_reply_verification_
     output = capsys.readouterr().out
     assert "suspicious_count=0" in output
     assert "信息披露监管问询函之回复的核查意见" not in output
+
+
+def test_audit_suspicious_skips_annual_report_inquiry_attachment_variants(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-cninfo-disclosure-inquiry-verification-note",
+                first_seen_at="2026-07-17T00:00:00+08:00",
+                last_seen_at="2026-07-17T00:00:00+08:00",
+                canonical_title="大华会计师事务所(特殊普通合伙)关于东易日盛家居装饰集团股份有限公司2025年年度报告的信息披露监管问询函的专项核查说明",
+                summary="会计师披露年度报告信息披露监管问询函的专项核查说明。",
+                source="cninfo",
+                published_at="2026-07-17T00:00:00+08:00",
+                url="https://example.com/cninfo-disclosure-inquiry-verification-note",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-annual-report-inquiry-audit-committee-opinion",
+                first_seen_at="2026-07-17T00:00:00+08:00",
+                last_seen_at="2026-07-17T00:00:00+08:00",
+                canonical_title="审计委员会关于《深圳证券交易所对摩登大道时尚集团股份有限公司2025年年报的问询函》的核查意见",
+                summary="审计委员会披露年报问询函核查意见。",
+                source="cninfo",
+                published_at="2026-07-17T00:00:00+08:00",
+                url="https://example.com/cninfo-annual-report-inquiry-audit-committee-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-cninfo-annual-report-inquiry-legal-opinion",
+                first_seen_at="2026-07-17T00:00:00+08:00",
+                last_seen_at="2026-07-17T00:00:00+08:00",
+                canonical_title="北京市天元律师事务所关于摩登大道时尚集团股份有限公司2025年年报问询函相关事项的法律意见书",
+                summary="律师事务所披露年报问询函相关事项法律意见书。",
+                source="cninfo",
+                published_at="2026-07-17T00:00:00+08:00",
+                url="https://example.com/cninfo-annual-report-inquiry-legal-opinion",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-cninfo-disclosure-inquiry-verification-note",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-annual-report-inquiry-audit-committee-opinion",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-cninfo-annual-report-inquiry-legal-opinion",
+                direction="neutral",
+                impact_score=80.0,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "信息披露监管问询函的专项核查说明" not in output
+    assert "年报的问询函》的核查意见" not in output
+    assert "年报问询函相关事项的法律意见书" not in output
+
+
+def test_audit_suspicious_skips_stcn_light_business_showcase_and_tech_breakthrough(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-robot-night-showcase",
+                first_seen_at="2026-07-16T22:04:49+08:00",
+                last_seen_at="2026-07-16T22:04:49+08:00",
+                canonical_title="擎天租主办“机器人奇妙夜”落地贵阳",
+                summary="擎天租打造RaaS文旅产品首秀，活动覆盖群舞、武术、歌曲、走秀等多元形态。",
+                source="stcn",
+                published_at="2026-07-16T22:04:49+08:00",
+                url="https://example.com/stcn-robot-night-showcase",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-pcb-tech-breakthrough",
+                first_seen_at="2026-07-16T21:46:53+08:00",
+                last_seen_at="2026-07-16T21:46:53+08:00",
+                canonical_title="奥士康取得超高层埋容混压PCB关键技术突破",
+                summary="奥士康成功研发出N+M结构、三料混压的埋容超高层PCB，并在高可靠量产工艺上取得关键突破。",
+                source="stcn",
+                published_at="2026-07-16T21:46:53+08:00",
+                url="https://example.com/stcn-pcb-tech-breakthrough",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-robot-night-showcase",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-pcb-tech-breakthrough",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["PCB"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "机器人奇妙夜" not in output
+    assert "超高层埋容混压PCB关键技术突破" not in output
+    assert "信息披露监管问询函的专项核查说明" not in output
+    assert "2025年年报的问询函》的核查意见" not in output
+    assert "年报问询函相关事项的法律意见书" not in output
+
+
+def test_audit_suspicious_skips_stcn_event_and_technical_breakthrough_theme_news(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-stcn-robot-event",
+                first_seen_at="2026-07-16T20:23:00+08:00",
+                last_seen_at="2026-07-16T20:23:00+08:00",
+                canonical_title="擎天租主办“机器人奇妙夜”落地贵阳",
+                summary="擎天租主办机器人奇妙夜活动落地贵阳。",
+                source="stcn",
+                published_at="2026-07-16T20:23:00+08:00",
+                url="https://example.com/stcn-robot-event",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+            Event(
+                event_id="event-stcn-pcb-technical-breakthrough",
+                first_seen_at="2026-07-16T20:33:00+08:00",
+                last_seen_at="2026-07-16T20:33:00+08:00",
+                canonical_title="奥士康取得超高层埋容混压PCB关键技术突破",
+                summary="奥士康取得超高层埋容混压PCB关键技术突破。",
+                source="stcn",
+                published_at="2026-07-16T20:33:00+08:00",
+                url="https://example.com/stcn-pcb-technical-breakthrough",
+                event_type="fast_news",
+                event_subtype="general_fast_news",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-stcn-robot-event",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["机器人"],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-stcn-pcb-technical-breakthrough",
+                direction="neutral",
+                impact_score=79.0,
+                reasoning="rule",
+                themes=["PCB"],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "机器人奇妙夜" not in output
+    assert "超高层埋容混压PCB关键技术突破" not in output
+
+
+def test_audit_suspicious_skips_current_inquiry_material_and_low_signal_stcn_theme_news(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+    events = [
+        Event(
+            event_id="event-current-dongyi-accountant-inquiry-material",
+            first_seen_at="2026-07-17T00:00:00+08:00",
+            last_seen_at="2026-07-17T00:00:00+08:00",
+            canonical_title="大华会计师事务所(特殊普通合伙)关于东易日盛家居装饰集团股份有限公司2025年年度报告的信息披露监管问询函的专项核查说明",
+            summary="大华会计师事务所关于东易日盛2025年年度报告的信息披露监管问询函的专项核查说明。",
+            source="cninfo",
+            published_at="2026-07-17T00:00:00+08:00",
+            url="https://example.com/dongyi-accountant-inquiry-material",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-current-modern-avenue-audit-committee-opinion",
+            first_seen_at="2026-07-17T00:00:00+08:00",
+            last_seen_at="2026-07-17T00:00:00+08:00",
+            canonical_title="审计委员会关于《深圳证券交易所对摩登大道时尚集团股份有限公司2025年年报的问询函》的核查意见",
+            summary="审计委员会关于摩登大道2025年年报问询函的核查意见。",
+            source="cninfo",
+            published_at="2026-07-17T00:00:00+08:00",
+            url="https://example.com/modern-avenue-audit-committee-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-current-modern-avenue-legal-opinion",
+            first_seen_at="2026-07-17T00:00:00+08:00",
+            last_seen_at="2026-07-17T00:00:00+08:00",
+            canonical_title="北京市天元律师事务所关于摩登大道时尚集团股份有限公司2025年年报问询函相关事项的法律意见书",
+            summary="北京市天元律师事务所关于摩登大道2025年年报问询函相关事项的法律意见书。",
+            source="cninfo",
+            published_at="2026-07-17T00:00:00+08:00",
+            url="https://example.com/modern-avenue-legal-opinion",
+            event_type="hard_event",
+            event_subtype="corporate_disclosure",
+        ),
+        Event(
+            event_id="event-current-robot-night-raas-story",
+            first_seen_at="2026-07-16T22:04:49+08:00",
+            last_seen_at="2026-07-16T22:04:49+08:00",
+            canonical_title="擎天租主办“机器人奇妙夜”落地贵阳",
+            summary="擎天租打造的全球首个机器人奇妙夜RaaS产品首秀，拓宽RaaS+生态的商业模型。",
+            source="stcn",
+            published_at="2026-07-16T22:04:49+08:00",
+            url="https://example.com/robot-night-raas-story",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-current-aoshikang-pcb-process-breakthrough",
+            first_seen_at="2026-07-16T21:46:53+08:00",
+            last_seen_at="2026-07-16T21:46:53+08:00",
+            canonical_title="奥士康取得超高层埋容混压PCB关键技术突破",
+            summary="奥士康研发N+M结构、三料混压的埋容超高层PCB，为高端PCB稳定制造与可靠交付提供技术支撑。",
+            source="stcn",
+            published_at="2026-07-16T21:46:53+08:00",
+            url="https://example.com/aoshikang-pcb-process-breakthrough",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-current-meta-anthropic-compute-rental",
+            first_seen_at="2026-07-18T09:12:36+08:00",
+            last_seen_at="2026-07-18T09:12:36+08:00",
+            canonical_title="Meta据悉洽谈向Anthropic出租AI算力，拟进军云计算市场",
+            summary="人民财讯7月18日电，据报道，Meta正与人工智能初创公司Anthropic洽谈出租算力事宜，拟向其提供计算基础设施服务。",
+            source="stcn",
+            published_at="2026-07-18T09:12:36+08:00",
+            url="https://www.stcn.com/article/detail/4027090.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-current-telecom-highlander-visit",
+            first_seen_at="2026-07-18T08:45:19+08:00",
+            last_seen_at="2026-07-18T08:45:19+08:00",
+            canonical_title="中国电信广东分公司到访海兰信 共商海上风电算力合作",
+            summary="双方围绕海上风电与算力基础设施融合发展展开调研，交换意见并达成多项共识。",
+            source="stcn",
+            published_at="2026-07-18T08:45:19+08:00",
+            url="https://www.stcn.com/article/detail/4027077.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-current-humanoid-robot-output-standard-week",
+            first_seen_at="2026-07-18T07:56:49+08:00",
+            last_seen_at="2026-07-18T07:56:49+08:00",
+            canonical_title="今年我国人形机器人产量有望超过10万台 产业加速进入规模化落地新阶段",
+            summary="工业和信息化部人形机器人与具身智能标准化技术委员会举行标准周活动，产业从样机走向批量交付。",
+            source="stcn",
+            published_at="2026-07-18T07:56:49+08:00",
+            url="https://www.stcn.com/article/detail/4027008.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+        Event(
+            event_id="event-current-ai-data-center-storage-layout",
+            first_seen_at="2026-07-18T08:08:02+08:00",
+            last_seen_at="2026-07-18T08:08:02+08:00",
+            canonical_title="人工智能数据中心储能兴起 多家上市公司积极布局",
+            summary="人工智能数据中心储能产品市场需求兴起，头部企业优势凸显，多家上市公司积极布局该赛道。",
+            source="stcn",
+            published_at="2026-07-18T08:08:02+08:00",
+            url="https://www.stcn.com/article/detail/4027039.html",
+            event_type="fast_news",
+            event_subtype="general_fast_news",
+        ),
+    ]
+    JsonlStore(paths.events_path, Event).write_many(events)
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(event_id="event-current-dongyi-accountant-inquiry-material", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+            EventAnalysis(event_id="event-current-modern-avenue-audit-committee-opinion", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+            EventAnalysis(event_id="event-current-modern-avenue-legal-opinion", direction="neutral", impact_score=80.0, reasoning="rule", themes=[], triggered=True),
+            EventAnalysis(event_id="event-current-robot-night-raas-story", direction="neutral", impact_score=79.0, reasoning="rule", themes=["机器人"], triggered=True),
+            EventAnalysis(event_id="event-current-aoshikang-pcb-process-breakthrough", direction="neutral", impact_score=79.0, reasoning="rule", themes=["PCB"], triggered=True),
+            EventAnalysis(event_id="event-current-meta-anthropic-compute-rental", direction="neutral", impact_score=79.0, reasoning="rule", themes=["算力"], triggered=True),
+            EventAnalysis(event_id="event-current-telecom-highlander-visit", direction="neutral", impact_score=79.0, reasoning="rule", themes=["算力"], triggered=True),
+            EventAnalysis(event_id="event-current-humanoid-robot-output-standard-week", direction="neutral", impact_score=79.0, reasoning="rule", themes=["机器人"], triggered=True),
+            EventAnalysis(event_id="event-current-ai-data-center-storage-layout", direction="neutral", impact_score=79.0, reasoning="rule", themes=["算力", "储能"], triggered=True),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "信息披露监管问询函的专项核查说明" not in output
+    assert "审计委员会关于《深圳证券交易所对摩登大道" not in output
+    assert "年报问询函相关事项的法律意见书" not in output
+    assert "机器人奇妙夜" not in output
+    assert "超高层埋容混压PCB关键技术突破" not in output
+    assert "Meta据悉洽谈向Anthropic出租AI算力" not in output
+    assert "中国电信广东分公司到访海兰信" not in output
+    assert "人形机器人产量有望超过10万台" not in output
+    assert "人工智能数据中心储能兴起" not in output
+
+
+def test_audit_suspicious_skips_current_inquiry_partial_reply_and_arbitration_fee_question(
+    tmp_path, monkeypatch, capsys
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    paths = ProjectPaths.discover()
+    JsonlStore(paths.events_path, Event).write_many(
+        [
+            Event(
+                event_id="event-sse-annual-report-inquiry-partial-reply",
+                first_seen_at="2026-07-21T00:00:00+08:00",
+                last_seen_at="2026-07-21T00:00:00+08:00",
+                canonical_title="关于上海证券交易所对公司2025年年度报告的信息披露监管问询函的部分回复公告",
+                summary="关于上海证券交易所对公司2025年年度报告的信息披露监管问询函的部分回复公告",
+                source="sse",
+                published_at="2026-07-21T00:00:00+08:00",
+                url="https://example.com/annual-report-inquiry-partial-reply",
+                event_type="hard_event",
+                event_subtype="corporate_disclosure",
+            ),
+            Event(
+                event_id="event-irm-cninfo-arbitration-fee-question",
+                first_seen_at="2026-07-20T21:02:47+08:00",
+                last_seen_at="2026-07-20T21:02:47+08:00",
+                canonical_title="佳沃食品：截至目前智利仲裁程序已经花了多少总费？预计接下来这个新仲裁还会再产生多少费用？",
+                summary="截至目前智利仲裁程序已经花了多少总费？预计接下来这个新仲裁还会再产生多少费用？",
+                source="irm_cninfo",
+                published_at="2026-07-20T21:02:47+08:00",
+                url="https://example.com/arbitration-fee-question",
+                event_type="fast_news",
+                event_subtype="company_update",
+            ),
+        ]
+    )
+    JsonlStore(paths.analyses_path, EventAnalysis).write_many(
+        [
+            EventAnalysis(
+                event_id="event-sse-annual-report-inquiry-partial-reply",
+                direction="neutral",
+                impact_score=78.5,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+            EventAnalysis(
+                event_id="event-irm-cninfo-arbitration-fee-question",
+                direction="neutral",
+                impact_score=75.2,
+                reasoning="rule",
+                themes=[],
+                triggered=True,
+            ),
+        ]
+    )
+
+    assert main(["audit-suspicious", "--limit", "10"]) == 0
+
+    output = capsys.readouterr().out
+    assert "suspicious_count=0" in output
+    assert "信息披露监管问询函的部分回复公告" not in output
+    assert "智利仲裁程序已经花了多少总费" not in output

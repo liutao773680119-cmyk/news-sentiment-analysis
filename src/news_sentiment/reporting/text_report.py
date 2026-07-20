@@ -140,6 +140,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "资产评估报告",
     "房地产估价报告",
     "经营性信息简报",
+    "房地产业务主要经营数据公告",
     "增持公司股份结果公告",
     "增持股份结果",
     "增持股份之法律意见书",
@@ -149,6 +150,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "首次增持公司股份暨增持计划",
     "后续增持计划公告",
     "增持计划实施完成",
+    "增持A股及H股股份结果公告",
     "减持股份预披露",
     "减持股份的预披露公告",
     "减持股份预披露公告",
@@ -167,6 +169,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持参股公司股票",
     "控股股东股份被冻结",
     "控股股东部分股份冻结",
+    "持股5%以上股东股份质押",
     "控股子公司部分银行账户资金解除冻结",
     "冻结股份被动减持计划",
     "减持计划期限届满暨实施情况",
@@ -176,10 +179,12 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "减持股份计划实施完成",
     "股份减持计划实施完毕",
     "减持股份计划实施完毕",
+    "股东减持计划实施完毕",
     "减持至5%以下",
     "减持期限届满未减持股份",
     "减持股份结果",
     "股份减持计划实施结果",
+    "股份减持计划提前结束暨减持结果",
     "股份减持完成",
     "减持公司股份比例触及",
     "减持股份触及",
@@ -190,9 +195,11 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "提前终止股份减持计划",
     "回购实施结果",
     "回购股份实施结果",
+    "首次回购公司股份",
     "回购公司股份方案",
     "回购股份方案",
     "回购公司股份的预案",
+    "筹划回购公司A股股份",
     "回购股份用途并注销",
     "回购股份的用途并注销",
     "一般风险提示暨公司股票复牌",
@@ -229,6 +236,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "金融服务协议及相关风险控制措施执行情况的核查意见",
     "金融服务协议",
     "金融保险服务框架协议",
+    "补充确认以前年度关联方暨补充披露关联交易",
     "履职情况评估报告",
     "利润分配预案",
     "利润分配方案公告",
@@ -238,6 +246,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "营业收入扣除事项的专项核查意见",
     "股票交易异常波动公告",
     "股票交易风险提示暨停牌核查",
+    "股票交易风险提示",
     "使用暂时闲置自有资金进行现金管理",
     "国债逆回购",
     "结构性存款",
@@ -251,11 +260,19 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "房地产业务专项自查报告",
     "年度薪酬方案",
     "提质增效重回报",
+    "支持资本市场发展与提升股东回报",
     "回购股份价格上限",
     "调整回购股份价格",
+    "使用部分超募资金回购公司股份的核查意见",
+    "使用一般性授权回购部分H股股份",
+    "签署项目开发协议暨关联交易",
+    "贷款提供担保",
+    "应收账款资产支持专项计划",
     "回购公司部分社会公众股份的报告书",
     "出售已回购股份计划",
     "回购股份进展",
+    "股份回购进展",
+    "回购A股股份进展情况",
     "回购股份管理制度",
     "公司股份回购实施完成暨股份变动",
     "以集中竞价交易方式首次回购股份",
@@ -290,6 +307,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "审计委员会履职情况报告",
     "监管措施或处罚及整改情况",
     "上市投资风险特别公告",
+    "分拆所属子公司上市的一般风险提示性公告",
     "风险提示公告",
     "市场传闻的澄清及风险提示",
     "投资者适当性要求",
@@ -300,6 +318,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "特定期间不减持公司股票",
     "特定期间不减持公司股份承诺函",
     "股东权益变动的提示性公告",
+    "权益变动暨签署《一致行动协议》的提示性公告",
     "权益变动提示性公告",
     "简式权益变动报告书",
     "免于发出要约",
@@ -316,6 +335,7 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "免于发出收购要约",
     "问询函回复",
     "信息披露监管问询函之回复",
+    "信息披露监管问询函的部分回复公告",
     "承诺函",
     "矿业权评估报告",
     "审计报告",
@@ -330,6 +350,8 @@ LOW_SIGNAL_CNINFO_DISCLOSURE_KEYWORDS = (
     "专项说明",
     "诉讼事项的进展",
     "涉及诉讼进展",
+    "提起诉讼暨关联交易的进展公告",
+    "收到国家药品监督管理局《受理通知书》",
     "重大诉讼、仲裁情况进展",
     "累计诉讼",
     "累计新增诉讼",
@@ -887,6 +909,10 @@ def _is_market_relevant(event: Event, analysis: EventAnalysis) -> bool:
     if _is_low_signal_stcn_market_roundup(event.canonical_title, event, analysis):
         return False
     if _is_low_signal_cls_market_roundup(event, text):
+        return False
+    if _is_low_signal_stcn_concept_move(event, text):
+        return False
+    if _is_low_signal_stcn_general_theme_story(event):
         return False
     if _is_low_signal_stcn_single_stock_market_move(event.canonical_title, event, analysis):
         return False
@@ -1649,6 +1675,82 @@ def _is_low_signal_stcn_single_stock_market_move(title: str, event: Event, analy
         return False
 
     return any(keyword in title for keyword in LOW_SIGNAL_STCN_SINGLE_STOCK_MARKET_MOVE_TITLE_KEYWORDS)
+
+
+def _is_low_signal_stcn_concept_move(event: Event, text: str) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    return (
+        _contains_any(title, ("概念走强", "概念持续走强", "概念活跃", "概念震荡回升"))
+        or "板块震荡走强" in title
+        or "板块震荡回升" in title
+        or ("概念" in title and "涨幅居前" in title)
+    ) and _contains_any(text, ("股价创新高", "涨停", "连板", "涨逾", "涨近", "大涨", "涨幅居前"))
+
+
+def _is_low_signal_stcn_general_theme_story(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        "机器人奇妙夜" in title
+        or "取得超高层埋容混压PCB关键技术突破" in title
+        or ("Meta" in title and "Anthropic" in title and "出租AI算力" in title)
+        or (
+            "中国电信广东分公司到访海兰信" in title
+            and "海上风电算力合作" in title
+            and _contains_any(text, ("调研", "交换意见", "达成多项共识"))
+        )
+        or (
+            "人形机器人产量" in title
+            and "超过10万台" in title
+            and _contains_any(text, ("标准化技术委员会", "标准周", "批量交付"))
+        )
+        or (
+            "人工智能数据中心储能兴起" in title
+            and "多家上市公司积极布局" in title
+            and _contains_any(text, ("市场需求", "头部企业", "积极布局该赛道"))
+        )
+        or (
+            "千觉机器人" in title
+            and "VTLA具身触觉模型" in title
+            and "世界人工智能大会" in text
+            and _contains_any(text, ("视触觉多模态数据集", "触觉传感器", "核心数采设备"))
+        )
+        or (
+            "广和通" in title
+            and "璇玑动力" in title
+            and "世界人工智能大会" in text
+            and "四足机器人" in text
+            and "连续定位能力" in text
+        )
+        or (
+            "优必选携手韩国伙伴" in title
+            and "人形机器人" in title
+            and "汽车零部件制造场景" in title
+            and "合作谅解备忘录" in text
+            and "展示验证走向真实产业场景" in text
+        )
+        or (
+            "多家国产厂商展示超节点产品" in title
+            and "算力竞逐" in title
+            and "世界人工智能大会" in text
+            and "现场观察" in text
+            and "成果检阅" in text
+        )
+    )
 
 
 def _is_low_signal_cls_market_roundup(event: Event, text: str) -> bool:
@@ -2555,20 +2657,30 @@ def _is_low_signal_irm_cninfo_arbitration_follow_up_question(event: Event, text:
         event.source == "irm_cninfo"
         and event.event_type == "fast_news"
         and "仲裁" in title
-        and _contains_any(
-            title,
-            (
-                "目前案件进展如何",
-                "目前进展如何",
-                "案件进展如何",
-                "仲裁进展如何",
-                "仲裁进展如何了",
-                "进展如何",
-                "进展如何了",
-            ),
+        and (
+            _contains_any(
+                title,
+                (
+                    "目前案件进展如何",
+                    "目前进展如何",
+                    "案件进展如何",
+                    "仲裁进展如何",
+                    "仲裁进展如何了",
+                    "进展如何",
+                    "进展如何了",
+                ),
+            )
+            or (
+                _contains_any(title, ("花了多少", "产生多少费用", "多少总费"))
+                and _contains_any(title, ("预计接下来", "预计后续", "接下来"))
+            )
         )
-        and any(
-            keyword in title for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件", "全资子公司")
+        and (
+            any(
+                keyword in title
+                for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件", "全资子公司")
+            )
+            or _contains_any(title, ("花了多少", "产生多少费用", "多少总费"))
         )
         and (
             all(marker not in text for marker in ("回复：", "回复:"))

@@ -110,9 +110,13 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "信息披露监管问询函》的回复公告",
     "信息披露监管问询函的回复",
     "信息披露监管问询函的回复公告",
+    "信息披露监管问询函的部分回复公告",
     "信息披露监管问询函专项说明",
     "信息披露监管问询函的专项说明",
+    "信息披露监管问询函的专项核查说明",
     "年度报告信息披露监管问询函专说明",
+    "年报的问询函》的核查意见",
+    "年报问询函相关事项的法律意见书",
     "采矿权评估发表意见",
     "股票交易异常波动问询函",
     "股票交易异常波动有关事项的问询函",
@@ -129,6 +133,7 @@ LOW_SIGNAL_HARD_EVENT_RISK_DISCLOSURE_KEYWORDS = (
     "诉讼进展公告",
     "关于诉讼的进展公告",
     "提起诉讼的进展公告",
+    "提起诉讼暨关联交易的进展公告",
     "进展暨公司涉及诉讼事项的公告",
     "累计诉讼",
     "累计新增诉讼",
@@ -657,6 +662,8 @@ def _suspicious_reason(event: Event, analysis: EventAnalysis) -> str | None:
             return None
         if _is_low_signal_overseas_pharma_antitrust_lawsuit_candidate(event):
             return None
+        if _is_low_signal_stcn_general_theme_story_candidate(event):
+            return None
         return "general_fast_news_with_theme"
     if (
         event.event_type == "fast_news"
@@ -756,6 +763,71 @@ def _is_low_signal_private_robot_financing_story_candidate(event: Event) -> bool
         "生物医药" in title
         and "完成" in title
         and "C轮融资" in title
+    )
+
+
+def _is_low_signal_stcn_general_theme_story_candidate(event: Event) -> bool:
+    if not (
+        event.source == "stcn"
+        and event.event_type == "fast_news"
+        and event.event_subtype == "general_fast_news"
+    ):
+        return False
+
+    title = event.canonical_title
+    text = f"{event.canonical_title} {event.summary}"
+    return (
+        "机器人奇妙夜" in title
+        or "取得超高层埋容混压PCB关键技术突破" in title
+        or ("Meta" in title and "Anthropic" in title and "出租AI算力" in title)
+        or (
+            "中国电信广东分公司到访海兰信" in title
+            and "海上风电算力合作" in title
+            and _contains_any(text, ("调研", "交换意见", "达成多项共识"))
+        )
+        or (
+            "人形机器人产量" in title
+            and "超过10万台" in title
+            and _contains_any(text, ("标准化技术委员会", "标准周", "批量交付"))
+        )
+        or (
+            "人工智能数据中心储能兴起" in title
+            and "多家上市公司积极布局" in title
+            and _contains_any(text, ("市场需求", "头部企业", "积极布局该赛道"))
+        )
+        or (
+            "千觉机器人" in title
+            and "VTLA具身触觉模型" in title
+            and "世界人工智能大会" in text
+            and _contains_any(text, ("视触觉多模态数据集", "触觉传感器", "核心数采设备"))
+        )
+        or (
+            "广和通" in title
+            and "璇玑动力" in title
+            and "世界人工智能大会" in text
+            and "四足机器人" in text
+            and "连续定位能力" in text
+        )
+        or (
+            "优必选携手韩国伙伴" in title
+            and "人形机器人" in title
+            and "汽车零部件制造场景" in title
+            and "合作谅解备忘录" in text
+            and "展示验证走向真实产业场景" in text
+        )
+        or (
+            "多家国产厂商展示超节点产品" in title
+            and "算力竞逐" in title
+            and "世界人工智能大会" in text
+            and "现场观察" in text
+            and "成果检阅" in text
+        )
+        or (
+            "新能源汽车维修作业安全要求" in title
+            and "国家标准" in title
+            and "8月1日起实施" in title
+            and _contains_any(text, ("市场监管总局", "维修作业安全", "维修企业"))
+        )
     )
 
 
@@ -880,6 +952,7 @@ def _is_market_reference_a_share_concept_move_candidate(event: Event) -> bool:
         and event.event_subtype == "general_fast_news"
         and (
             "概念走强" in event.canonical_title
+            or "概念持续走强" in event.canonical_title
             or "概念活跃" in event.canonical_title
             or "板块震荡走强" in event.canonical_title
             or "概念震荡回升" in event.canonical_title
@@ -1542,21 +1615,30 @@ def _is_low_signal_irm_cninfo_legal_arbitration_follow_up_question(
         and event.event_type == "fast_news"
         and event.event_subtype == "company_update"
         and "仲裁" in title
-        and _contains_any(
-            title,
-            (
-                "目前案件进展如何",
-                "目前进展如何",
-                "案件进展如何",
-                "仲裁进展如何",
-                "仲裁进展如何了",
-                "进展如何",
-                "进展如何了",
-            ),
+        and (
+            _contains_any(
+                title,
+                (
+                    "目前案件进展如何",
+                    "目前进展如何",
+                    "案件进展如何",
+                    "仲裁进展如何",
+                    "仲裁进展如何了",
+                    "进展如何",
+                    "进展如何了",
+                ),
+            )
+            or (
+                _contains_any(title, ("花了多少", "产生多少费用", "多少总费"))
+                and _contains_any(title, ("预计接下来", "预计后续", "接下来"))
+            )
         )
-        and any(
-            keyword in title
-            for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件", "全资子公司")
+        and (
+            any(
+                keyword in title
+                for keyword in ("公司不存在与", "上市公司主体", "控股的子公司", "子公司存在仲裁案件", "全资子公司")
+            )
+            or _contains_any(title, ("花了多少", "产生多少费用", "多少总费"))
         )
         and (
             all(marker not in text for marker in ("回复：", "回复:"))
